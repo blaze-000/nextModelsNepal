@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-background2: var(--background2);
+  --color-primary: var(--primary);
+
+  --color-gold-500: var(--gold-500);
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+:root {
+  --foreground: #ffffff;
+  --background: #12110D;
+  --background2: #080808;
+
+  --gold-500: #ffaa00;
+
+  --primary: #ffaa00;
+}
