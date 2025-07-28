@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Urbanist:wght@300;400;500;600;700&family=Newsreader:wght@200;300;400;500;700&display=swap");
 @import "tailwindcss";
 
 @custom-variant dark (&:is(.dark *));
@@ -10,13 +11,19 @@
 
   --color-gold-500: var(--gold-500);
 
-  --font-sans: var(--font-geist-sans);
+  --font-sans: "Urbanist", var(--font-geist-sans), sans-serif;
+  --font-newsreader: "Newsreader", serif;
   --font-mono: var(--font-geist-mono);
+}
+
+/* Set up Urbanist font for Tailwind */
+html {
+  font-family: "Urbanist", sans-serif;
 }
 
 :root {
   --foreground: #ffffff;
-  --background: #12110D;
+  --background: #12110d;
   --background2: #080808;
 
   --gold-500: #ffaa00;

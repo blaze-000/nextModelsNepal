@@ -1,48 +1,74 @@
+import Image from "next/image";
+
 const EventsSection = () => {
   const events = [
     {
       status: "Ongoing",
       title: "Miss Nepal Peace",
       date: "19th July to 6th September",
-      description: "Miss Nepal Peace is a pageant for nurses, celebrating their role in care and peace while empowering them to represent Nepal on global stages.",
+      description:
+        "Miss Nepal Peace is a pageant for nurses, celebrating their role in care and peace while empowering them to represent Nepal on global stages.",
       image: "https://placehold.co/729x594",
-      hasTickets: true
+      hasTickets: true,
     },
     {
       status: "Ended on 2025/08/02",
       title: "Model Hunt Nepal",
       date: "19th July to 6th September",
-      description: "Model Hunt Nepal, started in 2015, discovers and trains top models, promoting Nepali culture and connecting brands with the global fashion industry.",
+      description:
+        "Model Hunt Nepal, started in 2015, discovers and trains top models, promoting Nepali culture and connecting brands with the global fashion industry.",
       image: "https://placehold.co/729x594",
-      hasTickets: false
-    }
+      hasTickets: false,
+    },
   ];
 
   return (
     <section className="bg-amber-500/5 py-16 lg:py-24">
-      <div className="container mx-auto px-4 lg:px-48">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 xl:px-36">
         <div className="mb-16">
-          <div className="grid lg:grid-cols-2 gap-8 items-end">
-            <div>
-              <h2 className="text-white text-4xl lg:text-6xl font-light font-['Newsreader'] mb-4">
-                Relive the Glamour:
-              </h2>
-              <img className="w-32 h-16 lg:w-48 lg:h-20 rounded-full border border-stone-300 mb-4" src="https://placehold.co/187x80" alt="Badge" />
-              <h3 className="text-amber-500 text-5xl lg:text-7xl font-light font-['Newsreader']">
-                with Our Recent Events
-              </h3>
+          <div className="grid lg:grid-cols-2 gap-12 items-end">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="text-white text-6xl font-extralight font-newsreader tracking-tighter ">
+                  Relive the
+                </span>
+                <div className="w-32 h-16 relative">
+                  <Image
+                    src="https://placehold.co/205x80"
+                    alt="Badge"
+                    fill
+                    className="rounded-full object-cover border border-stone-300"
+                  />
+                </div>
+                 <span className="text-white text-6xl font-extralight font-newsreader tracking-tighter ">
+                  Glamour:
+                </span>
+              </div>
+              <div className="flex items-center gap-4">
+                <h3 className="text-primary text-6xl font-extralight font-newsreader tracking-tighter ">
+                  with Our Recent Events
+                </h3>
+              </div>
             </div>
-            <div>
-              <p className="text-white text-lg lg:text-xl font-normal font-['Urbanist'] leading-loose tracking-tight">
-                Step into the spotlight of our most recent event - where talent meets opportunity and dreams take center stage
+            <div className="flex items-center justify-end">
+              <p className="text-white text-base lg:text-base font-normal leading-loose tracking-wide">
+                Step into the spotlight of our most recent event - where talent<br />
+                meets opportunity and dreams take center stage
               </p>
             </div>
           </div>
         </div>
 
+        
+
+        
+
         <div className="space-y-16">
           {events.map((event, index) => (
-            <div key={index} className="bg-stone-950 rounded-2xl overflow-hidden">
+            <div
+              key={index}
+              className="bg-stone-950 rounded-2xl overflow-hidden"
+            >
               <div className="grid lg:grid-cols-2 min-h-96">
                 <div className="p-8 lg:p-20 flex flex-col justify-center space-y-7">
                   <div className="px-4 py-2 bg-yellow-950 rounded-full inline-flex justify-center items-center w-fit">
@@ -50,7 +76,7 @@ const EventsSection = () => {
                       {event.status}
                     </span>
                   </div>
-                  
+
                   <div>
                     <h3 className="text-white text-4xl lg:text-7xl font-normal font-['Newsreader'] mb-2">
                       {event.title}
@@ -64,7 +90,7 @@ const EventsSection = () => {
                     <p className="text-white text-lg lg:text-xl font-normal font-['Urbanist'] leading-loose tracking-tight">
                       {event.description}
                     </p>
-                    
+
                     <div className="flex flex-col sm:flex-row gap-4">
                       {event.hasTickets && (
                         <button className="bg-amber-500 rounded-full px-8 py-4 text-yellow-950 text-xl font-bold font-['Urbanist'] leading-loose tracking-tight hover:bg-amber-600 transition-colors">
@@ -77,9 +103,13 @@ const EventsSection = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="relative">
-                  <img className="w-full h-full object-cover" src={event.image} alt={event.title} />
+                  <img
+                    className="w-full h-full object-cover"
+                    src={event.image}
+                    alt={event.title}
+                  />
                   <div className="absolute inset-0 bg-gradient-to-r from-stone-950 via-transparent to-transparent lg:from-transparent" />
                 </div>
               </div>

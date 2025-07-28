@@ -1,38 +1,53 @@
-import Image from "next/image"
-export default function Navbar() {
+"use client";
+
+import React from "react";
+import Link from "next/link";
+import { ChevronDown } from "lucide-react";
+import Image from "next/image";
+import { menuItems } from "../../data/data";
+
+const Header = () => {
   return (
-    <div className="inline-flex justify-between items-center">
-      <Image
-        alt="logo"
-        src="/logo.png"
-        width={98}
-        height={82}
-        style={{ objectFit: 'cover' }}
-      />
-      <div className="flex justify-end items-center gap-20">
-        <div className="flex justify-start items-center gap-12">
-          <div className="justify-center text-white text-xl font-medium font-['Urbanist'] leading-loose tracking-tight">Home </div>
-          <div className="flex justify-start items-center gap-[5px]">
-            <div className="justify-center text-white text-xl font-medium font-['Urbanist'] leading-loose tracking-tight">Events</div>
-            <div className="w-6 h-6 relative overflow-hidden">
-              <div className="w-2 h-1.5 left-[7.76px] top-[9.34px] absolute bg-white" />
-            </div>
+    <header className="container mx-auto px-4 sm:px-6 lg:px-8 xl:px-36 relative">
+      <nav className="py-1">
+        <div className="flex items-center justify-between w-full">
+          {/* Logo  */}
+          <div className="flex items-center">
+            <Image src="/logo.png" alt="Logo" width={98} height={82} />
           </div>
-          <div className="justify-center text-white text-xl font-medium font-['Urbanist'] leading-loose tracking-tight">Voting</div>
-          <div className="justify-center text-white text-xl font-medium font-['Urbanist'] leading-loose tracking-tight">About Us</div>
-          <div className="justify-center text-white text-xl font-medium font-['Urbanist'] leading-loose tracking-tight">Contact Us</div>
-          <div className="flex justify-start items-center gap-[5px]">
-            <div className="justify-center text-white text-xl font-medium font-['Urbanist'] leading-loose tracking-tight">Event Details</div>
-            <div className="w-6 h-6 relative overflow-hidden">
-              <div className="w-2 h-1.5 left-[7.76px] top-[9.34px] absolute bg-white" />
+
+          {/* Menu Items */}
+          <div className="flex items-center gap-20">
+            {/* Navigation Links */}
+            <div className="hidden md:flex items-center space-x-10">
+              {menuItems.map((item) => {
+                const showIcon =
+                  item.label === "Events" || item.label === "Event Details";
+
+                return (
+                  <Link
+                    key={item.id}
+                    href={item.href}
+                    className="flex items-center font-urbanist text-white hover:text-yellow-500 transition-colors"
+                  >
+                    {item.label}
+                    {showIcon && <ChevronDown className="ml-1 w-4 h-4" />}
+                  </Link>
+                );
+              })}
             </div>
+
+            {/* Apply Button */}
+            <Link href="/apply">
+              <button className="bg-amber-500 text-yellow-950 font-semibold text-[18px] px-7 py-1 rounded-full leading-loose tracking-tight font-urbanist">
+                Apply
+              </button>
+            </Link>
           </div>
         </div>
-        <div data-property-1="Default" className="w-32 h-14 relative bg-amber-500 rounded-[40px] overflow-hidden">
-          <div className="left-[40px] top-[15px] absolute justify-center text-yellow-950 text-xl font-bold font-['Urbanist'] leading-loose tracking-tight">Apply</div>
-          <div className="left-[-65px] top-[15px] absolute justify-center text-yellow-950 text-xl font-bold font-['Urbanist'] leading-loose tracking-tight">Login</div>
-        </div>
-      </div>
-    </div>
-  )
-}
+      </nav>
+    </header>
+  );
+};
+
+export default Header;

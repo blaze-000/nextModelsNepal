@@ -1,60 +1,126 @@
+import React from "react";
+import Image from "next/image";
+
 const HeroSection = () => {
   return (
-    <section className="min-h-screen bg-stone-950 relative overflow-hidden">
-      {/* Grid Background */}
-      <div className="absolute inset-0 opacity-30">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-stone-950/10 to-stone-950" />
-      </div>
-
-      <div className="container mx-auto px-4 lg:px-48 pt-32 pb-16">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+    <section className="container mx-auto px-4 sm:px-6 lg:px-8 xl:px-36 pb-30">
+      <div className="pt-20 relative">
+        <div className="grid lg:grid-cols-2 gap-20 items-start">
           {/* Left Content */}
-          <div className="space-y-9">
-            <div className="space-y-7">
-              <div className="text-center lg:text-left">
-                <span className="text-white text-2xl lg:text-3xl font-normal font-['Urbanist'] tracking-wide">We are </span>
-                <span className="text-amber-500 text-2xl lg:text-3xl font-normal font-['Urbanist'] tracking-wide">Next Models Nepal</span>
-              </div>
-              <div className="text-center lg:text-left">
-                <span className="text-white text-4xl lg:text-8xl font-light font-['Newsreader']">Nepal's </span>
-                <span className="text-amber-500 text-4xl lg:text-8xl font-light font-['Newsreader']">No.1</span>
-              </div>
-              <div className="text-center lg:text-left text-white text-4xl lg:text-8xl font-light font-['Newsreader']">Modeling</div>
-              <div className="text-center lg:text-left text-white text-4xl lg:text-8xl font-light font-['Newsreader']">Agency</div>
+          <div className="space-y-2">
+            {/* We are Next Models Nepal */}
+            <div className="self-stretch justify-center">
+              <span className=" text-white text-2xl leading-loose tracking-wide">
+                We are{" "}
+              </span>
+              <span className="text-primary text-2xl font-normal leading-loose tracking-wide">
+                Next Models Nepal
+              </span>
+            </div>
 
-              <div className="flex justify-center lg:justify-start">
-                <img className="w-40 h-16 lg:w-52 lg:h-20 rounded-full shadow-lg border border-stone-300" src="https://placehold.co/205x80" alt="Badge" />
+            {/* Main Title with Badge */}
+            <div className="space-y-2">
+              <div>
+                <span className="text-white text-8xl font-extralight font-newsreader tracking-tighter">
+                  Nepal&rsquo;s{" "}
+                </span>
+                <span className="text-orange-400 text-8xl font-extralight font-newsreader tracking-tighter">
+                  No.1
+                </span>
+              </div>
+
+              <div className="flex items-baseline gap-4">
+                {/* Badge image with soft layered shadow */}
+                <div className="w-40 h-16 relative">
+                  <Image
+                    src="https://placehold.co/205x80"
+                    alt="Badge"
+                    fill
+                    className="rounded-full object-cover border border-stone-300"
+                  />
+                </div>
+                {/* Label */}
+                <span className="text-white text-8xl font-extralight font-newsreader tracking-tighter leading-px">
+                  Modeling
+                </span>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <span className="text-white text-8xl font-extralight font-newsreader tracking-tighter italic">
+                  Agency
+                </span>
+                {/* Empty oval outline */}
+                <div className="w-36 h-16 rounded-full border-2 border-orange-400"></div>
               </div>
             </div>
 
-            <div className="space-y-7">
-              <div className="text-center lg:text-left text-white text-lg lg:text-xl font-normal font-['Urbanist'] leading-loose tracking-tight">
-                Next Models Nepal is a team of seasoned professionals dedicated to talent management, elite training, and launching aspiring models.
-              </div>
-              <div className="flex flex-col sm:flex-row justify-center lg:justify-start items-center gap-4 lg:gap-7">
-                <button className="w-full sm:w-60 h-16 bg-amber-500 rounded-full text-yellow-950 text-xl font-bold font-['Urbanist'] leading-loose tracking-tight hover:bg-amber-600 transition-colors">
-                  Hire a model
-                </button>
-                <button className="w-full sm:w-auto px-7 py-5 rounded-full text-amber-500 text-xl font-bold font-['Urbanist'] underline leading-loose tracking-tight hover:text-amber-400 transition-colors">
-                  Upcoming Events
-                </button>
-              </div>
+            {/* Description */}
+            <p className="text-white text-base leading-relaxed font-light pt-6">
+              Next Models Nepal is a team of seasoned professionals dedicated to
+              <br />
+              talent management, elite training, and launching aspiring models.
+            </p>
+
+            {/* Buttons */}
+            <div className="flex items-center gap-10 pt-4">
+              <button className="group relative px-8 py-4 bg-primary hover:bg-white hover:cursor-pointer  text-yellow-950 font-semibold text-lg rounded-full overflow-hidden transition-all duration-300 ease-out transform hover:shadow-2xl shadow-lg">
+                <div className="relative flex items-center justify-center w-full h-full">
+                  <span className="block transform translate-x-0 group-hover:translate-x-[200%] transition-transform duration-300 ease-out">
+                    Hire a Model
+                  </span>
+                  {/* Hover Text */}
+                  <span className="absolute inset-0 flex items-center justify-center transform -translate-x-[200%] group-hover:translate-x-0 transition-transform duration-300 ease-out">
+                    Hire a Model
+                  </span>
+                </div>
+
+                {/* Decorative elements */}
+                <div className="absolute inset-0 bg-white/10 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
+              </button>
+              <button className="text-primary text-lg font-semibold  underline">
+                Upcoming Events ↗
+              </button>
             </div>
           </div>
 
           {/* Right Content - Image Grid */}
-          <div className="hidden lg:block relative">
-            <div className="grid grid-cols-2 gap-6">
-              <div className="space-y-6">
-                <img className="w-full h-52 rounded-3xl object-cover" src="https://placehold.co/206x207" alt="Model 1" />
-                <img className="w-full h-52 rounded-3xl object-cover" src="https://placehold.co/206x207" alt="Model 2" />
+          <div className="relative">
+            <div className="grid grid-cols-2 gap-4">
+              {/* Top Row */}
+              <div className="w-32 h-32 rounded-2xl overflow-hidden">
+                <img
+                  src="https://placehold.co/206x207"
+                  alt="Model 1"
+                  className="w-full h-full object-cover"
+                />
               </div>
-              <div className="space-y-6 mt-12">
-                <img className="w-full h-52 rounded-3xl object-cover" src="https://placehold.co/206x207" alt="Model 3" />
-                <img className="w-full h-52 rounded-3xl object-cover" src="https://placehold.co/206x207" alt="Model 4" />
+              <div className="w-32 h-32 rounded-2xl overflow-hidden">
+                <img
+                  src="https://placehold.co/206x207"
+                  alt="Model 2"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+
+              {/* Bottom Row */}
+              <div className="w-32 h-32 rounded-2xl overflow-hidden">
+                <img
+                  src="https://placehold.co/206x207"
+                  alt="Model 3"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="w-32 h-32 rounded-2xl overflow-hidden">
+                <img
+                  src="https://placehold.co/206x207"
+                  alt="Model 4"
+                  className="w-full h-full object-cover"
+                />
               </div>
             </div>
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-20 bg-amber-500 -z-10" />
+
+            {/* Orange Diamond - positioned between the 4 images */}
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-6 h-6 bg-orange-400 rotate-45"></div>
           </div>
         </div>
       </div>

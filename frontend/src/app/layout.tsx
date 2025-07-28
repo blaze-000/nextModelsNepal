@@ -2,6 +2,14 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Footer from "@/components/footer";
 import Navbar from "@/components/navbar";
+import { Urbanist } from "next/font/google";
+
+const urbanist = Urbanist({
+  subsets: ["latin"],
+  weight: ["400", "600", "700"], 
+  variable: "--font-urbanist", 
+  display: "swap",
+});
 
 
 export const metadata: Metadata = {
@@ -15,14 +23,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="bg-background">
+    <html lang="en" className={`bg-background ${urbanist.variable}`}>
       <body
         className={`bg-background text-foreground antialiased w-full`}
       >
-        <div className="abosolute top-20">
           <Navbar />
-        </div>
-
         {children}
         <Footer />
       </body>
