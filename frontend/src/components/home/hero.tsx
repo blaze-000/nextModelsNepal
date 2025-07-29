@@ -34,7 +34,7 @@ const HeroSection = () => {
                 {/* Badge image with soft layered shadow */}
                 <div className="w-40 h-16 relative">
                   <Image
-                    src="https://placehold.co/205x80"
+                    src="/span-image.jpg"
                     alt="Badge"
                     fill
                     className="rounded-full object-cover border border-stone-300"

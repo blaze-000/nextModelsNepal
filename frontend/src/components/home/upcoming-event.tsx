@@ -4,7 +4,7 @@ import Image from "next/image";
 const UpcomingEventSection = () => {
   return (
     <section className="bg-stone-950 py-16 lg:py-24">
-      <div className="max-w-7xl mx-auto sm:px-4 lg:px-0">
+      <div className="max-w-7xl mx-auto px-4 lg:px-0">
         <div className="text-center mb-12">
           <div className="flex justify-center items-center gap-2 mb-8">
             <Image
@@ -33,11 +33,12 @@ const UpcomingEventSection = () => {
               </div>
               <span className="text-nowrap">on Nepal&rsquo;s Premier</span>
               <Image
-                src="https://placehold.co/187x80"
+                src="/span-image.jpg"
                 alt=""
-                height={25}
-                width={0}
-                className="w-28 h-12 lg:w-48 lg:h-16 rounded-full border border-stone-300 mb-3 mx-2"
+                width={1}
+                height={0}
+                sizes="100vw"
+                className="w-28 h-12 lg:w-32 lg:h-16 rounded-full border border-stone-300 mb-3 mx-2"
               />
               <span className="text-nowrap">Fashion Event.</span>
             </h3>
