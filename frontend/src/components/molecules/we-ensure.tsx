@@ -56,7 +56,7 @@ export default function WeEnsure() {
             </div>
             <div className="flex flex-col">
               <h4 className="font-[400] text-[28px] not-italic leading-[normal] tracking-[0.0175em]">Prestige</h4>
-              <p className="font-[400] text-[20px] not-italic leading-[30px] tracking-[0.025em]">Nepal's most recognized modeling brand</p>
+              <p className="font-[400] text-[20px] not-italic leading-[30px] tracking-[0.025em]">Nepal&rsquo;s most recognized modeling brand</p>
 
             </div>
           </div>

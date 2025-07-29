@@ -4,6 +4,7 @@ import EventsSection from "@/components/home/event";
 import UpcomingEventSection from "@/components/home/upcoming-event";
 import ModelsPortfolioSection from "@/components/home/models-portfolio";
 import CTASection from "@/components/home/cta";
+import NewsSection from "@/components/home/newsAndCoverage";
 
 export default function Home() {
   return (
@@ -14,6 +15,7 @@ export default function Home() {
       <UpcomingEventSection />
       <ModelsPortfolioSection />
       <CTASection />
+      <NewsSection />
     </>
   );
 }
