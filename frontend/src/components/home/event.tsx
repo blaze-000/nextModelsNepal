@@ -34,7 +34,7 @@ const EventsSection = () => {
                 </span>
                 <div className="w-32 h-16 relative">
                   <Image
-                    src="https://placehold.co/205x80"
+                    src="/span-image.jpg"
                     alt="Badge"
                     fill
                     className="rounded-full object-cover border border-stone-300"
