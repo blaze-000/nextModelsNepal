@@ -20,7 +20,7 @@ const ValuesSection = () => {
   ];
 
   return (
-    <section className="bg-background2 pt-12 pb-16 relative overflow-hidden">
+    <section className="bg-background2 pt-12 pb-18 relative overflow-hidden">
       <div className="container mx-auto sm:px-6 lg:px-8 xl:px-36 px-6">
         {/* Main Heading */}
         <div className="text-center">
@@ -61,7 +61,7 @@ const ValuesSection = () => {
               </div>
 
               {/* Background Number */}
-              <div className="absolute inset-0 pbflex items-start justify-center md:justify-start pointer-events-none">
+              <div className="absolute inset-0 flex items-start justify-center md:justify-between pl-12 pointer-events-none">
                 <span className="font-newsreader text-[8rem] md:text-[10rem] lg:text-[12rem] font-bold text-neutral-700/40 leading-none select-none">
                   {feature.number}
                 </span>

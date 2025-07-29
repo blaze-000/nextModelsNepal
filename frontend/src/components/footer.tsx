@@ -1,78 +1,124 @@
 import Image from "next/image";
 import type { FC, ReactNode } from "react";
 import NewsLetterBox from "./molecules/newsleterbox";
+import { Instagram, Twitter, Facebook, Linkedin } from "lucide-react";
+import { Phone, Mail, MapPin } from "lucide-react";
 
 const Footer: FC = (): ReactNode => {
   const currentYear: number = new Date().getFullYear();
-  return (
-    <footer className=" relative bg-background2 border-t border-white/20 h-[682px] overflow-hidden text-left text-[20px] text-white font-[Urbanist]">
-      <div className="container mx-auto">
-        <div className="absolute top-[274px] left-[190px] flex flex-row items-start justify-start gap-[145px]">
-          <div className="w- flex flex-col items-start justify-start gap-[25px]">
-            <Image className="w-[148px] max-h-full object-cover relative" width={148} height={123} alt="" src="/logo 1.png" />
-            <div className="tracking-[0.02em] leading-[30px]">Nepal&apos;s No.1 Modeling Agency</div>
-            <div className="h-[32px] flex flex-row items-center gap-[25px]">
-              {[1, 2, 3, 4].map((i) => (
-                <Image key={i} className="w-[32px] h-[32px] rounded-[20px] overflow-hidden" width={32} height={32} alt="" src="/instagram-line.svg" />
-              ))}
-            </div>
-          </div>
 
-          <div className="w- flex flex-row justify-between">
-            {/* Quick Links */}
-            <div className="w- flex flex-col gap-[32px]">
-              <b className="tracking-[0.02em] leading-[30px]">Quick Links</b>
-              <div className="flex flex-col items-start gap-[15px]">
-                <div className="tracking-[0.02em] leading-[40px]">Home</div>
-                <div className="tracking-[0.02em] leading-[40px]">About</div>
-                <div className="tracking-[0.02em] leading-[40px]">Services</div>
-                <div className="tracking-[0.02em] leading-[40px]">Contact</div>
+  return (
+    <footer className="bg-background2 border-t border-white/20 text-white relative">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 xl:px-36 pt-9">
+        {/* Newsletter Section */}
+        <div className="flex justify-center">
+          <NewsLetterBox />
+        </div>
+
+        {/* Main Footer Content */}
+        <div className="py-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[1.2fr_1fr_1fr_1fr] gap-12 lg:gap-8">
+            {/* Company Info */}
+            <div>
+              <Image
+                width={116}
+                height={86}
+                alt="Next Models Nepal Logo"
+                src="/logo.png"
+              />
+              <p className="text-base tracking-normal leading-loose">
+                Nepal&rsquo;s No.1 Modeling Agency
+              </p>
+              <div className="flex items-center gap-4 pt-3">
+                <Instagram className="bg-amber-500 w-8 h-8 p-1.5 text-black rounded-full hover:opacity-80 transition-opacity cursor-pointer" />
+                <Twitter className="bg-amber-500 w-8 h-8 p-1.5 text-black rounded-full hover:opacity-80 transition-opacity cursor-pointer" />
+                <Facebook className="bg-amber-500 w-8 h-8 p-1.5 text-black rounded-full hover:opacity-80 transition-opacity cursor-pointer" />
+                <Linkedin className="bg-amber-500 w-8 h-8 p-1.5 text-black rounded-full hover:opacity-80 transition-opacity cursor-pointer" />
               </div>
+            </div>
+
+            {/* Quick Links */}
+            <div className="space-y-6">
+              <h3 className="text-base font-semibold">Quick Links</h3>
+              <nav className="space-y-6">
+                {["Home", "About", "Services", "Contact"].map((link) => (
+                  <div
+                    key={link}
+                    className="text-base font-light hover:text-orange-400 transition-colors cursor-pointer tracking-wider"
+                  >
+                    {link}
+                  </div>
+                ))}
+              </nav>
             </div>
 
             {/* Events */}
-            <div className="w- flex flex-col gap-[32px]">
-              <b className="tracking-[0.02em] leading-[30px]">Events</b>
-              <div className="flex flex-col items-start gap-[15px]">
-                <div className="underline tracking-[0.02em] leading-[40px]">Mr. Nepal</div>
-                <div className="underline tracking-[0.02em] leading-[40px]">Miss. Nepal Peace</div>
-                <div className="underline tracking-[0.02em] leading-[40px]">Models Hunt Nepal</div>
-              </div>
+            <div className="space-y-6">
+              <h3 className="text-base font-semibold">Events</h3>
+              <nav className="space-y-4">
+                {[
+                  { name: "Mr. Nepal", underline: true },
+                  { name: "Miss. Nepal Peace", underline: true },
+                  { name: "Models Hunt Nepal", underline: true },
+                ].map((event) => (
+                  <div
+                    key={event.name}
+                    className={
+                      "text-base font-light hover:text-orange-400 transition-colors cursor-pointer underline tracking-wider"
+                    }
+                  >
+                    {event.name}
+                  </div>
+                ))}
+              </nav>
             </div>
 
             {/* Contact */}
-            <div className="w- flex flex-col gap-[32px]">
-              <b className="tracking-[0.02em] leading-[30px]">Contact</b>
-              <div className="flex flex-col gap-[15px]">
-                <div className="flex flex-row items-center gap-[7px]">
-                  <Image className="w- h-[24px]" width={24} height={24} alt="" src="/phone-line.svg" />
-                  <div className="tracking-[0.02em] leading-[40px]">9819686790</div>
+            <div className="space-y-6">
+              <h3 className="text-base font-semibold">Contact</h3>
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <Phone className="w-5 h-5 text-white flex-shrink-0" />
+                  <span className="text-base font-light hover:text-orange-400 transition-colors cursor-pointer ">
+                    9819686790
+                  </span>
                 </div>
-                <div className="flex flex-row items-center gap-[7px]">
-                  <Image className="w- h-[24px]" width={24} height={24} alt="" src="/mail-line.svg" />
-                  <div className="tracking-[0.02em] leading-[40px]">info@nextmoelsnepal.com</div>
+                <div className="flex items-center gap-3">
+                  <Mail className="w-5 h-5 text-white flex-shrink-0" />
+                  <span className="text-base font-light hover:text-orange-400 transition-colors cursor-pointer ">
+                    info@nextmodelsnepal.com
+                  </span>
                 </div>
-                <div className="flex flex-row items-center gap-[7px]">
-                  <Image className="w- h-[24px]" width={24} height={24} alt="" src="/map-pin-line.svg" />
-                  <div className="tracking-[0.02em] leading-[40px]">Putalisadak, Kathmandu, Nepal</div>
+                <div className="flex items-start gap-3">
+                  <MapPin className="w-5 h-5 text-white flex-shrink-0" />
+                  <span className="text-base font-light hover:text-orange-400 transition-colors cursor-pointer ">
+                    Putalisadak, Kathmandu, Nepal
+                  </span>
+
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="absolute top-[584.5px] left-[189.5px] border-t border-white/0 w-[1541px] h-px" />
 
-        <div className="absolute top-[620px] left-[190px] w-[1540px] flex flex-row justify-between text-[16px] font-[Poppins]">
-          <div className="leading-[26.67px] opacity-65">© {currentYear} Lift Media. All rights reserved.</div>
-          <div className="flex flex-row items-center gap-[22px] text-[20px] font-[Urbanist]">
-            <div className="underline tracking-[0.02em] leading-[30px]">Terms & Conditions</div>
-            <div className="underline tracking-[0.02em] leading-[30px]">Privacy Policy</div>
+        {/* Footer Bottom */}
+        <div className="border-t border-white/20 py-7">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="text-sm  font-light opacity-65">
+              © {currentYear} Lift Media. All rights reserved.
+            </div>
+            <div className="flex items-center gap-6 text-[20px] font-[Urbanist]">
+              <div className="text-base font-light hover:text-orange-400 transition-colors cursor-pointer underline tracking-wider">
+                Terms & Conditions
+              </div>
+              <div className="underline text-base font-light hover:text-orange-400 transition-colors cursor-pointer tracking-wider">
+                Privacy Policy
+              </div>
+            </div>
           </div>
         </div>
-        <div className="absolute top-8 left-1/2 transform -translate-x-1/2">
-          <NewsLetterBox />
-        </div>
+
       </div>
     </footer>
   );
