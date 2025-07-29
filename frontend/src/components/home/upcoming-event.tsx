@@ -1,33 +1,59 @@
+import { ArrowUpRight } from "lucide-react";
+import Image from "next/image";
+
 const UpcomingEventSection = () => {
   return (
     <section className="bg-stone-950 py-16 lg:py-24">
-      <div className="container mx-auto px-4 lg:px-48">
+      <div className="max-w-7xl mx-auto sm:px-4 lg:px-0">
         <div className="text-center mb-12">
-          <div className="flex justify-center items-center gap-4 mb-8">
-            <div className="w-6 h-6 bg-amber-500" />
-            <h2 className="text-white text-xl lg:text-2xl font-medium font-['Newsreader'] tracking-tight">
+          <div className="flex justify-center items-center gap-2 mb-8">
+            <Image
+              src="/star.svg"
+              alt=""
+              width={24}
+              height={0}
+              className="w-5 h-5 text-gold-500" />
+            <h2 className="text-white text-xl lg:text-2xl font-medium font-newsreader tracking-tight">
               Upcoming Event
             </h2>
           </div>
-          
-          <div className="mb-8">
-            <h3 className="text-white text-4xl lg:text-6xl font-light font-['Newsreader'] mb-4">
-              <span className="text-amber-500">Shine</span> on Nepal's Premier Fashion Event.
+
+          <div className="flex flex-col gap-2 items-center">
+            <h3 className="tracking-tighter text-white text-4xl lg:text-5xl font-light font-newsreader flex items-center gap-2.5">
+              <div className="text-gold-500 relative">
+                Shine
+                <Image
+                  src="/star.svg"
+                  alt=""
+                  height={1}
+                  width={1}
+                  className="h-5 w-5 absolute top-[-10] right-[-8] select-none"
+                />
+
+              </div>
+              <span className="text-nowrap">on Nepal&rsquo;s Premier</span>
+              <Image
+                src="https://placehold.co/187x80"
+                alt=""
+                height={25}
+                width={0}
+                className="w-28 h-12 lg:w-48 lg:h-16 rounded-full border border-stone-300 mb-3 mx-2"
+              />
+              <span className="text-nowrap">Fashion Event.</span>
             </h3>
-            <div className="flex flex-col lg:flex-row justify-center items-center gap-4">
-              <span className="text-white text-5xl lg:text-7xl font-light font-['Newsreader']">Presenting</span>
-              <span className="text-amber-500 text-5xl lg:text-7xl font-light font-['Newsreader']">MR.Nepal 2025</span>
-            </div>
+            <h3 className="text-white text-5xl lg:text-6xl font-light font-newsreader tracking-tighter mb-4 flex items-center gap-2.5">
+              Presenting <span className="text-gold-500">MR. Nepal 2025</span>
+            </h3>
           </div>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <div className="grid lg:grid-cols-[1fr_1.5fr] gap-24 items-start">
           <div className="order-2 lg:order-1">
-            <img className="w-full h-auto max-w-md mx-auto" src="https://placehold.co/564x705" alt="Mr. Nepal 2025" />
+            <img className="w-full h-auto max-w-md mx-auto" src="/mr-nepal-2025-poster-1.jpg" alt="Mr. Nepal 2025" />
           </div>
-          
+
           <div className="order-1 lg:order-2 space-y-8">
-            <p className="text-white text-lg lg:text-xl font-normal font-['Urbanist'] leading-loose tracking-tight">
+            <p className="text-white text-md lg:text-lg font-light lead">
               Next Models Nepal leads Nepal's fashion and entertainment scene—discovering talent, creating iconic events, and shaping industry trends.
             </p>
 
@@ -39,20 +65,25 @@ const UpcomingEventSection = () => {
                   Eligibility Criteria
                 </h4>
               </div>
-              
-              <div className="grid sm:grid-cols-3 gap-4">
+
+              <div className="flex justify-between flex-col lg:flex-row">
                 {[
-                  { label: "Age Range", value: "Required 18-32 Years" },
-                  { label: "Min. Height", value: "Height 5.7 or above is preferred" },
-                  { label: "Gender", value: "Male" }
+                  { label: "Age Range", value: "Required 18-32 Years", icon: '/cake-1.svg' },
+                  { label: "Min. Height", value: "Height 5.7 or above is preferred", icon: '/ruler-1.svg' },
+                  { label: "Gender", value: "Male", icon: '/gender.svg' }
                 ].map((item, index) => (
                   <div key={index} className="flex items-center gap-4">
-                    <div className="w-5 h-5 bg-amber-500" />
+                    <Image
+                      src={item.icon}
+                      alt=""
+                      width={1}
+                      height={0}
+                      className="w-5 h-5 text-gold-500" />
                     <div>
-                      <p className="text-zinc-300 text-sm font-medium font-['Urbanist'] leading-tight tracking-tight">
+                      <p className="text-zinc-300 text-sm font-medium font-urbanist leading-tight tracking-tight">
                         {item.label}
                       </p>
-                      <p className="text-white text-sm font-semibold font-['Urbanist'] leading-loose tracking-tight">
+                      <p className="text-white text-nowrap text-sm font-semibold font-urbanist leading-loose tracking-tight">
                         {item.value}
                       </p>
                     </div>
@@ -69,23 +100,23 @@ const UpcomingEventSection = () => {
                   Auditions
                 </h4>
               </div>
-              
+
               <div className="grid sm:grid-cols-2 gap-4">
                 {[
                   { city: "Pokhara", date: "22nd July, Shrawan 6th" },
                   { city: "Kathmandu", date: "26th July, Shrawan 10th" }
                 ].map((audition, index) => (
                   <div key={index} className="bg-neutral-900 p-4 flex items-center gap-4">
-                    <div className="w-7 h-7 bg-amber-500 rounded-full flex items-center justify-center">
+                    <div className="w-7 h-7 bg-gold-500 rounded-full flex items-center justify-center">
                       <span className="text-neutral-800 text-base font-semibold font-['Urbanist']">
                         {index + 1}.
                       </span>
                     </div>
                     <div>
-                      <p className="text-zinc-300 text-base font-medium font-['Urbanist']">
+                      <p className="text-zinc-300 text-sm font-medium font-['Urbanist']">
                         {audition.city}
                       </p>
-                      <p className="text-white text-base font-semibold font-['Urbanist']">
+                      <p className="text-white text-sm font-semibold font-['Urbanist']">
                         {audition.date}
                       </p>
                     </div>
@@ -96,27 +127,27 @@ const UpcomingEventSection = () => {
 
             {/* Notice */}
             <div className="space-y-3">
-              <p className="text-amber-500 text-base font-semibold font-['Urbanist']">Notice:</p>
+              <p className="text-gold-500 text-base font-semibold font-urbanist">Notice:</p>
               <div className="space-y-2">
-                <p className="text-white text-base font-normal font-['Urbanist']">
-                  Participants must pay NRS. 1,000 to register for the event
+                <p className="text-white text-sm font-normal font-urbanist">
+                  1. Participants must pay NRS. 1,000 to register for the event
                 </p>
-                <p className="text-white text-base font-normal font-['Urbanist']">
-                  Registrations are non-refundable & non-transferable
+                <p className="text-white text-sm font-normal font-urbanist">
+                  2. Registrations are non-refundable & non-transferable
                 </p>
               </div>
             </div>
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4">
-              <button className="bg-amber-500 rounded-full px-8 py-4 text-yellow-950 text-xl font-bold font-['Urbanist'] hover:bg-amber-600 transition-colors">
+              <button className="bg-gold-500 rounded-full px-8 py-4 text-yellow-950 text-xl font-bold font-urbanist hover:bg-gold-600 transition-colors">
                 Apply Now
               </button>
-              <button className="bg-white rounded-full px-8 py-4 text-yellow-950 text-xl font-bold font-['Urbanist'] hover:bg-gray-100 transition-colors">
+              <button className="bg-white rounded-full px-8 py-4 text-yellow-950 text-xl font-bold font-urbanist hover:bg-gray-100 transition-colors">
                 Get Tickets
               </button>
-              <button className="px-7 py-4 rounded-full text-amber-500 text-xl font-bold font-['Urbanist'] underline hover:text-amber-400 transition-colors">
-                About Mr.Nepal 2025
+              <button className="px-7 py-4 rounded-full text-gold-500 text-xl font-bold font-urbanist underline group hover:text-white gap-2 transition-colors flex items-center">
+                About Mr.Nepal 2025 <ArrowUpRight className="group-hover:w-5 transition-colors duration-300 group-hover:h-5 w-4 h-4" />
               </button>
             </div>
           </div>
