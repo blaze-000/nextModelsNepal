@@ -1,15 +1,15 @@
-/** @type {import('tailwindcss').Config} */
+// tailwind.config.js
 module.exports = {
   content: [
+    "./app/**/*.{js,ts,jsx,tsx}",
+    "./components/**/*.{js,ts,jsx,tsx}",
     "./src/**/*.{js,ts,jsx,tsx}",
-    "./src/app/**/*.{js,ts,jsx,tsx}",
-    "./src/components/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {
       fontFamily: {
-        urbanist: ["Urbanist", "sans-serif"],
-        newsreader: ["Newsreader", "serif"],
+        urbanist: ['var(--font-urbanist)'],
+        newsreader: ['var(--font-newsreader)'],
       },
     },
   },
