@@ -34,63 +34,38 @@ const NewsLetterBox: React.FC<NewsletterSubscriptionProps> = ({
   };
 
   return (
-    <div className={`bg-gradient-to-r from-amber-900 via-amber-800 to-yellow-800 px-8 py-6 rounded-lg shadow-lg ${className}`}>
-      <form onSubmit={handleSubmit} className="flex items-center gap-4">
-        {/* Newsletter Title */}
-        <div className="flex-shrink-0">
-          <span className="text-white text-lg font-medium">
-            Subscribe to our{' '}
-            <span className="text-yellow-300 font-semibold">NewsLetter</span>
+    <div className="max-w-7xl w-6xl h-[117px] bg-yellow-950 overflow-hidden relative">
+      <div className="absolute left-[53px] top-[35px] w-[921px] flex justify-between items-center">
+        <div className="text-center">
+          <span className="text-white text-2xl font-normal font-newsreader tracking-tight">
+            Subscribe to our{" "}
+          </span>
+          <span className="text-amber-500 text-2xl font-normal font-newsreader tracking-tight">
+            NewsLetter
           </span>
         </div>
-
-        {/* Email Input */}
-        <div className="flex-grow">
+        <form onSubmit={handleSubmit} className="flex items-center gap-4">
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="e.g johndoe@example.com"
-            className="w-full px-4 py-3 rounded-full bg-white text-gray-800 placeholder-gray-500 border-none outline-none focus:ring-2 focus:ring-yellow-300 transition-all duration-200"
-            required
-            disabled={isSubmitting}
+            placeholder="e.g. johndoe@example.com"
+            className="pl-6 pr-48 py-3 text-zinc-500 text-base font-urbanist leading-loose tracking-tight rounded-full bg-white outline-none"
           />
-        </div>
-
-        {/* Submit Button */}
-        <div className="flex-shrink-0">
           <button
             type="submit"
-            disabled={isSubmitting || !email.trim()}
-            className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed text-white font-semibold px-6 py-3 rounded-full transition-all duration-200 transform hover:scale-105 disabled:hover:scale-100 flex items-center gap-2 shadow-lg"
+            disabled={isSubmitting}
+            className="w-40 h-10 bg-amber-500 rounded-full relative flex items-center justify-center gap-1.5"
           >
-            {isSubmitting ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                Submitting...
-              </>
-            ) : (
-              <>
-                Submit
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 7l5 5m0 0l-5 5m5-5H6"
-                  />
-                </svg>
-              </>
-            )}
+            <span className="text-yellow-950 text-base font-bold font-urbanist leading-loose tracking-tight">
+              Submit
+            </span>
+            <span className="w-2 h-2 bg-black" />
           </button>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
+
   );
 };
 

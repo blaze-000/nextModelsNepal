@@ -1,46 +1,20 @@
-import * as React from "react"
-import { cva, type VariantProps } from "class-variance-authority"
+import React from "react";
 
-const buttonVariants = cva(
-  "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50 disabled:pointer-events-none",
-  {
-    variants: {
-      variant: {
-        default: "bg-primary text-white hover:bg-primary/90",
-        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        outline: "border border-input hover:bg-accent hover:text-accent-foreground",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "underline-offset-4 hover:underline text-primary",
-      },
-      size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-9 px-3 rounded-md",
-        lg: "h-11 px-8 rounded-md",
-        icon: "h-10 w-10",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-      size: "default",
-    },
-  }
-)
+export function Button({ children }: { children: React.ReactNode }) {
+  return (
+    <button className="group relative px-8 py-4 bg-primary hover:bg-white hover:cursor-pointer  text-yellow-950 font-semibold text-lg rounded-full overflow-hidden transition-all duration-300 ease-out transform hover:shadow-2xl shadow-lg">
+      <div className="relative flex items-center justify-center w-full h-full">
+        <span className="block transform translate-x-0 group-hover:translate-x-[300%] transition-transform duration-300 ease-out">
+          {children}
+        </span>
+        {/* Hover Text */}
+        <span className="absolute inset-0 flex items-center justify-center transform -translate-x-[300%] group-hover:translate-x-0 transition-transform duration-300 ease-out">
+          {children}
+        </span>
+      </div>
 
-export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {}
-
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, ...props }, ref) => {
-    return (
-      <button
-        className={buttonVariants({ variant, size, className })}
-        ref={ref}
-        {...props}
-      />
-    )
-  }
-)
-Button.displayName = "Button"
-
-export { Button, buttonVariants }
+      {/* Decorative elements */}
+      <div className="absolute inset-0 bg-white/10 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
+    </button>
+  );
+}

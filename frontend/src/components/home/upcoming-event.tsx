@@ -5,7 +5,7 @@ const UpcomingEventSection = () => {
         <div className="text-center mb-12">
           <div className="flex justify-center items-center gap-4 mb-8">
             <div className="w-6 h-6 bg-amber-500" />
-            <h2 className="text-white text-2xl lg:text-3xl font-medium font-['Newsreader'] tracking-tight">
+            <h2 className="text-white text-xl lg:text-2xl font-medium font-['Newsreader'] tracking-tight">
               Upcoming Event
             </h2>
           </div>
