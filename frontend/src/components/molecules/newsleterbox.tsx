@@ -36,6 +36,7 @@ const NewsLetterBox: React.FC<NewsletterSubscriptionProps> = ({
   };
 
   return (
+
     <div className={`bg-[#382806] px-6 py-4 sm:px-16 sm:py-10 shadow-lg w-full mx-auto ${className}`}>
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
         
@@ -102,8 +103,10 @@ const NewsLetterBox: React.FC<NewsletterSubscriptionProps> = ({
             </button>
           </div>
         </div>
+
       </div>
     </div>
+
   );
 };
 

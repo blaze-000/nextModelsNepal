@@ -94,11 +94,13 @@ const Footer: FC = (): ReactNode => {
                   <span className="text-base font-light hover:text-orange-400 transition-colors cursor-pointer ">
                     Putalisadak, Kathmandu, Nepal
                   </span>
+
                 </div>
               </div>
             </div>
           </div>
         </div>
+
 
         {/* Footer Bottom */}
         <div className="border-t border-white/20 py-7">
@@ -116,6 +118,7 @@ const Footer: FC = (): ReactNode => {
             </div>
           </div>
         </div>
+
       </div>
     </footer>
   );

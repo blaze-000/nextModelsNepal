@@ -93,11 +93,11 @@ const EventsSection = () => {
 
                     <div className="flex flex-col sm:flex-row gap-4">
                       {event.hasTickets && (
-                        <button className="bg-amber-500 rounded-full px-8 py-4 text-yellow-950 text-xl font-bold font-['Urbanist'] leading-loose tracking-tight hover:bg-amber-600 transition-colors">
+                        <button className="bg-gold-500 rounded-full px-8 py-4 text-yellow-950 text-xl font-bold font-['Urbanist'] leading-loose tracking-tight hover:bg-gold-600 transition-colors">
                           Get Tickets
                         </button>
                       )}
-                      <button className="px-7 py-4 rounded-full text-amber-500 text-xl font-bold font-['Urbanist'] underline leading-loose tracking-tight hover:text-amber-400 transition-colors">
+                      <button className="px-7 py-4 rounded-full text-gold-500 text-xl font-bold font-['Urbanist'] underline leading-loose tracking-tight hover:text-gold-400 transition-colors">
                         About Event
                       </button>
                     </div>
