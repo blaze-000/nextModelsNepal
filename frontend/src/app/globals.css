@@ -4,15 +4,16 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-background2: var(--background2);
+  --color-muted-background: var(--muted-background);
 
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
-  
+
   --color-gold-600: var(--gold-600);
   --color-gold-500: var(--gold-500);
   --color-gold-400: var(--gold-400);
 
-  --font-sans: "Urbanist", var(--font-geist-sans), sans-serif;
+  --font-sans: var(--font-geist-sans), sans-serif;
   --font-newsreader: "Newsreader", serif;
   --font-mono: var(--font-geist-mono);
 }
@@ -31,6 +32,8 @@ body {
   --foreground: #ffffff;
   --background: #12110d;
   --background2: #080808;
+
+  --muted-background: #1e1e1e;
 
   --gold-600: #E89B00;
   --gold-500: #ffaa00;

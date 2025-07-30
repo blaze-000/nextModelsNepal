@@ -1,4 +1,3 @@
-// app/layout.tsx
 import "./globals.css";
 import { Urbanist, Newsreader } from "next/font/google";
 import Navbar from "@/components/navbar";
@@ -23,7 +22,7 @@ const newsreader = Newsreader({
 
 export const metadata = {
   title: "Next Models Nepal",
-  description: "Next Models Nepal - one of the best",
+  description: "Next Models Nepal - Nepal's No.1 Modeling Agency",
 };
 
 export default function RootLayout({
@@ -34,7 +33,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${urbanist.variable} ${newsreader.variable}`}
+      className={`${urbanist.variable} ${newsreader.variable} scroll-smooth`}
     >
       <body className="bg-background text-foreground antialiased font-urbanist">
         <Navbar />

@@ -23,7 +23,7 @@ const EventsSection = () => {
   ];
 
   return (
-    <section className="bg-amber-500/5 py-16 lg:py-24">
+    <section className="bg-gold-500/5 py-16 lg:py-24">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 xl:px-36">
         <div className="mb-16">
           <div className="grid lg:grid-cols-2 gap-12 items-end">
@@ -40,7 +40,7 @@ const EventsSection = () => {
                     className="rounded-full object-cover border border-stone-300"
                   />
                 </div>
-                 <span className="text-white text-6xl font-extralight font-newsreader tracking-tighter ">
+                <span className="text-white text-6xl font-extralight font-newsreader tracking-tighter ">
                   Glamour:
                 </span>
               </div>
@@ -59,9 +59,9 @@ const EventsSection = () => {
           </div>
         </div>
 
-        
 
-        
+
+
 
         <div className="space-y-16">
           {events.map((event, index) => (
@@ -72,7 +72,7 @@ const EventsSection = () => {
               <div className="grid lg:grid-cols-2 min-h-96">
                 <div className="p-8 lg:p-20 flex flex-col justify-center space-y-7">
                   <div className="px-4 py-2 bg-yellow-950 rounded-full inline-flex justify-center items-center w-fit">
-                    <span className="text-amber-500 text-base font-bold font-['Urbanist'] tracking-tight">
+                    <span className="text-gold-500 text-base font-bold font-['Urbanist'] tracking-tight">
                       {event.status}
                     </span>
                   </div>

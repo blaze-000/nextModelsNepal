@@ -73,21 +73,75 @@ const HeroSection = () => {
             </div>
           </div>
 
-          {/* Right Content - Image Grid */}
-          {/* <div className="relative bg-no-repeat h-full bg-cover bg-center"
-      style={{ backgroundImage: "url('/hero_bg.png')" }}> */}
-          <div className="relative w-full h-full -mt-16">
+          {/* Right side*/}
+          <div className="relative w-full h-full -mt-16 border">
+            {/* Background Image */}
             <Image
               src="/hero_bg.png"
               alt="Hero background"
               fill
-              className="object-contain" 
+              className="object-contain"
               priority
             />
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+
+            {/* Center Star */}
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
               <Image src="/hero_star.svg" alt="" width={71} height={74} />
             </div>
+
+            {/* 4x4 Grid Overlay */}
+            <div className="z-10 absolute inset-0 grid grid-cols-4 grid-rows-4 space-x-4 p-4">
+              {/* Area 6 */}
+              <div className="col-start-2 row-start-2">
+                <div className="relative w-full aspect-square">
+                  <Image
+                    src="/news_1.jpg"
+                    alt=""
+                    fill
+                    className="object-cover object-center rounded-lg"
+                  />
+                </div>
+              </div>
+
+              {/* Area 7 */}
+              <div className="col-start-3 row-start-2">
+                <div className="relative w-full aspect-square">
+                  <Image
+                    src="/news_1.jpg"
+                    alt=""
+                    fill
+                    className="object-cover object-center rounded-lg"
+                  />
+                </div>
+              </div>
+
+              {/* Area 10 */}
+              <div className="col-start-2 row-start-3">
+                <div className="relative w-full aspect-square">
+                  <Image
+                    src="/news_1.jpg"
+                    alt=""
+                    fill
+                    className="object-cover object-center rounded-lg"
+                  />
+                </div>
+              </div>
+
+              {/* Area 11 */}
+              <div className="col-start-3 row-start-3">
+                <div className="relative w-full aspect-square">
+                  <Image
+                    src="/news_1.jpg"
+                    alt=""
+                    fill
+                    className="object-cover object-center rounded-lg"
+                  />
+                </div>
+              </div>
+            </div>
+
           </div>
+
         </div>
       </div>
     </section>
