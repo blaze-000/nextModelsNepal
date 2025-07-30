@@ -1,110 +1,153 @@
-// components/EventCard.tsx
-import type { FC } from 'react';
-import Image from 'next/image'; // For optimized images in Next.js
+import Image from "next/image";
+import { Button } from "../ui/button";
 
-const EventCard: FC<EventCardProps> = ({
+interface EventCardProps {
+  id: string;
+  title: string;
+  dateSpan: string;
+  briefInfo: string;
+  imageSrc: string;
+  state: 'ongoing' | 'completed';
+  columnPosition?: 'left' | 'right';
+  timelinePosition?: 'left' | 'right';
+  managedBy?: 'self' | 'partner';
+  getTicketLink?: string;
+  aboutLink?: string;
+}
+
+const EventCard: React.FC<EventCardProps> = ({
   id,
-  picPosition,
-  state,
-  managedBy,
   title,
   dateSpan,
   briefInfo,
   imageSrc,
-  partnerLogoSrc,
-  getTicketsLink,
-  aboutLink,
+  state,
+  columnPosition = 'left',
+  timelinePosition = 'left',
+  managedBy = 'self',
+  getTicketLink,
+  aboutLink
 }) => {
-  const isOngoing = state === 'ongoing';
-  const isPicLeft = picPosition === 'left';
+  const isTimelineLeft = timelinePosition === 'left';
+  const isContentLeft = columnPosition === 'left';
+  
+  // State styling
+  const stateConfig = {
+    ongoing: {
+      bgColor: 'bg-[#472F00]',
+      textColor: 'text-gold-500',
+      label: 'Ongoing'
+    },
+    completed: {
+      bgColor: 'bg-green-900',
+      textColor: 'text-green-400',
+      label: 'Completed'
+    }
+  };
+
+  const currentState = stateConfig[state];
 
   return (
-    <div
-      id={id}
-      className={`
-        flex
-        ${isPicLeft ? 'flex-row' : 'flex-row-reverse'}
-        bg-black text-white rounded-lg overflow-hidden
-        shadow-lg hover:shadow-xl transition-shadow duration-300
-        border border-gray-800
-      `}
-      style={{
-        // Optional: Custom width or max-width if needed, otherwise it will stretch to container
-        // maxWidth: '1000px',
-        // width: '100%',
-      }}
-    >
-      {/* Image Container */}
-      <div className="relative flex-1 group overflow-hidden">
-        <Image
-          src={imageSrc}
-          alt={`${title} Image`}
-          layout="fill" // Ensures image fills the container
-          objectFit="cover" // Covers the container, cropping as needed
-          className="transition-transform duration-300 ease-in-out group-hover:scale-105"
-        />
-      </div>
+    <div className={`relative ${
+      isTimelineLeft ? 'pl-16' : 'pr-16'
+    }`}>
+      {/* Circle Indicator */}
+      <div className={`absolute top-1 w-6 h-6 bg-gold-500 rounded-full z-10 ${
+        isTimelineLeft ? 'left-6' : 'right-6'
+      }`} />
 
-      {/* Info Container */}
-      <div className="flex-1 p-6 flex flex-col justify-center">
-        {/* Status */}
-        <div
-          className={`
-            text-sm font-bold uppercase mb-2
-            ${isOngoing ? 'text-yellow-400' : 'text-gray-400'}
-          `}
-        >
-          {state}
-        </div>
+      <div className="bg-background hover:outline-gold-500 outline-2 transition-outline duration-300 outline-transparent group">
+        <div className={`grid grid-cols-1 lg:grid-cols-2 ${
+          isContentLeft ? '' : 'lg:grid-flow-col-dense'
+        }`}>
+          {/* Content Section */}
+          <div className={`px-16 pt-24 pb-16 space-y-2 ${
+            isContentLeft ? '' : 'lg:col-start-2'
+          }`}>
+            <span className={`inline-block px-3 py-1 rounded-full text-sm font-bold mb-4 ${currentState.bgColor} ${currentState.textColor}`}>
+              {currentState.label}
+            </span>
+            
+            <h2 className="text-white text-6xl font-newsreader tracking-tighter font-normal">
+              {title}
+            </h2>
+            
+            <p className="text-white text-base font-semibold pb-4">
+              {dateSpan}
+            </p>
+            
+            <p className="text-white text-base font-light tracking-wider pr-10 mb-4">
+              {briefInfo}
+            </p>
 
-        {/* Title */}
-        <h2 className="text-3xl font-serif mb-2">{title}</h2>
-
-        {/* Date Span */}
-        <p className="text-sm text-gray-300 mb-4">{dateSpan}</p>
-
-        {/* Brief Info */}
-        <p className="text-base leading-relaxed mb-6">{briefInfo}</p>
-
-        {/* Actions (Get Tickets / About Link) */}
-        <div className="flex items-center gap-4 mb-4 mt-auto">
-          {isOngoing && getTicketsLink && (
-            <a
-              href={getTicketsLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-yellow-400 text-black py-2 px-5 rounded-md font-semibold hover:bg-yellow-500 transition-colors duration-200"
-            >
-              Get Tickets
-            </a>
-          )}
-          {aboutLink && (
-            <a
-              href={aboutLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-white hover:text-yellow-400 font-semibold transition-colors duration-200"
-            >
-              About {title} <span className="ml-1">&#8599;</span>
-            </a>
-          )}
-        </div>
-
-        {/* Managed By */}
-        {managedBy === 'partners' && partnerLogoSrc && (
-          <div className="flex items-center mt-4 text-sm text-gray-300">
-            <span className="mr-2">Event by:</span>
-            <div className="relative w-16 h-8"> {/* Adjust size as needed */}
-              <Image
-                src={partnerLogoSrc}
-                alt="Partner Logo"
-                layout="fill"
-                objectFit="contain"
-                className="filter invert" // Adjust if your logo is dark and needs to be lightened
-              />
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+              {/* Primary Buttons */}
+              <div className="flex space-x-4">
+                {getTicketLink && (
+                  <Button 
+                    variant="default" 
+                    className="h-10"
+                    onClick={() => window.open(getTicketLink, '_blank')}
+                  >
+                    Get Tickets
+                  </Button>
+                )}
+              </div>
+              
+              {/* About Button */}
+              {aboutLink && (
+                <button 
+                  className="px-4 py-4 rounded-full text-gold-500 text-base font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer"
+                  onClick={() => window.open(aboutLink, '_blank')}
+                >
+                  <span className="underline">About {title}</span>
+                  <i className="ri-arrow-right-up-line group-hover:scale-130 transition-transform duration-400" />
+                </button>
+              )}
             </div>
           </div>
-        )}
+
+          {/* Image Section */}
+          <div className={`relative ${
+            isContentLeft 
+              ? '[mask:linear-gradient(to_right,transparent_0%,black_20%)]' 
+              : '[mask:linear-gradient(to_left,transparent_0%,black_20%)]'
+          } ${isContentLeft ? '' : 'lg:col-start-1'}`}>
+            <Image
+              src={imageSrc}
+              alt={title}
+              fill
+              className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300"
+            />
+            
+            {/* Event Management Badge */}
+            <div className={`absolute bottom-0 ${
+              isContentLeft ? 'right-6' : 'left-6'
+            }`}>
+              <div className="bg-[#1E1E1E] rounded-t-2xl px-2.5 py-2.5 text-center">
+                <p className="text-white text-base font-light mb-1">
+                  Event by:
+                </p>
+                <div className="border-2 border-yellow-400 rounded p-2">
+                  {managedBy === 'self' ? (
+                    <Image
+                      width={100}
+                      height={100}
+                      alt="Next Models Nepal Logo"
+                      src="/logo.png"
+                      className="w-16 h-14"
+                    />
+                  ) : (
+                    <div className="w-16 h-14 bg-gray-600 rounded flex items-center justify-center">
+                      <span className="text-white text-xs font-bold">PARTNER</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

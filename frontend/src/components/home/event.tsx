@@ -1,121 +1,112 @@
+"use client";
+
 import Image from "next/image";
+import Timeline from "../molecules/timeline";
+import EventCard from "../molecules/event-card";
+
 
 const EventsSection = () => {
+  // Sample event data
   const events = [
     {
-      status: "Ongoing",
+      id: "miss-nepal-peace-2024",
       title: "Miss Nepal Peace",
-      date: "19th July to 6th September",
-      description:
-        "Miss Nepal Peace is a pageant for nurses, celebrating their role in care and peace while empowering them to represent Nepal on global stages.",
-      image: "https://placehold.co/729x594",
-      hasTickets: true,
+      dateSpan: "19th July to 6th September",
+      briefInfo: "Miss Nepal Peace is a pageant for honest, celebrating their role in care and peace while empowering them to represent Nepal on global stage.",
+      imageSrc: "/events_1.jpg",
+      state: "ongoing" as const,
+      columnPosition: "left" as const,
+      managedBy: "self" as const,
+      getTicketLink: "https://example.com/tickets",
+      aboutLink: "https://example.com/about"
     },
     {
-      status: "Ended on 2025/08/02",
-      title: "Model Hunt Nepal",
-      date: "19th July to 6th September",
-      description:
-        "Model Hunt Nepal, started in 2015, discovers and trains top models, promoting Nepali culture and connecting brands with the global fashion industry.",
-      image: "https://placehold.co/729x594",
-      hasTickets: false,
-    },
+      id: "fashion-week-2024",
+      title: "Nepal Fashion Week",
+      dateSpan: "15th August to 20th August",
+      briefInfo: "A spectacular showcase of Nepalese fashion talent, bringing together designers, models, and fashion enthusiasts from across the region.",
+      imageSrc: "/events_2.jpg",
+      state: "completed" as const,
+      columnPosition: "right" as const,
+      managedBy: "partner" as const,
+      getTicketLink: "https://example.com/fashion-tickets",
+      aboutLink: "https://example.com/fashion-about"
+    }
   ];
 
   return (
     <section className="bg-amber-500/5 py-16 lg:py-24">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 xl:px-36">
+        {/* Header */}
         <div className="mb-16">
-          <div className="grid lg:grid-cols-2 gap-12 items-end">
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <span className="text-white text-6xl font-extralight font-newsreader tracking-tighter ">
-                  Relive the
-                </span>
-                <div className="w-32 h-16 relative">
-                  <Image
-                    src="/span-image.jpg"
-                    alt="Badge"
-                    fill
-                    className="rounded-full object-cover border border-stone-300"
-                  />
-                </div>
-                 <span className="text-white text-6xl font-extralight font-newsreader tracking-tighter ">
-                  Glamour:
-                </span>
+          <div className="space-y-2">
+            <div className="flex items-center gap-4">
+              <span className="text-white text-5xl font-extralight font-newsreader tracking-tight">
+                Relive the
+              </span>
+              <div className="w-40 h-16 relative">
+                <Image
+                  src="/span-image.jpg"
+                  alt="Badge"
+                  fill
+                  className="rounded-full object-cover border border-stone-300"
+                />
               </div>
-              <div className="flex items-center gap-4">
-                <h3 className="text-primary text-6xl font-extralight font-newsreader tracking-tighter ">
-                  with Our Recent Events
-                </h3>
-              </div>
+              <span className="text-white text-5xl font-extralight font-newsreader tracking-tight">
+                Glamour:
+              </span>
             </div>
-            <div className="flex items-center justify-end">
-              <p className="text-white text-base lg:text-base font-normal leading-loose tracking-wide">
-                Step into the spotlight of our most recent event - where talent<br />
+            <div className="flex items-center justify-between">
+              <h3 className="text-primary text-6xl font-extralight font-newsreader tracking-tighter">
+                with Our Recent Events
+              </h3>
+              <p className="text-white text-base font-light tracking-tight">
+                Step into the spotlight of our most recent event — where talent
+                <br />
                 meets opportunity and dreams take center stage
               </p>
             </div>
           </div>
         </div>
 
-        
-
-        
-
-        <div className="space-y-16">
-          {events.map((event, index) => (
-            <div
-              key={index}
-              className="bg-stone-950 rounded-2xl overflow-hidden"
-            >
-              <div className="grid lg:grid-cols-2 min-h-96">
-                <div className="p-8 lg:p-20 flex flex-col justify-center space-y-7">
-                  <div className="px-4 py-2 bg-yellow-950 rounded-full inline-flex justify-center items-center w-fit">
-                    <span className="text-amber-500 text-base font-bold font-['Urbanist'] tracking-tight">
-                      {event.status}
-                    </span>
-                  </div>
-
-                  <div>
-                    <h3 className="text-white text-4xl lg:text-7xl font-normal font-['Newsreader'] mb-2">
-                      {event.title}
-                    </h3>
-                    <p className="text-white text-lg lg:text-xl font-bold font-['Urbanist'] leading-loose tracking-tight">
-                      {event.date}
-                    </p>
-                  </div>
-
-                  <div className="space-y-7">
-                    <p className="text-white text-lg lg:text-xl font-normal font-['Urbanist'] leading-loose tracking-tight">
-                      {event.description}
-                    </p>
-
-                    <div className="flex flex-col sm:flex-row gap-4">
-                      {event.hasTickets && (
-                        <button className="bg-gold-500 rounded-full px-8 py-4 text-yellow-950 text-xl font-bold font-['Urbanist'] leading-loose tracking-tight hover:bg-gold-600 transition-colors">
-                          Get Tickets
-                        </button>
-                      )}
-                      <button className="px-7 py-4 rounded-full text-gold-500 text-xl font-bold font-['Urbanist'] underline leading-loose tracking-tight hover:text-gold-400 transition-colors">
-                        About Event
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="relative">
-                  <img
-                    className="w-full h-full object-cover"
-                    src={event.image}
-                    alt={event.title}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-r from-stone-950 via-transparent to-transparent lg:from-transparent" />
-                </div>
-              </div>
-            </div>
+        {/* Timeline with Events - Left Position */}
+        <Timeline position="left" title="Events by Next Models Nepal">
+          {events.map((event) => (
+            <EventCard
+              key={event.id}
+              id={event.id}
+              title={event.title}
+              dateSpan={event.dateSpan}
+              briefInfo={event.briefInfo}
+              imageSrc={event.imageSrc}
+              state={event.state}
+              columnPosition={event.columnPosition}
+              timelinePosition="left"
+              managedBy={event.managedBy}
+              getTicketLink={event.getTicketLink}
+              aboutLink={event.aboutLink}
+            />
           ))}
-        </div>
+        </Timeline>
+
+        {/* Example of Right-positioned Timeline */}
+        
+        <Timeline position="right" title="Partner Events">
+          <EventCard
+            id="partner-event-1"
+            title="International Beauty Contest"
+            dateSpan="1st October to 15th October"
+            briefInfo="A global beauty pageant featuring contestants from around the world."
+            imageSrc="/partner_event.jpg"
+            state="ongoing"
+            columnPosition="right"
+            timelinePosition="right"
+            managedBy="partner"
+            getTicketLink="https://partner.com/tickets"
+            aboutLink="https://partner.com/about"
+          />
+        </Timeline>
+       
       </div>
     </section>
   );

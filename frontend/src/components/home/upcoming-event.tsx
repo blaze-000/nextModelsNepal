@@ -3,7 +3,7 @@ import { Button } from "../ui/button";
 
 const UpcomingEventSection = () => {
   return (
-    <section className="bg-stone-950 py-16 lg:py-24">
+    <section className="bg-stone-950 py-16 lg:py-16">
       <div className="max-w-7xl mx-auto px-4 lg:px-0">
         <div className="text-center mb-12">
           <div className="flex justify-center items-center gap-2 mb-8">
@@ -12,14 +12,15 @@ const UpcomingEventSection = () => {
               alt=""
               width={24}
               height={0}
-              className="w-5 h-5 text-gold-500" />
+              className="w-5 h-5 text-gold-500"
+            />
             <h2 className="text-white text-xl lg:text-2xl font-medium font-newsreader tracking-tight">
               Upcoming Event
             </h2>
           </div>
 
           <div className="flex flex-col gap-2 items-center">
-            <h3 className="tracking-tighter text-white text-4xl lg:text-5xl font-light font-newsreader flex items-center gap-2.5">
+            <h3 className="tracking-normal text-white text-4xl lg:text-5xl font-light font-newsreader flex items-center gap-2.5">
               <div className="text-gold-500 relative">
                 Shine
                 <Image
@@ -29,7 +30,6 @@ const UpcomingEventSection = () => {
                   width={1}
                   className="h-5 w-5 absolute top-[-10] right-[-8] select-none"
                 />
-
               </div>
               <span className="text-nowrap">on Nepal&rsquo;s Premier</span>
               <Image
@@ -50,12 +50,18 @@ const UpcomingEventSection = () => {
 
         <div className="grid lg:grid-cols-[1fr_1.5fr] gap-24 items-start">
           <div className="order-2 lg:order-1">
-            <img className="w-full h-auto max-w-md mx-auto" src="/mr-nepal-2025-poster-1.jpg" alt="Mr. Nepal 2025" />
+            <img
+              className="w-full h-auto max-w-md mx-auto"
+              src="/mr-nepal-2025-poster-1.jpg"
+              alt="Mr. Nepal 2025"
+            />
           </div>
 
           <div className="order-1 lg:order-2 space-y-8">
             <p className="text-white text-md lg:text-lg font-light lead">
-              Next Models Nepal leads Nepal's fashion and entertainment scene—discovering talent, creating iconic events, and shaping industry trends.
+              Next Models Nepal leads Nepal&rsquo;s fashion and entertainment
+              scene—discovering talent, creating iconic events, and shaping
+              industry trends.
             </p>
 
             {/* Eligibility Section */}
@@ -69,9 +75,17 @@ const UpcomingEventSection = () => {
 
               <div className="flex justify-between flex-col lg:flex-row">
                 {[
-                  { label: "Age Range", value: "Required 18-32 Years", icon: '/cake-1.svg' },
-                  { label: "Min. Height", value: "Height 5.7 or above is preferred", icon: '/ruler-1.svg' },
-                  { label: "Gender", value: "Male", icon: '/gender.svg' }
+                  {
+                    label: "Age Range",
+                    value: "Required 18-32 Years",
+                    icon: "/cake-1.svg",
+                  },
+                  {
+                    label: "Min. Height",
+                    value: "Height 5.7 or above is preferred",
+                    icon: "/ruler-1.svg",
+                  },
+                  { label: "Gender", value: "Male", icon: "/gender.svg" },
                 ].map((item, index) => (
                   <div key={index} className="flex items-center gap-4">
                     <Image
@@ -79,7 +93,8 @@ const UpcomingEventSection = () => {
                       alt=""
                       width={1}
                       height={0}
-                      className="w-5 h-5 text-gold-500" />
+                      className="w-5 h-5 text-gold-500"
+                    />
                     <div>
                       <p className="text-zinc-300 text-sm font-medium font-urbanist leading-tight tracking-tight">
                         {item.label}
@@ -105,9 +120,12 @@ const UpcomingEventSection = () => {
               <div className="grid sm:grid-cols-2 gap-4">
                 {[
                   { city: "Pokhara", date: "22nd July, Shrawan 6th" },
-                  { city: "Kathmandu", date: "26th July, Shrawan 10th" }
+                  { city: "Kathmandu", date: "26th July, Shrawan 10th" },
                 ].map((audition, index) => (
-                  <div key={index} className="bg-neutral-900 p-4 flex items-center gap-4">
+                  <div
+                    key={index}
+                    className="bg-neutral-900 p-4 flex items-center gap-4"
+                  >
                     <div className="w-7 h-7 bg-gold-500 rounded-full flex items-center justify-center">
                       <span className="text-neutral-800 text-base font-semibold font-['Urbanist']">
                         {index + 1}.
@@ -128,23 +146,35 @@ const UpcomingEventSection = () => {
 
             {/* Notice */}
             <div className="space-y-3">
-              <p className="text-gold-500 text-base font-semibold font-urbanist">Notice:</p>
+              <p className="text-gold-500 text-base font-semibold font-urbanist">
+                Notice:
+              </p>
               <div className="space-y-2">
-                <p className="text-white text-sm font-normal font-urbanist">
+                <p className="text-white text-sm font-light font-urbanist">
                   1. Participants must pay NRS. 1,000 to register for the event
                 </p>
-                <p className="text-white text-sm font-normal font-urbanist">
+                <p className="text-white text-sm font-light font-urbanist">
                   2. Registrations are non-refundable & non-transferable
                 </p>
               </div>
             </div>
 
             {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Button variant="default" className="text-lg">Apply Now</Button>
-              <Button variant="default" className="text-lg bg-white">Get Tickets</Button>
-              <button className="px-7 py-4 rounded-full text-gold-500 text-xl font-bold font-urbanist underline group hover:text-white gap-2 transition-colors flex items-center">
-                About Mr.Nepal 2025 <i className="group-hover:w-5 transition-colors duration-300 group-hover:h-5 w-4 h-4 ri-arrow-right-up-line" />
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+              {/* Primary Buttons */}
+              <div className="flex space-x-4">
+                <Button variant="default" className="text-base">
+                  Apply Now
+                </Button>
+                <Button variant="default" className="text-base bg-white">
+                  Get Tickets
+                </Button>
+              </div>
+
+              {/* About Button */}
+              <button className="px-4 py-4 rounded-full text-gold-500 text-base font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer -tracking-tight">
+               <span className="underline"> About Mr. Nepal 2025</span>
+                <i className="ri-arrow-right-up-line group-hover:scale-130 transition-transform duration-400" />
               </button>
             </div>
           </div>

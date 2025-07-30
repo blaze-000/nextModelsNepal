@@ -76,7 +76,7 @@ const HeroSection = () => {
           {/* Right Content - Image Grid */}
           {/* <div className="relative bg-no-repeat h-full bg-cover bg-center"
       style={{ backgroundImage: "url('/hero_bg.png')" }}> */}
-          <div className="relative w-full h-full -mt-16">
+          <div className="relative w-full h-full -mt-16 border">
             <Image
               src="/hero_bg.png"
               alt="Hero background"

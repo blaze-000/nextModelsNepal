@@ -26,18 +26,18 @@ const ModelsPortfolioSection = () => {
             height={20}
           />
         </div>
-        <h3 className="text-white text-xl lg:text-2xl font-medium font-['Newsreader'] tracking-tight">
+        <h3 className="text-white text-xl lg:text-2xl font-medium font-newsreader tracking-tight">
           {title}
         </h3>
       </div>
 
       <div className="max-w-7xl grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {models.map((model: { name: string, location: string, image: string }, index: number) => (
-          <div key={index} className="relative bg-white overflow-hidden rounded-lg group hover:scale-105 transition-transform">
+          <div key={index} className="relative bg-white overflow-hidden  group hover:scale-105 transition-transform">
             <img className="w-full h-96 object-cover" src={model.image} alt={model.name} />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
             <div className="absolute bottom-6 left-6 right-6">
-              <h4 className="text-gold-500 text-xl lg:text-2xl font-medium font-['Newsreader'] tracking-tight mb-2">
+              <h4 className="text-gold-500 text-xl lg:text-2xl font-medium font-newsreader tracking-tight mb-2">
                 {model.name}
               </h4>
               <div className="flex items-center gap-2">
@@ -55,9 +55,15 @@ const ModelsPortfolioSection = () => {
       </div>
 
       <div className="flex justify-end">
-        <button className="px-7 py-4 rounded-full text-gold-500 text-lg font-bold font-['Urbanist'] underline hover:text-white group transition-colors flex items-center gap-1.5">
+ <button className="px-4 py-4 rounded-full text-gold-500 text-base -tracking-tight font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer">
+               <span className="underline">{viewAllText}</span>
+                <i className="ri-arrow-right-up-line group-hover:scale-130 transition-transform duration-400" />
+              </button>
+
+
+        {/* <button className="px-7 py-4 rounded-full text-gold-500 text-lg font-bold font-['Urbanist'] underline hover:text-white group transition-colors flex items-center gap-1.5">
           {viewAllText} <i className="group-hover:w-5 group-hover:h-5 transition-all duration-300 w-4 h-4 ri-arrow-right-up-line"/>
-        </button>
+        </button> */}
       </div>
     </div>
   );
@@ -69,16 +75,16 @@ const ModelsPortfolioSection = () => {
           {/* Find a Face for your brand */}
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-4">
-              <h2 className="text-white text-3xl lg:text-5xl font-light font-['Newsreader']">Find a</h2>
+              <h2 className="text-white text-3xl lg:text-5xl font-light font-newsreader">Find a</h2>
               <Image
                 className="w-24 h-12 lg:w-36 lg:h-16 rounded-full border border-stone-300 mb-3"
                 width={32}
                 height={0}
                 src="https://placehold.co/187x80"
                 alt="" />
-              <h2 className="text-white text-4xl lg:text-5xl font-light font-['Newsreader']">Face</h2>
+              <h2 className="text-white text-4xl lg:text-5xl font-light font-newsreader">Face</h2>
             </div>
-            <h2 className="text-amber-500 text-5xl lg:text-6xl font-light font-['Newsreader']">For Your Brand!</h2>
+            <h2 className="text-amber-500 text-5xl lg:text-6xl font-light font-newsreader">For Your Brand!</h2>
           </div>
 
           {/* <div className="w-full"> */}
