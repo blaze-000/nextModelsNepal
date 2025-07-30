@@ -5,6 +5,7 @@ const UpcomingEventSection = () => {
   return (
     <section className="bg-stone-950 py-16 lg:py-16">
       <div className="max-w-7xl mx-auto px-4 lg:px-0">
+        {/* Header */}
         <div className="text-center mb-12">
           <div className="flex justify-center items-center gap-2 mb-8">
             <Image

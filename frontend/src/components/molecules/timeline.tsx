@@ -14,28 +14,29 @@ const Timeline: React.FC<TimelineProps> = ({
   const isLeft = position === 'left';
   
   return (
-    <div className="relative">
+    <div className="relative ">
       {/* Icon positioned absolutely above the vertical line */}
-      <div className={`absolute top-0 w-8 h-8 flex items-center justify-center -translate-y-1/2 z-20 ${
+      <div className={`absolute top-0 w-6 h-6 md:w-8 md:h-8 flex items-center justify-center -translate-y-1/2 z-20 ${
         isLeft 
-          ? 'left-1.5 -translate-x-1/2' 
-          : 'right-1.5 translate-x-1/2'
+          ? 'left-2 md:left-1.5 -translate-x-1/2' 
+          : 'right-2 md:right-1.5 translate-x-1/2'
       }`}>
         <Image
           src="/small_star.svg"
           alt="Timeline Icon"
           width={24}
           height={24}
+          className="md:w-10 md:h-10"
         />
       </div>
 
       {/* Title positioned horizontally aligned with the icon */}
       <div className={`absolute top-0 -translate-y-1/2 ${
         isLeft 
-          ? 'left-8' 
-          : 'right-8 text-right'
+          ? 'left-8 md:left-8' 
+          : 'right-8 md:right-8 text-right'
       }`}>
-        <h3 className="text-white text-2xl font-newsreader font-normal tracking-tight whitespace-nowrap">
+        <h3 className="text-white text-xl md:text-2xl font-newsreader font-medium tracking-tight whitespace-nowrap">
           {title}
         </h3>
       </div>
@@ -43,12 +44,12 @@ const Timeline: React.FC<TimelineProps> = ({
       {/* Vertical Line */}
       <div className={`absolute top-0 w-0.5 h-full bg-gradient-to-b from-transparent via-white/60 to-transparent ${
         isLeft 
-          ? 'left-1.5' 
-          : 'right-1.5'
-      }`} />
+          ? 'left-2 md:left-1.5' 
+          : 'right-2 md:right-1.5'
+      }`}></div>
 
       {/* Event Cards Container */}
-      <div className="space-y-12 py-16">
+      <div className="space-y-8 md:space-y-12 py-8 md:py-16">
         {children}
       </div>
     </div>
