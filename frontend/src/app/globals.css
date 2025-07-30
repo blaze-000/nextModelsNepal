@@ -12,6 +12,7 @@
   --color-gold-600: var(--gold-600);
   --color-gold-500: var(--gold-500);
   --color-gold-400: var(--gold-400);
+  --color-gold-900: var(--gold-900);
 
   --font-sans: var(--font-geist-sans), sans-serif;
   --font-newsreader: "Newsreader", serif;
@@ -38,6 +39,7 @@ body {
   --gold-600: #E89B00;
   --gold-500: #ffaa00;
   --gold-400: #ffbb33;
+  --gold-900: #392806;
 
   --primary: #ffaa00;
   --primary-foreground: #312000;
