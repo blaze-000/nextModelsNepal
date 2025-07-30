@@ -73,9 +73,11 @@ const HeroSection = () => {
             </div>
           </div>
 
+
           {/* Right side*/}
           <div className="relative w-full h-full -mt-16 border">
             {/* Background Image */}
+
             <Image
               src="/hero_bg.png"
               alt="Hero background"
