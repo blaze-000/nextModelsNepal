@@ -9,7 +9,7 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "button-group bg-primary text-primary-foreground hover:bg-white font-bold rounded-full text-base tracking-[0.02em] overflow-hidden relative gap-1.5",
+        default: "group/button bg-primary text-primary-foreground hover:bg-white font-bold rounded-full text-base tracking-[0.02em] overflow-hidden relative gap-1.5",
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
@@ -49,13 +49,13 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       >
         {isAnimated ? (
           <span className="relative">
-            <span className="flex items-center transition-transform duration-400 button-group-hover:translate-x-[200%] gap-1.5">
+            <span className="flex items-center transition-transform duration-400 group-hover/button:translate-x-[200%] gap-1.5">
               {children}
             </span>
 
             <span
               aria-hidden="true"
-              className="absolute left-0 top-0 w-full h-full flex items-center justify-center transition-transform duration-400 translate-x-[-200%] button-group-hover:translate-x-0 pointer-events-none gap-1.5"
+              className="absolute left-0 top-0 w-full h-full flex items-center justify-center transition-transform duration-400 translate-x-[-200%] group-hover/button:translate-x-0 pointer-events-none gap-1.5"
             >
               {children}
             </span>
@@ -63,8 +63,6 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         ) : (
           children
         )}
-
-
       </Comp>
     )
   }

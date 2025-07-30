@@ -48,13 +48,20 @@ const UpcomingEventSection = () => {
           </div>
         </div>
 
-        <div className="grid lg:grid-cols-[1fr_1.5fr] gap-24 items-start">
-          <div className="order-2 lg:order-1">
-            <img
-              className="w-full h-auto max-w-md mx-auto"
+        <div className="grid lg:grid-cols-[1fr_1.5fr] gap-24 items-center">
+          <div className="order-2 lg:order-1 relative">
+            <Image
+              height={500}
+              width={500}
+              className="h-full w-auto"
               src="/mr-nepal-2025-poster-1.jpg"
               alt="Mr. Nepal 2025"
             />
+            <div className="h-[115%] absolute right-0 -top-[7.5%] w-[1px] bg-gradient-to-b from-transparent via-white to-transparent" />
+            <div className="h-[115%] absolute left-0 -top-[7.5%] w-[1px] bg-gradient-to-b from-transparent via-white to-transparent" />
+            <div className="w-[115%] absolute top-0 -left-[7.5%] h-[1px] bg-gradient-to-r from-transparent via-white to-transparent" />
+            <div className="w-[115%] absolute bottom-0 -right-[7.5%] h-[1px] bg-gradient-to-r from-transparent via-white to-transparent" />
+
           </div>
 
           <div className="order-1 lg:order-2 space-y-8">
@@ -65,7 +72,7 @@ const UpcomingEventSection = () => {
             </p>
 
             {/* Eligibility Section */}
-            <div className="bg-stone-900 p-6 lg:p-7 space-y-5">
+            <div className="bg-stone-900 p-6 lg:px-7 py-5 space-y-4">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-4 rounded-full border-2 border-white" />
                 <h4 className="text-white text-xl font-bold font-['Urbanist'] leading-loose tracking-tight">
@@ -109,7 +116,7 @@ const UpcomingEventSection = () => {
             </div>
 
             {/* Auditions Section */}
-            <div className="bg-stone-900 p-6 lg:p-7 space-y-5">
+            <div className="bg-stone-900 p-6 lg:px-7 py-5">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-4 rounded-full border-2 border-white" />
                 <h4 className="text-white text-xl font-bold font-['Urbanist'] leading-loose tracking-tight">
@@ -173,7 +180,7 @@ const UpcomingEventSection = () => {
 
               {/* About Button */}
               <button className="px-4 py-4 rounded-full text-gold-500 text-base font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer -tracking-tight">
-               <span className="underline"> About Mr. Nepal 2025</span>
+                <span className="underline"> About Mr. Nepal 2025</span>
                 <i className="ri-arrow-right-up-line group-hover:scale-130 transition-transform duration-400" />
               </button>
             </div>
