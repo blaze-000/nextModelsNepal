@@ -1,5 +1,4 @@
 import React from "react";
-import { ExternalLink } from "lucide-react";
 import Image from "next/image";
 
 const NewsSection = () => {
@@ -24,7 +23,7 @@ const NewsSection = () => {
   ];
 
   return (
-    <div className="w-full bg-black min-h-screen py-16 px-4 sm:px-6 lg:px-8">
+    <div className="w-full bg-black py-16 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Header Section */}
         <div className="text-center mb-16">
@@ -47,47 +46,44 @@ const NewsSection = () => {
         {/* News Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 px-8">
           {newsItems.map((item) => (
-       
-              <article key={item.id} className="bg-stone-900 flex flex-col justify-between overflow-hidden hover:bg-stone-800 transition-colors duration-300 p-6">
-                {/* Image Container */}
-                <div className="relative overflow-hidden">
-                  <Image
-                    width={0}
-                    height={0}
-                    src={item.image}
-                    alt={item.title}
-                    sizes="100vw"
-                    className="w-full h-72 sm:h-72 lg:h-72 object-cover object-top scale-120 hover:scale-105 transition-transform duration-700"
-                  />
-                </div>
 
-                {/* Content */}
-                <div className="pt-4 pr-4">
-                  <div className="mb-6">
-                    <h3 className="text-base lg:text-base font-semibold text-white mb-4 leading-tight">
-                      {item.title}
-                    </h3>
-                    <p className="text-base font-light text-white/80 leading-relaxed">
-                      {item.description}
-                    </p>
-                  </div>
+            <article key={item.id} className="bg-stone-900 flex flex-col justify-between overflow-hidden hover:bg-stone-800 transition-colors duration-300 p-6">
+              {/* Image Container */}
+              <div className="relative overflow-hidden">
+                <Image
+                  width={0}
+                  height={0}
+                  src={item.image}
+                  alt={item.title}
+                  sizes="100vw"
+                  className="w-full h-72 sm:h-72 lg:h-72 object-cover object-top scale-120 hover:scale-105 transition-transform duration-700"
+                />
+              </div>
+
+              {/* Content */}
+              <div className="pt-4 pr-4">
+                <div className="mb-6">
+                  <h3 className="text-base lg:text-base font-semibold text-white mb-4 leading-tight">
+                    {item.title}
+                  </h3>
+                  <p className="text-base font-light text-white/80 leading-relaxed">
+                    {item.description}
+                  </p>
                 </div>
-                <div>
-                   {/* CTA Button */}
-                  <a
-                    href={item.link}
-                    className="inline-flex items-center gap-3 text-gold-500 hover:text-gold-400 font-semibold text-base transition-colors duration-200 group"
-                  >
-                    <span className="underline decoration-1 underline-offset-4">
-                      Visit News Source
-                    </span>
-                    <ExternalLink
-                      size={18}
-                      className="group-hover:translate-x-1 transition-transform duration-200"
-                    />
-                  </a>
-                </div>
-              </article>
+              </div>
+              <div>
+                {/* CTA Button */}
+                <a
+                  href={item.link}
+                  className="inline-flex items-center gap-3 text-gold-500 hover:text-gold-400 font-semibold text-base transition-colors duration-200 group"
+                >
+                  <span className="underline decoration-1 underline-offset-4">
+                    Visit News Source
+                  </span>
+                  <i className="group-hover:translate-x-1 transition-transform duration-200 ri-arrow-right-up-line" />
+                </a>
+              </div>
+            </article>
           ))}
         </div>
 

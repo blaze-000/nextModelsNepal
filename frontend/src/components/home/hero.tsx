@@ -64,9 +64,11 @@ const HeroSection = () => {
 
             {/* Buttons */}
             <div className="flex items-center gap-10 pt-4">
-              <Button>Hire a Model</Button>
+              <Button variant="default" className="px-9 py-4 group">
+                Hire a model <i className="group-hover:scale-1.2 ri-arrow-right-up-line" />
+              </Button>
               <button className="text-primary text-lg font-semibold  underline">
-                Upcoming Events ↗
+                Upcoming Events <i className="ml-1 w-4 h-4 ri-arrow-right-up-line" />
               </button>
             </div>
           </div>

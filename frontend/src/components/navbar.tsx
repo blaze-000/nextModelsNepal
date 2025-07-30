@@ -2,9 +2,9 @@
 
 import React from "react";
 import Link from "next/link";
-import { ChevronDown } from "lucide-react";
 import Image from "next/image";
 import { menuItems } from "../../data/data";
+import { Button } from "./ui/button";
 
 const Header = () => {
   return (
@@ -31,18 +31,16 @@ const Header = () => {
                     className="flex items-center font-urbanist text-white hover:text-yellow-500 transition-colors"
                   >
                     {item.label}
-                    {showIcon && <ChevronDown className="ml-1 w-4 h-4" />}
+                    {showIcon && <i className="ml-1 w-4 h-4 ri-arrow-drop-down-line" />}
                   </Link>
                 );
               })}
             </div>
 
             {/* Apply Button */}
-            <Link href="/apply">
-              <button className="bg-amber-500 text-yellow-950 font-semibold text-[18px] px-7 py-1 rounded-full leading-loose tracking-tight font-urbanist">
-                Apply
-              </button>
-            </Link>
+            <Button asChild variant="default">
+              <Link href="/apply">Apply</Link>
+            </Button>
           </div>
         </div>
       </nav>
