@@ -61,9 +61,7 @@ const ModelsPortfolioSection = () => {
               </button>
 
 
-        {/* <button className="px-7 py-4 rounded-full text-gold-500 text-lg font-bold font-['Urbanist'] underline hover:text-white group transition-colors flex items-center gap-1.5">
-          {viewAllText} <i className="group-hover:w-5 group-hover:h-5 transition-all duration-300 w-4 h-4 ri-arrow-right-up-line"/>
-        </button> */}
+
       </div>
     </div>
   );
@@ -84,7 +82,9 @@ const ModelsPortfolioSection = () => {
                 alt="" />
               <h2 className="text-white text-4xl lg:text-5xl font-light font-newsreader">Face</h2>
             </div>
+
             <h2 className="text-amber-500 text-5xl lg:text-6xl font-light font-newsreader">For Your Brand!</h2>
+
           </div>
 
           {/* <div className="w-full"> */}

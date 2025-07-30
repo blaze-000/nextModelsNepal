@@ -8,14 +8,14 @@ const CTASection = () => {
     >
 
       {/* Glowing background effect */}
-      {/* <div className="absolute top-16 left-1/2 transform -translate-x-1/2 w-96 h-96 opacity-50 bg-gradient-radial from-amber-500 to-transparent rounded-full blur-3xl" /> */}
+      {/* <div className="absolute top-16 left-1/2 transform -translate-x-1/2 w-96 h-96 opacity-50 bg-gradient-radial from-gold-500 to-transparent rounded-full blur-3xl" /> */}
 
       {/* Stage effect */}
       {/* <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-6xl h-96 bg-zinc-800 shadow-2xl" />
       <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-6xl h-12 bg-zinc-900" /> */}
 
       {/* Spotlight effects */}
-      {/* <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-52 h-60 bg-gradient-to-b from-yellow-100/30 via-amber-200/10 to-transparent" /> */}
+      {/* <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-52 h-60 bg-gradient-to-b from-yellow-100/30 via-gold-200/10 to-transparent" /> */}
 
       {/* Content */}
       <div className="relative z-10 text-center px-4">

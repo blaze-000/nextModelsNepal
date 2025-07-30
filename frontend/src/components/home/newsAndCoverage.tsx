@@ -89,7 +89,7 @@ const NewsSection = () => {
 
         {/* Load More Button */}
         <div className="text-center mt-16">
-          <button className="bg-amber-500 hover:bg-amber-600 text-black font-bold py-4 px-8 rounded-full transition-colors duration-200 text-lg">
+          <button className="bg-gold-500 hover:bg-gold-600 text-black font-bold py-4 px-8 rounded-full transition-colors duration-200 text-lg">
             Load More News
           </button>
         </div>

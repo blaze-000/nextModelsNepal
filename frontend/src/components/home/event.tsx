@@ -35,10 +35,11 @@ const EventsSection = () => {
   ];
 
   return (
-    <section className="bg-amber-500/5 py-16 lg:py-24">
+    <section className="bg-gold-500/5 py-16 lg:py-24">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 xl:px-36">
         {/* Header */}
         <div className="mb-16">
+
           <div className="space-y-2">
             <div className="flex items-center gap-4">
               <span className="text-white text-5xl font-extralight font-newsreader tracking-tight">
@@ -69,6 +70,8 @@ const EventsSection = () => {
           </div>
         </div>
 
+
+        
         {/* Timeline with Events - Left Position */}
         <Timeline position="left" title="Events by Next Models Nepal">
           {events.map((event) => (
@@ -107,6 +110,7 @@ const EventsSection = () => {
           />
         </Timeline>
        
+
       </div>
     </section>
   );
