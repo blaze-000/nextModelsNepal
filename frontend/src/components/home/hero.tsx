@@ -4,11 +4,11 @@ import { Button } from "../ui/button";
 
 const HeroSection = () => {
   return (
-    <section className="container mx-auto px-4 sm:px-6 lg:px-8 xl:px-36 pb-30">
-      <div className="pt-20 relative">
-        <div className="grid lg:grid-cols-2 gap-20 items-start">
+    <section className="container mx-auto px-4 sm:px-6 lg:px-8 xl:pl-36 ">
+      <div className="relative">
+        <div className="grid lg:grid-cols-[0.40fr_0.60fr] items-start">
           {/* Left Content */}
-          <div className="space-y-2">
+          <div className="space-y-2 pt-20 pb-40">
             {/* We are Next Models Nepal */}
             <div className="self-stretch justify-center">
               <span className=" text-white text-2xl leading-loose tracking-wide">
@@ -72,43 +72,19 @@ const HeroSection = () => {
           </div>
 
           {/* Right Content - Image Grid */}
-          <div className="relative">
-            <div className="grid grid-cols-2 gap-4">
-              {/* Top Row */}
-              <div className="w-32 h-32 rounded-2xl overflow-hidden">
-                <img
-                  src="https://placehold.co/206x207"
-                  alt="Model 1"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="w-32 h-32 rounded-2xl overflow-hidden">
-                <img
-                  src="https://placehold.co/206x207"
-                  alt="Model 2"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-
-              {/* Bottom Row */}
-              <div className="w-32 h-32 rounded-2xl overflow-hidden">
-                <img
-                  src="https://placehold.co/206x207"
-                  alt="Model 3"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="w-32 h-32 rounded-2xl overflow-hidden">
-                <img
-                  src="https://placehold.co/206x207"
-                  alt="Model 4"
-                  className="w-full h-full object-cover"
-                />
-              </div>
+          {/* <div className="relative bg-no-repeat h-full bg-cover bg-center"
+      style={{ backgroundImage: "url('/hero_bg.png')" }}> */}
+          <div className="relative w-full h-full -mt-16">
+            <Image
+              src="/hero_bg.png"
+              alt="Hero background"
+              fill
+              className="object-contain" 
+              priority
+            />
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+              <Image src="/hero_star.svg" alt="" width={71} height={74} />
             </div>
-
-            {/* Orange Diamond - positioned between the 4 images */}
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-6 h-6 bg-orange-400 rotate-45"></div>
           </div>
         </div>
       </div>
