@@ -23,7 +23,7 @@ const NewsSection = () => {
   ];
 
   return (
-    <div className="w-full bg-background pb-24 pt-12 md:py-16 px-6 sm:px-6 lg:px-8">
+    <div className="w-full bg-background pb-24 pt-20 md:py-16 px-6 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Header Section */}
         <div className="text-center mb-8 md:mb-16">

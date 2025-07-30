@@ -3,12 +3,72 @@
 import { useState } from "react";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
-import { Spinner } from '@geist-ui/react'
-
+import { Spinner } from "@geist-ui/react";
 
 // Email validation regex
 const validateEmail = (email: string) =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+// Reusable Input Component
+const InputField = ({
+  label,
+  name,
+  value,
+  onChange,
+  placeholder,
+  type = "text",
+  error,
+}: {
+  label: string;
+  name: string;
+  value: string;
+  onChange: any;
+  placeholder: string;
+  type?: string;
+  error?: string;
+}) => (
+  <div className="w-full">
+    <label className="block mb-4 md:mb-2 text-sm md:text-base font-medium">{label}</label>
+    <input
+      name={name}
+      value={value}
+      onChange={onChange}
+      type={type}
+      placeholder={placeholder}
+      className="w-full bg-muted-background text-gray-100 px-6 md:px-6 py-4 md:py-6 outline-none rounded"
+    />
+    {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+  </div>
+);
+
+// Reusable Textarea Component
+const TextareaField = ({
+  label,
+  name,
+  value,
+  onChange,
+  placeholder,
+  error,
+}: {
+  label: string;
+  name: string;
+  value: string;
+  onChange: any;
+  placeholder: string;
+  error?: string;
+}) => (
+  <div className="w-full">
+    <label className="block mb-4 md:mb-2 text-sm md:text-base font-medium">{label}</label>
+    <textarea
+      name={name}
+      value={value}
+      onChange={onChange}
+      placeholder={placeholder}
+      className="w-full h-32 md:h-40 bg-muted-background text-gray-100 px-6 md:px-6 py-4 outline-none resize-none rounded"
+    />
+    {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+  </div>
+);
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({
@@ -65,19 +125,21 @@ const ContactForm = () => {
   };
 
   return (
-    <div className="w-full py-16 flex flex-col items-center text-white font-urbanist">
-      <div className="w-full max-w-7xl px-6">
+    <div className="w-full py-16 md:py-16 flex flex-col items-center text-white font-urbanist">
+      <div className="w-full max-w-7xl px-8 md:px-6">
         {/* Header */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-8 text-left">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-8 text-left">
           <div>
-            <h2 className="text-4xl md:text-5xl font-extralight font-newsreader tracking-tight">
-              Send us a message
+            <h2 className="text-4xl md:text-5xl font-extralight font-newsreader tracking-tight text-center md:text-start mb-2">
+              Send Us a Message
             </h2>
-            <h1 className="text-5xl md:text-6xl font-extralight text-gold-500 font-newsreader tracking-tight">
+            <h1 className="text-5xl md:text-6xl font-extralight text-gold-500 font-newsreader tracking-tight text-center md:text-start">
               Let&rsquo;s Talk !!
             </h1>
+           
           </div>
-          <p className="text-base leading-relaxed md:w-1/2">
+
+          <p className="text-sm md:text-base leading-relaxed font-normal px-2 tracking-wider text-center md:text-end md:w-1/2">
             Ready to make it big in modeling? Our tailored training and industry
             expertise will propel you to the top. Your journey to becoming a top
             model begins here.
@@ -85,102 +147,78 @@ const ContactForm = () => {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="mt-12 space-y-8">
+        <form onSubmit={handleSubmit} className="mt-12 md:mt-12 space-y-6 md:space-y-8">
           {/* Row 1 */}
           <div className="flex flex-col md:flex-row gap-6">
-            <div className="flex-1">
-              <label className="block mb-2 text-base">Name</label>
-              <input
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                type="text"
-                placeholder="e.g. John Doe"
-                className="w-full bg-muted-background text-gray-100 px-6 py-6 outline-none"
-              />
-              {errors.name && (
-                <p className="text-red-500 text-sm mt-1">{errors.name}</p>
-              )}
-            </div>
-            <div className="flex-1">
-              <label className="block mb-2 text-base">Subject</label>
-              <input
-                name="subject"
-                value={formData.subject}
-                onChange={handleChange}
-                type="text"
-                placeholder="e.g. I want to be a model"
-                className="w-full bg-muted-background text-gray-100 px-6 py-6 outline-none"
-              />
-              {errors.subject && (
-                <p className="text-red-500 text-sm mt-1">{errors.subject}</p>
-              )}
-            </div>
+            <InputField
+              label="Name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="e.g. John Doe"
+              error={errors.name}
+             
+            />
+            <InputField
+              label="Subject"
+              name="subject"
+              value={formData.subject}
+              onChange={handleChange}
+              placeholder="e.g. I want to be a model"
+              error={errors.subject}
+            />
           </div>
 
           {/* Row 2 */}
           <div className="flex flex-col md:flex-row gap-6">
-            <div className="flex-1">
-              <label className="block mb-2 text-base">Email</label>
-              <input
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                type="email"
-                placeholder="e.g. johndoe@example.com"
-                className="w-full bg-muted-background text-gray-100 px-6 py-6 outline-none"
-              />
-              {errors.email && (
-                <p className="text-red-500 text-sm mt-1">{errors.email}</p>
-              )}
-            </div>
-            <div className="flex-1">
-              <label className="block mb-2 text-base">Phone</label>
-              <input
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                type="tel"
-                placeholder="e.g. XXXXXXXXXX"
-                className="w-full bg-muted-background text-gray-100 px-6 py-6 outline-none"
-              />
-              {errors.phone && (
-                <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
-              )}
-            </div>
+            <InputField
+              label="Email"
+              name="email"
+              type="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="e.g. johndoe@example.com"
+              error={errors.email}
+            />
+            <InputField
+              label="Phone"
+              name="phone"
+              type="tel"
+              value={formData.phone}
+              onChange={handleChange}
+              placeholder="e.g. +977 XXXXXXXXXX"
+              error={errors.phone}
+            />
           </div>
 
-          {/* Message */}
-          <div>
-            <label className="block mb-2 text-base">Message</label>
-            <textarea
-              name="message"
-              value={formData.message}
-              onChange={handleChange}
-              placeholder="Enter your message"
-              className="w-full h-40 bg-muted-background text-gray-100 px-6 py-4 outline-none resize-none"
-            />
-            {errors.message && (
-              <p className="text-red-500 text-sm mt-1">{errors.message}</p>
-            )}
-          </div>
+          {/* Row 3 */}
+          <TextareaField
+            label="Message"
+            name="message"
+            value={formData.message}
+            onChange={handleChange}
+            placeholder="Enter your message"
+            error={errors.message}
+          />
 
           {/* Submit Button */}
           <div className="flex justify-end mt-6">
-            <Button type="submit" disabled={isSending}
-            className="w-50">
-              {isSending ?
-                (<>
+            <Button
+              type="submit"
+              disabled={isSending}
+              className="w-35 md:w-50 bg-gold-500 hover:bg-gold-600 text-black font-semibold rounded-full"
+            >
+              {isSending ? (
+                <>
                   <Spinner />
                   Submitting...
                 </>
-                ) :
-                (<>
+              ) : (
+                <>
                   Submit
-                  <i className="group-hover:scale-1.2 ri-arrow-right-up-line" />
+                  <i className="group-hover:scale-1.2 ri-arrow-right-up-line ml-2" />
                 </>
-                )
-              }
+              )}
             </Button>
           </div>
         </form>

@@ -99,7 +99,7 @@ const EventsSection = () => {
             title="International Beauty Contest"
             dateSpan="1st October to 15th October"
             briefInfo="A global beauty pageant featuring contestants from around the world."
-            imageSrc="/events_1.jpg.jpg"
+            imageSrc="/events_1.jpg"
             state="ongoing"
             columnPosition="right"
             timelinePosition="right"
