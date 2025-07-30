@@ -74,7 +74,7 @@ const ContactForm = () => {
               Send us a message
             </h2>
             <h1 className="text-5xl md:text-6xl font-extralight text-gold-500 font-newsreader tracking-tight">
-              Let's Talk !!
+              Let&rsquo;s Talk !!
             </h1>
           </div>
           <p className="text-base leading-relaxed md:w-1/2">
