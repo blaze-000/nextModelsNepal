@@ -8,7 +8,7 @@ import { Button } from "./ui/button";
 
 const Header = () => {
   return (
-    <header className="container mx-auto px-4 sm:px-6 lg:px-8 xl:px-36 relative z-10">
+    <header className="container mx-auto px-4 sm:px-6 lg:px-8 xl:px-36 relative z-20">
       <nav className="py-1">
         <div className="flex items-center justify-between w-full">
           {/* Logo  */}

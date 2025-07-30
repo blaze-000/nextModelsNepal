@@ -4,11 +4,11 @@ import { Button } from "../ui/button";
 
 const HeroSection = () => {
   return (
-    <section className="container mx-auto px-4 sm:px-6 lg:px-8 xl:pl-36 ">
-      <div className="relative">
-        <div className="grid lg:grid-cols-[0.40fr_0.60fr] items-start">
+    <section className="bg- w-full">
+      <div className="max-w-7xl mx-auto px-4 md:px-8">
+        <div className="grid lg:grid-cols-[1fr_1.5fr] gap-8 ">
           {/* Left Content */}
-          <div className="space-y-2 pt-20 pb-40">
+          <div className="space-y-2 pt-20 pb-30">
             {/* We are Next Models Nepal */}
             <div className="self-stretch justify-center">
               <span className=" text-white text-2xl leading-loose tracking-wide">
@@ -25,7 +25,7 @@ const HeroSection = () => {
                 <span className="text-white text-8xl font-extralight font-newsreader tracking-tighter">
                   Nepal&rsquo;s{" "}
                 </span>
-                <span className="text-orange-400 text-8xl font-extralight font-newsreader tracking-tighter">
+                <span className="text-gold-500 text-8xl font-extralight font-newsreader tracking-tighter">
                   No.1
                 </span>
               </div>
@@ -47,11 +47,11 @@ const HeroSection = () => {
               </div>
 
               <div className="flex items-center gap-4">
-                <span className="text-white text-8xl font-extralight font-newsreader tracking-tighter italic">
+                <span className="text-white text-8xl font-extralight font-newsreader tracking-tighter italic pt-4 pr-2">
                   Agency
                 </span>
                 {/* Empty oval outline */}
-                <div className="w-36 h-16 rounded-full border-2 border-orange-400"></div>
+                <div className="w-40 h-16 rounded-full border-2 border-gold-500"></div>
               </div>
             </div>
 
@@ -67,7 +67,7 @@ const HeroSection = () => {
               <Button variant="default" className="px-9 py-4 group">
                 Hire a model <i className="group-hover:scale-1.2 ri-arrow-right-up-line" />
               </Button>
-              <button className="text-primary text-lg font-semibold  underline">
+              <button className="text-gold-500 text-lg font-semibold  underline">
                 Upcoming Events <i className="ml-1 w-4 h-4 ri-arrow-right-up-line" />
               </button>
             </div>
@@ -75,73 +75,37 @@ const HeroSection = () => {
 
 
           {/* Right side*/}
-          <div className="relative w-full h-full -mt-16 border">
-            {/* Background Image */}
+          <div className="w-full h-full relative">
+            {/* 2x2 centered image grid */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 grid grid-cols-2 grid-rows-2 gap-4 w-[60%] aspect-square z-10">
+              {[1, 2, 3, 4].map((n) => (
+                <div key={n} className="relative">
+                  <Image
+                  src="/news_1.jpg"
+                    // src={`/model${n}.jpg`}
+                    alt={`Model ${n}`}
+                    fill
+                    className="object-cover rounded-xl"
+                  />
+                </div>
+              ))}
+            </div>
 
+            {/* Grid overlays (keep your existing ones) */}
             <Image
-              src="/hero_bg.png"
-              alt="Hero background"
-              fill
-              className="object-contain"
+              src="/small_star.svg"
+              alt=""
+              width={25}
+              height={0}
               priority
+              className="object-cover w-12 h-12 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20"
             />
-
-            {/* Center Star */}
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
-              <Image src="/hero_star.svg" alt="" width={71} height={74} />
-            </div>
-
-            {/* 4x4 Grid Overlay */}
-            <div className="z-10 absolute inset-0 grid grid-cols-4 grid-rows-4 space-x-4 p-4">
-              {/* Area 6 */}
-              <div className="col-start-2 row-start-2">
-                <div className="relative w-full aspect-square">
-                  <Image
-                    src="/news_1.jpg"
-                    alt=""
-                    fill
-                    className="object-cover object-center rounded-lg"
-                  />
-                </div>
-              </div>
-
-              {/* Area 7 */}
-              <div className="col-start-3 row-start-2">
-                <div className="relative w-full aspect-square">
-                  <Image
-                    src="/news_1.jpg"
-                    alt=""
-                    fill
-                    className="object-cover object-center rounded-lg"
-                  />
-                </div>
-              </div>
-
-              {/* Area 10 */}
-              <div className="col-start-2 row-start-3">
-                <div className="relative w-full aspect-square">
-                  <Image
-                    src="/news_1.jpg"
-                    alt=""
-                    fill
-                    className="object-cover object-center rounded-lg"
-                  />
-                </div>
-              </div>
-
-              {/* Area 11 */}
-              <div className="col-start-3 row-start-3">
-                <div className="relative w-full aspect-square">
-                  <Image
-                    src="/news_1.jpg"
-                    alt=""
-                    fill
-                    className="object-cover object-center rounded-lg"
-                  />
-                </div>
-              </div>
-            </div>
-
+            <div className="absolute left-0 top-1/4 w-[125%] h-[1px] bg-gradient-to-r from-transparent via-gray-700 to-transparent" />
+            <div className="absolute left-0 top-1/2 w-[105%] h-[1px] bg-gradient-to-r from-transparent via-gray-700 to-transparent" />
+            <div className="absolute left-0 bottom-1/5 w-[105%] h-[1px] bg-gradient-to-r from-transparent via-gray-700 to-transparent" />
+            <div className="absolute bottom-0 left-1/5 h-[105%] w-[1px] bg-gradient-to-b from-transparent via-gray-700 to-transparent" />
+            <div className="absolute bottom-0 left-1/2 h-[105%] w-[1px] bg-gradient-to-b from-transparent via-gray-700 to-transparent" />
+            <div className="absolute bottom-0 right-1/5 h-[105%] w-[1px] bg-gradient-to-b from-transparent via-gray-700 to-transparent" />
           </div>
 
         </div>
