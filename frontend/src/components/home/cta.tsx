@@ -1,4 +1,3 @@
-import { ArrowUpRight } from "lucide-react";
 import { Button } from "../ui/button";
 import Image from "next/image";
 
@@ -40,11 +39,11 @@ const CTASection = () => {
           </div>
 
           <p className="text-white text-md lg:text-lg font-normal font-urbanist leading-loose tracking-tight max-w-3xl mx-auto">
-            Embarking on a modeling career can be daunting. Don't let self-doubt hold you back. Our expert training and personalized guidance are designed to hone your skills and boost your confidence.
+            Embarking on a modeling career can be daunting. Don&rsquo;t let self-doubt hold you back. Our expert training and personalized guidance are designed to hone your skills and boost your confidence.
           </p>
 
           <Button className="flex items-center gap-2 mx-auto">
-            Become a model <ArrowUpRight />
+            Become a model <i className="ri-arrow-right-up-line" />
           </Button>
         </div>
       </div>

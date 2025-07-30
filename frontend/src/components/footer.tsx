@@ -1,8 +1,6 @@
 import Image from "next/image";
 import type { FC, ReactNode } from "react";
 import NewsLetterBox from "./molecules/newsleterbox";
-import { Instagram, Twitter, Facebook, Linkedin } from "lucide-react";
-import { Phone, Mail, MapPin } from "lucide-react";
 
 const Footer: FC = (): ReactNode => {
   const currentYear: number = new Date().getFullYear();
@@ -30,10 +28,10 @@ const Footer: FC = (): ReactNode => {
                 Nepal&rsquo;s No.1 Modeling Agency
               </p>
               <div className="flex items-center gap-4 pt-3">
-                <Instagram className="bg-amber-500 w-8 h-8 p-1.5 text-black rounded-full hover:opacity-80 transition-opacity cursor-pointer" />
-                <Twitter className="bg-amber-500 w-8 h-8 p-1.5 text-black rounded-full hover:opacity-80 transition-opacity cursor-pointer" />
-                <Facebook className="bg-amber-500 w-8 h-8 p-1.5 text-black rounded-full hover:opacity-80 transition-opacity cursor-pointer" />
-                <Linkedin className="bg-amber-500 w-8 h-8 p-1.5 text-black rounded-full hover:opacity-80 transition-opacity cursor-pointer" />
+                <i className="bg-gold-500 w-8 h-8 p-1.5 text-black rounded-full hover:opacity-80 transition-opacity cursor-pointer ri-instagram-line" />
+                <i className="bg-gold-500 w-8 h-8 p-1.5 text-black rounded-full hover:opacity-80 transition-opacity cursor-pointer ri-twitter-x-line" />
+                <i className="bg-gold-500 w-8 h-8 p-1.5 text-black rounded-full hover:opacity-80 transition-opacity cursor-pointer ri-facebook-circle-line" />
+                <i className="bg-gold-500 w-8 h-8 p-1.5 text-black rounded-full hover:opacity-80 transition-opacity cursor-pointer ri-linkedin-box-line" />
               </div>
             </div>
 
@@ -78,23 +76,22 @@ const Footer: FC = (): ReactNode => {
               <h3 className="text-base font-semibold">Contact</h3>
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
-                  <Phone className="w-5 h-5 text-white flex-shrink-0" />
+                  <i className="w-5 h-5 text-white flex-shrink ri-phone-line" />
                   <span className="text-base font-light hover:text-orange-400 transition-colors cursor-pointer ">
                     9819686790
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <Mail className="w-5 h-5 text-white flex-shrink-0" />
+                  <i className="w-5 h-5 text-white flex-shrink-0 ri-mail-line" />
                   <span className="text-base font-light hover:text-orange-400 transition-colors cursor-pointer ">
                     info@nextmodelsnepal.com
                   </span>
                 </div>
                 <div className="flex items-start gap-3">
-                  <MapPin className="w-5 h-5 text-white flex-shrink-0" />
+                  <i className="w-5 h-5 text-white flex-shrink-0 ri-map-pin-line" />
                   <span className="text-base font-light hover:text-orange-400 transition-colors cursor-pointer ">
                     Putalisadak, Kathmandu, Nepal
                   </span>
-
                 </div>
               </div>
             </div>

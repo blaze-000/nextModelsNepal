@@ -1,5 +1,5 @@
-import { ArrowUpRight } from "lucide-react";
 import Image from "next/image";
+import { Button } from "../ui/button";
 
 const UpcomingEventSection = () => {
   return (
@@ -141,14 +141,10 @@ const UpcomingEventSection = () => {
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4">
-              <button className="bg-gold-500 rounded-full px-8 py-4 text-yellow-950 text-xl font-bold font-urbanist hover:bg-gold-600 transition-colors">
-                Apply Now
-              </button>
-              <button className="bg-white rounded-full px-8 py-4 text-yellow-950 text-xl font-bold font-urbanist hover:bg-gray-100 transition-colors">
-                Get Tickets
-              </button>
+              <Button variant="default" className="text-lg">Apply Now</Button>
+              <Button variant="default" className="text-lg bg-white">Get Tickets</Button>
               <button className="px-7 py-4 rounded-full text-gold-500 text-xl font-bold font-urbanist underline group hover:text-white gap-2 transition-colors flex items-center">
-                About Mr.Nepal 2025 <ArrowUpRight className="group-hover:w-5 transition-colors duration-300 group-hover:h-5 w-4 h-4" />
+                About Mr.Nepal 2025 <i className="group-hover:w-5 transition-colors duration-300 group-hover:h-5 w-4 h-4 ri-arrow-right-up-line" />
               </button>
             </div>
           </div>

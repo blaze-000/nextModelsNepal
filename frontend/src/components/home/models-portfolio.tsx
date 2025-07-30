@@ -1,5 +1,4 @@
 import Image from "next/image";
-import { ArrowUpRight, MapPin } from "lucide-react";
 
 const ModelsPortfolioSection = () => {
   const femaleModels = [
@@ -42,14 +41,14 @@ const ModelsPortfolioSection = () => {
                 {model.name}
               </h4>
               <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4" />
+                <i className="w-4 h-4 ri-map-pin-line" />
                 <span className="text-white text-sm lg:text-base font-semibold font-['Urbanist']">
                   {model.location}
                 </span>
               </div>
             </div>
             <div className="absolute bottom-6 right-6">
-              <ArrowUpRight className="w-6 h-6 text-gold-400 rounded" />
+              <i className="w-6 h-6 text-gold-400 rounded ri-arrow-right-up-line" />
             </div>
           </div>
         ))}
@@ -57,7 +56,7 @@ const ModelsPortfolioSection = () => {
 
       <div className="flex justify-end">
         <button className="px-7 py-4 rounded-full text-gold-500 text-lg font-bold font-['Urbanist'] underline hover:text-white group transition-colors flex items-center gap-1.5">
-          {viewAllText} <ArrowUpRight className="group-hover:w-5 group-hover:h-5 transition-all duration-300 w-4 h-4"/>
+          {viewAllText} <i className="group-hover:w-5 group-hover:h-5 transition-all duration-300 w-4 h-4 ri-arrow-right-up-line"/>
         </button>
       </div>
     </div>

@@ -3,6 +3,8 @@ import "./globals.css";
 import { Urbanist, Newsreader } from "next/font/google";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
+import 'remixicon/fonts/remixicon.css';
+
 
 const urbanist = Urbanist({
   subsets: ["latin"],
@@ -14,7 +16,7 @@ const urbanist = Urbanist({
 const newsreader = Newsreader({
   subsets: ["latin"],
   weight: ["200", "300", "400", "600", "700"],
-  style: ["normal", "italic"], 
+  style: ["normal", "italic"],
   variable: "--font-newsreader",
   display: "swap",
 });
