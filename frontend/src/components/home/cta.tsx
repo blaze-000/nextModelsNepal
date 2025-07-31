@@ -45,7 +45,7 @@ const CTASection = () => {
                   The Runway is
                 </h3>
                 <h3 className="text-gold-500 text-5xl font-light tracking-tight  font-newsreader">
-                  Waiting
+                  Waiting!
                 </h3>
                 <h2 className="text-white text-5xl font-light tracking-tight  font-newsreader">
                   It is your time to
