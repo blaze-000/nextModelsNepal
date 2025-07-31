@@ -3,8 +3,8 @@ import { Button } from "../ui/button";
 
 const UpcomingEventSection = () => {
   return (
-    <section className="bg-muted-background w-full">
-      <div className="max-w-7xl mx-auto px-10">
+    <section className="bg-background2 w-full">
+      <div className="max-w-7xl mx-auto py-16">
         <div className="text-center mb-16">
           <div className="flex justify-center items-center gap-2 mb-8">
             <Image

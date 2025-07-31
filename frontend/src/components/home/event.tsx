@@ -73,7 +73,7 @@ const EventsSection = () => {
 
         <div className="space-y-12">
           <div> {/* Timeline with Events - Left Position */}
-        <Timeline position="left" title="Events by Next Models Nepal">
+        <Timeline position="left" title="Events by Next Models Nepal ">
           {events.map((event) => (
             <EventCard
               key={event.id}
