@@ -1,26 +1,28 @@
 import Image from "next/image";
 
 interface TimelineProps {
-  position?: 'left' | 'right';
+  position?: "left" | "right";
   title?: string;
   children: React.ReactNode;
 }
 
-const Timeline: React.FC<TimelineProps> = ({ 
-  position = 'left', 
+const Timeline: React.FC<TimelineProps> = ({
+  position = "left",
   title = "Events by Next Models Nepal",
-  children 
+  children,
 }) => {
-  const isLeft = position === 'left';
-  
+  const isLeft = position === "left";
+
   return (
     <div className="relative ">
       {/* Icon positioned absolutely above the vertical line */}
-      <div className={`absolute top-0 w-6 h-6 md:w-8 md:h-8 flex items-center justify-center -translate-y-1/2 z-20 ${
-        isLeft 
-          ? 'left-2 md:left-1.5 -translate-x-1/2' 
-          : 'right-2 md:right-1.5 translate-x-1/2'
-      }`}>
+      <div
+        className={`absolute top-0 w-6 h-6 md:w-8 md:h-8 flex items-center justify-center -translate-y-1/2 z-20 ${
+          isLeft
+            ? "left-2 md:left-1.5 -translate-x-1/2"
+            : "right-2 md:right-1.5 translate-x-1/2"
+        }`}
+      >
         <Image
           src="/small_star.svg"
           alt="Timeline Icon"
@@ -31,27 +33,25 @@ const Timeline: React.FC<TimelineProps> = ({
       </div>
 
       {/* Title positioned horizontally aligned with the icon */}
-      <div className={`absolute top-0 -translate-y-1/2 ${
-        isLeft 
-          ? 'left-8 md:left-8' 
-          : 'right-8 md:right-8 text-right'
-      }`}>
+      <div
+        className={`absolute top-0 -translate-y-1/2 ${
+          isLeft ? "left-8 md:left-8" : "right-8 md:right-8 text-right"
+        }`}
+      >
         <h3 className="text-white text-xl md:text-2xl font-newsreader font-medium tracking-tight whitespace-nowrap">
           {title}
         </h3>
       </div>
 
       {/* Vertical Line */}
-      <div className={`absolute top-0 w-0.5 h-full bg-gradient-to-b from-transparent via-white/60 to-transparent ${
-        isLeft 
-          ? 'left-2 md:left-1.5' 
-          : 'right-2 md:right-1.5'
-      }`}></div>
+      <div
+        className={`absolute top-0 w-0.5 h-full bg-gradient-to-b from-transparent via-white/60 to-transparent ${
+          isLeft ? "left-2 md:left-1.5" : "right-2 md:right-1.5"
+        }`}
+      ></div>
 
       {/* Event Cards Container */}
-      <div className="space-y-8 md:space-y-12 py-8 md:py-16">
-        {children}
-      </div>
+      <div className="space-y-20 md:space-y-24 md:py-12">{children}</div>
     </div>
   );
 };

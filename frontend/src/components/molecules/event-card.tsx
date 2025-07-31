@@ -22,8 +22,8 @@ const EventCard: React.FC<EventCardProps> = ({
   briefInfo,
   imageSrc,
   state,
-  columnPosition = "left",
-  timelinePosition = "left",
+  columnPosition = "",
+  timelinePosition = "",
   managedBy = "self",
   getTicketLink,
   aboutLink,
@@ -49,17 +49,21 @@ const EventCard: React.FC<EventCardProps> = ({
 
   return (
     <div
-      className={`relative ${
-        isTimelineLeft ? "pl-12 md:pl-16" : "pr-12 md:pr-16"
-      }`}
-    >
-      {/* Circle Indicator */}
-      <div
-        className={`absolute top-1 w-4 h-4 md:w-6 md:h-6 bg-gold-500 rounded-full z-10 ${
-          isTimelineLeft ? "left-5 md:left-6" : "right-5 md:right-6"
-        }`}
-      />
+  className={
+    timelinePosition
+      ? `relative ${isTimelineLeft ? "pl-12 md:pl-16" : "pr-12 md:pr-16"}`
+      : ""
+  }
+>
 
+      {/* Circle Indicator */}
+      {timelinePosition && (
+        <div
+          className={`absolute top-1 w-4 h-4 md:w-6 md:h-6 bg-gold-500 rounded-full z-10 ${
+            isTimelineLeft ? "left-5 md:left-6" : "right-5 md:right-6"
+          }`}
+        />
+      )}
       <div className="bg-background hover:outline-gold-500 outline-2 transition-outline duration-300 outline-transparent group">
         {/* Mobile Layout -  */}
         <div className="lg:hidden">
