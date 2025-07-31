@@ -126,7 +126,7 @@ const ContactForm = () => {
 
   return (
     <div className="w-full py-16 md:py-16 flex flex-col items-center text-white font-urbanist">
-      <div className="w-full max-w-7xl px-8 md:px-6">
+      <div className=" max-w-7xl px-8 md:px-6">
         {/* Header */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-8 text-left">
           <div>
