@@ -46,7 +46,7 @@ const Footer: FC = (): ReactNode => {
                 {quickLinks.map((link) => (
                   <div
                     key={link}
-                    className="text-base font-light hover:text-orange-400 transition-colors cursor-pointer tracking-wider"
+                    className="text-base font-light hover:text-gold-400 transition-colors cursor-pointer tracking-wider"
                   >
                     {link}
                   </div>
@@ -61,7 +61,7 @@ const Footer: FC = (): ReactNode => {
                 {events.map((event) => (
                   <div
                     key={event}
-                    className="text-base font-light hover:text-orange-400 transition-colors cursor-pointer underline tracking-wider"
+                    className="text-base font-light hover:text-gold-400 transition-colors cursor-pointer underline tracking-wider"
                   >
                     {event}
                   </div>
@@ -75,19 +75,19 @@ const Footer: FC = (): ReactNode => {
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <i className="w-5 h-5 text-white flex-shrink-0 ri-phone-line" />
-                  <span className="text-base font-light hover:text-orange-400 transition-colors cursor-pointer">
+                  <span className="text-base font-light hover:text-gold-400 transition-colors cursor-pointer">
                     9819686790
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
                   <i className="w-5 h-5 text-white flex-shrink-0 ri-mail-line" />
-                  <span className="text-base font-light hover:text-orange-400 transition-colors cursor-pointer">
+                  <span className="text-base font-light hover:text-gold-400 transition-colors cursor-pointer">
                     info@nextmodelsnepal.com
                   </span>
                 </div>
                 <div className="flex items-start gap-3">
                   <i className="w-5 h-5 text-white flex-shrink-0 ri-map-pin-line" />
-                  <span className="text-base font-light hover:text-orange-400 transition-colors cursor-pointer">
+                  <span className="text-base font-light hover:text-gold-400 transition-colors cursor-pointer">
                     Putalisadak, Kathmandu, Nepal
                   </span>
                 </div>
@@ -103,10 +103,10 @@ const Footer: FC = (): ReactNode => {
               © {currentYear} Lift Media. All rights reserved.
             </div>
             <div className="flex items-center gap-6 text-[20px] font-[Urbanist]">
-              <div className="text-base font-light hover:text-orange-400 transition-colors cursor-pointer underline tracking-wider">
+              <div className="text-base font-light hover:text-gold-400 transition-colors cursor-pointer underline tracking-wider">
                 Terms & Conditions
               </div>
-              <div className="underline text-base font-light hover:text-orange-400 transition-colors cursor-pointer tracking-wider">
+              <div className="underline text-base font-light hover:text-gold-400 transition-colors cursor-pointer tracking-wider">
                 Privacy Policy
               </div>
             </div>

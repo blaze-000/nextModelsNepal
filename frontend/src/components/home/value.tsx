@@ -20,13 +20,13 @@ const ValuesSection = () => {
   ];
 
   return (
-    <section className="bg-background2 w-full pt-12 pb-18 relative overflow-hidden">
-      <div className="mx-auto sm:px-6 lg:px-8 xl:px-36 px-6">
+    <section className="bg-background2 w-full pt-16 md:pt-12 pb-18 relative overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 md:px-8">
         {/* Heading */}
-        <div className="text-center mb-16 mx-4">
-          <h2 className="font-newsreader text-4xl md:text-4xl lg:text-5xl font-extralight text-white">
+        <div className="text-left md:text-center mb-16 mx-4">
+          <h2 className="font-newsreader text-5xl lg:text-5xl font-extralight text-white">
             At Next Models Nepal{" "}
-            <span className="text-orange-400 font-newsreader font-extralight">
+            <span className="text-gold-400 font-newsreader font-extralight">
               We Ensure
             </span>
             ,

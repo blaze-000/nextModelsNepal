@@ -36,7 +36,7 @@ const EventsSection = () => {
   ];
 
   return (
-    <section className="bg-gold-500/5 py-20 md:py-16  w-full lg:py-24">
+    <section className="bg-gold-500/5 pt-20 pb-16">
       <div className="max-w-7xl mx-auto px-6 md:px-8">
         {/* Header */}
         <div className="mb-16">

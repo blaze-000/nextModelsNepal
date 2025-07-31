@@ -31,7 +31,7 @@ const ModelsPortfolioSection = () => {
         <div className="flex items-center gap-2">
           <div>
             <Image src="/small_star.svg" alt="" width={20} height={20}
-            className="w-8 h-8" />
+              className="w-8 h-8" />
           </div>
           <h3 className="text-white text-xl lg:text-2xl font-medium font-newsreader tracking-tight">
             {title}
@@ -87,11 +87,11 @@ const ModelsPortfolioSection = () => {
                   className="relative overflow-hidden group w-[80vw] min-w-[80vw] max-w-[80vw] snap-start shrink-0"
                 >
                   <Image
-                  
+
                     className="w-full h-80 object-cover [mask:linear-gradient(to_top,transparent_0%,black_30%)]"
                     src={model.image}
                     alt={model.name}
-                    width={0} 
+                    width={0}
                     height={0}
                     sizes="100vw"
                   />
@@ -136,7 +136,7 @@ const ModelsPortfolioSection = () => {
             <h2 className="text-white text-4xl md:text-3xl font-light font-newsreader">
               Find a Face
             </h2>
-            <h2 className="text-amber-500 text-5xl md:text-4xl font-light tracking-tight font-newsreader">
+            <h2 className="text-gold-500 text-5xl md:text-4xl font-light tracking-tight font-newsreader">
               For Your Brand!
             </h2>
           </div>
@@ -158,7 +158,7 @@ const ModelsPortfolioSection = () => {
                 Face
               </h2>
             </div>
-            <h2 className="text-amber-500 text-5xl lg:text-6xl font-light font-newsreader">
+            <h2 className="text-gold-500 text-5xl lg:text-6xl font-light font-newsreader">
               For Your Brand!
             </h2>
           </div>

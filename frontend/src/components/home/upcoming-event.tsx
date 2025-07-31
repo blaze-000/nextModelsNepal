@@ -3,9 +3,9 @@ import { Button } from "../ui/button";
 
 const UpcomingEventSection = () => {
   return (
-    <section className="bg-stone-950 py-16 lg:py-16">
-      <div className="max-w-7xl mx-auto px-6 lg:px-6">
-        <div className="text-center mb-12">
+    <section className="bg-muted-background w-full">
+      <div className="max-w-7xl mx-auto px-10">
+        <div className="text-center mb-16">
           <div className="flex justify-center items-center gap-2 mb-8">
             <Image
               src="/star.svg"
@@ -14,7 +14,7 @@ const UpcomingEventSection = () => {
               height={0}
               className="w-5 h-5 text-gold-500"
             />
-            <h2 className="text-white text-xl lg:text-2xl font-medium font-newsreader tracking-tight">
+            <h2 className="text-white text-2xl font-medium font-newsreader tracking-tight">
               Upcoming Event
             </h2>
           </div>
@@ -40,7 +40,7 @@ const UpcomingEventSection = () => {
                 <span>Fashion Event.</span>
               </div>
               <div className="text-5xl font-light font-newsreader tracking-tighter text-primary mb-1 mt-2">
-                Presenting
+                Presenting,
               </div>
               <div className="text-5xl font-light font-newsreader tracking-tighter text-gold-500 mb-4">
                 MR. Nepal 2025
@@ -113,7 +113,7 @@ const UpcomingEventSection = () => {
             </p>
 
             {/* Eligibility Section */}
-            <div className="bg-stone-900 p-8 md:px-8 md:py-6 space-y-4">
+            <div className="bg-muted-background p-8 md:px-8 md:py-6 space-y-4">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-4 rounded-full border-2 border-white " />
                 <h4 className="text-white text-xl font-bold font-['Urbanist'] leading-loose tracking-tight">
@@ -157,7 +157,7 @@ const UpcomingEventSection = () => {
             </div>
 
             {/* Auditions Section */}
-            <div className="bg-stone-900 p-8 md:px-8 md:py-6 space-y-4">
+            <div className="bg-muted-background p-8 md:px-8 md:py-6 space-y-4">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-8 h-4 rounded-full border-2 border-white" />
                 <h4 className="text-white text-xl font-bold leading-loose tracking-tight">
