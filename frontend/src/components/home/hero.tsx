@@ -6,9 +6,9 @@ const HeroSection = () => {
   return (
     <section className="bg-background w-full">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.5fr] gap-8">
-          {/* Left Content - Your existing implementation */}
-          <div className="space-y-2 pt-8 lg:pt-20 pb-[7.5rem]">
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_1.5fr] gap-8">
+          {/* Left Content */}
+          <div className="space-y-2 pt-8 lg:pt-20 lg:pb-[7.5rem] -mb-8 mg:mb-0">
             {/* We are Next Models Nepal */}
             <div className="self-stretch justify-center">
               <span className="text-white text-2xl leading-loose tracking-wide">
@@ -35,7 +35,7 @@ const HeroSection = () => {
                     src="/span-image.jpg"
                     alt=""
                     fill
-                    className="rounded-full object-cover border border-stone-300 shadow-lg shadow-gold-500"
+                    className="rounded-full object-cover border border-stone-300  shadow-[-10px_8px_20px_10px_rgba(179,131,0,0.19)] "
                   />
                 </div>
                 {/* Label */}
@@ -70,70 +70,57 @@ const HeroSection = () => {
           </div>
 
           {/* Right side */}
-          <div className="w-full h-full relative">
-            {/* Background grid lines */}
-            <div className="absolute inset-0">
-              <div className="absolute left-0 top-1/5 w-[105%] h-[1px] bg-gradient-to-r from-transparent via-gray-700 to-transparent" />
-              <div className="absolute left-0 top-1/2 w-[105%] h-[1px] bg-gradient-to-r from-transparent via-gray-700 to-transparent" />
-              <div className="absolute left-0 bottom-1/5 w-[105%] h-[1px] bg-gradient-to-r from-transparent via-gray-700 to-transparent" />
-              <div className="absolute bottom-0 left-2/11 h-[105%] w-[1px] bg-gradient-to-b from-transparent via-gray-700 to-transparent" />
-              <div className="absolute bottom-0 left-1/2 h-[105%] w-[1px] bg-gradient-to-b from-transparent via-gray-700 to-transparent" />
-              <div className="absolute bottom-0 right-2/11 h-[105%] w-[1px] bg-gradient-to-b from-transparent via-gray-700 to-transparent" />
-            </div>
+          <div className="w-full relative overflow-x-hidden overflow-y-hidden py-32 md:py-0">
 
             {/* 2x2 image grid */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 grid grid-cols-2 grid-rows-2 gap-6 w-[80%] max-w-[390px] aspect-square z-10">
+            <div className="top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 grid grid-cols-2 grid-rows-2 gap-6 w-[80%] max-w-[390px] aspect-square z-10 relative">
               {/* Image 1 - Award ceremony */}
-              <div className="relative overflow-hidden rounded-xl group">
+              <div className="relative overflow-hidden rounded-xl">
                 <Image
                   src="/news_1.jpg"
                   alt="Award ceremony"
                   fill
-                  className="object-cover transition-transform duration-500 group-hover:scale-110"
+                  className="object-cover transition-transform duration-500 hover:scale-110"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-                  <span className="text-white text-sm font-medium">Awards</span>
-                </div>
               </div>
 
               {/* Image 2 - Pageant */}
-              <div className="relative overflow-hidden rounded-xl group">
+              <div className="relative overflow-hidden rounded-xl">
                 <Image
                   src="/news_1.jpg"
                   alt="Beauty pageant"
                   fill
-                  className="object-cover transition-transform duration-500 group-hover:scale-110"
+                  className="object-cover transition-transform duration-500 hover:scale-110"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-                  <span className="text-white text-sm font-medium">Pageant</span>
-                </div>
               </div>
 
               {/* Image 3 - Group photo */}
-              <div className="relative overflow-hidden rounded-xl group">
+              <div className="relative overflow-hidden rounded-xl">
                 <Image
                   src="/news_1.jpg"
                   alt="Models group photo"
                   fill
-                  className="object-cover transition-transform duration-500 group-hover:scale-110"
+                  className="object-cover transition-transform duration-500 hover:scale-110"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-                  <span className="text-white text-sm font-medium">Team</span>
-                </div>
               </div>
 
               {/* Image 4 - Runway show */}
-              <div className="relative overflow-hidden rounded-xl group">
+              <div className="relative overflow-hidden rounded-xl">
                 <Image
                   src="/news_1.jpg"
                   alt="Runway show"
                   fill
-                  className="object-cover transition-transform duration-500 group-hover:scale-110"
+                  className="object-cover transition-transform duration-500 hover:scale-110"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-                  <span className="text-white text-sm font-medium">Runway</span>
-                </div>
               </div>
+
+              {/* Background grid lines */}
+              <div className="absolute -left-[50%] -top-5 w-[200%] h-[1px] bg-gradient-to-r from-transparent via-gray-700 to-transparent" />
+              <div className="absolute -left-[50%] top-1/2 w-[200%] h-[1px] bg-gradient-to-r from-transparent via-gray-700 to-transparent" />
+              <div className="absolute -left-[50%] -bottom-5 w-[200%] h-[1px] bg-gradient-to-r from-transparent via-gray-700 to-transparent" />
+              <div className="absolute -bottom-[50%] -left-5 h-[200%] w-[1px] bg-gradient-to-b from-transparent via-gray-700 to-transparent" />
+              <div className="absolute -bottom-[50%] left-1/2 h-[200%] w-[1px] bg-gradient-to-b from-transparent via-gray-700 to-transparent" />
+              <div className="absolute -bottom-[50%] -right-5 h-[200%] w-[1px] bg-gradient-to-b from-transparent via-gray-700 to-transparent" />
             </div>
 
             {/* Center decorative element */}
