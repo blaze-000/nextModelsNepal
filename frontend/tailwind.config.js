@@ -11,6 +11,7 @@ module.exports = {
         urbanist: ['var(--font-urbanist)'],
         newsreader: ['var(--font-newsreader)'],
       },
+      
     },
   },
   plugins: [],
