@@ -1,7 +1,6 @@
 "use client";
 import React, { useCallback, useEffect, useRef } from "react";
 import useEmblaCarousel, { EmblaCarouselType } from "embla-carousel-react";
-import SliderCard from "./sliderCard";
 import EventCard from "../molecules/event-card";
 
 const TWEEN_FACTOR_BASE = 0.52;
@@ -22,7 +21,6 @@ const events = [
     managedBy: "self" as const,
     getTicketLink: "https://example.com/tickets",
     aboutLink: "https://example.com/about",
-    
   },
   {
     id: "fashion-week-2024",
@@ -58,7 +56,7 @@ const events = [
       "A spectacular showcase of Nepalese fashion talent, bringing together designers, models, and fashion enthusiasts from across the region.",
     imageSrc: "/events_1.jpg",
     state: "completed" as const,
-    columnPosition: "right" as const,
+    columnPosition: "left" as const,
     managedBy: "partner" as const,
     getTicketLink: "https://example.com/fashion-tickets",
     aboutLink: "https://example.com/fashion-about",
@@ -132,13 +130,10 @@ const EventHero = () => {
   }, [emblaApi, tweenScale]);
 
   return (
-    <section className="w-full bg-amber-100 py-12 overflow-hidden">
-      {" "}
-      {/* prevent page scroll */}
+    <section className="w-full bg-background2 py-16 overflow-hidden">
       <div className="w-full">
         <div className="relative w-full">
           <div className="embla px-[10%]" ref={emblaRef}>
-            {" "}
             <div className="embla__container flex">
               {events.map((event) => (
                 <div
@@ -152,6 +147,24 @@ const EventHero = () => {
                 </div>
               ))}
             </div>
+          </div>
+
+          {/* Bottom Centered Navigation Buttons */}
+          <div className="w-full h- flex justify-center mt-6 gap-4">
+            <button
+              onClick={() => emblaApi && emblaApi.scrollPrev()}
+              className="w-12 h-12 rounded-full bg-[#4D4D4D] text-white hover:bg-gray-800 transition-colors text-xl"
+              aria-label="Previous slide"
+            >
+              <i className="ri-arrow-left-line" />
+            </button>
+            <button
+              onClick={() => emblaApi && emblaApi.scrollNext()}
+              className="w-12 h-12 rounded-full bg-[#4D4D4D] text-white hover:bg-gray-800 transition-colors text-xl"
+              aria-label="Next slide"
+            >
+              <i className="ri-arrow-right-line" />
+            </button>
           </div>
         </div>
       </div>
