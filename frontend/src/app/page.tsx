@@ -12,7 +12,7 @@ import OurPartners from "@/components/home/our-partners";
 export default function Home() {
   return (
     <main>
-      <HeroSection />
+      {/* <HeroSection /> */}
       <ValuesSection />
       <EventsSection />
       <UpcomingEventSection />
