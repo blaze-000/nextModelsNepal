@@ -38,34 +38,69 @@ export const Winners = () => {
   ];
 
   return (
-    <div className="w-full bg-background pb-24 pt-8">
-      <div className="max-w-7xl mx-auto px-6 ">
-        {/* Title */}
-        <div className="flex justify-between items-center pb-10">
-          <div className="flex-1 flex items-center gap-2">
-            <Image
-              src="/small_star.svg"
-              alt=""
-              width={1}
-              height={0}
-              sizes="100vw"
-              className="w-4 h-4 rounded-full"
-            />
-            <h3 className="text-white text-xl font-normal font-newsreader tracking-wide">
-              Winners from Past Events
-            </h3>
+    <div className="w-full bg-background py-16 md:py-20">
+      <div className="max-w-7xl mx-auto px-6">
+        {/* Header Section */}
+        <div className="pb-10">
+          {/* Desktop Layout - No Changes */}
+          <div className="hidden md:flex justify-between items-center">
+            <div className="flex-1 flex items-center gap-2">
+              <Image
+                src="/small_star.svg"
+                alt=""
+                width={1}
+                height={0}
+                sizes="100vw"
+                className="w-4 h-4 rounded-full"
+              />
+              <h3 className="text-white text-xl font-normal font-newsreader tracking-wide">
+                Winners from Past Events
+              </h3>
+            </div>
+
+            <Button variant="outline" className="py-2 mr-4">
+              <span>Sort By:</span>
+              <span>Most Recent</span>
+              <i className="ri-arrow-down-s-line text-lg" />
+            </Button>
+            <Button variant="outline" className="py-2">
+              <span>Sort By:</span>
+              <span>Most Recent</span>
+              <i className="ri-arrow-down-s-line text-lg" />
+            </Button>
           </div>
 
-          <Button variant="outline" className="py-2 mr-4">
-            <span>Sort By:</span>
-            <span>Most Recent</span>
-            <i className="ri-arrow-down-s-line text-lg" />
-          </Button>
-          <Button variant="outline" className="py-2">
-            <span>Sort By:</span>
-            <span>Most Recent</span>
-            <i className="ri-arrow-down-s-line text-lg" />
-          </Button>
+          {/* Mobile Layout */}
+          <div className="block md:hidden space-y-4">
+            {/* Title - Centered */}
+            <div className="flex items-center justify-center gap-2">
+              <Image
+                src="/small_star.svg"
+                alt=""
+                width={1}
+                height={0}
+                sizes="100vw"
+                className="w-4 h-4 rounded-full"
+              />
+              <h3 className="text-white text-xl font-normal font-newsreader tracking-wide">
+                Winners from Past Events
+              </h3>
+            </div>
+
+            {/* Responsive Buttons */}
+            <div className="flex flex-wrap gap-4 justify-center">
+              <Button variant="outline" className="py-2 min-w-0 text-xs">
+                <span>Sort By:</span>
+                <span></span>
+                <i className="ri-arrow-down-s-line text-lg" />
+              </Button>
+              <Button variant="outline" className="py-2 min-w-0 text-xs">
+                <span>Sort By:</span>
+                <span>Most </span>
+                <i className="ri-arrow-down-s-line text-lg" />
+              </Button>
+            </div>
+          </div>
         </div>
 
         {/* Model Grid */}

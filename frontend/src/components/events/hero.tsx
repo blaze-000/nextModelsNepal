@@ -1,6 +1,7 @@
 "use client";
 import React, { useCallback, useEffect, useRef } from "react";
-import useEmblaCarousel, { EmblaCarouselType } from "embla-carousel-react";
+import useEmblaCarousel from "embla-carousel-react";
+import type { EmblaCarouselType } from "embla-carousel";
 import EventCard from "../molecules/event-card";
 
 const TWEEN_FACTOR_BASE = 0.52;
@@ -72,83 +73,92 @@ const EventHero = () => {
     duration: 30,
   });
 
-  const tweenNodes = useRef<HTMLElement[]>([]);
-  const tweenFactor = useRef(0);
+  const tweenNodes = useRef<Array<HTMLElement | null>>([]);
+  const tweenFactor = useRef<number>(0);
 
-  const setTweenNodes = useCallback((emblaApi: EmblaCarouselType): void => {
-    tweenNodes.current = emblaApi.slideNodes().map((slideNode) => {
-      return slideNode.querySelector(".embla__slide__scale") as HTMLElement;
+  const setTweenNodes = useCallback((emblaApi?: EmblaCarouselType): void => {
+    if (!emblaApi) return;
+    tweenNodes.current = emblaApi.slideNodes().map((slideNode: Element) => {
+      return slideNode.querySelector(
+        ".embla__slide__scale"
+      ) as HTMLElement | null;
     });
   }, []);
 
-  const setTweenFactor = useCallback((emblaApi: EmblaCarouselType) => {
+  const setTweenFactor = useCallback((emblaApi?: EmblaCarouselType) => {
+    if (!emblaApi) return;
     tweenFactor.current = TWEEN_FACTOR_BASE * emblaApi.scrollSnapList().length;
   }, []);
 
-  const tweenScale = useCallback((emblaApi: EmblaCarouselType) => {
+  const tweenScale = useCallback((emblaApi?: EmblaCarouselType) => {
+    if (!emblaApi) return;
     const engine = emblaApi.internalEngine();
     const scrollProgress = emblaApi.scrollProgress();
     const slidesInView = emblaApi.slidesInView();
 
-    emblaApi.scrollSnapList().forEach((scrollSnap, snapIndex) => {
-      let diffToTarget = scrollSnap - scrollProgress;
-      const slidesInSnap = engine.slideRegistry[snapIndex];
+    emblaApi
+      .scrollSnapList()
+      .forEach((scrollSnap: number, snapIndex: number) => {
+        let diffToTarget = scrollSnap - scrollProgress;
+        const slidesInSnap: number[] = engine.slideRegistry[snapIndex];
 
-      slidesInSnap.forEach((slideIndex) => {
-        if (!slidesInView.includes(slideIndex)) return;
+        slidesInSnap.forEach((slideIndex: number) => {
+          if (!slidesInView.includes(slideIndex)) return;
 
-        if (engine.options.loop) {
-          engine.slideLooper.loopPoints.forEach((loopItem) => {
-            const target = loopItem.target();
-            if (slideIndex === loopItem.index && target !== 0) {
-              const sign = Math.sign(target);
-              if (sign === -1) diffToTarget = scrollSnap - (1 + scrollProgress);
-              if (sign === 1) diffToTarget = scrollSnap + (1 - scrollProgress);
-            }
-          });
-        }
+          if (engine.options.loop) {
+            type LoopPoint = { target: () => number; index: number };
+            (engine.slideLooper.loopPoints as LoopPoint[]).forEach(
+              (loopItem) => {
+                const target = loopItem.target();
+                if (slideIndex === loopItem.index && target !== 0) {
+                  const sign = Math.sign(target);
+                  if (sign === -1)
+                    diffToTarget = scrollSnap - (1 + scrollProgress);
+                  if (sign === 1)
+                    diffToTarget = scrollSnap + (1 - scrollProgress);
+                }
+              }
+            );
+          }
 
-        const tweenValue = 1 - Math.abs(diffToTarget * tweenFactor.current);
-        const scale = numberWithinRange(tweenValue, 0.85, 1).toString();
-        const tweenNode = tweenNodes.current[slideIndex];
-        if (tweenNode) {
-          tweenNode.style.transform = `scale(${scale})`;
-        }
+          const tweenValue = 1 - Math.abs(diffToTarget * tweenFactor.current);
+          const scale = numberWithinRange(tweenValue, 0.85, 1).toString();
+          const tweenNode = tweenNodes.current[slideIndex];
+          if (tweenNode) {
+            tweenNode.style.transform = `scale(${scale})`;
+          }
+        });
       });
-    });
   }, []);
 
   useEffect(() => {
     if (!emblaApi) return;
-    
     setTweenNodes(emblaApi);
     setTweenFactor(emblaApi);
     tweenScale(emblaApi);
 
     emblaApi
-      .on("reInit", setTweenNodes)
-      .on("reInit", setTweenFactor)
-      .on("reInit", tweenScale)
-      .on("scroll", tweenScale)
-      .on("slideFocus", tweenScale);
+      .on("reInit", () => setTweenNodes(emblaApi))
+      .on("reInit", () => setTweenFactor(emblaApi))
+      .on("reInit", () => tweenScale(emblaApi))
+      .on("scroll", () => tweenScale(emblaApi))
+      .on("slideFocus", () => tweenScale(emblaApi));
   }, [emblaApi, setTweenNodes, setTweenFactor, tweenScale]);
 
   const scrollPrev = useCallback(() => {
     if (emblaApi) {
-     
-      emblaApi.scrollPrev(false); 
+      emblaApi.scrollPrev(false);
     }
   }, [emblaApi]);
 
   const scrollNext = useCallback(() => {
     if (emblaApi) {
-      
       emblaApi.scrollNext(false);
     }
   }, [emblaApi]);
 
   return (
-    <section className="w-full bg-background2 py-16 overflow-hidden">
+    <section className="w-full bg-background2 pt-16 pb-8 md:py-16 overflow-hidden">
       <div className="w-full">
         <div className="relative w-full">
           <div className="embla px-[10%]" ref={emblaRef}>

@@ -1,6 +1,6 @@
 import ImageBox from "@/components/molecules/image-box";
-import { Button } from "@/components/ui/button";
-import Image from "next/image";
+import Breadcrumb from "@/components/molecules/breadcumb";
+
 import React from "react";
 
 export default function NewsPress() {
@@ -41,28 +41,14 @@ export default function NewsPress() {
   ];
 
   return (
-    <div className="w-full bg-background pb-24 pt-20">
+    <>
+     <Breadcrumb
+        title="News and Press"
+        searchPlaceholder="Search events, winners, judges"
+      />
+    <div className="w-full bg-background py-16 md:py-20">
+     
       <div className="max-w-7xl mx-auto px-6">
-        <div className="flex  items-center  mb-6">
-          <div className="flex-1 flex items-center justify-center gap-2 py-4">
-            <Button variant="outline" className="py-2 ">
-              <span>Type:</span>
-              <span>Interview</span>
-              <i className="ri-arrow-down-s-line text-lg" />
-            </Button>
-            <Button variant="outline" className="py-2 ">
-              <span>Event:</span>
-              <span>Miss Nepal Peace</span>
-              <i className="ri-arrow-down-s-line text-lg" />
-            </Button>
-            <Button variant="outline" className="py-2 ">
-              <span>Year:</span>
-              <span>2024</span>
-              <i className="ri-arrow-down-s-line text-lg" />
-            </Button>
-          </div>
-        </div>
-
         {/* News Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-6">
           {newsItems.map((item) => (
@@ -78,5 +64,6 @@ export default function NewsPress() {
         </div>
       </div>
     </div>
+    </>
   );
 }
