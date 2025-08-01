@@ -24,7 +24,7 @@ const events = [
   },
   {
     id: "fashion-week-2024",
-    title: "Nepal Fashion ",
+    title: "Nepal Fashion",
     dateSpan: "15th August to 20th August",
     briefInfo:
       "A spectacular showcase of Nepalese fashion talent, bringing together designers, models, and fashion enthusiasts from across the region.",
@@ -50,7 +50,7 @@ const events = [
   },
   {
     id: "fashion-week-2024-2",
-    title: "Nepal Fashion ",
+    title: "Nepal Fashion",
     dateSpan: "15th August to 20th August",
     briefInfo:
       "A spectacular showcase of Nepalese fashion talent, bringing together designers, models, and fashion enthusiasts from across the region.",
@@ -69,6 +69,7 @@ const EventHero = () => {
     align: "center",
     slidesToScroll: 1,
     containScroll: "trimSnaps",
+    duration: 30,
   });
 
   const tweenNodes = useRef<HTMLElement[]>([]);
@@ -110,13 +111,16 @@ const EventHero = () => {
         const tweenValue = 1 - Math.abs(diffToTarget * tweenFactor.current);
         const scale = numberWithinRange(tweenValue, 0.85, 1).toString();
         const tweenNode = tweenNodes.current[slideIndex];
-        tweenNode.style.transform = `scale(${scale})`;
+        if (tweenNode) {
+          tweenNode.style.transform = `scale(${scale})`;
+        }
       });
     });
   }, []);
 
   useEffect(() => {
     if (!emblaApi) return;
+    
     setTweenNodes(emblaApi);
     setTweenFactor(emblaApi);
     tweenScale(emblaApi);
@@ -127,7 +131,21 @@ const EventHero = () => {
       .on("reInit", tweenScale)
       .on("scroll", tweenScale)
       .on("slideFocus", tweenScale);
-  }, [emblaApi, tweenScale]);
+  }, [emblaApi, setTweenNodes, setTweenFactor, tweenScale]);
+
+  const scrollPrev = useCallback(() => {
+    if (emblaApi) {
+     
+      emblaApi.scrollPrev(false); 
+    }
+  }, [emblaApi]);
+
+  const scrollNext = useCallback(() => {
+    if (emblaApi) {
+      
+      emblaApi.scrollNext(false);
+    }
+  }, [emblaApi]);
 
   return (
     <section className="w-full bg-background2 py-16 overflow-hidden">
@@ -149,17 +167,16 @@ const EventHero = () => {
             </div>
           </div>
 
-          {/* Bottom Centered Navigation Buttons */}
-          <div className="w-full h- flex justify-center mt-6 gap-4">
+          <div className="w-full flex justify-center mt-6 gap-4">
             <button
-              onClick={() => emblaApi && emblaApi.scrollPrev()}
+              onClick={scrollPrev}
               className="w-12 h-12 rounded-full bg-[#4D4D4D] text-white hover:bg-gray-800 transition-colors text-xl"
               aria-label="Previous slide"
             >
               <i className="ri-arrow-left-line" />
             </button>
             <button
-              onClick={() => emblaApi && emblaApi.scrollNext()}
+              onClick={scrollNext}
               className="w-12 h-12 rounded-full bg-[#4D4D4D] text-white hover:bg-gray-800 transition-colors text-xl"
               aria-label="Next slide"
             >
