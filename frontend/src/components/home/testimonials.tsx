@@ -75,7 +75,11 @@ const TestimonialSection: React.FC = () => {
 
   return (
     <section className="py-16 md:py-28 px-6 md:px-12 lg:px-24">
-      <div className="text-center text-4xl lg:text-5xl tracking-tight font-light font-newsreader mb-10 flex flex-col md:flex-row justify-center items-center gap-2">
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: "easeInOut" }}
+        viewport={{ once: true }} className="text-center text-4xl lg:text-5xl tracking-tight font-light font-newsreader mb-10 flex flex-col md:flex-row justify-center items-center gap-2">
         <span className="md:inline">What Our</span>
         <div className="text-gold-500 relative inline-block">
           Shining Stars
@@ -88,7 +92,7 @@ const TestimonialSection: React.FC = () => {
           />
         </div>
         <span className="md:inline">Have to say!</span>
-      </div>
+      </motion.div>
 
       <div className="max-w-7xl mx-auto">
         {/* Desktop Grid */}
@@ -96,7 +100,7 @@ const TestimonialSection: React.FC = () => {
           {currentTestimonials.map((testimonial, index) => (
             <div
               key={index}
-              className="bg-muted-background p-6 px-10 flex flex-col justify-between min-h-[280px] h-full hover:shadow-xl transition-shadow duration-300"
+              className="bg-muted-background m-6 mx-10 flex flex-col justify-between min-h-[280px] h-full hover:shadow-xl transition-shadow duration-300"
             >
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -131,42 +135,36 @@ const TestimonialSection: React.FC = () => {
         </div>
 
         {/* Mobile Slider */}
-        <div className="md:hidden overflow-x-auto snap-x snap-mandatory scroll-smooth -mx-6 px-6">
+        <div className="md:hidden overflow-x-auto overflow-y-hidden snap-x snap-mandatory scroll-smooth -mx-6 px-6">
           <div className="flex space-x-6 w-max">
             {dummyTestimonials.map((testimonial, index) => (
-              <div
+              <motion.div
                 key={index}
-                className="bg-muted-background w-[80vw] min-w-[80vw] max-w-[80vw] snap-start shrink-0 p-6 flex flex-col justify-between min-h-[320px]"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, ease: "easeOut", delay: index * 0.05 }}
+                viewport={{ once: true }}
+                className="bg-muted-background w-[80vw] min-w-[80vw] max-w-[80vw] snap-start shrink-0 p-6 flex flex-col justify-between"
               >
-
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, ease: "easeOut", delay: index * 0.05 }}
-                  viewport={{ once: true }}
-                  className="bg-muted-background w-[80vw] min-w-[80vw] max-w-[80vw] snap-start shrink-0 p-6 flex flex-col justify-between min-h-[300px]"
-                >
-                  <div>
-                    <i className="ri-double-quotes-l text-gold-500 w-10 h-10 text-2xl" />
-                    <p className="text-neutral-300 leading-relaxed mb-4">
-                      {testimonial.quote}
-                    </p>
+                <div>
+                  <i className="ri-double-quotes-l text-gold-500 w-10 h-10 text-2xl" />
+                  <p className="text-neutral-300 leading-relaxed mb-4">
+                    {testimonial.quote}
+                  </p>
+                </div>
+                <div className="flex items-center mt-auto pt-4">
+                  <div className="relative w-10 h-10 rounded-full overflow-hidden mr-3">
+                    <Image
+                      src={testimonial.image}
+                      alt={testimonial.name}
+                      layout="fill"
+                      objectFit="cover"
+                      quality={75}
+                    />
                   </div>
-                  <div className="flex items-center mt-auto pt-4">
-                    <div className="relative w-10 h-10 rounded-full overflow-hidden mr-3">
-                      <Image
-                        src={testimonial.image}
-                        alt={testimonial.name}
-                        layout="fill"
-                        objectFit="cover"
-                        quality={75}
-                      />
-                    </div>
-                    <p className="text-neutral-100 font-semibold">{testimonial.name}</p>
-                  </div>
-                </motion.div>
-
-              </div>
+                  <p className="text-neutral-100 font-semibold">{testimonial.name}</p>
+                </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -194,7 +192,6 @@ const TestimonialSection: React.FC = () => {
         </div>
       </div>
     </section>
-
   );
 };
 

@@ -51,7 +51,7 @@ const Timeline: React.FC<TimelineProps> = ({
       ></div>
 
       {/* Event Cards Container */}
-      <div className="space-y-20 md:space-y-24 md:py-12">{children}</div>
+      <div className="space-y-20 md:space-y-24 py-8">{children}</div>
     </div>
   );
 };

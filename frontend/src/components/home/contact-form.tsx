@@ -157,7 +157,7 @@ const ContactForm = () => {
           onSubmit={handleSubmit}
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
+          transition={{ duration: 0.6 }}
           viewport={{ once: true }}
           className="mt-12 md:mt-12 space-y-6 md:space-y-8"
         >
@@ -165,7 +165,7 @@ const ContactForm = () => {
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
+            transition={{ duration: 0.5}}
             viewport={{ once: true }}
             className="flex flex-col md:flex-row gap-6"
           >
@@ -191,7 +191,7 @@ const ContactForm = () => {
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.5 }}
+            transition={{ duration: 0.5 }}
             viewport={{ once: true }}
             className="flex flex-col md:flex-row gap-6"
           >
@@ -219,7 +219,7 @@ const ContactForm = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.6 }}
+            transition={{ duration: 0.5 }}
             viewport={{ once: true }}
           >
             <TextareaField
@@ -236,7 +236,7 @@ const ContactForm = () => {
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.7 }}
+            transition={{ duration: 0.5 }}
             viewport={{ once: true }}
             className="flex justify-end mt-6"
           >

@@ -1,4 +1,3 @@
-// tailwind.config.js
 module.exports = {
   content: [
     "./app/**/*.{js,ts,jsx,tsx}",
@@ -11,7 +10,9 @@ module.exports = {
         urbanist: ['var(--font-urbanist)'],
         newsreader: ['var(--font-newsreader)'],
       },
-      
+      screens: {
+        mdplus: "925px",
+      },
     },
   },
   plugins: [],

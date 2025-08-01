@@ -32,7 +32,7 @@ const Footer: FC = (): ReactNode => {
     <motion.footer
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, amount: 0.3 }}
+      viewport={{ once: true }}
       className="w-full bg-background2 border-t border-white/20 text-white relative"
       variants={container}
     >
@@ -90,7 +90,7 @@ const Footer: FC = (): ReactNode => {
                 {events.map((event) => (
                   <div
                     key={event}
-                    className="text-base font-light hover:text-gold-400 transition-colors cursor-pointer underline tracking-wider"
+                    className="text-base font-light hover:text-gold-400 transition-colors cursor-pointer underline underline-offset-4 tracking-wider"
                   >
                     {event}
                   </div>
@@ -132,10 +132,10 @@ const Footer: FC = (): ReactNode => {
               © {currentYear} Lift Media. All rights reserved.
             </div>
             <div className="flex items-center gap-6 text-[20px] font-[Urbanist]">
-              <div className="text-base font-light hover:text-gold-400 transition-colors cursor-pointer underline tracking-wider">
+              <div className="text-base font-light hover:text-gold-400 transition-colors cursor-pointer underline underline-offset-4 tracking-wider">
                 Terms & Conditions
               </div>
-              <div className="underline text-base font-light hover:text-gold-400 transition-colors cursor-pointer tracking-wider">
+              <div className="underline underline-offset-4 text-base font-light hover:text-gold-400 transition-colors cursor-pointer tracking-wider">
                 Privacy Policy
               </div>
             </div>

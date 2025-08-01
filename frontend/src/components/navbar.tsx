@@ -51,7 +51,7 @@ const Header = () => {
           </div>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex items-center gap-20">
+          <div className="hidden mdplus:flex items-center gap-20">
             <div className="flex items-center space-x-10">
               {menuItems.map((item, index) => {
                 const hasSubmenu = !!item.submenu;
@@ -171,10 +171,10 @@ const Header = () => {
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="md:hidden flex items-center gap-4">
+          <div className="mdplus:hidden flex items-center gap-4">
             <button
               onClick={toggleMobileMenu}
-              className="text-white hover:text-yellow-500 transition-colors"
+              className="text-white transition-colors"
               aria-label="Toggle mobile menu"
             >
               <i
