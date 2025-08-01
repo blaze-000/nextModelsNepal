@@ -1,5 +1,7 @@
+"use client";
 import Image from "next/image";
 import type { FC, ReactNode } from "react";
+import { motion } from "framer-motion";
 import NewsLetterBox from "./molecules/newsleterbox";
 
 const Footer: FC = (): ReactNode => {
@@ -8,19 +10,46 @@ const Footer: FC = (): ReactNode => {
   const quickLinks = ["Home", "About", "Services", "Contact"];
   const events = ["Mr. Nepal", "Miss. Nepal Peace", "Models Hunt Nepal"];
 
+  // Variants
+  const container = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        staggerChildren: 0.15,
+        when: "beforeChildren",
+      },
+    },
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+  };
+
   return (
-    <footer className="w-full bg-background2 border-t border-white/20 text-white relative">
+    <motion.footer
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.3 }}
+      className="w-full bg-background2 border-t border-white/20 text-white relative"
+      variants={container}
+    >
       <div className="sm:px-6 pt-9 max-w-7xl mx-auto px-4 md:px-8">
         {/* Newsletter Section */}
-        <div className="flex justify-center">
+        <motion.div variants={item} className="flex justify-center">
           <NewsLetterBox />
-        </div>
+        </motion.div>
 
         {/* Main Footer Content */}
-        <div className="py-10 px-4">
+        <motion.div variants={item} className="py-10 px-4">
           <div className="grid grid-cols-[1fr_1.4fr] md:grid-cols-2 lg:grid-cols-[1.2fr_1fr_1fr_1fr] gap-12 lg:gap-8">
-            {/* Company Info - Mobile: centered, Desktop: left aligned */}
-            <div className="text-center md:text-left col-span-2 md:col-span-1">
+            {/* Company Info */}
+            <motion.div
+              variants={item}
+              className="text-center md:text-left col-span-2 md:col-span-1"
+            >
               <Image
                 width={116}
                 height={86}
@@ -37,10 +66,10 @@ const Footer: FC = (): ReactNode => {
                 <i className="bg-gold-500 w-8 h-8 p-1.5 text-black rounded-full hover:opacity-80 transition-opacity cursor-pointer ri-facebook-circle-line" />
                 <i className="bg-gold-500 w-8 h-8 p-1.5 text-black rounded-full hover:opacity-80 transition-opacity cursor-pointer ri-linkedin-box-line" />
               </div>
-            </div>
+            </motion.div>
 
             {/* Quick Links */}
-            <div className="space-y-8 md:space-y-6 col-span-1">
+            <motion.div variants={item} className="space-y-8 md:space-y-6 col-span-1">
               <h3 className="text-base font-semibold">Quick Links</h3>
               <nav className="space-y-6">
                 {quickLinks.map((link) => (
@@ -52,10 +81,10 @@ const Footer: FC = (): ReactNode => {
                   </div>
                 ))}
               </nav>
-            </div>
+            </motion.div>
 
             {/* Events */}
-            <div className=" space-y-8 md:space-y-6 col-span-1">
+            <motion.div variants={item} className="space-y-8 md:space-y-6 col-span-1">
               <h3 className="text-base font-semibold">Events</h3>
               <nav className="space-y-4">
                 {events.map((event) => (
@@ -67,10 +96,10 @@ const Footer: FC = (): ReactNode => {
                   </div>
                 ))}
               </nav>
-            </div>
+            </motion.div>
 
             {/* Contact */}
-            <div className="space-y-8 md:space-y-6 col-span-2 md:col-span-1">
+            <motion.div variants={item} className="space-y-8 md:space-y-6 col-span-2 md:col-span-1">
               <h3 className="text-base font-semibold">Contact</h3>
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
@@ -92,12 +121,12 @@ const Footer: FC = (): ReactNode => {
                   </span>
                 </div>
               </div>
-            </div>
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Footer Bottom */}
-        <div className="border-t border-white/20 py-7">
+        <motion.div variants={item} className="border-t border-white/20 py-7">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="text-sm font-light opacity-65">
               © {currentYear} Lift Media. All rights reserved.
@@ -111,9 +140,9 @@ const Footer: FC = (): ReactNode => {
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
-    </footer>
+    </motion.footer>
   );
 };
 

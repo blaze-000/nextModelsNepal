@@ -73,41 +73,43 @@ const EventsSection = () => {
 
         <div className="space-y-12">
           <div> {/* Timeline with Events - Left Position */}
-        <Timeline position="left" title="Events by Next Models Nepal ">
-          {events.map((event) => (
-            <EventCard
-              key={event.id}
-              id={event.id}
-              title={event.title}
-              dateSpan={event.dateSpan}
-              briefInfo={event.briefInfo}
-              imageSrc={event.imageSrc}
-              state={event.state}
-              columnPosition={event.columnPosition}
-              timelinePosition="left"
-              managedBy={event.managedBy}
-              getTicketLink={event.getTicketLink}
-              aboutLink={event.aboutLink}
-            />
-          ))}
-        </Timeline></div>
+            <Timeline position="left" title="Events by Next Models Nepal ">
+              {events.map((event) => (
+                <EventCard
+                  key={event.id}
+                  id={event.id}
+                  title={event.title}
+                  dateSpan={event.dateSpan}
+                  briefInfo={event.briefInfo}
+                  imageSrc={event.imageSrc}
+                  state={event.state}
+                  columnPosition={event.columnPosition}
+                  timelinePosition="left"
+                  managedBy={event.managedBy}
+                  getTicketLink={event.getTicketLink}
+                  aboutLink={event.aboutLink}
+                />
+              ))}
+            </Timeline>
+          </div>
 
-       <div> {/* Example of Right-positioned Timeline */}
-        <Timeline position="right" title="Partner Events">
-          <EventCard
-            id="partner-event-1"
-            title="International Beauty Contest"
-            dateSpan="1st October to 15th October"
-            briefInfo="A global beauty pageant featuring contestants from around the world."
-            imageSrc="/events_1.jpg"
-            state="ongoing"
-            columnPosition="right"
-            timelinePosition="right"
-            managedBy="partner"
-            getTicketLink="https://partner.com/tickets"
-            aboutLink="https://partner.com/about"
-          />
-        </Timeline></div>
+          <div> {/* Example of Right-positioned Timeline */}
+            <Timeline position="right" title="Partner Events">
+              <EventCard
+                id="partner-event-1"
+                title="International Beauty Contest"
+                dateSpan="1st October to 15th October"
+                briefInfo="A global beauty pageant featuring contestants from around the world."
+                imageSrc="/events_1.jpg"
+                state="ongoing"
+                columnPosition="right"
+                timelinePosition="right"
+                managedBy="partner"
+                getTicketLink="https://partner.com/tickets"
+                aboutLink="https://partner.com/about"
+              />
+            </Timeline>
+          </div>
         </div>
       </div>
     </section>

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
 import { Spinner } from "@geist-ui/react";
+import { motion } from "framer-motion";
 
 // Email validation regex
 const validateEmail = (email: string) =>
@@ -125,10 +126,16 @@ const ContactForm = () => {
   };
 
   return (
-    <div className="w-full py-16 md:py-16 flex flex-col items-center text-white font-urbanist">
-      <div className=" max-w-7xl px-8 md:px-6">
+    <section className="w-full py-16 md:py-16 flex flex-col items-center text-white font-urbanist">
+      <div className="max-w-7xl px-8 md:px-6">
         {/* Header */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-8 text-left">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+          className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-8 text-left"
+        >
           <div>
             <h2 className="text-4xl md:text-5xl font-extralight font-newsreader tracking-tight text-center md:text-start mb-2">
               Send Us a Message
@@ -136,7 +143,6 @@ const ContactForm = () => {
             <h1 className="text-5xl md:text-6xl font-extralight text-gold-500 font-newsreader tracking-tight text-center md:text-start">
               Let&rsquo;s Talk !!
             </h1>
-           
           </div>
 
           <p className="text-sm md:text-base leading-relaxed font-normal px-2 tracking-wider text-center md:text-end md:w-1/2">
@@ -144,12 +150,25 @@ const ContactForm = () => {
             expertise will propel you to the top. Your journey to becoming a top
             model begins here.
           </p>
-        </div>
+        </motion.div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="mt-12 md:mt-12 space-y-6 md:space-y-8">
+        <motion.form
+          onSubmit={handleSubmit}
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          viewport={{ once: true }}
+          className="mt-12 md:mt-12 space-y-6 md:space-y-8"
+        >
           {/* Row 1 */}
-          <div className="flex flex-col md:flex-row gap-6">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            viewport={{ once: true }}
+            className="flex flex-col md:flex-row gap-6"
+          >
             <InputField
               label="Name"
               name="name"
@@ -157,7 +176,6 @@ const ContactForm = () => {
               onChange={handleChange}
               placeholder="e.g. John Doe"
               error={errors.name}
-             
             />
             <InputField
               label="Subject"
@@ -167,10 +185,16 @@ const ContactForm = () => {
               placeholder="e.g. I want to be a model"
               error={errors.subject}
             />
-          </div>
+          </motion.div>
 
           {/* Row 2 */}
-          <div className="flex flex-col md:flex-row gap-6">
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+            viewport={{ once: true }}
+            className="flex flex-col md:flex-row gap-6"
+          >
             <InputField
               label="Email"
               name="email"
@@ -189,20 +213,33 @@ const ContactForm = () => {
               placeholder="e.g. +977 XXXXXXXXXX"
               error={errors.phone}
             />
-          </div>
+          </motion.div>
 
           {/* Row 3 */}
-          <TextareaField
-            label="Message"
-            name="message"
-            value={formData.message}
-            onChange={handleChange}
-            placeholder="Enter your message"
-            error={errors.message}
-          />
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+            viewport={{ once: true }}
+          >
+            <TextareaField
+              label="Message"
+              name="message"
+              value={formData.message}
+              onChange={handleChange}
+              placeholder="Enter your message"
+              error={errors.message}
+            />
+          </motion.div>
 
           {/* Submit Button */}
-          <div className="flex justify-end mt-6">
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.7 }}
+            viewport={{ once: true }}
+            className="flex justify-end mt-6"
+          >
             <Button
               type="submit"
               disabled={isSending}
@@ -220,10 +257,10 @@ const ContactForm = () => {
                 </>
               )}
             </Button>
-          </div>
-        </form>
+          </motion.div>
+        </motion.form>
       </div>
-    </div>
+    </section>
   );
 };
 
