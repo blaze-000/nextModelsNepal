@@ -1,17 +1,17 @@
+import { Winners } from "@/components/events/winners";
+import ImageBox from "@/components/molecules/image-box";
+import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import React from "react";
-import ImageBox from "../molecules/image-box";
-import { Button } from "../ui/button";
 
-export const PastEvents = () => {
+export default function PastEvents() {
   const newsItems = [
     {
       id: 1,
       image: "/news_1.jpg",
-      title:
-        "Bivash Bista and Neha Budha Crowned Winners of Model Hunt Nepal Season 9",
+      title: "Mister. Nepal",
       description:
-        "Our recent fashion show made headlines, showcasing Nepal's emerging talent pool in the modeling industry.",
+        "Next Models Nepal leads Nepal’s fashion and entertainment scene—discovering talent, creating iconic events, and shaping industry trends.",
       link: "#",
     },
     {
@@ -42,31 +42,9 @@ export const PastEvents = () => {
   ];
 
   return (
-    <div className="w-full bg-background pb-24 pt-20">
+    <div className="w-full bg-background pt-20 ">
       <div className="max-w-7xl mx-auto px-6">
-        {/* Desktop Title */}
-        <div className="text-center ">
-          <div className="text-5xl font-light font-newsreader text-white mb-1 flex items-center justify-center gap-2.5">
-            <span>Moments</span>
-            <Image
-              src="/span-image.jpg"
-              alt=""
-              width={1}
-              height={0}
-              sizes="100vw"
-              className="w-32 h-16 rounded-full border border-stone-300 mb-3"
-            />
-            <span>in the Making:</span>
-          </div>
-          <div className="text-6xl font-light font-newsreader tracking-tighter text-gold-500">
-            Past Triumphs & Upcoming
-          </div>
-          <div className="text-6xl font-light font-newsreader tracking-tighter text-gold-500 mb-4">
-            {" "}
-            Experiences
-          </div>
-        </div>
-        <div className="flex justify-between items-center px-2 py-12">
+        <div className="flex justify-between items-center px-2 mb-6">
           <div className="flex-1 flex items-center gap-2">
             <Image
               src="/small_star.svg"
@@ -87,7 +65,7 @@ export const PastEvents = () => {
             <i className="ri-arrow-down-s-line text-lg" />
           </Button>
 
-        
+          <div></div>
         </div>
 
         {/* News Grid */}
@@ -99,17 +77,18 @@ export const PastEvents = () => {
               title={item.title}
               desc={item.description}
               link={item.link}
-              buttonText="Visit News Source"
+              buttonText={`About ${item.title}`}
             />
           ))}
         </div>
         <div className="flex justify-end">
-          <button className="px-4 py-6 rounded-full text-gold-500 text-base -tracking-tight font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer">
+          <button className="px-4 py-4 rounded-full text-gold-500 text-base -tracking-tight font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer">
             <span className="underline">See All Past Events</span>
             <i className="ri-arrow-right-up-line group-hover:scale-130 transition-transform duration-400 text-xl font-light" />
           </button>
         </div>
       </div>
+      <Winners />
     </div>
   );
-};
+}
