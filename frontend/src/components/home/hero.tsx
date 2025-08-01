@@ -8,7 +8,7 @@ const HeroSection = () => {
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-[1fr_1.5fr] gap-8">
           {/* Left Content */}
-          <div className="space-y-2 pt-8 lg:pt-20 lg:pb-[7.5rem] -mb-8 mg:mb-0">
+          <div className="space-y-2 pt-8 lg:pt-20 lg:pb-[7.5rem] -mb-8 md:mb-0">
             {/* We are Next Models Nepal */}
             <div className="self-stretch justify-center">
               <span className="text-white text-2xl leading-loose tracking-wide">
@@ -115,12 +115,12 @@ const HeroSection = () => {
               </div>
 
               {/* Background grid lines */}
-              <div className="absolute -left-[50%] -top-5 w-[200%] h-[1px] bg-gradient-to-r from-transparent via-gray-700 to-transparent" />
-              <div className="absolute -left-[50%] top-1/2 w-[200%] h-[1px] bg-gradient-to-r from-transparent via-gray-700 to-transparent" />
-              <div className="absolute -left-[50%] -bottom-5 w-[200%] h-[1px] bg-gradient-to-r from-transparent via-gray-700 to-transparent" />
-              <div className="absolute -bottom-[50%] -left-5 h-[200%] w-[1px] bg-gradient-to-b from-transparent via-gray-700 to-transparent" />
-              <div className="absolute -bottom-[50%] left-1/2 h-[200%] w-[1px] bg-gradient-to-b from-transparent via-gray-700 to-transparent" />
-              <div className="absolute -bottom-[50%] -right-5 h-[200%] w-[1px] bg-gradient-to-b from-transparent via-gray-700 to-transparent" />
+              <div className="absolute -left-[50%] -top-5 w-[200%] h-[1px] bg-gradient-to-r from-transparent via-gray-800 to-transparent" />
+              <div className="absolute -left-[50%] top-1/2 w-[200%] h-[1px] bg-gradient-to-r from-transparent via-gray-800 to-transparent" />
+              <div className="absolute -left-[50%] -bottom-5 w-[200%] h-[1px] bg-gradient-to-r from-transparent via-gray-800 to-transparent" />
+              <div className="absolute -bottom-[50%] -left-5 h-[200%] w-[1px] bg-gradient-to-b from-transparent via-gray-800 to-transparent" />
+              <div className="absolute -bottom-[50%] left-1/2 h-[200%] w-[1px] bg-gradient-to-b from-transparent via-gray-800 to-transparent" />
+              <div className="absolute -bottom-[50%] -right-5 h-[200%] w-[1px] bg-gradient-to-b from-transparent via-gray-800 to-transparent" />
             </div>
 
             {/* Center decorative element */}
