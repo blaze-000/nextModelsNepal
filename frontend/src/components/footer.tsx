@@ -131,7 +131,7 @@ const Footer: FC = (): ReactNode => {
             <div className="text-sm font-light opacity-65">
               © {currentYear} Lift Media. All rights reserved.
             </div>
-            <div className="flex items-center gap-6 text-[20px] font-[Urbanist]">
+            <div className="flex items-center gap-6 text-[20px] font-urbanist">
               <div className="text-base font-light hover:text-gold-400 transition-colors cursor-pointer underline underline-offset-4 tracking-wider">
                 Terms & Conditions
               </div>

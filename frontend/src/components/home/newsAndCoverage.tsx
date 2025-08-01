@@ -22,19 +22,6 @@ const NewsSection = () => {
     },
   ];
 
-  const container = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: { staggerChildren: 0.2 },
-    },
-  };
-
-  const item = {
-    hidden: { opacity: 0, y: 30 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.6 } },
-  };
-
   return (
     <section className="w-full bg-background pb-24 pt-20 md:py-16">
       <div className="max-w-7xl mx-auto px-6">

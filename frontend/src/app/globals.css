@@ -1,6 +1,8 @@
 @import "tailwindcss";
 
 @theme {
+  --breakpoint-mdplus: 925px;
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-background2: var(--background2);
@@ -46,8 +48,15 @@ body {
 }
 
 @keyframes bounce-slow {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-6px);
+  }
 }
 
 .animate-bounce-slow {

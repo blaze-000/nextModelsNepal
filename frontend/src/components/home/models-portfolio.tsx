@@ -3,6 +3,7 @@ import React from "react";
 import Image from "next/image";
 import ModelGrid from "../molecules/model-grid";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 
 const ModelsPortfolioSection = () => {
@@ -130,6 +131,14 @@ const ModelsPortfolioSection = () => {
                 </>
               )}
             </ModelGrid>
+            <div className="flex justify-end">
+              <Link
+                href={"#"}
+                className="px-4 py-4 rounded-full text-gold-500 text-base -tracking-tight font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer">
+                <span className="underline underline-offset-4">See All Female Models</span>
+                <i className="ri-arrow-right-up-line group-hover:scale-130 transition-transform duration-400 text-xl font-extralight" />
+              </Link>
+            </div>
           </motion.div>
 
           {/* Male Models Grid */}
@@ -161,6 +170,14 @@ const ModelsPortfolioSection = () => {
                 </>
               )}
             </ModelGrid>
+            <div className="flex justify-end">
+              <Link
+                href={"#"}
+                className="px-4 py-4 rounded-full text-gold-500 text-base -tracking-tight font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer">
+                <span className="underline underline-offset-4">See All Male Models</span>
+                <i className="ri-arrow-right-up-line group-hover:scale-130 transition-transform duration-400 text-xl font-extralight" />
+              </Link>
+            </div>
           </motion.div>
         </div>
       </div>

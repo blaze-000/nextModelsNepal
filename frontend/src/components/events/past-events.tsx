@@ -1,7 +1,9 @@
+"use client";
 import Image from "next/image";
 import React from "react";
 import ImageBox from "../molecules/image-box";
 import { Button } from "../ui/button";
+import { motion } from "framer-motion";
 
 export const PastEvents = () => {
   const newsItems = [
@@ -45,10 +47,15 @@ export const PastEvents = () => {
     <div className="w-full bg-background py-16 md:py-20">
       <div className="max-w-7xl mx-auto px-6">
         {/* Title Section */}
-        <div className="text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true, amount: 0.6 }}
+          className="text-center">
           {/* Desktop Title */}
-          <div className="hidden md:block">
-            <div className="text-5xl font-light font-newsreader text-white mb-1 flex items-center justify-center gap-2.5">
+          <div className="hidden md:block font-extralight">
+            <div className="text-5xl font-newsreader text-white mb-1 flex items-center justify-center gap-2.5">
               <span>Moments</span>
               <Image
                 src="/span-image.jpg"
@@ -60,10 +67,10 @@ export const PastEvents = () => {
               />
               <span>in the Making:</span>
             </div>
-            <div className="text-6xl font-light font-newsreader tracking-tighter text-gold-500">
+            <div className="text-6xl font-newsreader tracking-tighter text-gold-500">
               Past Triumphs & Upcoming
             </div>
-            <div className="text-6xl font-light font-newsreader tracking-tighter text-gold-500 mb-4">
+            <div className="text-6xl font-newsreader tracking-tighter text-gold-500 mb-4">
               Experiences
             </div>
           </div>
@@ -86,10 +93,15 @@ export const PastEvents = () => {
               Experiences
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Controls Section */}
-        <div className="px-2 py-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+          className="px-2 py-6">
           {/* Desktop Layout */}
           <div className="hidden md:flex justify-between items-center">
             <div className="flex-1 flex items-center gap-2">
@@ -129,25 +141,32 @@ export const PastEvents = () => {
             </div>
             <div className="flex justify-center">
               <Button variant="outline" className="py-2 md:w-full">
-              <span>Sort By:</span>
-              <span>Most Recent</span>
-              <i className="ri-arrow-down-s-line text-lg" />
-            </Button>
+                <span>Sort By:</span>
+                <span>Most Recent</span>
+                <i className="ri-arrow-down-s-line text-lg" />
+              </Button>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* News Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-6">
           {newsItems.map((item) => (
-            <ImageBox
+            <motion.div
               key={item.id}
-              image={item.image}
-              title={item.title}
-              desc={item.description}
-              link={item.link}
-              buttonText="Visit News Source"
-            />
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              viewport={{ once: true, amount: 0.3 }}
+            >
+              <ImageBox
+                image={item.image}
+                title={item.title}
+                desc={item.description}
+                link={item.link}
+                buttonText="Visit News Source"
+              />
+            </motion.div>
           ))}
         </div>
 
@@ -159,6 +178,6 @@ export const PastEvents = () => {
           </button>
         </div>
       </div>
-    </div>
+    </div >
   );
 };

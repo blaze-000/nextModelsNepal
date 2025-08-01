@@ -4,6 +4,7 @@ import Image from "next/image";
 import React from "react";
 import { Button } from "../ui/button";
 import ModelGrid from "../molecules/model-grid";
+import { motion } from "framer-motion";
 
 export const Winners = () => {
   const models = [
@@ -41,7 +42,12 @@ export const Winners = () => {
     <div className="w-full bg-background py-16 md:py-20">
       <div className="max-w-7xl mx-auto px-6">
         {/* Header Section */}
-        <div className="pb-10">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true, amount: 0.6 }}
+          className="pb-10">
           {/* Desktop Layout - No Changes */}
           <div className="hidden md:flex justify-between items-center">
             <div className="flex-1 flex items-center gap-2">
@@ -101,25 +107,28 @@ export const Winners = () => {
               </Button>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Model Grid */}
         <ModelGrid models={models}>
           {(model) => (
-            <div className="">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+            >
               {model.tag && (
                 <div
-                  className={`${
-                    model.tag.toLowerCase() === "winner"
-                      ? "text-gold-500"
-                      : "text-white"
-                  } text-base font-bold flex items-center gap-1 pb-2`}
+                  className={`${model.tag.toLowerCase() === "winner"
+                    ? "text-gold-500"
+                    : "text-white"
+                    } text-base font-bold flex items-center gap-1 pb-2`}
                 >
-                  {model.tag === "Winner" ? (
-                    <i className="ri-vip-crown-line text-gold-500 text-base" />
-                  ) : (
-                    <i className="ri-vip-crown-line text-white text-base" />
-                  )}
+                  <i
+                    className={`ri-vip-crown-line text-base ${model.tag === "Winner" ? "text-gold-500" : "text-white"
+                      }`}
+                  />
                   {model.tag}
                 </div>
               )}
@@ -129,9 +138,10 @@ export const Winners = () => {
               <p className="text-white text-base font-light tracking-wider">
                 {model.designation}
               </p>
-            </div>
+            </motion.div>
           )}
         </ModelGrid>
+
       </div>
     </div>
   );

@@ -52,7 +52,7 @@ const NewsLetterBox: React.FC<NewsletterSubscriptionProps> = () => {
         </div>
 
         {/* Desktop Layout */}
-        <div className="hidden sm:flex flex-col sm:flex-row items-stretch sm:items-center gap-4 flex-1 lg:max-w-2xl">
+        <div className="hidden sm:flex items-stretch sm:items-start gap-4 flex-1 lg:max-w-2xl">
           <div className="flex-1 min-w-0">
             <input
               type="email"

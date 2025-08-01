@@ -1,8 +1,8 @@
 import React from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { Button } from "../ui/button";
 import { motion } from 'framer-motion';
-import Reveal from "../reveal";
 
 const HeroSection = () => {
   return (
@@ -27,7 +27,7 @@ const HeroSection = () => {
               </span>
             </div>
             {/* Main Title with Badge */}
-            <div className="space-y-2 text-6xl lg:text-8xl">
+            <div className="space-y-2 text-6xl md:text-7xl lg:text-8xl">
               <div>
                 <span className="text-white font-extralight font-newsreader tracking-tighter">
                   Nepal&rsquo;s{" "}
@@ -70,10 +70,12 @@ const HeroSection = () => {
               <Button variant="default" className="px-9 py-4 group">
                 Hire a model <i className="group-hover:scale-1.2 ri-arrow-right-up-line" />
               </Button>
-              <button className="px-4 py-4 rounded-full text-gold-500 text-base -tracking-tight font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer">
+              <Link
+                href={"#"}
+                className="px-4 py-4 rounded-full text-gold-500 text-base -tracking-tight font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer">
                 <span className="underline underline-offset-4">Upcoming Events</span>
                 <i className="ri-arrow-right-up-line group-hover:scale-130 transition-transform duration-400 text-xl font-extralight" />
-              </button>
+              </Link>
             </div>
           </motion.div>
 
