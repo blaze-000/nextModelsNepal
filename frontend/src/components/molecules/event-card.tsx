@@ -1,32 +1,18 @@
 import Image from "next/image";
 import { Button } from "../ui/button";
+import type { FC } from "react";
 
-interface EventCardProps {
-  id: string;
-  title: string;
-  startDate: string;
-  endDate: string;
-  briefInfo: string;
-  imageSrc: string;
-  state: "ongoing" | "ended";
-  timelinePosition?: "left" | "right";
-  managedBy?: "self" | "partner";
-  getTicketLink?: string;
-  aboutLink?: string;
-}
-
-const EventCard: React.FC<EventCardProps> = ({
-  id,
+const EventCard: FC<EventCardProps> = ({
   title,
   startDate,
   endDate,
   briefInfo,
   imageSrc,
   state,
-  timelinePosition = "left",
-  managedBy = "self",
   getTicketLink,
   aboutLink,
+  managedBy = "self",
+  timelinePosition = false,
 }) => {
   const isTimelineLeft = timelinePosition === "left";
   const isContentLeft = isTimelineLeft;
@@ -144,7 +130,7 @@ const EventCard: React.FC<EventCardProps> = ({
                   className="px-4 py-4 rounded-full text-gold-500 text-base font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer"
                   onClick={() => window.open(aboutLink, "_blank")}
                 >
-                  <span className="underline">About {title}</span>
+                  <span className="underline underline-offset-4">About {title}</span>
                   <i className="ri-arrow-right-up-line group-hover:scale-130 transition-transform duration-400" />
                 </button>
               )}
@@ -165,7 +151,7 @@ const EventCard: React.FC<EventCardProps> = ({
               fill
               className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300"
             />
-            <div className={`absolute bottom-0 ${isContentLeft ? "right-6" : "left-6"}`}>
+            <div className={`${managedBy === "self" ? "absolute" : "hidden"} bottom-0 ${isContentLeft ? "right-6" : "left-6"}`}>
               <div className="bg-[#1E1E1E] rounded-t-2xl px-2.5 py-2.5 text-center">
                 <p className="text-white text-base font-light mb-1">Event by:</p>
                 <div className="border-2 border-yellow-400 rounded p-2">
@@ -188,7 +174,7 @@ const EventCard: React.FC<EventCardProps> = ({
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 };
 

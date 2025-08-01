@@ -2,18 +2,6 @@
 import React from "react";
 import Image from "next/image";
 
-interface Model {
-  image: string;
-  link?: string;
-  tag?: string;
-  [key: string]: any;
-}
-
-interface ModelGridProps {
-  models: Model[];
-  children: (model: Model) => React.ReactNode;
-}
-
 const ModelGrid: React.FC<ModelGridProps> = ({ models, children }) => {
   return (
     <div className="space-y-8">
@@ -24,10 +12,12 @@ const ModelGrid: React.FC<ModelGridProps> = ({ models, children }) => {
             key={index}
             className="relative bg-white overflow-hidden group transition-transform"
           >
-            <img
-              className="w-full h-80 object-cover"
+            <Image
               src={model.image}
               alt="model"
+              width={400}
+              height={0}
+              className="w-full h-80 object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
             <div className="absolute bottom-4 left-6 right-6">
@@ -56,15 +46,14 @@ const ModelGrid: React.FC<ModelGridProps> = ({ models, children }) => {
 
               className="relative overflow-hidden group w-[75vw] min-w-[75vw] max-w-[75vw] snap-start shrink-0  "
 
-             
+
             >
               <Image
                 className="w-full h-80 object-cover [mask:linear-gradient(to_top,transparent_0%,black_30%)]"
                 src={model.image}
                 alt="model"
-                width={0}
+                width={300}
                 height={0}
-                sizes="100vw"
               />
               <div className="absolute bottom-6 left-6 right-6">
                 {children(model)}

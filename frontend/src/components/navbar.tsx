@@ -41,9 +41,9 @@ const Header = () => {
       initial={{ y: -80, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
-      className="w-full bg-background px-4 sm:px-6 lg:px-8 xl:px-36 relative z-20"
+      className="w-full bg-background px-6 relative z-20"
     >
-      <nav className="py-1">
+      <nav className="py-1 max-w-7xl mx-auto">
         <div className="flex items-center justify-between w-full">
           {/* Logo */}
           <div className="flex items-center">
@@ -61,7 +61,7 @@ const Header = () => {
                   <div
                     key={item.id}
                     className="relative"
-                    ref={(el) => (submenuRefs.current[index] = el)}
+                    ref={(el) => { submenuRefs.current[index] = el; }}
                   >
                     <div className="flex items-center space-x-1">
                       <Link
@@ -94,21 +94,21 @@ const Header = () => {
                           exit={{ opacity: 0, scale: 0.95, y: -10 }}
                           transition={{ duration: 0.2 }}
                           className={`absolute top-full left-0 mt-2 bg-muted-background rounded shadow-lg z-50 p-4 ${
-                            item.submenu.columns === 2
+                            item?.submenu?.columns === 2
                               ? "min-w-[400px]"
                               : "min-w-[220px]"
                           }`}
                         >
-                          {item.submenu.columns === 1 && (
+                          {item?.submenu?.columns === 1 && (
                             <div className="flex flex-col space-y-2 whitespace-nowrap min-w-max">
                               {item.submenu.items.map((subItem, idx) => (
                                 <Link
                                   key={idx}
-                                  href={subItem.href}
+                                  href={subItem?.href}
                                   className="flex items-center text-white text-sm"
                                 >
                                   <span className="underline underline-offset-2">
-                                    {subItem.label}
+                                    {subItem?.label}
                                   </span>
                                   <i className="ri-arrow-right-up-line ml-2" />
                                 </Link>
@@ -116,7 +116,7 @@ const Header = () => {
                             </div>
                           )}
 
-                          {item.submenu.columns === 2 && (
+                          {item?.submenu?.columns === 2 && (
                             <div className="grid grid-cols-2 gap-6">
                               <div>
                                 <div className="flex items-center justify-between mb-3 text-white text-xs font-light">
@@ -227,7 +227,7 @@ const Header = () => {
                       {/* Mobile Submenu */}
                       {hasSubmenu && isOpen && (
                         <div className="pl-4 pt-4">
-                          {item.submenu.columns === 1 && (
+                          {item?.submenu?.columns === 1 && (
                             <div className="flex flex-col space-y-4 whitespace-nowrap min-w-max">
                               {item.submenu.items.map((subItem, idx) => (
                                 <Link
@@ -245,7 +245,7 @@ const Header = () => {
                             </div>
                           )}
 
-                          {item.submenu.columns === 2 && (
+                          {item?.submenu?.columns === 2 && (
                             <div className="grid grid-cols-2 gap-6 pt-2">
                               <div>
                                 <div className="flex items-center justify-between mb-3 text-white text-xs font-light">

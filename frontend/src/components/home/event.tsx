@@ -68,37 +68,40 @@ const EventsSection = () => {
     <section className="bg-gold-500/5 pt-20 pb-16">
       <div className="max-w-7xl mx-auto px-6 md:px-8">
         {/* Header */}
-        <div className="mb-16">
-          <div className="md:space-y-2">
-            <div className="flex items-center gap-2 md:gap-4 flex-wrap md:flex-nowrap">
-              <span className="text-white text-4xl md:text-5xl font-extralight font-newsreader md:tracking-tight">
-                Relive the
-              </span>
-              <div className="w-20 h-8 md:w-40 md:h-16 relative hidden md:block">
-                <Image
-                  src="/span-image.jpg"
-                  alt="Badge"
-                  fill
-                  className="rounded-full object-cover border border-stone-300"
-                />
-              </div>
-              <span className="text-white text-4xl md:text-5xl font-extralight font-newsreader md:tracking-tight">
-                Glamour:
-              </span>
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true, amount: 0.6 }}
+          className="mb-16 md:space-y-2">
+          <div className="flex items-center gap-2 md:gap-4 flex-wrap md:flex-nowrap">
+            <span className="text-white text-4xl md:text-5xl font-extralight font-newsreader md:tracking-tight">
+              Relive the
+            </span>
+            <div className="w-20 h-8 md:w-40 md:h-16 relative hidden md:block">
+              <Image
+                src="/span-image.jpg"
+                alt="Badge"
+                fill
+                className="rounded-full object-cover border border-stone-300"
+              />
             </div>
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-0">
-              <h3 className="text-primary text-5xl md:text-6xl font-extralight font-newsreader tracking-tight">
-                with Our Recent Events
-              </h3>
-              <p className="text-white text-base font-normal md:font-light md:tracking-tight">
-                Step into the spotlight of our most recent event — where talent
-                <br className="hidden md:block" />
-                <span className="md:hidden"> </span>
-                meets opportunity and dreams take center stage
-              </p>
-            </div>
+            <span className="text-white text-4xl md:text-5xl font-extralight font-newsreader md:tracking-tight">
+              Glamour:
+            </span>
           </div>
-        </div>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-0">
+            <h3 className="text-primary text-5xl md:text-6xl font-extralight font-newsreader tracking-tight">
+              with Our Recent Events
+            </h3>
+            <p className="text-white text-base font-normal md:font-light md:tracking-tight">
+              Step into the spotlight of our most recent event — where talent
+              <br className="hidden md:block" />
+              <span className="md:hidden"> </span>
+              meets opportunity and dreams take center stage
+            </p>
+          </div>
+        </motion.div>
 
         <div className="space-y-12">
           {/* Timeline for self-managed events */}

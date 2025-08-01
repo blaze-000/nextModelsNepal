@@ -23,7 +23,7 @@ const InputField = ({
   label: string;
   name: string;
   value: string;
-  onChange: any;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   placeholder: string;
   type?: string;
   error?: string;
@@ -54,7 +54,7 @@ const TextareaField = ({
   label: string;
   name: string;
   value: string;
-  onChange: any;
+  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   placeholder: string;
   error?: string;
 }) => (
@@ -165,7 +165,7 @@ const ContactForm = () => {
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5}}
+            transition={{ duration: 0.5 }}
             viewport={{ once: true }}
             className="flex flex-col md:flex-row gap-6"
           >

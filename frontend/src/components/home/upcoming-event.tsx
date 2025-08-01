@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { Button } from "../ui/button";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 const UpcomingEventSection = () => {
   return (
@@ -238,10 +239,12 @@ const UpcomingEventSection = () => {
                 </Button>
               </div>
 
-              <button className="px-4 py-4 rounded-full text-gold-500 text-base font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer -tracking-tight">
-                <span className="underline"> Upcoming Events</span>
-                <i className="ri-arrow-right-up-line group-hover:scale-130 transition-transform duration-400" />
-              </button>
+              <Link
+                href={"#"}
+                className="px-4 py-4 rounded-full text-gold-500 text-base -tracking-tight font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer">
+                <span className="underline underline-offset-4">Upcoming Events</span>
+                <i className="ri-arrow-right-up-line group-hover:scale-130 transition-transform duration-400 text-xl font-extralight" />
+              </Link>
             </div>
           </motion.div>
         </div>

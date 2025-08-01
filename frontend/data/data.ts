@@ -1,21 +1,3 @@
-export interface SubmenuItem {
-  label: string;
-  href: string;
-}
-
-export interface Submenu {
-  columns: 1 | 2;
-  titles?: string[];
-  items: SubmenuItem[] | SubmenuItem[][];
-}
-
-export interface MenuItem {
-  id: number;
-  label: string;
-  href: string;
-  submenu?: Submenu;
-}
-
 export const menuItems: MenuItem[] = [
   {
     id: 1,

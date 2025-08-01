@@ -1,7 +1,8 @@
 import React from "react";
 import Image from "next/image";
+import Link from "next/link";
 
-const ImageBox = ({ image, title, desc, link, buttonText }) => {
+const ImageBox = ({ image, title, desc, link, buttonText }: ImageBoxProps) => {
   return (
     <article className="bg-stone-900 flex flex-col justify-between overflow-hidden hover:bg-stone-800 transition-colors duration-300 p-6 md:p-6">
       {/* Image Container */}
@@ -29,15 +30,12 @@ const ImageBox = ({ image, title, desc, link, buttonText }) => {
       </div>
       <div>
         {/* CTA Button */}
-        <a
+        <Link
           href={link}
-          className="inline-flex items-center gap-2 md:gap-3 text-gold-500 hover:text-gold-400 font-semibold text-sm md:text-base transition-colors duration-200 group"
-        >
-          <span className="underline decoration-1 underline-offset-4">
-            {buttonText}
-          </span>
-          <i className="group-hover:translate-x-1 transition-transform duration-200 ri-arrow-right-up-line" />
-        </a>
+          className="px-4 py-4 rounded-full text-gold-500 text-base -tracking-tight font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer">
+          <span className="underline underline-offset-4">{buttonText}</span>
+          <i className="ri-arrow-right-up-line group-hover:scale-130 transition-transform duration-400 text-xl font-extralight" />
+        </Link>
       </div>
     </article>
   );
