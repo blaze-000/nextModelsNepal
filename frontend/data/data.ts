@@ -1,4 +1,22 @@
-export const menuItems = [
+export interface SubmenuItem {
+  label: string;
+  href: string;
+}
+
+export interface Submenu {
+  columns: 1 | 2;
+  titles?: string[];
+  items: SubmenuItem[] | SubmenuItem[][];
+}
+
+export interface MenuItem {
+  id: number;
+  label: string;
+  href: string;
+  submenu?: Submenu;
+}
+
+export const menuItems: MenuItem[] = [
   {
     id: 1,
     label: "Home",
@@ -18,8 +36,14 @@ export const menuItems = [
           { label: "Miss Nepal Peace", href: "/events/miss-nepal-peace" },
         ],
         [
-          { label: "Kathmandu Fashion Week", href: "/events/kathmandu-fashion-week" },
-          { label: "IEC Designers Runway", href: "/events/iec-designers-runway" },
+          {
+            label: "Kathmandu Fashion Week",
+            href: "/events/kathmandu-fashion-week",
+          },
+          {
+            label: "IEC Designers Runway",
+            href: "/events/iec-designers-runway",
+          },
         ],
       ],
     },
