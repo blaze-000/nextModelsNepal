@@ -1,6 +1,8 @@
 import React from "react";
 import Image from "next/image";
 import { Button } from "../ui/button";
+import { motion } from 'framer-motion';
+import Reveal from "../reveal";
 
 const HeroSection = () => {
   return (
@@ -8,7 +10,13 @@ const HeroSection = () => {
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-[1fr_1.5fr] gap-8">
           {/* Left Content */}
-          <div className="space-y-2 pt-8 lg:pt-20 lg:pb-[7.5rem] -mb-8 mg:mb-0">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="space-y-2 pt-8 lg:pt-20 lg:pb-[7.5rem] -mb-8 md:mb-0"
+          >
             {/* We are Next Models Nepal */}
             <div className="self-stretch justify-center">
               <span className="text-white text-2xl leading-loose tracking-wide">
@@ -35,7 +43,7 @@ const HeroSection = () => {
                     src="/span-image.jpg"
                     alt=""
                     fill
-                    className="rounded-full object-cover border border-stone-300  shadow-[-10px_8px_20px_10px_rgba(179,131,0,0.19)] "
+                    className="rounded-full object-cover border border-stone-300 shadow-[-10px_8px_20px_10px_rgba(179,131,0,0.19)]"
                   />
                 </div>
                 {/* Label */}
@@ -67,10 +75,15 @@ const HeroSection = () => {
                 <i className="ri-arrow-right-up-line group-hover:scale-130 transition-transform duration-400 text-xl font-extralight" />
               </button>
             </div>
-          </div>
+          </motion.div>
 
           {/* Right side */}
-          <div className="w-full relative overflow-x-hidden overflow-y-hidden py-32 md:py-0">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="w-full relative overflow-x-hidden overflow-y-hidden py-32 md:py-0"
+          >
 
             {/* 2x2 image grid */}
             <div className="top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 grid grid-cols-2 grid-rows-2 gap-6 w-[80%] max-w-[390px] aspect-square z-10 relative">
@@ -134,10 +147,10 @@ const HeroSection = () => {
                 className="object-cover"
               />
             </div>
-          </div>
+          </motion.div>
         </div>
-      </div>
-    </section>
+      </div >
+    </section >
   );
 };
 

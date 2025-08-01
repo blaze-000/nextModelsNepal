@@ -1,37 +1,16 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
 import { menuItems } from "../../data/data";
 import { Button } from "./ui/button";
-
-// Add CSS for slide-down animation
-const styles = `
-@keyframes slideDownFromTop {
-  0% {
-    opacity: 0;
-    transform: translateY(-100vh);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.submenu-slide-down {
-  animation: slideDownFromTop 0.3s ease forwards;
-}
-`;
-
-// Inject styles into the page (you can move this to global CSS if preferred)
-const StyleInjector = () => (
-  <style dangerouslySetInnerHTML={{ __html: styles }} />
-);
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [openSubmenuId, setOpenSubmenuId] = useState<number | null>(null);
+  const submenuRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -42,54 +21,83 @@ const Header = () => {
     setOpenSubmenuId((prev) => (prev === id ? null : id));
   };
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        submenuRefs.current.every(
+          (ref) => ref && !ref.contains(event.target as Node)
+        )
+      ) {
+        setOpenSubmenuId(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   return (
-    <>
-      <StyleInjector />
-      <header className="w-full bg-background px-4 sm:px-6 lg:px-8 xl:px-36 relative z-20">
-        <nav className="py-1">
-          <div className="flex items-center justify-between w-full">
-            {/* Logo */}
-            <div className="flex items-center">
-              <Image src="/logo.png" alt="Logo" width={85} height={82} />
-            </div>
+    <motion.header
+      initial={{ y: -80, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+      className="w-full bg-background px-4 sm:px-6 lg:px-8 xl:px-36 relative z-20"
+    >
+      <nav className="py-1">
+        <div className="flex items-center justify-between w-full">
+          {/* Logo */}
+          <div className="flex items-center">
+            <Image src="/logo.png" alt="Logo" width={85} height={82} />
+          </div>
 
-            {/* Desktop Menu Items */}
-            <div className="hidden md:flex items-center gap-20">
-              <div className="flex items-center space-x-10">
-                {menuItems.map((item) => {
-                  const hasSubmenu = !!item.submenu;
-                  const isOpen = openSubmenuId === item.id;
+          {/* Desktop Menu */}
+          <div className="hidden mdplus:flex items-center gap-20">
+            <div className="flex items-center space-x-10">
+              {menuItems.map((item, index) => {
+                const hasSubmenu = !!item.submenu;
+                const isOpen = openSubmenuId === item.id;
 
-                  return (
-                    <div key={item.id} className="relative">
-                      <div className="flex items-center space-x-1">
-                        <Link
-                          href={item.href}
-                          className="flex items-center font-urbanist text-white transition-colors"
+                return (
+                  <div
+                    key={item.id}
+                    className="relative"
+                    ref={(el) => (submenuRefs.current[index] = el)}
+                  >
+                    <div className="flex items-center space-x-1">
+                      <Link
+                        href={item.href}
+                        className="flex items-center font-urbanist text-white transition-colors"
+                      >
+                        {item.label}
+                      </Link>
+                      {hasSubmenu && (
+                        <button
+                          onClick={() => toggleSubmenu(item.id)}
+                          className="text-white"
+                          aria-label="Toggle submenu"
                         >
-                          {item.label}
-                        </Link>
-                        {hasSubmenu && (
-                          <button
-                            onClick={() => toggleSubmenu(item.id)}
-                            className="text-white"
-                            aria-label="Toggle submenu"
-                          >
-                            <i
-                              className={`w-4 h-4 ri-arrow-drop-down-line cursor-pointer transition-transform ${isOpen ? "rotate-180" : ""
-                                }`}
-                            />
-                          </button>
-                        )}
-                      </div>
+                          <i
+                            className={`w-4 h-4 ri-arrow-drop-down-line cursor-pointer transition-transform ${
+                              isOpen ? "rotate-180" : ""
+                            }`}
+                          />
+                        </button>
+                      )}
+                    </div>
 
-                      {/* Desktop Submenu */}
+                    {/* Desktop Submenu */}
+                    <AnimatePresence>
                       {hasSubmenu && isOpen && (
-                        <div
-                          className={`absolute top-full left-0 mt-2 bg-muted-background rounded shadow-lg z-50 p-4 submenu-slide-down ${item.submenu.columns === 2
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                          animate={{ opacity: 1, scale: 1, y: 0 }}
+                          exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                          transition={{ duration: 0.2 }}
+                          className={`absolute top-full left-0 mt-2 bg-muted-background rounded shadow-lg z-50 p-4 ${
+                            item.submenu.columns === 2
                               ? "min-w-[400px]"
                               : "min-w-[220px]"
-                            }`}
+                          }`}
                         >
                           {item.submenu.columns === 1 && (
                             <div className="flex flex-col space-y-2 whitespace-nowrap min-w-max">
@@ -150,37 +158,44 @@ const Header = () => {
                               </div>
                             </div>
                           )}
-                        </div>
+                        </motion.div>
                       )}
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Apply Button */}
-              <Button asChild variant="default">
-                <Link href="/apply">Apply</Link>
-              </Button>
+                    </AnimatePresence>
+                  </div>
+                );
+              })}
             </div>
-
-            {/* Mobile Menu Button */}
-            <div className="md:hidden flex items-center gap-4">
-              <button
-                onClick={toggleMobileMenu}
-                className="text-white hover:text-yellow-500 transition-colors"
-                aria-label="Toggle mobile menu"
-              >
-                <i
-                  className={`text-2xl ${isMobileMenuOpen ? "ri-close-line" : "ri-menu-line"
-                    }`}
-                />
-              </button>
-            </div>
+            <Button asChild variant="default">
+              <Link href="/apply">Apply</Link>
+            </Button>
           </div>
 
-          {/* Mobile Menu */}
+          {/* Mobile Menu Button */}
+          <div className="mdplus:hidden flex items-center gap-4">
+            <button
+              onClick={toggleMobileMenu}
+              className="text-white transition-colors"
+              aria-label="Toggle mobile menu"
+            >
+              <i
+                className={`text-2xl ${
+                  isMobileMenuOpen ? "ri-close-line" : "ri-menu-line"
+                }`}
+              />
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Menu */}
+        <AnimatePresence>
           {isMobileMenuOpen && (
-            <div className="md:hidden absolute left-0 right-0 top-full bg-black/95 backdrop-blur-sm z-30">
+            <motion.div
+              initial={{ y: -20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -20, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="md:hidden absolute left-0 right-0 top-full bg-black/95 backdrop-blur-sm z-30"
+            >
               <div className="px-8 py-6">
                 {menuItems.map((item) => {
                   const hasSubmenu = !!item.submenu;
@@ -201,8 +216,9 @@ const Header = () => {
                             aria-label="Toggle submenu"
                           >
                             <i
-                              className={`text-xl ri-arrow-drop-down-line transition-transform ${isOpen ? "rotate-180" : ""
-                                }`}
+                              className={`text-xl ri-arrow-drop-down-line transition-transform ${
+                                isOpen ? "rotate-180" : ""
+                              }`}
                             />
                           </button>
                         )}
@@ -220,7 +236,9 @@ const Header = () => {
                                   className="flex items-center text-white text-sm"
                                   onClick={() => setIsMobileMenuOpen(false)}
                                 >
-                                  <span className="underline underline-offset-2">{subItem.label}</span>
+                                  <span className="underline underline-offset-2">
+                                    {subItem.label}
+                                  </span>
                                   <i className="ri-arrow-right-up-line ml-2" />
                                 </Link>
                               ))}
@@ -241,7 +259,9 @@ const Header = () => {
                                       className="flex items-center text-white text-sm"
                                       onClick={() => setIsMobileMenuOpen(false)}
                                     >
-                                      <span className="underline underline-offset-2 leading-tight">{subItem.label}</span>
+                                      <span className="underline underline-offset-2 leading-tight">
+                                        {subItem.label}
+                                      </span>
                                       <i className="ri-arrow-right-up-line ml-2" />
                                     </Link>
                                   ))}
@@ -259,7 +279,9 @@ const Header = () => {
                                       className="flex items-center text-white text-sm"
                                       onClick={() => setIsMobileMenuOpen(false)}
                                     >
-                                      <span className="underline underline-offset-2 leading-tight">{subItem.label}</span>
+                                      <span className="underline underline-offset-2 leading-tight">
+                                        {subItem.label}
+                                      </span>
                                       <i className="ri-arrow-right-up-line ml-2" />
                                     </Link>
                                   ))}
@@ -273,11 +295,11 @@ const Header = () => {
                   );
                 })}
               </div>
-            </div>
+            </motion.div>
           )}
-        </nav>
-      </header>
-    </>
+        </AnimatePresence>
+      </nav>
+    </motion.header>
   );
 };
 

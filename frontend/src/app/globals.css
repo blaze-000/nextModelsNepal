@@ -44,3 +44,12 @@ body {
   --primary: #ffaa00;
   --primary-foreground: #312000;
 }
+
+@keyframes bounce-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.animate-bounce-slow {
+  animation: bounce-slow 3s infinite ease-in-out;
+}

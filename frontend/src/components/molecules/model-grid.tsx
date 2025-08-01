@@ -50,7 +50,7 @@ const ModelGrid: React.FC<ModelGridProps> = ({ models, children }) => {
           {models.map((model, index) => (
             <div
               key={index}
-              className="relative overflow-hidden group w-[80vw] min-w-[80vw] max-w-[80vw] snap-start shrink-0"
+              className="relative overflow-hidden w-[60vw] group snap-start shrink-0"
             >
               <Image
                 className="w-full h-80 object-cover [mask:linear-gradient(to_top,transparent_0%,black_30%)]"
@@ -61,7 +61,6 @@ const ModelGrid: React.FC<ModelGridProps> = ({ models, children }) => {
                 sizes="100vw"
               />
               <div className="absolute bottom-6 left-6 right-6">
-               
                 {children(model)}
               </div>
               {model.link && (

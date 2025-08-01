@@ -1,11 +1,20 @@
 import Image from "next/image";
 import { Button } from "../ui/button";
+import { motion } from "framer-motion";
 
 const UpcomingEventSection = () => {
   return (
     <section className="bg-background2 w-full">
-      <div className="max-w-7xl mx-auto py-16">
-        <div className="text-center mb-16">
+      <div className="max-w-7xl mx-auto px-8 md:px-16 lg:px-4 py-16">
+
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16"
+        >
           <div className="flex justify-center items-center gap-2 mb-8">
             <Image
               src="/star.svg"
@@ -20,7 +29,7 @@ const UpcomingEventSection = () => {
           </div>
 
           <div className="flex flex-col gap-2 items-center">
-            {/* Mobile Title  */}
+            {/* Mobile Title */}
             <div className="text-center lg:hidden">
               <div className="text-4xl font-light font-newsreader text-white mb-1">
                 <span className="text-gold-500 relative inline-block">
@@ -57,7 +66,7 @@ const UpcomingEventSection = () => {
                     alt=""
                     height={1}
                     width={1}
-                    className="h-5 w-5 absolute -top-2 -right-2 select-none"
+                    className="h-5 w-5 absolute -top-2 -right-2 select-none animate-bounce-slow"
                   />
                 </span>
                 <span>on Nepal&rsquo;s Premier</span>
@@ -75,8 +84,8 @@ const UpcomingEventSection = () => {
                 Presenting MR. Nepal 2025
               </div>
             </div>
-            
-            {/* Description - only on moble */}
+
+            {/* Description - mobile */}
             <div className="text-center lg:hidden">
               <p className="text-white text-base font-light max-w-2xl mx-auto">
                 Next Models Nepal leads Nepal&rsquo;s fashion and entertainment
@@ -85,15 +94,21 @@ const UpcomingEventSection = () => {
               </p>
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="grid lg:grid-cols-[1fr_1.5fr] gap-8 lg:gap-24 items-center">
-          {/* Image section  */}
-          <div className="order-1 lg:order-1 relative">
+        <div className="grid lg:grid-cols-[1fr_1.5fr] gap-20 items-center">
+          {/* Image */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1, duration: 0.5 }}
+            className="relative mx-auto overflow-visible"
+          >
             <Image
-              height={500}
               width={500}
-              className="h-full w-auto mx-auto"
+              height={600}
+              className="h-full w-auto"
               src="/mr-nepal-2025-poster-1.jpg"
               alt="Mr. Nepal 2025"
             />
@@ -101,18 +116,23 @@ const UpcomingEventSection = () => {
             <div className="h-[115%] absolute left-0 -top-[7.5%] w-[1px] bg-gradient-to-b from-transparent via-white to-transparent" />
             <div className="w-[115%] absolute top-0 -left-[7.5%] h-[1px] bg-gradient-to-r from-transparent via-white to-transparent" />
             <div className="w-[115%] absolute bottom-0 -right-[7.5%] h-[1px] bg-gradient-to-r from-transparent via-white to-transparent" />
-          </div>
+          </motion.div>
 
-          {/* Content section  */}
-          <div className="order-2 lg:order-2 space-y-8">
-            {/* Description - shows on desktop  */}
+          {/* Right Content */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2, duration: 0.6 }}
+            className="order-2 lg:order-2 space-y-8"
+          >
             <p className="hidden lg:block text-white text-md lg:text-lg font-light lead">
               Next Models Nepal leads Nepal&rsquo;s fashion and entertainment
               scene—discovering talent, creating iconic events, and shaping
               industry trends.
             </p>
 
-            {/* Eligibility Section */}
+            {/* Eligibility */}
             <div className="bg-muted-background p-8 md:px-8 md:py-6 space-y-4">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-4 rounded-full border-2 border-white " />
@@ -156,7 +176,7 @@ const UpcomingEventSection = () => {
               </div>
             </div>
 
-            {/* Auditions Section */}
+            {/* Auditions */}
             <div className="bg-muted-background p-8 md:px-8 md:py-6 space-y-4">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-8 h-4 rounded-full border-2 border-white" />
@@ -207,9 +227,8 @@ const UpcomingEventSection = () => {
               </div>
             </div>
 
-            {/* Action Buttons */}
+            {/* Buttons */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-              {/* Primary Buttons */}
               <div className="flex space-x-4">
                 <Button variant="default" className="text-base">
                   Apply Now
@@ -219,13 +238,12 @@ const UpcomingEventSection = () => {
                 </Button>
               </div>
 
-              {/* About Button */}
               <button className="px-4 py-4 rounded-full text-gold-500 text-base font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer -tracking-tight">
                 <span className="underline"> Upcoming Events</span>
                 <i className="ri-arrow-right-up-line group-hover:scale-130 transition-transform duration-400" />
               </button>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>

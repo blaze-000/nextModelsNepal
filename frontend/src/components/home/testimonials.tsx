@@ -2,6 +2,7 @@
 import Image from "next/image";
 import React, { useState } from "react";
 import profileImage from "../../../public/news_1.jpg";
+import { motion } from "framer-motion";
 
 interface Testimonial {
   quote: string;
@@ -73,8 +74,12 @@ const TestimonialSection: React.FC = () => {
   );
 
   return (
-    <section className="py-16 md:py-28 px-6 md:px-12 lg:px-24 ">
-      <div className="text-center text-4xl lg:text-5xl tracking-tight font-light font-newsreader mb-10 flex flex-col md:flex-row justify-center items-center gap-2">
+    <section className="py-16 md:py-28 px-6 md:px-12 lg:px-24">
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: "easeInOut" }}
+        viewport={{ once: true }} className="text-center text-4xl lg:text-5xl tracking-tight font-light font-newsreader mb-10 flex flex-col md:flex-row justify-center items-center gap-2">
         <span className="md:inline">What Our</span>
         <div className="text-gold-500 relative inline-block">
           Shining Stars
@@ -83,11 +88,11 @@ const TestimonialSection: React.FC = () => {
             alt=""
             height={12}
             width={12}
-            className="w-5 h-5 absolute -top-3 left-1/2"
+            className="w-5 h-5 absolute -top-3 left-1/2 animate-bounce-slow"
           />
         </div>
         <span className="md:inline">Have to say!</span>
-      </div>
+      </motion.div>
 
       <div className="max-w-7xl mx-auto">
         {/* Desktop Grid */}
@@ -95,39 +100,14 @@ const TestimonialSection: React.FC = () => {
           {currentTestimonials.map((testimonial, index) => (
             <div
               key={index}
-              className="bg-muted-background p-6 px-10 flex flex-col justify-between min-h-[280px] h-full"
+              className="bg-muted-background m-6 mx-10 flex flex-col justify-between min-h-[280px] h-full hover:shadow-xl transition-shadow duration-300"
             >
-              <div>
-                <i className="ri-double-quotes-l text-gold-500 w-10 h-10 text-2xl" />
-                <p className="text-neutral-300 leading-relaxed mb-4">
-                  {testimonial.quote}
-                </p>
-              </div>
-              <div className="flex items-center mt-auto pt-4">
-                <div className="relative w-10 h-10 rounded-full overflow-hidden mr-3">
-                  <Image
-                    src={testimonial.image}
-                    alt={testimonial.name}
-                    layout="fill"
-                    objectFit="cover"
-                    quality={75}
-                  />
-                </div>
-                <p className="text-neutral-100 font-semibold">
-                  {testimonial.name}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Mobile Slider */}
-        <div className="md:hidden overflow-x-auto snap-x snap-mandatory scroll-smooth -mx-6 px-6">
-          <div className="flex space-x-6 w-max">
-            {dummyTestimonials.map((testimonial, index) => (
-              <div
-                key={index}
-                className="bg-muted-background w-[80vw] min-w-[80vw] max-w-[80vw] snap-start shrink-0 p-6 flex flex-col justify-between min-h-[300px]"
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, ease: "easeOut", delay: index * 0.1 }}
+                viewport={{ once: true }}
+                className="bg-muted-background p-6 px-10 flex flex-col justify-between min-h-[280px] h-full"
               >
                 <div>
                   <i className="ri-double-quotes-l text-gold-500 w-10 h-10 text-2xl" />
@@ -149,7 +129,42 @@ const TestimonialSection: React.FC = () => {
                     {testimonial.name}
                   </p>
                 </div>
-              </div>
+              </motion.div>
+            </div>
+          ))}
+        </div>
+
+        {/* Mobile Slider */}
+        <div className="md:hidden overflow-x-auto overflow-y-hidden snap-x snap-mandatory scroll-smooth -mx-6 px-6">
+          <div className="flex space-x-6 w-max">
+            {dummyTestimonials.map((testimonial, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, ease: "easeOut", delay: index * 0.05 }}
+                viewport={{ once: true }}
+                className="bg-muted-background w-[80vw] min-w-[80vw] max-w-[80vw] snap-start shrink-0 p-6 flex flex-col justify-between"
+              >
+                <div>
+                  <i className="ri-double-quotes-l text-gold-500 w-10 h-10 text-2xl" />
+                  <p className="text-neutral-300 leading-relaxed mb-4">
+                    {testimonial.quote}
+                  </p>
+                </div>
+                <div className="flex items-center mt-auto pt-4">
+                  <div className="relative w-10 h-10 rounded-full overflow-hidden mr-3">
+                    <Image
+                      src={testimonial.image}
+                      alt={testimonial.name}
+                      layout="fill"
+                      objectFit="cover"
+                      quality={75}
+                    />
+                  </div>
+                  <p className="text-neutral-100 font-semibold">{testimonial.name}</p>
+                </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -158,9 +173,8 @@ const TestimonialSection: React.FC = () => {
         <div className="hidden md:flex justify-end mt-6 text-gray-50">
           <button
             onClick={handlePrev}
-            className={`bg-gray-600 rounded-full w-10 h-10 flex items-center justify-center mr-4 ${
-              page === 0 ? "opacity-50 cursor-not-allowed" : ""
-            }`}
+            className={`bg-gray-600 rounded-full w-10 h-10 flex items-center justify-center mr-4 transition-all ${page === 0 ? "opacity-50 cursor-not-allowed" : ""
+              }`}
             aria-label="Previous Testimonial"
             disabled={page === 0}
           >
@@ -168,9 +182,8 @@ const TestimonialSection: React.FC = () => {
           </button>
           <button
             onClick={handleNext}
-            className={`bg-gray-600 rounded-full w-10 h-10 flex items-center justify-center ${
-              page === maxPage ? "opacity-50 cursor-not-allowed" : ""
-            }`}
+            className={`bg-gray-600 rounded-full w-10 h-10 flex items-center justify-center transition-all ${page === maxPage ? "opacity-50 cursor-not-allowed" : ""
+              }`}
             aria-label="Next Testimonial"
             disabled={page === maxPage}
           >

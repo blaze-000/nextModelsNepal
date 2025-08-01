@@ -2,6 +2,7 @@
 import React from "react";
 import Image from "next/image";
 import ModelGrid from "../molecules/model-grid";
+import { motion } from "framer-motion";
 
 
 const ModelsPortfolioSection = () => {
@@ -58,7 +59,13 @@ const ModelsPortfolioSection = () => {
     <section className="bg-stone-950 py-16 lg:py-24">
       <div className="max-w-7xl mx-auto px-6 md:px-8">
         {/* Section Header */}
-        <div className="flex flex-col lg:flex-row mb-8 md:mb-16">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="flex flex-col lg:flex-row mb-8 md:mb-16"
+        >
           {/* Mobile Title */}
           <div className="md:hidden flex flex-col gap-2">
             <h2 className="text-white text-4xl font-light font-newsreader">Find a Face</h2>
@@ -90,12 +97,18 @@ const ModelsPortfolioSection = () => {
             Explore our portfolio of diverse and talented models, each ready to
             redefine the world of fashion and entertainment.
           </p>
-        </div>
+        </motion.div>
 
         {/* Grids */}
         <div className="space-y-16 md:space-y-24">
           {/* Female Models Grid */}
-          <div className="space-y-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1, duration: 0.6 }}
+            className="space-y-8"
+          >
             <div className="flex items-center gap-2">
               <Image src="/small_star.svg" alt="" width={20} height={20} className="w-8 h-8" />
               <h3 className="text-white text-xl lg:text-2xl font-medium font-newsreader tracking-tight">
@@ -110,17 +123,23 @@ const ModelsPortfolioSection = () => {
                   </h4>
                   <div className="flex items-center gap-2">
                     <i className="w-4 h-4 ri-map-pin-line" />
-                    <span className="text-white text-sm lg:text-base font-semibold font-['Urbanist']">
+                    <span className="text-white text-sm lg:text-base font-semibold font-urbanist">
                       {model.location}
                     </span>
                   </div>
                 </>
               )}
             </ModelGrid>
-          </div>
+          </motion.div>
 
           {/* Male Models Grid */}
-          <div className="space-y-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2, duration: 0.6 }}
+            className="space-y-8"
+          >
             <div className="flex items-center gap-2">
               <Image src="/small_star.svg" alt="" width={20} height={20} className="w-8 h-8" />
               <h3 className="text-white text-xl lg:text-2xl font-medium font-newsreader tracking-tight">
@@ -142,7 +161,7 @@ const ModelsPortfolioSection = () => {
                 </>
               )}
             </ModelGrid>
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>
