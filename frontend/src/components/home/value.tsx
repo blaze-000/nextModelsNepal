@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { motion } from "framer-motion";
 
 const ValuesSection = () => {
   const features = [
@@ -23,7 +24,13 @@ const ValuesSection = () => {
     <section className="bg-background2 w-full pt-16 md:pt-12 pb-18 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 md:px-8">
         {/* Heading */}
-        <div className="text-left md:text-center mb-16 mx-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0 }}
+          className="text-left md:text-center mb-16 mx-4"
+        >
           <h2 className="font-newsreader text-5xl lg:text-5xl font-extralight text-white">
             At Next Models Nepal{" "}
             <span className="text-gold-400 font-newsreader font-extralight">
@@ -31,15 +38,19 @@ const ValuesSection = () => {
             </span>
             ,
           </h2>
-        </div>
+        </motion.div>
 
         {/* ✅ Mobile View */}
         <div className="block md:hidden space-y-36">
           {features.map((feature, index) => {
             const isEven = index % 2 !== 0;
             return (
-              <div
+              <motion.div
                 key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: (index + 1) * 0.1 }}
                 className={`relative text-center ${
                   isEven ? "text-right items-end" : "text-left items-start"
                 } flex flex-col`}
@@ -59,7 +70,9 @@ const ValuesSection = () => {
                 <div className="relative z-10 flex flex-col gap-2 px-6 -mt-2 items-start">
                   <div
                     className={`flex items-center gap-3 ${
-                      isEven ? "justify-end flex-row-reverse" : "justify-start"
+                      isEven
+                        ? "justify-end flex-row-reverse"
+                        : "justify-start"
                     }`}
                   >
                     <Image src="/star.svg" alt="Star" width={48} height={48} />
@@ -73,7 +86,7 @@ const ValuesSection = () => {
                     </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             );
           })}
         </div>
@@ -81,7 +94,14 @@ const ValuesSection = () => {
         {/* ✅ Desktop View */}
         <div className="hidden md:grid md:grid-cols-3 md:gap-12">
           {features.map((feature, index) => (
-            <div key={index} className="relative text-center md:text-left">
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: (index + 1) * 0.1 }}
+              className="relative text-center md:text-left"
+            >
               {/* Content */}
               <div className="relative z-10 flex flex-col gap-2 items-start">
                 <div className="flex items-start gap-3">
@@ -103,7 +123,7 @@ const ValuesSection = () => {
                   {feature.number}
                 </span>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>

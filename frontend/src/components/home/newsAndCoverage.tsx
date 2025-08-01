@@ -1,4 +1,4 @@
-import React from "react";
+import { motion } from "framer-motion";
 import ImageBox from "../molecules/image-box";
 
 const NewsSection = () => {
@@ -22,11 +22,30 @@ const NewsSection = () => {
     },
   ];
 
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.2 },
+    },
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 30 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+  };
+
   return (
     <section className="w-full bg-background pb-24 pt-20 md:py-16">
       <div className="max-w-7xl mx-auto px-6">
         {/* Header Section */}
-        <div className="text-center mb-8 md:mb-16">
+        <motion.div
+          className="text-center mb-8 md:mb-16"
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+        >
           <div className="mb-4 md:mb-6">
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-extralight font-newsreader text-white mb-2">
               Our
@@ -36,29 +55,35 @@ const NewsSection = () => {
             </h1>
           </div>
           <p className="text-sm md:text-base text-white/90 leading-relaxed tracking-wider font-light px-4 md:px-0">
-            Next Models Nepal specializes in top-tier event management services
-            in Nepal. <br className="hidden md:block" />
+            Next Models Nepal specializes in top-tier event management services in Nepal. <br className="hidden md:block" />
             <span className="md:hidden"> </span>
-            We handle every detail, ensuring your event is flawless and
-            memorable.
+            We handle every detail, ensuring your event is flawless and memorable.
           </p>
-        </div>
+        </motion.div>
 
         {/* News Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-6 px-2 md:px-8">
-          {newsItems.map((item) => (
-            <ImageBox
+          {newsItems.map((item, i) => (
+            <motion.div
               key={item.id}
-              image={item.image}
-              title={item.title}
-              desc={item.description}
-              link={item.link}
-              buttonText="Visit News Source"
-            />
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 * i }}
+              viewport={{ once: true }}
+            >
+              <ImageBox
+                image={item.image}
+                title={item.title}
+                desc={item.description}
+                link={item.link}
+                buttonText="Visit News Source"
+              />
+            </motion.div>
           ))}
         </div>
       </div>
     </section>
+
   );
 };
 

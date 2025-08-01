@@ -53,7 +53,10 @@ const ModelGrid: React.FC<ModelGridProps> = ({ models, children }) => {
           {models.map((model: Model, index: number) => (
             <div
               key={index}
+
               className="relative overflow-hidden group w-[75vw] min-w-[75vw] max-w-[75vw] snap-start shrink-0  "
+
+             
             >
               <Image
                 className="w-full h-80 object-cover [mask:linear-gradient(to_top,transparent_0%,black_30%)]"
