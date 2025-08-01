@@ -148,7 +148,7 @@ const EventHero = () => {
   }, [emblaApi]);
 
   return (
-    <section className="w-full bg-background2 py-16 overflow-hidden">
+    <section className="w-full bg-background2 pt-16 pb-8 md:py-16 overflow-hidden">
       <div className="w-full">
         <div className="relative w-full">
           <div className="embla px-[10%]" ref={emblaRef}>

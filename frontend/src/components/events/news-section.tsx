@@ -25,30 +25,57 @@ export const NewsSection = () => {
   ];
 
   return (
-    <div className="w-full bg-background pb-40 pt-16">
+    <div className="w-full bg-background py-16 md:py-20">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="flex justify-between items-center px-2 mb-6">
-          <div className="flex-1 flex items-center gap-2">
-            <Image
-              src="/small_star.svg"
-              alt=""
-              width={1}
-              height={0}
-              sizes="100vw"
-              className="w-4 h-4 rounded-full "
-            />
-            <h3 className="text-white text-xl font-normal font-newsreader">
-              News and Coverage
-            </h3>
+        {/* Header Section */}
+        <div className="mb-6">
+          {/* Desktop Layout */}
+          <div className="hidden md:flex justify-between items-center px-2">
+            <div className="flex-1 flex items-center gap-2">
+              <Image
+                src="/small_star.svg"
+                alt=""
+                width={1}
+                height={0}
+                sizes="100vw"
+                className="w-4 h-4 rounded-full"
+              />
+              <h3 className="text-white text-xl font-normal font-newsreader">
+                News and Coverage
+              </h3>
+            </div>
+
+            <Button variant="outline" className="py-2">
+              <span>Sort By:</span>
+              <span>Most Recent</span>
+              <i className="ri-arrow-down-s-line text-lg" />
+            </Button>
           </div>
 
-          <Button variant="outline" className="py-2 ">
-            <span>Sort By:</span>
-            <span>Most Recent</span>
-            <i className="ri-arrow-down-s-line text-lg" />
-          </Button>
+          {/* Mobile Layout */}
+          <div className="block md:hidden space-y-4 px-2">
+            <div className="flex items-center justify-center gap-2">
+              <Image
+                src="/small_star.svg"
+                alt=""
+                width={1}
+                height={0}
+                sizes="100vw"
+                className="w-4 h-4 rounded-full"
+              />
+              <h3 className="text-white text-xl font-normal font-newsreader">
+                News and Coverage
+              </h3>
+            </div>
 
-          <div></div>
+            <div className="flex flex-wrap gap-4 justify-center">
+              <Button variant="outline" className="py-2 min-w-0">
+                <span>Sort By:</span>
+                <span>Most Recent</span>
+                <i className="ri-arrow-down-s-line text-lg" />
+              </Button>
+            </div>
+          </div>
         </div>
 
         {/* News Grid */}
@@ -64,7 +91,6 @@ export const NewsSection = () => {
             />
           ))}
         </div>
-       
       </div>
     </div>
   );

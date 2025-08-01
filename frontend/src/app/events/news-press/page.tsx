@@ -41,25 +41,48 @@ export default function NewsPress() {
   ];
 
   return (
-    <div className="w-full bg-background pb-24 pt-20">
+    <div className="w-full bg-background py-16 md:py-20">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="flex  items-center  mb-6">
-          <div className="flex-1 flex items-center justify-center gap-2 py-4">
-            <Button variant="outline" className="py-2 ">
+        {/* Header Section */}
+        <div className="mb-6">
+          {/* Desktop Layout */}
+          <div className="hidden md:flex items-center justify-center gap-4 py-4">
+            <Button variant="outline" className="py-2">
               <span>Type:</span>
               <span>Interview</span>
               <i className="ri-arrow-down-s-line text-lg" />
             </Button>
-            <Button variant="outline" className="py-2 ">
+            <Button variant="outline" className="py-2">
               <span>Event:</span>
               <span>Miss Nepal Peace</span>
               <i className="ri-arrow-down-s-line text-lg" />
             </Button>
-            <Button variant="outline" className="py-2 ">
+            <Button variant="outline" className="py-2">
               <span>Year:</span>
               <span>2024</span>
               <i className="ri-arrow-down-s-line text-lg" />
             </Button>
+          </div>
+
+          {/* Mobile Layout */}
+          <div className="block md:hidden space-y-4">
+            <div className="flex flex-wrap gap-4 justify-center">
+              <Button variant="outline" className="py-2 min-w-0">
+                <span>Type:</span>
+                <span>Interview</span>
+                <i className="ri-arrow-down-s-line text-lg" />
+              </Button>
+              <Button variant="outline" className="py-2 min-w-0">
+                <span>Event:</span>
+                <span>Miss Nepal Peace</span>
+                <i className="ri-arrow-down-s-line text-lg" />
+              </Button>
+              <Button variant="outline" className="py-2 min-w-0">
+                <span>Year:</span>
+                <span>2024</span>
+                <i className="ri-arrow-down-s-line text-lg" />
+              </Button>
+            </div>
           </div>
         </div>
 

@@ -18,7 +18,7 @@ const ModelGrid: React.FC<ModelGridProps> = ({ models, children }) => {
   return (
     <div className="space-y-8">
       {/* Desktop Grid */}
-      <div className="hidden lg:grid lg:grid-cols-4 gap-6">
+      <div className="hidden lg:grid lg:grid-cols-4 gap-6 ">
         {models.map((model, index) => (
           <div
             key={index}
@@ -50,7 +50,7 @@ const ModelGrid: React.FC<ModelGridProps> = ({ models, children }) => {
           {models.map((model, index) => (
             <div
               key={index}
-              className="relative overflow-hidden group w-[80vw] min-w-[80vw] max-w-[80vw] snap-start shrink-0"
+              className="relative overflow-hidden group w-[75vw] min-w-[75vw] max-w-[75vw] snap-start shrink-0  "
             >
               <Image
                 className="w-full h-80 object-cover [mask:linear-gradient(to_top,transparent_0%,black_30%)]"
