@@ -4,18 +4,37 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "clean": "rm -rf dist",
+    "build:prod": "npm run clean && npm run build"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/get-stream": "^3.0.1",
+    "@types/multer": "^2.0.0",
     "@types/node": "^24.1.0",
+    "@types/nodemailer": "^6.4.17",
+    "@types/pdfkit": "^0.17.2",
+    "ts-node-dev": "^2.0.0",
     "typescript": "^5.8.3"
   },
   "dependencies": {
+    "axios": "^1.11.0",
     "dotenv": "^17.2.1",
-    "mongoose": "^8.16.5"
+    "express": "^5.1.0",
+    "form-data": "^4.0.4",
+    "get-stream": "^9.0.1",
+    "mongoose": "^8.16.5",
+    "multer": "^2.0.2",
+    "nodemailer": "^7.0.5",
+    "pdfkit": "^0.17.1",
+    "razorpay": "^2.9.6",
+    "zod": "^4.0.14"
   }
 }
