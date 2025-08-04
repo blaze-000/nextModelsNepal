@@ -3,16 +3,6 @@
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 
-type Partner = {
-  name: string;
-  image: string;
-};
-
-type PartnerScrollerProps = {
-  partners: Partner[];
-  speed?: number; // px/sec
-};
-
 export default function PartnerScroller({ partners, speed = 1000 }: PartnerScrollerProps) {
   const [translateX, setTranslateX] = useState(0);
   const [itemWidth, setItemWidth] = useState(160);

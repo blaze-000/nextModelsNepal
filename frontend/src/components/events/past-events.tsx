@@ -1,7 +1,9 @@
+"use client";
 import Image from "next/image";
 import React from "react";
 import ImageBox from "../molecules/image-box";
 import { Button } from "../ui/button";
+import { motion } from "framer-motion";
 
 export const PastEvents = () => {
   const newsItems = [
@@ -42,74 +44,140 @@ export const PastEvents = () => {
   ];
 
   return (
-    <div className="w-full bg-background pb-24 pt-20 md:py-16">
+    <div className="w-full bg-background py-16 md:py-20">
       <div className="max-w-7xl mx-auto px-6">
-        {/* Desktop Title */}
-        <div className="text-center">
-          <div className="text-5xl font-light font-newsreader text-white mb-1 flex items-center justify-center gap-2.5">
-            <span>Moments</span>
-            <Image
-              src="/span-image.jpg"
-              alt=""
-              width={1}
-              height={0}
-              sizes="100vw"
-              className="w-32 h-16 rounded-full border border-stone-300 mb-3"
-            />
-            <span>in the Making:</span>
-          </div>
-          <div className="text-6xl font-light font-newsreader tracking-tighter text-gold-500">
-            Past Triumphs & Upcoming
-          </div>
-          <div className="text-6xl font-light font-newsreader tracking-tighter text-gold-500 mb-4">
-            {" "}
-            Experiences
-          </div>
-        </div>
-        <div className="flex justify-between items-center px-2 md:px-8 mb-6">
-          <div className="flex-1 flex items-center gap-2">
-            <Image
-              src="/small_star.svg"
-              alt=""
-              width={1}
-              height={0}
-              sizes="100vw"
-              className="w-4 h-4 rounded-full "
-            />
-            <h3 className="text-white text-xl font-normal font-newsreader">
-              Past Events
-            </h3>
+        {/* Title Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true, amount: 0.6 }}
+          className="text-center">
+          {/* Desktop Title */}
+          <div className="hidden md:block font-extralight">
+            <div className="text-5xl font-newsreader text-white mb-1 flex items-center justify-center gap-2.5">
+              <span>Moments</span>
+              <Image
+                src="/span-image.jpg"
+                alt=""
+                width={1}
+                height={0}
+                sizes="100vw"
+                className="w-32 h-16 rounded-full border border-stone-300 mb-3"
+              />
+              <span>in the Making:</span>
+            </div>
+            <div className="text-6xl font-newsreader tracking-tighter text-gold-500">
+              Past Triumphs & Upcoming
+            </div>
+            <div className="text-6xl font-newsreader tracking-tighter text-gold-500 mb-4">
+              Experiences
+            </div>
           </div>
 
-          <Button variant="outline" className="py-2 ">
-            <span>Sort By:</span>
-            <span>Most Recent</span>
-            <i className="ri-arrow-down-s-line text-lg" />
-          </Button>
+          {/* Mobile Title */}
+          <div className="block md:hidden">
+            <div className="text-4xl font-light font-newsreader text-white tracking-wide">
+              Moments in the
+            </div>
+            <div className="text-4xl font-light font-newsreader text-white mb-4 tracking-wide">
+              Making:
+            </div>
+            <div className="text-5xl font-light font-newsreader tracking-tighter text-gold-500 mb-2">
+              Past Triumphs &
+            </div>
+            <div className="text-5xl font-light font-newsreader tracking-tighter text-gold-500 mb-2">
+              Upcoming
+            </div>
+            <div className="text-5xl font-light font-newsreader tracking-tighter text-gold-500">
+              Experiences
+            </div>
+          </div>
+        </motion.div>
 
-          <div></div>
-        </div>
+        {/* Controls Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+          className="px-2 py-6">
+          {/* Desktop Layout */}
+          <div className="hidden md:flex justify-between items-center">
+            <div className="flex-1 flex items-center gap-2">
+              <Image
+                src="/small_star.svg"
+                alt=""
+                width={1}
+                height={0}
+                sizes="100vw"
+                className="w-4 h-4 rounded-full"
+              />
+              <h3 className="text-white text-xl font-normal font-newsreader">
+                Past Events
+              </h3>
+            </div>
+            <Button variant="outline" className="py-2">
+              <span>Sort By:</span>
+              <span>Most Recent</span>
+              <i className="ri-arrow-down-s-line text-lg" />
+            </Button>
+          </div>
+
+          {/* Mobile Layout - Stacked */}
+          <div className="block md:hidden space-y-6">
+            <div className="flex items-center justify-center gap-2">
+              <Image
+                src="/small_star.svg"
+                alt=""
+                width={1}
+                height={0}
+                sizes="100vw"
+                className="w-8 h-8 rounded-full"
+              />
+              <h3 className="text-white text-2xl font-normal font-newsreader">
+                Past Events
+              </h3>
+            </div>
+            <div className="flex justify-center">
+              <Button variant="outline" className="py-2 md:w-full">
+                <span>Sort By:</span>
+                <span>Most Recent</span>
+                <i className="ri-arrow-down-s-line text-lg" />
+              </Button>
+            </div>
+          </div>
+        </motion.div>
 
         {/* News Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-6 px-2 md:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-6">
           {newsItems.map((item) => (
-            <ImageBox
+            <motion.div
               key={item.id}
-              image={item.image}
-              title={item.title}
-              desc={item.description}
-              link={item.link}
-              buttonText="Visit News Source"
-            />
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              viewport={{ once: true, amount: 0.3 }}
+            >
+              <ImageBox
+                image={item.image}
+                title={item.title}
+                desc={item.description}
+                link={item.link}
+                buttonText="Visit News Source"
+              />
+            </motion.div>
           ))}
         </div>
-        <div className="flex justify-end">
-          <button className="px-4 py-4 rounded-full text-gold-500 text-base -tracking-tight font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer">
+
+        {/* See All Button */}
+        <div className="hidden md:flex justify-end">
+          <button className="px-4 py-6 rounded-full text-gold-500 text-base -tracking-tight font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer">
             <span className="underline">See All Past Events</span>
             <i className="ri-arrow-right-up-line group-hover:scale-130 transition-transform duration-400 text-xl font-light" />
           </button>
         </div>
       </div>
-    </div>
+    </div >
   );
 };

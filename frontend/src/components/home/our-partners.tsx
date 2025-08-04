@@ -2,6 +2,7 @@
 import Image from "next/image";
 import React from "react";
 import PartnerScroller from "./../molecules/scroller";
+import { motion } from "framer-motion";
 
 const partners = [
   { name: "1", image: "/partners/img1.png" },
@@ -18,7 +19,13 @@ const partners = [
 const OurPartners = () => {
   return (
     <section className="w-full py-16 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-8">
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        viewport={{ once: true }}
+        className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-8"
+      >
         {/* Left Section */}
         <div className="flex flex-col gap-3 font-newsreader">
           <h2 className="text-5xl font-extralight tracking-tight">
@@ -40,14 +47,22 @@ const OurPartners = () => {
 
         {/* Right Description */}
         <p className="text-base md:text-right text-center max-w-md font-light font-urbanist">
-          The Creative Forces Behind Iconic Campaigns: Celebrating the Partners
-          Who Drive Success for Leading Brands
+          The Creative Forces Behind Iconic Campaigns: Celebrating the Partners Who
+          Drive Success for Leading Brands
         </p>
-      </div>
+      </motion.div>
 
       {/* Scrolling Logos */}
-      <PartnerScroller partners={partners} speed={200}/>
+      <motion.div
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
+        viewport={{ once: true }}
+      >
+        <PartnerScroller partners={partners} speed={200} />
+      </motion.div>
     </section>
+
   );
 };
 

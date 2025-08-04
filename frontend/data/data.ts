@@ -1,4 +1,4 @@
-export const menuItems = [
+export const menuItems: MenuItem[] = [
   {
     id: 1,
     label: "Home",
@@ -18,8 +18,14 @@ export const menuItems = [
           { label: "Miss Nepal Peace", href: "/events/miss-nepal-peace" },
         ],
         [
-          { label: "Kathmandu Fashion Week", href: "/events/kathmandu-fashion-week" },
-          { label: "IEC Designers Runway", href: "/events/iec-designers-runway" },
+          {
+            label: "Kathmandu Fashion Week",
+            href: "/events/kathmandu-fashion-week",
+          },
+          {
+            label: "IEC Designers Runway",
+            href: "/events/iec-designers-runway",
+          },
         ],
       ],
     },
