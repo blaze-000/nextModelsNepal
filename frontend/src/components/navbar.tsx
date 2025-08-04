@@ -184,9 +184,11 @@ const Header = () => {
                 );
               })}
             </div>
-            <Button asChild variant="default">
-              <Link href="/apply">Apply</Link>
-            </Button>
+            <Link href="/apply">
+              <Button variant="default">
+                Apply
+              </Button>
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
