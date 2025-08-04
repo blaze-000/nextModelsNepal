@@ -32,23 +32,8 @@ export const menuItems: MenuItem[] = [
   },
   {
     id: 3,
-    label: "Voting",
-    href: "/voting",
-  },
-  {
-    id: 4,
-    label: "About Us",
-    href: "/about",
-  },
-  {
-    id: 5,
-    label: "Contact Us",
-    href: "/contact",
-  },
-  {
-    id: 6,
-    label: "Event Details",
-    href: "/event-details",
+    label: "Events Central",
+    href: "/events",
     submenu: {
       columns: 1,
       items: [
@@ -58,5 +43,20 @@ export const menuItems: MenuItem[] = [
         { label: "Press & Media Coverage", href: "/event-details/media" },
       ],
     },
+  },
+  {
+    id: 4,
+    label: "Voting",
+    href: "/voting",
+  },
+  {
+    id: 5,
+    label: "About Us",
+    href: "/about",
+  },
+  {
+    id: 6,
+    label: "Contact Us",
+    href: "/contact",
   },
 ];
