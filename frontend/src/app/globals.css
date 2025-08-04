@@ -16,14 +16,9 @@
   --color-gold-400: var(--gold-400);
   --color-gold-900: var(--gold-900);
 
-  --font-sans: var(--font-geist-sans), sans-serif;
-  --font-newsreader: "Newsreader", serif;
-  --font-mono: var(--font-geist-mono);
-}
+  --font-newsreader: var(--font-newsreader), serif;
+  --font-urbanist: var(--font-urbanist), sans-serif;
 
-/* Set up Urbanist font for Tailwind */
-html {
-  font-family: var(--font-urbanist);
 }
 
 body {
@@ -45,6 +40,8 @@ body {
 
   --primary: #ffaa00;
   --primary-foreground: #312000;
+  --font-newsreader: var(--newsreader);
+  --font-urbanist: var(--urbanist);
 }
 
 @keyframes bounce-slow {

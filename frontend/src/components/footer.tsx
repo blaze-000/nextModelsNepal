@@ -99,7 +99,7 @@ const Footer: FC = (): ReactNode => {
             </motion.div>
 
             {/* Contact */}
-            <motion.div variants={item} className="space-y-8 md:space-y-6 col-span-2 md:col-span-1">
+            <motion.div id="footer-contact" variants={item} className="space-y-8 md:space-y-6 col-span-2 md:col-span-1">
               <h3 className="text-base font-semibold">Contact</h3>
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
