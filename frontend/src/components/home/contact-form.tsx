@@ -241,9 +241,10 @@ const ContactForm = () => {
             className="flex justify-end mt-6"
           >
             <Button
+              variant="default"
               type="submit"
               disabled={isSending}
-              className="w-35 md:w-50 bg-gold-500 hover:bg-gold-600 text-black font-semibold rounded-full"
+              className="w-35 md:w-50 bg-gold-500 text-black font-semibold rounded-full"
             >
               {isSending ? (
                 <>

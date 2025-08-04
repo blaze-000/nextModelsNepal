@@ -60,9 +60,8 @@ const NewsLetterBox: React.FC<NewsletterSubscriptionProps> = () => {
               autoComplete="email"
               onChange={handleInputChange}
               placeholder="e.g johndoe@example.com"
-              className={`w-full px-6 py-4 rounded-full bg-white text-gray-800 placeholder-gray-500 outline-none focus:ring-2 transition-all duration-200 text-base ${
-                error ? 'focus:ring-red-500' : 'focus:ring-gold-400'
-              }`}
+              className={`w-full px-6 py-4 rounded-full bg-white text-gray-800 placeholder-gray-500 outline-none focus:ring-2 transition-all duration-200 text-base ${error ? 'focus:ring-red-500' : 'focus:ring-gold-400'
+                }`}
               disabled={isSubmitting}
               aria-label="Email address"
               aria-invalid={!!error}
@@ -74,6 +73,7 @@ const NewsLetterBox: React.FC<NewsletterSubscriptionProps> = () => {
             )}
           </div>
           <Button
+            variant="default"
             type="submit"
             disabled={isSubmitting}
             className="flex items-center justify-center gap-2 w-full sm:w-auto sm:px-6 sm:py-4 min-w-[120px] group"
@@ -102,9 +102,8 @@ const NewsLetterBox: React.FC<NewsletterSubscriptionProps> = () => {
               autoComplete="email"
               onChange={handleInputChange}
               placeholder="e.g johndoe@example.com"
-              className={`w-full px-5 py-5 pr-16 rounded-full bg-white text-gray-800 placeholder-gray-500 outline-none focus:ring-2 transition-all duration-200 text-base ${
-                error ? 'focus:ring-red-500' : 'focus:ring-gold-400'
-              }`}
+              className={`w-full px-5 py-5 pr-16 rounded-full bg-white text-gray-800 placeholder-gray-500 outline-none focus:ring-2 transition-all duration-200 text-base ${error ? 'focus:ring-red-500' : 'focus:ring-gold-400'
+                }`}
               disabled={isSubmitting}
               aria-label="Email address"
               aria-invalid={!!error}
