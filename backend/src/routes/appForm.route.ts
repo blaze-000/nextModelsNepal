@@ -8,8 +8,8 @@ const router = Router();
 // Get all career items
 router.route("/").get(getAppForm);
 
-// Create career item 
-router.route("/").post(uploadImages, createAppForm);
+// Create application form with event ID
+router.route("/:id").post(uploadImages, createAppForm);
 
 // Get single career item by ID
 router.route("/:id").get(getAppFormById);

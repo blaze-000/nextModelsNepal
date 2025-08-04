@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { createEventItem, deleteEventById, getEventById, getEventItems, updateEventById } from "../controllers/event.controller";
-import { uploadImages, uploadImagesAndIcons } from "../middleware/multer.middleware";
+import { uploadEventFiles } from "../middleware/multer.middleware";
 
 const router = Router();
 
@@ -8,13 +8,13 @@ const router = Router();
 router.route("/").get(getEventItems);
 
 // Create event item 
-router.route("/").post(uploadImagesAndIcons, createEventItem);
+router.route("/").post(uploadEventFiles, createEventItem);
 
 // Get single event item by ID
 router.route("/:id").get(getEventById);
 
 // Update event item by ID
-router.route("/:id").patch(uploadImagesAndIcons, updateEventById);
+router.route("/:id").patch(uploadEventFiles, updateEventById);
 
 // Delete event item by ID
 router.route("/:id").delete(deleteEventById);
