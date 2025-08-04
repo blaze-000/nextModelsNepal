@@ -4,14 +4,27 @@ import nodemailer from "nodemailer";
 import { Request, Response } from "express";
 import { AppModel } from "../models/appForm.model";
 import { appModelSchema } from "../validations/appForm.validation";
+import { EventModel } from "../models/events.model";
 
 // createApplication Form
 export const createAppForm = async (req: Request, res: Response) => {
     try {
         const imagePaths = (req.files as Express.Multer.File[]).map(file => file.path);
 
+        const {id} = req.params;
+
+        const event = await EventModel.findById({_id: id});
+        
+        if (!event) {
+            return res.status(404).json({
+                success: false,
+                message: "Event not found with the provided ID.",
+            });
+        }
+
         const validatedData = appModelSchema.parse({
             ...req.body,
+            event: event.title,
             images: imagePaths,
             weight: Number(req.body.weight),
             languages: Array.isArray(req.body.languages)
