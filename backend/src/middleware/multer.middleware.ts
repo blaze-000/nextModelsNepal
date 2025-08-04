@@ -94,3 +94,35 @@ export const uploadNextEventFiles = multer({
     { name: 'subtitle[1].items[0].tagIcon', maxCount: 5 },
     { name: 'subtitle[1].items[1].tagIcon', maxCount: 5 },
 ]);
+
+export const uploadImageFiles = multer({
+    storage,
+    fileFilter: imageFilter,
+}).fields([
+    { name: 'coverImage', maxCount: 1 },  // Single cover image
+    { name: 'gallery', maxCount: 10 }     // Multiple gallery images
+]);
+
+// Middleware for company models with cover image and gallery images
+export const uploadCompanyModelFiles = multer({
+    storage,
+    fileFilter: imageFilter,
+}).fields([
+    { name: 'coverImage', maxCount: 1 },  // Single cover image
+    { name: 'images', maxCount: 10 }      // Multiple gallery images
+]);
+
+// Middleware for events with cover image, title image, sub image, highlight images, and logo
+export const uploadEventFiles = multer({
+    storage,
+    fileFilter: imageFilter,
+}).fields([
+    { name: 'coverImage', maxCount: 1 },  // Single cover image
+    { name: 'titleImage', maxCount: 1 },  // Single title image
+    { name: 'subImage', maxCount: 1 },    // Single sub image
+    { name: 'highlight', maxCount: 10 },  // Multiple highlight images
+    { name: 'logo', maxCount: 1 },
+    {name: 'startingTimelineIcon', maxCount: 1},   
+    {name: 'midTimelineIcon', maxCount: 1},        
+    {name: 'endTimelineIcon', maxCount: 1}         
+]);
