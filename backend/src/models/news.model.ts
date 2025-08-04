@@ -1,19 +1,17 @@
 import mongoose from "mongoose";
 
-const coverageSchema = new mongoose.Schema({
-    index: String,
+const newsSchema = new mongoose.Schema({
+    title: { type: String, required: true },
+    description: { type: String, required: true },
+    content: {type: String},
+    year: { type: Number, default: () => new Date().getFullYear() },
     images: {
         type: [String],
     },
-    title: String,
-    description: String,
-    link: String
-})
-
-const newsSchema = new mongoose.Schema({
-    maintitle: { type: String, required: true },
-    description: { type: String, required: true },
-    item: { type: [coverageSchema] }
+    event: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "EventModel"
+    }
 });
 
 export const NewsModel = mongoose.model("NewsModel", newsSchema);
