@@ -60,7 +60,6 @@ export const createEventItem = async (req: Request, res: Response) => {
         const eventData = eventZodSchema.parse(req.body);
         const { tag, title, date, overview, purpose, eventDescription, startingTimelineDate, startingTimelineEvent, midTimelineDate, midTimelineEvent, endTimelineDate, endTimelineEvent } = eventData;
 
-        // When using uploadEventFiles.fields(), files come as an object with field names
         const files = req.files as {
             [fieldname: string]: Express.Multer.File[];
         };
