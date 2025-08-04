@@ -58,29 +58,81 @@ export const getEventById = async (req: Request, res: Response) => {
 export const createEventItem = async (req: Request, res: Response) => {
     try {
         const eventData = eventZodSchema.parse(req.body);
-        const { tag, title, date, description, content, participants } = eventData;
+        const { tag, title, date, overview, purpose, eventDescription, startingTimelineDate, startingTimelineEvent, midTimelineDate, midTimelineEvent, endTimelineDate, endTimelineEvent } = eventData;
 
-        const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+        // When using uploadEventFiles.fields(), files come as an object with field names
+        const files = req.files as {
+            [fieldname: string]: Express.Multer.File[];
+        };
 
-        const imageFiles = files['images'] || [];
-        const iconFiles = files['icon'] || [];
+        // Get cover image (optional)
+        const coverImageFiles = files?.coverImage || [];
+        const coverImagePath = coverImageFiles.length > 0 ? coverImageFiles[0].path : null;
 
-        if (iconFiles.length === 0) {
-            return res.status(400).json({ error: "One SVG icon file is required." });
+        // Get title image (optional)
+        const titleImageFiles = files?.titleImage || [];
+        const titleImagePath = titleImageFiles.length > 0 ? titleImageFiles[0].path : null;
+
+        // Get sub image (optional)
+        const subImageFiles = files?.subImage || [];
+        const subImagePath = subImageFiles.length > 0 ? subImageFiles[0].path : null;
+
+        // Get highlight images (optional)
+        const highlightImageFiles = files?.highlight || [];
+        const highlightImagePaths = highlightImageFiles.map(file => file.path);
+
+        // Get logo (required)
+        const logoFiles = files?.logo || [];
+        if (logoFiles.length === 0) {
+            return res.status(400).send("Please provide a logo.");
         }
+        const logoPath = logoFiles[0].path;
 
-        const imagePath = imageFiles.length > 0 ? imageFiles[0].path : null;
-        const iconPath = iconFiles[0].path;
+        // Get icon (required)
+        const iconFiles = files?.startingTimelineIcon || [];
+        if (iconFiles.length === 0) {
+            return res.status(400).send("Please provide a starting timeline icon.");
+        }
+        const startingIconPath = iconFiles[0].path;
+
+        // Get icon (required)
+        const midIconFiles = files?.startingTimelineIcon || [];
+        if (midIconFiles.length === 0) {
+            return res.status(400).send("Please provide a mid timeline icon.");
+        }
+        const midIconPath = iconFiles[0].path;
+
+        // Get icon (required)
+        const endIconFiles = files?.startingTimelineIcon || [];
+        if (endIconFiles.length === 0) {
+            return res.status(400).send("Please provide a ending timeline icon.");
+        }
+        const endIconPath = iconFiles[0].path;
 
         const eventSection = await EventModel.create({
             tag,
             title,
             date,
-            description,
-            content,
-            participants,
-            images: imagePath ? [imagePath] : [],  // your schema expects an array of strings
-            icon: iconPath
+            overview,
+            purpose,
+            coverImage: coverImagePath,
+            titleImage: titleImagePath,
+            subImage: subImagePath,
+            logo: logoPath,
+            highlight: highlightImagePaths,
+
+            eventDescription,
+            startingTimelineIcon: startingIconPath,
+            startingTimelineDate,
+            startingTimelineEvent,
+
+            midTimelineIcon: midIconPath,
+            midTimelineDate,
+            midTimelineEvent,
+
+            endTimelineIcon: endIconPath,
+            endTimelineDate,
+            endTimelineEvent
         });
 
         res.status(201).json({
@@ -103,45 +155,89 @@ export const updateEventById = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
 
-        // Check if files are present
-        const files = req.files as Express.Multer.File[] | undefined;
+        // Check if the event exists
+        const existEvent = await EventModel.findOne({ index: id });
+        if (!existEvent) {
+            return res.status(401).send("Invalid Event Id.");
+        }
 
-        let updateData: any = {};
+        // When using uploadEventFiles.fields(), files come as an object with field names
+        const files = req.files as {
+            [fieldname: string]: Express.Multer.File[];
+        };
 
-        if (files && files.length > 0) {
-            // If files are present, validate with eventSchema
-            const validatedData = eventZodSchema.parse(req.body);
-            const { index, tag, title, date, description, content, participants } = validatedData;
+        // Build the update object
+        const updateData: any = {};
 
-            const imagePath = files[0].path;
-
-            updateData = {
-                index,
-                tag,
-                title,
-                date,
-                description,
-                content,
-                participants,
-                images: imagePath
-            };
-        } else {
-            const { index, tag, title, date, description, content, participants } = req.body;
+        // Check if req.body exists before destructuring
+        if (req.body) {
+            const { tag, title, date, overview, purpose, eventDescription, startingTimelineDate, startingTimelineEvent, midTimelineDate, midTimelineEvent, endTimelineDate, endTimelineEvent } = req.body;
 
             if (tag !== undefined) updateData.tag = tag;
             if (title !== undefined) updateData.title = title;
             if (date !== undefined) updateData.date = date;
-            if (description !== undefined) updateData.description = description;
-            if (content !== undefined) updateData.content = content;
-            if (participants !== undefined) updateData.participants = participants;
+            if (overview !== undefined) updateData.overview = overview;
+            if (purpose !== undefined) updateData.purpose = purpose;
+            if (eventDescription !== undefined) updateData.eventDescription = eventDescription;
+            if (startingTimelineDate !== undefined) updateData.startingTimelineDate = startingTimelineDate;
+            if (startingTimelineEvent !== undefined) updateData.startingTimelineEvent = startingTimelineEvent;
+            if (midTimelineDate !== undefined) updateData.midTimelineDate = midTimelineDate;
+            if (midTimelineEvent !== undefined) updateData.midTimelineEvent = midTimelineEvent;
+            if (endTimelineDate !== undefined) updateData.endTimelineDate = endTimelineDate;
+            if (endTimelineEvent !== undefined) updateData.endTimelineEvent = endTimelineEvent;
+        }
 
-            // If no fields are provided, return error
-            if (Object.keys(updateData).length === 0) {
-                return res.status(400).json({
-                    success: false,
-                    message: "At least one field must be provided for update.",
-                });
-            }
+        // Handle cover image update
+        const coverImageFiles = files?.coverImage || [];
+        if (coverImageFiles.length > 0) {
+            updateData.coverImage = coverImageFiles[0].path;
+        }
+
+        // Handle title image update
+        const titleImageFiles = files?.titleImage || [];
+        if (titleImageFiles.length > 0) {
+            updateData.titleImage = titleImageFiles[0].path;
+        }
+
+        // Handle sub image update
+        const subImageFiles = files?.subImage || [];
+        if (subImageFiles.length > 0) {
+            updateData.subImage = subImageFiles[0].path;
+        }
+
+        // Handle highlight images update (append to existing)
+        const highlightImageFiles = files?.highlight || [];
+        if (highlightImageFiles.length > 0) {
+            updateData.highlight = [...(existEvent.highlight || []), ...highlightImageFiles.map(f => f.path)];
+        }
+
+        // Handle logo update
+        const logoFiles = files?.logo || [];
+        if (logoFiles.length > 0) {
+            updateData.logo = logoFiles[0].path;
+        }
+
+        // Handle timeline icons update
+        const startingTimelineIconFiles = files?.startingTimelineIcon || [];
+        if (startingTimelineIconFiles.length > 0) {
+            updateData.startingTimelineIcon = startingTimelineIconFiles[0].path;
+        }
+
+        const midTimelineIconFiles = files?.midTimelineIcon || [];
+        if (midTimelineIconFiles.length > 0) {
+            updateData.midTimelineIcon = midTimelineIconFiles[0].path;
+        }
+
+        const endTimelineIconFiles = files?.endTimelineIcon || [];
+        if (endTimelineIconFiles.length > 0) {
+            updateData.endTimelineIcon = endTimelineIconFiles[0].path;
+        }
+
+        if (Object.keys(updateData).length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: "At least one field or file must be provided for update.",
+            });
         }
 
         const updatedItem = await EventModel.findOneAndUpdate({ index: id }, updateData, {
