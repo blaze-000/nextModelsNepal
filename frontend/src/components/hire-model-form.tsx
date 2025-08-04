@@ -1,11 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "../ui/button";
+import { Button } from "./ui/button";
 import { toast } from "sonner";
 import { Spinner } from "@geist-ui/react";
 import { motion } from "framer-motion";
-import { highlightContact } from "@/lib/highlightContact";
 
 // Email validation regex
 const validateEmail = (email: string) =>
@@ -72,7 +71,7 @@ const TextareaField = ({
   </div>
 );
 
-const ContactForm = () => {
+const HireModelForm = () => {
   const [formData, setFormData] = useState({
     name: "",
     subject: "",
@@ -139,10 +138,10 @@ const ContactForm = () => {
         >
           <div>
             <h2 className="text-4xl md:text-5xl font-extralight font-newsreader tracking-tight text-center md:text-start mb-2">
-              Send Us a Message
+              Work with your
             </h2>
             <h1 className="text-5xl md:text-6xl font-extralight text-gold-500 font-newsreader tracking-tighter text-center md:text-start">
-              Let&rsquo;s Talk !!
+              Perfect Fit
             </h1>
           </div>
 
@@ -171,7 +170,7 @@ const ContactForm = () => {
             className="flex flex-col md:flex-row gap-6"
           >
             <InputField
-              label="Name"
+              label="Model"
               name="name"
               value={formData.name}
               onChange={handleChange}
@@ -183,7 +182,7 @@ const ContactForm = () => {
               name="subject"
               value={formData.subject}
               onChange={handleChange}
-              placeholder="e.g. I want to be a model"
+              placeholder="e.g. I want model for our brand photoshoot"
               error={errors.subject}
             />
           </motion.div>
@@ -197,9 +196,9 @@ const ContactForm = () => {
             className="flex flex-col md:flex-row gap-6"
           >
             <InputField
-              label="Email"
-              name="email"
-              type="email"
+              label="When do you need this model?"
+              name="date"
+              type="date"
               value={formData.email}
               onChange={handleChange}
               placeholder="e.g. johndoe@example.com"
@@ -211,7 +210,7 @@ const ContactForm = () => {
               type="tel"
               value={formData.phone}
               onChange={handleChange}
-              placeholder="e.g. +977 XXXXXXXXXX"
+              placeholder="e.g. 9XXXXXXXXX"
               error={errors.phone}
             />
           </motion.div>
@@ -260,13 +259,6 @@ const ContactForm = () => {
               )}
             </Button>
 
-            <button
-              onClick={highlightContact}
-              className="px-4 py-4 rounded-full text-gold-500 text-base -tracking-tight font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer">
-              <span className="underline underline-offset-4">Have any other inquiries</span>
-              <i className="ri-arrow-right-up-line group-hover:scale-130 transition-transform duration-400 text-xl font-extralight" />
-            </button>
-
           </motion.div>
         </motion.form>
       </div>
@@ -274,4 +266,4 @@ const ContactForm = () => {
   );
 };
 
-export default ContactForm;
+export default HireModelForm;

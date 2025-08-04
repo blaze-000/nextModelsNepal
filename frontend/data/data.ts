@@ -7,7 +7,7 @@ export const menuItems: MenuItem[] = [
   {
     id: 2,
     label: "Events",
-    href: "/events",
+    href: "/#",
     submenu: {
       columns: 2,
       titles: ["Our Events", "Managed Events"],

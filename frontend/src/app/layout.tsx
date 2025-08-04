@@ -8,7 +8,7 @@ import 'remixicon/fonts/remixicon.css';
 const urbanist = Urbanist({
   subsets: ["latin"],
   weight: ["200", "300", "400", "600", "700"],
-  variable: "--font-urbanist",
+  variable: "--urbanist",
   display: "swap",
 });
 
@@ -16,7 +16,7 @@ const newsreader = Newsreader({
   subsets: ["latin"],
   weight: ["200", "300", "400", "600", "700"],
   style: ["normal", "italic"],
-  variable: "--font-newsreader",
+  variable: "--newsreader",
   display: "swap",
 });
 
