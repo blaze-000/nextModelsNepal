@@ -15,11 +15,13 @@ const appModelSchema = new mongoose.Schema({
     occupation: { type: String, required: true },
 
     dressSize: { type: String },
+    
     shoeSize: { type: String },
     hairColor: { type: String },
     eyeColor: { type: String },
 
-    selectEvent: { type: String },
+    selectEvent: { type: mongoose.Schema.ObjectId, ref: "EventModel"},
+    event: {type: String},
     auditionPlace: { type: String },
 
     weight: { type: Number },
