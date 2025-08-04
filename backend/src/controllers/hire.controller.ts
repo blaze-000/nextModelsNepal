@@ -3,16 +3,16 @@ import nodemailer from "nodemailer";
 import { Request, Response } from "express";
 import { HireModel } from "../models/hireModel.model";
 import { hireFormSchema, replySchema } from "../validations/hire.validation";
-import { ModelsModel } from "../models/models.model";
+import { COMMODEL } from "../models/companyModels.model";
 
 export const createHire = async (req: Request, res: Response) => {
     try {
         const modelId = req.params.id;
         const data = hireFormSchema.parse(req.body);
-        const { date, email, phone, message } = data;
+        const { name, date, email, phone, message } = data;
 
         // Get model details
-        const getModel = await ModelsModel.findById(modelId);
+        const getModel = await COMMODEL.findById(modelId);
         if (!getModel) {
             return res.status(404).json({
                 success: false,
@@ -22,6 +22,7 @@ export const createHire = async (req: Request, res: Response) => {
 
         // Create hire record with model reference
         const hireData = {
+            name: getModel.name,
             model: modelId,
             date,
             email,
@@ -47,7 +48,7 @@ export const createHire = async (req: Request, res: Response) => {
             to: process.env.COMPANY_EMAIL,
             subject: `Application For Hire Model`,
             html: `
-        <h2>New Contact Form Submission</h2>
+        <h2>Model</h2>
         <p><strong>Model:</strong> ${getModel.name}</p>
         <p><strong>Date:</strong> ${date}</p>
         <p><strong>Email:</strong> ${email}</p>
