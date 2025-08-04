@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { NewsModel } from "../models/news.model";
-import { newsSchema } from "../validations/news.validation";
+import { newsSchema, newsUpdateSchema } from "../validations/news.validation";
 
 /**
  * Fetch all News items
@@ -64,40 +64,21 @@ export const getNewsById = async (req: Request, res: Response) => {
 export const createNewsItem = async (req: Request, res: Response) => {
     try {
         const newsData = newsSchema.parse(req.body);
-        const { maintitle, description, item } = newsData;
+        const { title, description, content, year } = newsData;
 
-        const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
+        const files = req.files as Express.Multer.File[] | undefined;
         let imagePaths: string[] = [];
 
-        if (files && files['images']) {
-            imagePaths = files['images'].map(file => file.path);
-        }
-
-        // If images are uploaded, add them to the first coverage item or create a new one
-        let processedItems = item || [];
-        if (imagePaths.length > 0) {
-            if (processedItems.length > 0) {
-                // Add images to the first coverage item
-                const firstItem = processedItems[0] as any;
-                processedItems[0] = {
-                    ...firstItem,
-                    images: [...(firstItem.images || []), ...imagePaths]
-                };
-            } else {
-                // Create a new coverage item with images
-                processedItems = [{
-                    index: "1",
-                    title: "News Coverage",
-                    description: "News coverage with images",
-                    images: imagePaths
-                }];
-            }
+        if (files && files.length > 0) {
+            imagePaths = files.map(file => file.path);
         }
 
         const newsSection = await NewsModel.create({
-            maintitle,
+            title,
             description,
-            item: processedItems
+            content,
+            year,
+            images: imagePaths
         });
 
         res.status(201).json({
@@ -123,17 +104,17 @@ export const updateNewsById = async (req: Request, res: Response) => {
         const { id } = req.params;
         
         // Check if files are present
-        const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
+        const files = req.files as Express.Multer.File[] | undefined;
         
         let updateData: any = {};
         
-        if (files && files['images'] && files['images'].length > 0) {
-            // If files are present, validate with newsSchema
-            const validatedData = newsSchema.parse(req.body);
-            const { maintitle, description, item } = validatedData;
+        if (files && files.length > 0) {
+            // If files are present, validate with update schema (all fields optional)
+            const validatedData = newsUpdateSchema.parse(req.body);
+            const { title, description, content, year } = validatedData;
             
             // Get all uploaded image paths
-            const newImagePaths = files['images'].map(file => file.path);
+            const newImagePaths = files.map(file => file.path);
             
             // Get the existing news item
             const existingNews = await NewsModel.findById(id);
@@ -144,37 +125,21 @@ export const updateNewsById = async (req: Request, res: Response) => {
                 });
             }
             
-            // Process items with new images
-            let processedItems = item || [];
-            if (processedItems.length > 0) {
-                // Add images to the first coverage item
-                const firstItem = processedItems[0] as any;
-                processedItems[0] = {
-                    ...firstItem,
-                    images: [...(firstItem.images || []), ...newImagePaths]
-                };
-            } else {
-                // Create a new coverage item with images
-                processedItems = [{
-                    index: "1",
-                    title: "News Coverage",
-                    description: "News coverage with images",
-                    images: newImagePaths
-                }];
-            }
-            
             updateData = {
-                maintitle,
+                title,
                 description,
-                item: processedItems
+                content,
+                year,
+                images: [...(existingNews.images || []), ...newImagePaths]
             };
         } else {
             // If no files, only validate the fields that are present in req.body
-            const { maintitle, description, item } = req.body;
+            const { title, description, content, year } = req.body;
             
-            if (maintitle !== undefined) updateData.maintitle = maintitle;
+            if (title !== undefined) updateData.title = title;
             if (description !== undefined) updateData.description = description;
-            if (item !== undefined) updateData.item = item;
+            if (content !== undefined) updateData.content = content;
+            if (year !== undefined) updateData.year = year;
             
             // If no fields are provided, return error
             if (Object.keys(updateData).length === 0) {

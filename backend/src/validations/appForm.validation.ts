@@ -7,7 +7,7 @@ export const appModelSchema = z.object({
     country: z.string().min(1, { message: "Country is required" }),
     city: z.string().min(1, { message: "City is required" }),
     ethnicity: z.string().min(1, { message: "Ethnicity is required" }),
-    email: z.string().email({ message: "Invalid email address" }),
+    email: z.email({ message: "Invalid email address" }),
 
     age: z.string().min(1, { message: "Age is required" }),
     languages: z.array(z.string()).nonempty({ message: "At least one language is required" }),
@@ -19,7 +19,8 @@ export const appModelSchema = z.object({
     hairColor: z.string().optional(),
     eyeColor: z.string().optional(),
 
-    selectEvent: z.string().optional(),
+    selectEvent: z.any().optional(),
+    event: z.string().optional(),
     auditionPlace: z.string().optional(),
 
     weight: z.number().optional(),

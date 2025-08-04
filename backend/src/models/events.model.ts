@@ -11,18 +11,34 @@ const Counter = mongoose.model('Counter', eventCounterSchema);
 const eventSchema = new mongoose.Schema({
     index: { type: Number, unique: true, default: "1" },
     tag: { type: String },
+    coverImage: { type: String },
     title: { type: String, required: true },
+    titleImage: {type: String, default: []},
     date: { type: String },
-    description: { type: String, required: true },
-    content: { type: String },
-    participants: { type: String },
-    images: { type: [String] },
-    icon: { type: String, require: true, default: [] },
+    overview: { type: String, required: true },
+    logo: {type: String, required: true},
+    subImage: {type: String, default: []},
+    purpose: { type: String },
     Member: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "MemberModel",
-        required: true,
     },
+    highlight:{ type: [String]},
+
+    // Event Timeline 
+    eventDescription: {type: String},
+
+    startingTimelineIcon: {type: String, required: true},
+    startingTimelineDate: { type: String },
+    startingTimelineEvent: {type: String},
+
+    midTimelineIcon: {type: String, required: true},
+    midTimelineDate: { type: String },
+    midTimelineEvent: {type: String},
+
+    endTimelineIcon: {type: String, required: true},
+    endTimelineDate: { type: String },
+    endTimelineEvent: {type: String}
 });
 
 eventSchema.pre('save', async function (next) {

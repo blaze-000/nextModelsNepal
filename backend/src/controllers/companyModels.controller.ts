@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
-import { ModelsModel } from "../models/models.model";
+import { COMMODEL } from "../models/companyModels.model";
 
 //  * Fetch all Models items
 export const getModels = async (_req: Request, res: Response) => {
     try {
-        const modelsItems = await ModelsModel.find({});
+        const modelsItems = await COMMODEL.find({});
         if (!modelsItems || modelsItems.length === 0) {
             return res.status(404).json({
                 success: false,
@@ -30,7 +30,7 @@ export const getModels = async (_req: Request, res: Response) => {
 export const getModelsById = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
-        const modelsItem = await ModelsModel.findById(id);
+        const modelsItem = await COMMODEL.findById(id);
 
         if (!modelsItem) {
             return res.status(404).json({
@@ -56,41 +56,43 @@ export const getModelsById = async (req: Request, res: Response) => {
 //  Create Models item
 export const createModels = async (req: Request, res: Response) => {
     try {
-        const { name, address, gender } = req.body;
+        const { name, intro, address, gender } = req.body;
 
         // Check if model with same name exists
-        const existMember = await ModelsModel.findOne({ name });
+        const existMember = await COMMODEL.findOne({ name });
         if (existMember) {
             return res.status(409).send(`${name} model already exists.`);
         }
 
+        // When using uploadCompanyModelFiles.fields(), files come as an object with field names
         const files = req.files as {
             [fieldname: string]: Express.Multer.File[];
         };
 
-        // Get image path (optional)
-        const imageFiles = files?.images || [];
-        const imagePath = imageFiles.length > 0 ? imageFiles[0].path : null;
-
-        // Get icon file (required)
-        const iconFiles = files?.icon || [];
-        if (iconFiles.length === 0) {
-            return res.status(400).json({ error: "One SVG icon file is required." });
+        // Get cover image (required)
+        const coverImageFiles = files?.coverImage || [];
+        if (coverImageFiles.length === 0) {
+            return res.status(400).send("Please provide a cover image.");
         }
-        const iconPath = iconFiles[0].path;
+        const coverImagePath = coverImageFiles[0].path;
+
+        // Get gallery images (optional)
+        const galleryImageFiles = files?.images || [];
+        const galleryImagePaths = galleryImageFiles.map(file => file.path);
 
         // Create new member
-        const newMember = await ModelsModel.create({
+        const newMember = await COMMODEL.create({
             name,
+            intro,
             address,
             gender,
-            images: imagePath,
-            icon: iconPath
+            coverImage: coverImagePath,
+            images: galleryImagePaths,
         });
 
         res.status(201).json({
             success: true,
-            message: "Models created successfully.",
+            message: "Company Models created successfully.",
             newMember
         });
     } catch (error) {
@@ -105,35 +107,39 @@ export const updateModelsById = async (req: Request, res: Response) => {
         const { id } = req.params;
 
         // Check if the model exists
-        const existMember = await ModelsModel.findById(id);
+        const existMember = await COMMODEL.findById(id);
         if (!existMember) {
             return res.status(401).send("Invalid Model Id.");
         }
 
+        // When using uploadCompanyModelFiles.fields(), files come as an object with field names
         const files = req.files as {
             [fieldname: string]: Express.Multer.File[];
         };
 
-        const imageFiles = files?.images || [];
-        const iconFiles = files?.icon || [];
-
         // Build the update object
         const updateData: any = {};
 
-        const { name, address, gender } = req.body;
+        // Check if req.body exists before destructuring
+        if (req.body) {
+            const { name, intro, address, gender } = req.body;
 
-        if (name !== undefined) updateData.name = name;
-        if (address !== undefined) updateData.address = address;
-        if (gender !== undefined) updateData.gender = gender;
-
-        // Append new images to existing images array
-        if (imageFiles.length > 0) {
-            updateData.images = [...(existMember.images || []), ...imageFiles.map(f => f.path)];
+            if (name !== undefined) updateData.name = name;
+            if (intro !== undefined) updateData.intro = intro;
+            if (address !== undefined) updateData.address = address;
+            if (gender !== undefined) updateData.gender = gender;
         }
 
-        // Replace icon if new icon uploaded
-        if (iconFiles.length > 0) {
-            updateData.icon = iconFiles[0].path;
+        // Handle cover image update
+        const coverImageFiles = files?.coverImage || [];
+        if (coverImageFiles.length > 0) {
+            updateData.coverImage = coverImageFiles[0].path;
+        }
+
+        // Append new gallery images to existing images array
+        const galleryImageFiles = files?.images || [];
+        if (galleryImageFiles.length > 0) {
+            updateData.images = [...(existMember.images || []), ...galleryImageFiles.map(f => f.path)];
         }
 
         if (Object.keys(updateData).length === 0) {
@@ -143,7 +149,7 @@ export const updateModelsById = async (req: Request, res: Response) => {
             });
         }
 
-        const updatedItem = await ModelsModel.findByIdAndUpdate(id, updateData, {
+        const updatedItem = await COMMODEL.findByIdAndUpdate(id, updateData, {
             new: true,
             upsert: false,
         });
@@ -166,17 +172,16 @@ export const updateModelsById = async (req: Request, res: Response) => {
     }
 };
 
-
 //  Delete a Models item by ID
 export const deleteModelsById = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
-        const existMember = await ModelsModel.findOne({ _id: id });
+        const existMember = await COMMODEL.findOne({ _id: id });
         if (!existMember) {
             return res.status(401).send("Invalid Member Id.");
         }
 
-        await ModelsModel.findByIdAndDelete({ _id: id });
+        await COMMODEL.findByIdAndDelete({ _id: id });
 
         res.status(201).json({
             success: true,

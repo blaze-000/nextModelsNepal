@@ -6,7 +6,7 @@ import navRoute from "./routes/nav.route";
 import heroRoute from "./routes/hero.route";
 import eventRoutes from "./routes/event.route";
 import nextEventRoutes from "./routes/next-event.route";
-import modelsRoutes from "./routes/models.route";
+import modelsRoutes from "./routes/companyModels.route";
 import careerRoutes from "./routes/career.route";
 import feedbackRoutes from "./routes/feedback.route";
 import partnersRoutes from "./routes/partners.route";
@@ -15,8 +15,6 @@ import contactRoutes from "./routes/contact.route";
 import memberRoutes from "./routes/member.route";
 import hireRoutes from "./routes/hire.route";
 import appRoutes from "./routes/appForm.route"
-
-
 
 const app = express();
 

@@ -5,8 +5,8 @@ import {
     getModelsById,
     updateModelsById,
     deleteModelsById
-} from "../controllers/models.controller";
-import { uploadImagesAndIcons } from "../middleware/multer.middleware";
+} from "../controllers/companyModels.controller";
+import { uploadCompanyModelFiles } from "../middleware/multer.middleware";
 
 const router = Router();
 
@@ -14,13 +14,13 @@ const router = Router();
 router.route("/").get(getModels);
 
 // Create models item 
-router.route("/").post(uploadImagesAndIcons, createModels);
+router.route("/").post(uploadCompanyModelFiles, createModels);
 
 // Get single models item by ID
 router.route("/:id").get(getModelsById);
 
 // Update models item by ID
-router.route("/:id").patch(uploadImagesAndIcons, updateModelsById);
+router.route("/:id").patch(uploadCompanyModelFiles, updateModelsById);
 
 // Delete models item by ID
 router.route("/:id").delete(deleteModelsById);
