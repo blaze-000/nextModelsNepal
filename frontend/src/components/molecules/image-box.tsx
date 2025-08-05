@@ -4,7 +4,7 @@ import Link from "next/link";
 
 const ImageBox = ({ image, title, desc, link, buttonText }: ImageBoxProps) => {
   return (
-    <article className="bg-stone-900 flex flex-col justify-between overflow-hidden hover:bg-stone-800 transition-colors duration-300 p-6 md:p-6">
+    <article className="h-full bg-stone-900 flex flex-col justify-between overflow-hidden hover:bg-stone-800 transition-colors duration-300 p-6 md:p-6">
       {/* Image Container */}
       <div className="relative overflow-hidden">
         <Image

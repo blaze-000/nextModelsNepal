@@ -89,18 +89,19 @@ const TestimonialSection: React.FC = () => {
 
       <div className="max-w-7xl mx-auto">
         {/* Desktop Grid */}
-        <div className="hidden md:grid grid-cols-1 md:grid-cols-2 gap-10">
+        <div className="hidden md:grid grid-cols-1 md:grid-cols-2 gap-12">
           {currentTestimonials.map((testimonial, index) => (
-            <div
-              key={index}
-              className="bg-muted-background lg:m-10 flex flex-col justify-between min-h-[280px] h-full hover:shadow-xl transition-shadow duration-300"
-            >
+            // <div
+              
+            //   className="bg-muted-background lg:m-10 flex flex-col justify-between min-h-[280px] h-full hover:shadow-xl transition-shadow duration-300"
+            // >
               <motion.div
+              key={index}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, ease: "easeOut", delay: index * 0.1 }}
                 viewport={{ once: true }}
-                className="bg-muted-background p-6 flex flex-col justify-between min-h-[280px] h-full"
+                className="bg-muted-background p-10 flex flex-col justify-between min-h-[280px] h-full hover:shadow-xl transition-shadow duration-300"
               >
                 <div>
                   <i className="ri-double-quotes-l text-gold-500 w-10 h-10 text-2xl" />
@@ -123,7 +124,7 @@ const TestimonialSection: React.FC = () => {
                   </p>
                 </div>
               </motion.div>
-            </div>
+            // </div>
           ))}
         </div>
 
@@ -137,7 +138,7 @@ const TestimonialSection: React.FC = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, ease: "easeOut", delay: index * 0.05 }}
                 viewport={{ once: true }}
-                className="bg-muted-background w-[80vw] min-w-[80vw] max-w-[80vw] snap-start shrink-0 p-6 flex flex-col justify-between"
+                className="bg-muted-background w-[80vw] min-w-[300px] max-w-[400px] snap-start shrink-0 p-6 flex flex-col justify-between"
               >
                 <div>
                   <i className="ri-double-quotes-l text-gold-500 w-10 h-10 text-2xl" />

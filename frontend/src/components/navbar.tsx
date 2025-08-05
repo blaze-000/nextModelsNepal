@@ -61,29 +61,49 @@ const Header = () => {
                   <div
                     key={item.id}
                     className="relative"
-                    ref={(el) => { submenuRefs.current[index] = el; }}
+                    ref={(el) => {
+                      submenuRefs.current[index] = el;
+                    }}
                   >
                     <div className="flex items-center space-x-1">
-                      <Link
-                        href={item.href}
-                        className="flex items-center font-urbanist text-white transition-colors"
-                      >
-                        {item.label}
-                      </Link>
-                      {hasSubmenu && (
+                      {item.id === 2 ? (
+                        // "Events" acts as toggle only (no link)
                         <button
                           onClick={() => toggleSubmenu(item.id)}
-                          className="text-white"
-                          aria-label="Toggle submenu"
+                          className="flex items-center font-urbanist text-white transition-colors cursor-pointer"
                         >
+                          {item.label}
                           <i
-                            className={`w-4 h-4 ri-arrow-drop-down-line cursor-pointer transition-transform ${
-                              isOpen ? "rotate-180" : ""
-                            }`}
+                            className={`ri-arrow-drop-down-line ml-1 transition-transform ${isOpen ? "rotate-180" : ""
+                              }`}
                           />
                         </button>
+                      ) : (
+                        // Others: link label, optional chevron as toggle
+                        <>
+                          <Link
+                            href={item.href}
+                            className="flex items-center font-urbanist text-white transition-colors"
+                          >
+                            {item.label}
+                          </Link>
+                          {hasSubmenu && (
+                            <button
+                              onClick={() => toggleSubmenu(item.id)}
+                              className="text-white"
+                              aria-label="Toggle submenu"
+                            >
+                              <i
+                                className={`ri-arrow-drop-down-line ml-1 transition-transform cursor-pointer ${isOpen ? "rotate-180" : ""}`}
+                              />
+                            </button>
+                          )}
+                        </>
                       )}
                     </div>
+
+                    {/* ... submenu rendering stays unchanged */}
+
 
                     {/* Desktop Submenu */}
                     <AnimatePresence>
@@ -93,11 +113,10 @@ const Header = () => {
                           animate={{ opacity: 1, scale: 1, y: 0 }}
                           exit={{ opacity: 0, scale: 0.95, y: -10 }}
                           transition={{ duration: 0.2 }}
-                          className={`absolute top-full left-0 mt-2 bg-muted-background rounded shadow-lg z-50 p-4 ${
-                            item?.submenu?.columns === 2
-                              ? "min-w-[400px]"
-                              : "min-w-[220px]"
-                          }`}
+                          className={`absolute top-full left-0 mt-2 bg-muted-background rounded shadow-lg z-50 p-4 ${item?.submenu?.columns === 2
+                            ? "min-w-[400px]"
+                            : "min-w-[220px]"
+                            }`}
                         >
                           {item?.submenu?.columns === 1 && (
                             <div className="flex flex-col space-y-2 whitespace-nowrap min-w-max">
@@ -165,9 +184,11 @@ const Header = () => {
                 );
               })}
             </div>
-            <Button asChild variant="default">
-              <Link href="/apply">Apply</Link>
-            </Button>
+            <Link href="/apply">
+              <Button variant="default">
+                Apply
+              </Button>
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -178,9 +199,8 @@ const Header = () => {
               aria-label="Toggle mobile menu"
             >
               <i
-                className={`text-2xl ${
-                  isMobileMenuOpen ? "ri-close-line" : "ri-menu-line"
-                }`}
+                className={`text-2xl ${isMobileMenuOpen ? "ri-close-line" : "ri-menu-line"
+                  }`}
               />
             </button>
           </div>
@@ -216,9 +236,8 @@ const Header = () => {
                             aria-label="Toggle submenu"
                           >
                             <i
-                              className={`text-xl ri-arrow-drop-down-line transition-transform ${
-                                isOpen ? "rotate-180" : ""
-                              }`}
+                              className={`text-xl ri-arrow-drop-down-line transition-transform ${isOpen ? "rotate-180" : ""
+                                }`}
                             />
                           </button>
                         )}

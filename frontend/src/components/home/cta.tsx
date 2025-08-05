@@ -122,7 +122,7 @@ const CTASection = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.4 }}
             >
-              <Button className="flex items-center gap-2 mx-auto text-sm lg:text-base">
+              <Button variant="default" className="flex items-center gap-2 mx-auto text-sm lg:text-base">
                 Become a model <i className="ri-arrow-right-up-line" />
               </Button>
             </motion.div>
