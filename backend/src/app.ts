@@ -1,6 +1,7 @@
 import express from 'express';
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import path from 'path';
+import multer from 'multer';
 
 import navRoute from "./routes/nav.route";
 import heroRoute from "./routes/hero.route";
@@ -40,6 +41,20 @@ app.use("/api/contact", contactRoutes);
 app.use("/api/member", memberRoutes);
 app.use("/api/hire-model", hireRoutes);
 app.use("/api/app-form", appRoutes);
+
+// Global error handler for Multer errors
+app.use((error: any, req: Request, res: Response, next: NextFunction) => {
+  if (error instanceof multer.MulterError) {
+    console.error('Multer error:', error);
+    return res.status(400).json({
+      success: false,
+      message: 'File upload error',
+      error: error.message,
+      code: error.code
+    });
+  }
+  next(error);
+});
 
 // Health check endpoint
 app.get('/', (_req: Request, res: Response) => {
