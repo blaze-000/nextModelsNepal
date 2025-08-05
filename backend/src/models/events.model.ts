@@ -38,7 +38,12 @@ const eventSchema = new mongoose.Schema({
 
     endTimelineIcon: {type: String, required: true},
     endTimelineDate: { type: String },
-    endTimelineEvent: {type: String}
+    endTimelineEvent: {type: String},
+
+    // sponsers
+    sponsers: {type: String},
+    sponsersImage: {type: [String], required: true}
+
 });
 
 eventSchema.pre('save', async function (next) {
