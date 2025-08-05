@@ -56,7 +56,7 @@ const HeroSection = () => {
                   Agency
                 </span>
                 {/* Empty oval outline */}
-                <div className="w-40 h-16 rounded-full border-2 border-gold-500"></div>
+                <div className="w-40 h-16 rounded-full border-2 border-gold-500"/>
               </div>
             </div>
             {/* Description */}
