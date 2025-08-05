@@ -5,6 +5,78 @@ import { Button } from "./ui/button";
 import { toast } from "sonner";
 import { Spinner } from "@geist-ui/react";
 import { motion } from "framer-motion";
+import ModelDropdown from "./ui/modelDropdown";
+
+// Model data - can be moved to a separate data file later
+const femaleModels = [
+  {
+    name: "Monika Adhikary",
+    location: "Kathmandu, Nepal",
+    image: "/bro_1.png",
+    link: "https://nextmodelnepal.com/models/monika",
+  },
+  {
+    name: "Pratista",
+    location: "Kathmandu, Nepal",
+    image: "/bro_1.png",
+    link: "https://nextmodelnepal.com/models/pratista",
+  },
+  {
+    name: "Aayushma Poudel",
+    location: "Kathmandu, Nepal",
+    image: "/bro_1.png",
+  },
+  {
+    name: "Kristina",
+    location: "Kathmandu, Nepal",
+    image: "/bro_1.png",
+  },
+  {
+    name: "Sarah Johnson",
+    location: "Kathmandu, Nepal",
+    image: "/bro_1.png",
+  },
+  {
+    name: "Emma Wilson",
+    location: "Kathmandu, Nepal",
+    image: "/bro_1.png",
+  },
+];
+
+const maleModels = [
+  {
+    name: "Monika Adhikary",
+    location: "Kathmandu, Nepal",
+    image: "/bro_1.png",
+    link: "https://nextmodelnepal.com/models/monika",
+  },
+  {
+    name: "Pratista",
+    location: "Kathmandu, Nepal",
+    image: "/bro_1.png",
+    link: "https://nextmodelnepal.com/models/pratista",
+  },
+  {
+    name: "Aayushma Poudel",
+    location: "Kathmandu, Nepal",
+    image: "/bro_1.png",
+  },
+  {
+    name: "Alex Thompson",
+    location: "Kathmandu, Nepal",
+    image: "/bro_1.png",
+  },
+  {
+    name: "David Martinez",
+    location: "Kathmandu, Nepal",
+    image: "/bro_1.png",
+  },
+  {
+    name: "James Wilson",
+    location: "Kathmandu, Nepal",
+    image: "/bro_1.png",
+  },
+];
 
 // Email validation regex
 const validateEmail = (email: string) =>
@@ -29,7 +101,9 @@ const InputField = ({
   error?: string;
 }) => (
   <div className="w-full">
-    <label className="block mb-4 md:mb-2 text-sm md:text-base font-medium">{label}</label>
+    <label className="block mb-4 md:mb-2 text-sm md:text-base font-medium">
+      {label}
+    </label>
     <input
       name={name}
       value={value}
@@ -59,7 +133,9 @@ const TextareaField = ({
   error?: string;
 }) => (
   <div className="w-full">
-    <label className="block mb-4 md:mb-2 text-sm md:text-base font-medium">{label}</label>
+    <label className="block mb-4 md:mb-2 text-sm md:text-base font-medium">
+      {label}
+    </label>
     <textarea
       name={name}
       value={value}
@@ -77,6 +153,7 @@ const HireModelForm = () => {
     subject: "",
     email: "",
     phone: "",
+    date: "",
     message: "",
   });
 
@@ -90,16 +167,22 @@ const HireModelForm = () => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
+  const handleModelChange = (modelName: string) => {
+    setErrors({});
+    setFormData((prev) => ({ ...prev, name: modelName }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const newErrors: Partial<typeof formData> = {};
-    if (!formData.name.trim()) newErrors.name = "Name is required";
+    if (!formData.name.trim()) newErrors.name = "Model selection is required";
     if (!formData.subject.trim()) newErrors.subject = "Subject is required";
     if (!formData.email.trim()) newErrors.email = "Email is required";
     if (formData.email && !validateEmail(formData.email))
       newErrors.email = "Invalid email";
     if (!formData.phone.trim()) newErrors.phone = "Phone is required";
+    if (!formData.date.trim()) newErrors.date = "Date is required";
     if (!formData.message.trim()) newErrors.message = "Message is required";
 
     if (Object.keys(newErrors).length) {
@@ -117,7 +200,14 @@ const HireModelForm = () => {
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error();
       toast.success("Message sent!");
-      setFormData({ name: "", subject: "", email: "", phone: "", message: "" });
+      setFormData({
+        name: "",
+        subject: "",
+        email: "",
+        phone: "",
+        date: "",
+        message: "",
+      });
     } catch {
       toast.error("Failed to send. Try again later.");
     } finally {
@@ -169,13 +259,14 @@ const HireModelForm = () => {
             viewport={{ once: true }}
             className="flex flex-col md:flex-row gap-6"
           >
-            <InputField
+            <ModelDropdown
               label="Model"
-              name="name"
               value={formData.name}
-              onChange={handleChange}
-              placeholder="e.g. John Doe"
+              onChange={handleModelChange}
               error={errors.name}
+              placeholder="Select a model"
+              femaleModels={femaleModels}
+              maleModels={maleModels}
             />
             <InputField
               label="Subject"
@@ -196,9 +287,9 @@ const HireModelForm = () => {
             className="flex flex-col md:flex-row gap-6"
           >
             <InputField
-              label="When do you need this model?"
-              name="date"
-              type="date"
+              label="Email"
+              name="email"
+              type="email"
               value={formData.email}
               onChange={handleChange}
               placeholder="e.g. johndoe@example.com"
@@ -216,6 +307,27 @@ const HireModelForm = () => {
           </motion.div>
 
           {/* Row 3 */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
+            viewport={{ once: true }}
+            className="flex flex-col md:flex-row gap-6"
+          >
+            <InputField
+              label="When do you need this model?"
+              name="date"
+              type="date"
+              value={formData.date}
+              onChange={handleChange}
+              placeholder=""
+              error={errors.date}
+            />
+            <div className="w-full"></div>{" "}
+            {/* Empty space to balance the row */}
+          </motion.div>
+
+          {/* Row 4 */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -258,7 +370,6 @@ const HireModelForm = () => {
                 </>
               )}
             </Button>
-
           </motion.div>
         </motion.form>
       </div>

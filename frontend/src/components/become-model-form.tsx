@@ -4,7 +4,7 @@ import { Button } from "./ui/button";
 import { toast } from "sonner";
 import { Spinner } from "@geist-ui/react";
 import { motion } from "framer-motion";
-import { highlightContact } from "@/lib/highlightContact";
+import PhotoUpload from "./ui/photo-upload";
 
 // Email validation regex
 const validateEmail = (email: string) =>
@@ -120,39 +120,6 @@ const TextareaField = ({
   </div>
 );
 
-// Reusable File Upload Component
-const FileUploadField = ({
-  label,
-  name,
-  onChange,
-  error,
-}: {
-  label: string;
-  name: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  error?: string;
-}) => (
-  <div className="w-full">
-    <label className="block mb-4 md:mb-2 text-sm md:text-base font-medium">
-      {label} <span className="text-red-500">*</span>
-    </label>
-    <div className="w-full bg-muted-background text-gray-100 px-6 md:px-6 py-8 md:py-12 outline-none rounded border-2 border-dashed border-gray-600 flex flex-col items-center justify-center">
-      <input
-        type="file"
-        name={name}
-        onChange={onChange}
-        className="hidden"
-        id={name}
-      />
-      <label htmlFor={name} className="cursor-pointer text-center">
-        <p className="text-lg mb-2">Drag or upload your images here</p>
-        <p className="text-sm text-gray-400">Supported formats: JPG, PNG (Max 5MB)</p>
-      </label>
-    </div>
-    {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
-  </div>
-);
-
 const BecomeModelForm = () => {
   const [formData, setFormData] = useState({
     // Personal Information
@@ -190,19 +157,52 @@ const BecomeModelForm = () => {
     somethingElse: "",
   });
 
-  const [errors, setErrors] = useState<Partial<typeof formData>>({});
+  const [errors, setErrors] = useState<
+    Partial<typeof formData & { photos: string }>
+  >({});
   const [isSending, setIsSending] = useState(false);
+  const [selectedPhotos, setSelectedPhotos] = useState<File[]>([]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     setErrors({});
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    // Filter valid files (max 5MB each, only images)
+    const validFiles = files.filter((file) => {
+      const isValidType = file.type.startsWith("image/");
+      const isValidSize = file.size <= 5 * 1024 * 1024; // 5MB
+      return isValidType && isValidSize;
+    });
+
+    // Limit to maximum 10 photos total
+    const remainingSlots = 10 - selectedPhotos.length;
+    const filesToAdd = validFiles.slice(0, remainingSlots);
+
+    setSelectedPhotos((prev) => [...prev, ...filesToAdd]);
+    setErrors((prev) => ({ ...prev, photos: undefined }));
+  };
+
+  const handleRemovePhoto = (index: number) => {
+    setSelectedPhotos((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newErrors: Partial<typeof formData> = {};
+    const newErrors: Partial<typeof formData & { photos: string }> = {};
+
+    // Photo validation - at least 1 photo required
+    if (selectedPhotos.length === 0) {
+      newErrors.photos = "At least 1 photo is required";
+    }
 
     // Required fields validation
     if (!formData.name.trim()) newErrors.name = "Name is required";
@@ -212,22 +212,31 @@ const BecomeModelForm = () => {
     if (!formData.phone.trim()) newErrors.phone = "Phone is required";
     if (!formData.country.trim()) newErrors.country = "Country is required";
     if (!formData.city.trim()) newErrors.city = "City is required";
-    if (!formData.ethnicity.trim()) newErrors.ethnicity = "Ethnicity is required";
+    if (!formData.ethnicity.trim())
+      newErrors.ethnicity = "Ethnicity is required";
     if (!formData.age) newErrors.age = "Age is required";
     if (!formData.language) newErrors.language = "Language is required";
     if (!formData.gender) newErrors.gender = "Gender is required";
-    if (!formData.occupation.trim()) newErrors.occupation = "Occupation is required";
-    if (!formData.dressSize.trim()) newErrors.dressSize = "Dress size is required";
+    if (!formData.occupation.trim())
+      newErrors.occupation = "Occupation is required";
+    if (!formData.dressSize.trim())
+      newErrors.dressSize = "Dress size is required";
     if (!formData.shoeSize) newErrors.shoeSize = "Shoe size is required";
-    if (!formData.hairColor.trim()) newErrors.hairColor = "Hair color is required";
+    if (!formData.hairColor.trim())
+      newErrors.hairColor = "Hair color is required";
     if (!formData.eyeColor.trim()) newErrors.eyeColor = "Eye color is required";
     if (!formData.event) newErrors.event = "Event selection is required";
-    if (!formData.auditionLocation) newErrors.auditionLocation = "Audition location is required";
+    if (!formData.auditionLocation)
+      newErrors.auditionLocation = "Audition location is required";
     if (!formData.weight.trim()) newErrors.weight = "Weight is required";
-    if (!formData.parentsName.trim()) newErrors.parentsName = "Parent's name is required";
-    if (!formData.parentsMobile.trim()) newErrors.parentsMobile = "Parent's mobile is required";
-    if (!formData.permanentAddress.trim()) newErrors.permanentAddress = "Permanent address is required";
-    if (!formData.temporaryAddress.trim()) newErrors.temporaryAddress = "Temporary address is required";
+    if (!formData.parentsName.trim())
+      newErrors.parentsName = "Parent's name is required";
+    if (!formData.parentsMobile.trim())
+      newErrors.parentsMobile = "Parent's mobile is required";
+    if (!formData.permanentAddress.trim())
+      newErrors.permanentAddress = "Permanent address is required";
+    if (!formData.temporaryAddress.trim())
+      newErrors.temporaryAddress = "Temporary address is required";
 
     // Note: The following fields are NOT required as per the requirement:
     // - parentsOccupation
@@ -243,23 +252,57 @@ const BecomeModelForm = () => {
 
     setIsSending(true);
     try {
+      // Create FormData to handle file uploads
+      const formDataToSend = new FormData();
+
+      // Add all form fields
+      Object.entries(formData).forEach(([key, value]) => {
+        formDataToSend.append(key, value);
+      });
+
+      // Add photos
+      selectedPhotos.forEach((photo, index) => {
+        formDataToSend.append(`photo_${index}`, photo);
+      });
+
       const res = await fetch("/api/contact", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: formDataToSend,
       });
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error();
       toast.success("Application submitted successfully!");
+
+      // Reset form
       setFormData({
-        name: "", phone: "", country: "", city: "", ethnicity: "", email: "",
-        age: "", language: "", gender: "", occupation: "", dressSize: "",
-        shoeSize: "", hairColor: "", eyeColor: "", event: "",
-        auditionLocation: "", weight: "", parentsName: "",
-        parentsMobile: "", parentsOccupation: "", permanentAddress: "",
-        temporaryAddress: "", hobbies: "", talents: "", howDoYouKnow: "",
-        somethingElse: ""
+        name: "",
+        phone: "",
+        country: "",
+        city: "",
+        ethnicity: "",
+        email: "",
+        age: "",
+        language: "",
+        gender: "",
+        occupation: "",
+        dressSize: "",
+        shoeSize: "",
+        hairColor: "",
+        eyeColor: "",
+        event: "",
+        auditionLocation: "",
+        weight: "",
+        parentsName: "",
+        parentsMobile: "",
+        parentsOccupation: "",
+        permanentAddress: "",
+        temporaryAddress: "",
+        hobbies: "",
+        talents: "",
+        howDoYouKnow: "",
+        somethingElse: "",
       });
+      setSelectedPhotos([]);
     } catch {
       toast.error("Failed to submit. Try again later.");
     } finally {
@@ -357,10 +400,16 @@ const BecomeModelForm = () => {
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
           >
-            <FileUploadField
+            <PhotoUpload
               label="Upload Your Photos"
               name="photos"
-              onChange={handleChange}
+              onChange={handlePhotoChange}
+              error={errors.photos}
+              selectedFiles={selectedPhotos}
+              onRemoveFile={handleRemovePhoto}
+              maxFiles={10}
+              maxFileSize={5}
+              acceptedTypes={["image/*"]}
             />
           </motion.div>
 
