@@ -66,9 +66,15 @@ export default function About() {
       {/* Intro Section */}
       <section className="w-full pt-16 pb-32">
         <div className="max-w-7xl mx-auto px-6 space-y-10">
-          <h2 className="font-newsreader text-5xl mdplus:text-6xl font-light text-center mdplus:text-left tracking-tighter">
+
+          <motion.h2
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="font-newsreader text-5xl mdplus:text-6xl font-light text-center mdplus:text-left tracking-tighter"
+          >
             <div className="flex flex-col mdplus:flex-row mdplus:gap-2.5">
-              <span>We are  </span>
+              <span>We are</span>
               <span>Next Models Nepal</span>
             </div>
             <div className="text-primary">And we're here to empower talent,</div>
@@ -81,19 +87,29 @@ export default function About() {
                 height={0}
                 className="hidden mdplus:flex w-28 h-14 rounded-full border-stone-300 border-[1px] object-cover"
               />
-              <span> spotlight at a time.</span>
+              <span>spotlight at a time.</span>
             </div>
             <div className="text-primary mdplus:hidden">one spotlight at a time.</div>
-          </h2>
+          </motion.h2>
 
-          <div className="flex justify-end">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
+            className="flex justify-end"
+          >
             <p className="text-center mdplus:text-right mdplus:max-w-3xl font-light text-base">
               As an event management powerhouse, 'Next Models Nepal' excels in conceptualizing, planning, and executing a diverse range of events, from fashion shows and product launches to corporate gatherings and cultural extravaganzas. With a team of experienced professionals at the helm, the company ensures seamless coordination, impeccable execution, and memorable experiences that exceed client expectations.
             </p>
-          </div>
+          </motion.div>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 pt-24 hidden mdplus:flex">
+        <motion.div
+          initial={{ opacity: 0, y: 60 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, delay: 0.6, ease: "easeOut" }}
+          className="max-w-7xl mx-auto px-4 pt-24 hidden mdplus:flex"
+        >
           <Image
             src="/about.png"
             alt=""
@@ -101,7 +117,7 @@ export default function About() {
             height={400}
             className="w-full h-auto max-h-96 object-cover object-top"
           />
-        </div>
+        </motion.div>
       </section>
 
       {/* List of [title, paragraph, image] */}
@@ -109,7 +125,13 @@ export default function About() {
         <div className="max-w-7xl mx-auto px-4 space-y-36">
 
           {/* A Home for Diverse Talent */}
-          <article className="grid mdplus:grid-cols-[1fr_0.8fr] gap-6 mdplus:gap-20">
+          <motion.article
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="grid mdplus:grid-cols-[1fr_0.8fr] gap-6 mdplus:gap-20"
+          >
             <Image
               src="/events_1.jpg"
               alt=""
@@ -125,10 +147,16 @@ export default function About() {
                 Next Models Nepal is proud to represent a vibrant roster of models and artists of all ages, sizes, and backgrounds. With a sharp eye for discovering emerging talent, we offer the support, guidance, and platform needed to thrive in the competitive world of fashion and entertainment.
               </p>
             </div>
-          </article>
+          </motion.article>
 
-          {/* Beyond Modeling: Full-Spectrum Talent Management */}
-          <article className="grid mdplus:grid-cols-[0.8fr_1fr] gap-6 mdplus:gap-20">
+          {/* Beyond Modeling */}
+          <motion.article
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            viewport={{ once: true }}
+            className="grid mdplus:grid-cols-[0.8fr_1fr] gap-6 mdplus:gap-20"
+          >
             <Image
               src="/events_1.jpg"
               alt=""
@@ -138,16 +166,24 @@ export default function About() {
             />
             <div className="flex flex-col gap-4 justify-center h-full mdplus:order-1 text-right mdplus:text-left">
               <h3 className="text-5xl text-primary font-newsreader font-light ml-20 mdplus:ml-0">
-                <span className="text-white">Beyond Modeling: </span> <br className="hidden mdplus:flex" />Full-Spectrum Talent Management
+                <span className="text-white">Beyond Modeling: </span>
+                <br className="hidden mdplus:flex" />
+                Full-Spectrum Talent Management
               </h3>
               <p>
                 We’re more than just a modeling agency. From actors and dancers to musicians and influencers, we manage a wide array of creative professionals. Through career planning, brand partnerships, and exclusive networking opportunities, we help each individual reach their full potential.
               </p>
             </div>
-          </article>
+          </motion.article>
 
           {/* A Reputation Built on Professionalism */}
-          <article className="grid mdplus:grid-cols-[1fr_0.8fr] gap-6 mdplus:gap-20">
+          <motion.article
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            viewport={{ once: true }}
+            className="grid mdplus:grid-cols-[1fr_0.8fr] gap-6 mdplus:gap-20"
+          >
             <Image
               src="/events_1.jpg"
               alt=""
@@ -157,16 +193,24 @@ export default function About() {
             />
             <div className="flex flex-col gap-4 justify-center h-full ">
               <h3 className="text-5xl text-primary font-newsreader font-light max-w-xl">
-                <span className="text-white">A Reputation </span><br className="hidden mdplus:flex" />Built on Professionalism
+                <span className="text-white">A Reputation </span>
+                <br className="hidden mdplus:flex" />
+                Built on Professionalism
               </h3>
               <p>
                 At the heart of everything we do is a commitment to integrity, excellence, and trust. Whether managing major events or representing rising stars, we uphold the highest standards of quality, reliability, and ethical conduct—earning the respect of clients and industry leaders alike.
               </p>
             </div>
-          </article>
+          </motion.article>
 
-          {/* Shaping the Future of Nepal's Creative Scene */}
-          <article className="grid mdplus:grid-cols-[0.8fr_1fr] gap-6 mdplus:gap-20">
+          {/* Shaping the Future */}
+          <motion.article
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            viewport={{ once: true }}
+            className="grid mdplus:grid-cols-[0.8fr_1fr] gap-6 mdplus:gap-20"
+          >
             <Image
               src="/events_1.jpg"
               alt=""
@@ -182,7 +226,7 @@ export default function About() {
                 We’re more than just a modeling agency. From actors and dancers to musicians and influencers, we manage a wide array of creative professionals. Through career planning, brand partnerships, and exclusive networking opportunities, we help each individual reach their full potential.
               </p>
             </div>
-          </article>
+          </motion.article>
 
         </div>
       </section>
