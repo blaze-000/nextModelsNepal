@@ -6,7 +6,7 @@ import {
     getFeedbackItems, 
     updateFeedbackById 
 } from "../controllers/feedback.controller";
-import { uploadImages } from "../middleware/multer.middleware";
+import { uploadAnyImages } from "../middleware/multer.middleware";
 
 const router = Router();
 
@@ -14,13 +14,13 @@ const router = Router();
 router.route("/").get(getFeedbackItems);
 
 // Create feedback item 
-router.route("/").post(uploadImages, createFeedbackItem);
+router.route("/").post(uploadAnyImages, createFeedbackItem);
 
 // Get single feedback item by ID
 router.route("/:id").get(getFeedbackById);
 
 // Update feedback item by ID
-router.route("/:id").patch(uploadImages, updateFeedbackById);
+router.route("/:id").patch(uploadAnyImages, updateFeedbackById);
 
 // Delete feedback item by ID
 router.route("/:id").delete(deleteFeedbackById);
