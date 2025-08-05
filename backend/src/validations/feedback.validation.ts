@@ -2,12 +2,12 @@ import { z } from "zod";
 
 const commentSchema = z.object({
     index: z.string().optional(),
-    name: z.string().optional(),
-    message: z.string().optional(),
-    images: z.array(z.string()).optional()
+    name: z.string().min(1, "Name is required"),
+    message: z.string().min(1, "Message is required"),
+    images: z.array(z.string()).optional().default([])
 });
 
 export const feedbackSchema = z.object({
-    maintitle: z.string(),
-    item: z.array(commentSchema).optional()
+    maintitle: z.string().min(1, "Main title is required"),
+    item: z.array(commentSchema).min(1, "At least one feedback item is required")
 });
