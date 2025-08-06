@@ -1,17 +1,18 @@
 import mongoose from "mongoose";
 
 const commentSchema = new mongoose.Schema({
-    index: String,
-    name: String,
-    message: String,
+    index: { type: String, required: true },
+    name: { type: String, required: true },
+    message: { type: String, required: true },
     images: {
         type: [String],
+        default: []
     },
 })
 
 const feedbackSchema = new mongoose.Schema({
     maintitle: { type: String, required: true },
-    item: { type: [commentSchema] }
+    item: { type: [commentSchema], required: true, default: [] }
 });
 
 export const FeedBackModel = mongoose.model("FeedBackModel", feedbackSchema);

@@ -124,5 +124,6 @@ export const uploadEventFiles = multer({
     { name: 'logo', maxCount: 1 },
     {name: 'startingTimelineIcon', maxCount: 1},   
     {name: 'midTimelineIcon', maxCount: 1},        
-    {name: 'endTimelineIcon', maxCount: 1}         
+    {name: 'endTimelineIcon', maxCount: 1},  
+    {name: 'sponsersImage', maxCount: 25}       
 ]);

@@ -19,5 +19,9 @@ export const eventZodSchema = z.object({
     midTimelineEvent: z.string(),
 
     endTimelineDate: z.string(),
-    endTimelineEvent: z.string()
+    endTimelineEvent: z.string(),
+
+    // sponsers
+    sponsers: z.string().optional()
+
 });

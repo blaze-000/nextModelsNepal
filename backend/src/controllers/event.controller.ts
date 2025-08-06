@@ -57,56 +57,68 @@ export const getEventById = async (req: Request, res: Response) => {
 //  Create Event item
 export const createEventItem = async (req: Request, res: Response) => {
     try {
+        
         const eventData = eventZodSchema.parse(req.body);
-        const { tag, title, date, overview, purpose, eventDescription, startingTimelineDate, startingTimelineEvent, midTimelineDate, midTimelineEvent, endTimelineDate, endTimelineEvent } = eventData;
+        const { tag, title, date, overview, purpose, eventDescription, startingTimelineDate, startingTimelineEvent, midTimelineDate, midTimelineEvent, endTimelineDate, endTimelineEvent, sponsers } = eventData;
 
         const files = req.files as {
             [fieldname: string]: Express.Multer.File[];
         };
 
-        // Get cover image (optional)
+        // Get cover image 
         const coverImageFiles = files?.coverImage || [];
         const coverImagePath = coverImageFiles.length > 0 ? coverImageFiles[0].path : null;
+        if(!coverImagePath) return res.status(401).send("Cover Image Is Required.");
 
-        // Get title image (optional)
+        // Get title image 
         const titleImageFiles = files?.titleImage || [];
         const titleImagePath = titleImageFiles.length > 0 ? titleImageFiles[0].path : null;
+        if(!titleImagePath) return res.status(401).send("Title Image Is Required.");
 
-        // Get sub image (optional)
+        // Get sub image 
         const subImageFiles = files?.subImage || [];
         const subImagePath = subImageFiles.length > 0 ? subImageFiles[0].path : null;
+        if(!subImagePath) return res.status(401).send("Sub Image Is Required.");
 
-        // Get highlight images (optional)
+        // Get highlight images 
         const highlightImageFiles = files?.highlight || [];
         const highlightImagePaths = highlightImageFiles.map(file => file.path);
+        if(!highlightImageFiles) return res.status(401).send("Highlight Image Is Required.");
 
-        // Get logo (required)
+        // Get sponsers images 
+        const sponsersImageFile = files?.sponsersImage || [];
+        if (sponsersImageFile.length === 0) {
+            return res.status(400).send("Please provide sponser images.");
+        }
+        const sponsersImagePaths = sponsersImageFile.map(file => file.path);
+
+        // Get logo 
         const logoFiles = files?.logo || [];
         if (logoFiles.length === 0) {
             return res.status(400).send("Please provide a logo.");
         }
         const logoPath = logoFiles[0].path;
 
-        // Get icon (required)
+        // Get icon 
         const iconFiles = files?.startingTimelineIcon || [];
         if (iconFiles.length === 0) {
             return res.status(400).send("Please provide a starting timeline icon.");
         }
         const startingIconPath = iconFiles[0].path;
 
-        // Get icon (required)
-        const midIconFiles = files?.startingTimelineIcon || [];
+        // Get mid timeline icon 
+        const midIconFiles = files?.midTimelineIcon || [];
         if (midIconFiles.length === 0) {
             return res.status(400).send("Please provide a mid timeline icon.");
         }
-        const midIconPath = iconFiles[0].path;
+        const midIconPath = midIconFiles[0].path;
 
-        // Get icon (required)
-        const endIconFiles = files?.startingTimelineIcon || [];
+        // Get end timeline icon 
+        const endIconFiles = files?.endTimelineIcon || [];
         if (endIconFiles.length === 0) {
             return res.status(400).send("Please provide a ending timeline icon.");
         }
-        const endIconPath = iconFiles[0].path;
+        const endIconPath = endIconFiles[0].path;
 
         const eventSection = await EventModel.create({
             tag,
@@ -131,7 +143,10 @@ export const createEventItem = async (req: Request, res: Response) => {
 
             endTimelineIcon: endIconPath,
             endTimelineDate,
-            endTimelineEvent
+            endTimelineEvent,
+
+            sponsers,
+            sponsersImage: sponsersImagePaths
         });
 
         res.status(201).json({
@@ -141,6 +156,17 @@ export const createEventItem = async (req: Request, res: Response) => {
         });
     } catch (error: any) {
         console.error("Error creating Event item:", error.message);
+        
+        // Handle Multer errors specifically
+        if (error.code === 'LIMIT_UNEXPECTED_FILE') {
+            return res.status(400).json({
+                success: false,
+                message: "Unexpected file field. Please check your form field names.",
+                error: error.message,
+                expectedFields: ['coverImage', 'titleImage', 'subImage', 'highlight', 'logo', 'startingTimelineIcon', 'midTimelineIcon', 'endTimelineIcon', 'sponsersImage']
+            });
+        }
+        
         return res.status(400).json({
             success: false,
             message: "Invalid input data.",
@@ -230,6 +256,12 @@ export const updateEventById = async (req: Request, res: Response) => {
         const endTimelineIconFiles = files?.endTimelineIcon || [];
         if (endTimelineIconFiles.length > 0) {
             updateData.endTimelineIcon = endTimelineIconFiles[0].path;
+        }
+
+        // Handle sponsers images update (append to existing)
+        const sponsersImageFiles = files?.sponsersImage || [];
+        if (sponsersImageFiles.length > 0) {
+            updateData.sponsersImage = [...(existEvent.sponsersImage || []), ...sponsersImageFiles.map(f => f.path)];
         }
 
         if (Object.keys(updateData).length === 0) {
