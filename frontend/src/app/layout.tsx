@@ -1,7 +1,6 @@
 import "./globals.css";
 import { Urbanist, Newsreader } from "next/font/google";
-import Navbar from "@/components/navbar";
-import Footer from "@/components/footer";
+import TopLoader from 'nextjs-toploader';
 import 'remixicon/fonts/remixicon.css';
 
 
@@ -36,10 +35,9 @@ export default function RootLayout({
       className={`${urbanist.variable} ${newsreader.variable} scroll-smooth`}
     >
       <body className="bg-background text-foreground antialiased font-urbanist">
-        <Navbar />
+        <TopLoader showSpinner={false} color="#a06d06" height={1}/>
         {children}
-        <Footer />
       </body>
     </html>
   );
-}
+};

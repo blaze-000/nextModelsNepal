@@ -15,7 +15,7 @@ const winnerImages = [
   "/mr-nepal-2025-poster-1.jpg",
   "/handshake.jpg",
   "/events_1.jpg",
-   "/events_1.jpg",
+  "/events_1.jpg",
   "/mr-nepal-2025-poster-1.jpg",
   "/mr-nepal-2025-poster-1.jpg",
   "/handshake.jpg",
@@ -94,7 +94,7 @@ export const Gallery = () => {
         </motion.div>
 
         <MasonryGallery images={winnerImages}
-         />
+        />
 
         {/* See More Button */}
         <motion.div

@@ -14,6 +14,7 @@ const events:EventType[] = [
   {
     id: "miss-nepal-peace-2024",
     title: "Miss Nepal Peace",
+    slug: "miss-nepal-peace-2024",
     startDate: "2024-07-19",
     endDate: "2024-09-06",
     briefInfo:
@@ -27,6 +28,7 @@ const events:EventType[] = [
   {
     id: "fashion-week-2024",
     title: "Nepal Fashion",
+    slug: "fashion-week-2024",
     startDate: "2024-08-15",
     endDate: "2024-08-20",
     briefInfo:
@@ -40,6 +42,7 @@ const events:EventType[] = [
   {
     id: "miss-nepal-peace-2024-2",
     title: "Miss Nepal Peace",
+    slug: "miss-nepal-peace-2024-2",
     startDate: "2024-07-19",
     endDate: "2024-09-06",
     briefInfo:
@@ -53,6 +56,7 @@ const events:EventType[] = [
   {
     id: "fashion-week-2024-2",
     title: "Nepal Fashion",
+    slug: "fashion-week-2024-2",
     startDate: "2024-08-15",
     endDate: "2024-08-20",
     briefInfo:

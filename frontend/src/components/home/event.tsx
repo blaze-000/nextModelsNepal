@@ -11,6 +11,7 @@ const EventsSection = () => {
     {
       id: "1",
       title: "Miss Nepal Peace",
+      slug: 'dummy',
       startDate: "19th July",
       endDate: "6th September",
       briefInfo:
@@ -24,6 +25,7 @@ const EventsSection = () => {
     {
       id: "2",
       title: "Nepal Fashion Week",
+      slug: 'dummy',
       startDate: "15th August",
       endDate: "20th August",
       briefInfo:
@@ -37,6 +39,7 @@ const EventsSection = () => {
     {
       id: "3",
       title: "International Beauty Contest",
+      slug: 'dummy',
       startDate: "1st October",
       endDate: "15th October",
       briefInfo: "A global beauty pageant featuring contestants from around the world.",
@@ -49,6 +52,7 @@ const EventsSection = () => {
     {
       id: "4",
       title: "National Model Hunt",
+      slug: 'dummy',
       startDate: "10th June",
       endDate: "30th June",
       briefInfo:

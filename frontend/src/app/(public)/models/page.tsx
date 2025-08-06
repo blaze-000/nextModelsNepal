@@ -3,7 +3,7 @@ import HireModelForm from "@/components/hire-model-form";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import ModelGrid from "@/components/molecules/model-grid";
-import Link from "next/link";
+// import Link from "next/link";
 
 const femaleModels = [
   {
@@ -197,9 +197,10 @@ export default function HireModel() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+              viewport={{ once: true,amount:0.1 }}
               transition={{ delay: 0.1, duration: 0.6 }}
               className="space-y-8"
+              id="female"
             >
               <div className="flex items-center gap-2">
                 <Image src="/small_star.svg" alt="" width={20} height={20} className="w-8 h-8" />
@@ -239,6 +240,7 @@ export default function HireModel() {
               viewport={{ once: true }}
               transition={{ delay: 0.2, duration: 0.6 }}
               className="space-y-8"
+              id="male"
             >
               <div className="flex items-center gap-2">
                 <Image src="/small_star.svg" alt="" width={20} height={20} className="w-8 h-8" />

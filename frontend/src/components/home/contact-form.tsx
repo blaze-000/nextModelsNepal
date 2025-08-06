@@ -261,6 +261,8 @@ const ContactForm = () => {
             </Button>
 
             <button
+              role="button"
+              type="button"
               onClick={highlightContact}
               className="px-4 py-4 rounded-full text-gold-500 text-base -tracking-tight font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer">
               <span className="underline underline-offset-4">Have any other inquiries</span>

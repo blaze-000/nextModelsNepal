@@ -1,10 +1,10 @@
 "use client";
 
-import { useParams } from "next/navigation";
+// import { useParams } from "next/navigation";
 import React from "react";
 import SectionHeader from "@/components/ui/section-header";
-import Image from "next/image";
-import { motion } from "framer-motion";
+// import Image from "next/image";
+// import { motion } from "framer-motion";
 import MasonryGallery from "@/components/molecules/masonary-gallery";
 
 export default function ModelPage() {
@@ -21,7 +21,7 @@ export default function ModelPage() {
     "/mr-nepal-2025-poster-1.jpg",
     "/handshake.jpg",
   ];
-  const { slug } = useParams();
+  // const { slug } = useParams();
 
   return (
     <main>

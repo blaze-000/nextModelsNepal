@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { useParams } from "next/navigation";
+// import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import ModelGrid from "@/components/molecules/model-grid";
@@ -8,7 +8,7 @@ import PartnerScroller from "@/components/molecules/scroller";
 import SectionHeader from "@/components/ui/section-header";
 
 export default function EventDetails() {
-  const { slug } = useParams();
+  // const { slug } = useParams();
 
   const partners = [
     { name: "1", image: "/partners/img1.png" },

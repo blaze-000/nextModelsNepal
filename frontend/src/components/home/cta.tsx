@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { Button } from "../ui/button";
 import Image from "next/image";
+import Link from "next/link";
 
 const CTASection = () => {
   return (
@@ -122,9 +123,10 @@ const CTASection = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.4 }}
             >
-              <Button variant="default" className="flex items-center gap-2 mx-auto text-sm lg:text-base">
+              <Link href="/become-a-model"><Button variant="default" className="flex items-center gap-2 mx-auto text-sm lg:text-base">
                 Become a model <i className="ri-arrow-right-up-line" />
-              </Button>
+              </Button></Link>
+              
             </motion.div>
           </div>
         </motion.div>
