@@ -4,7 +4,7 @@ const cardItemSchema = new mongoose.Schema({
     index: { type: String },  
     criteriaTitle: { type: String, required: true },
     criteria: { type: String, required: true },
-    criteriaIcon: { type: String, default: [] }
+    criteriaIcon: { type: String, default: "" }
 });
 
 const cardSchema = new mongoose.Schema({
