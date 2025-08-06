@@ -1,9 +1,11 @@
 import Image from "next/image";
 import { Button } from "../ui/button";
 import type { FC } from "react";
+import Link from "next/link";
 
 const EventCard: FC<EventCardProps> = ({
   title,
+  slug,
   startDate,
   endDate,
   briefInfo,
@@ -74,7 +76,6 @@ const EventCard: FC<EventCardProps> = ({
                 <Button
                   variant="default"
                   className="h-8 text-sm"
-                  onClick={() => window.open(getTicketLink, "_blank")}
                 >
                   Get Tickets
                 </Button>
@@ -126,13 +127,12 @@ const EventCard: FC<EventCardProps> = ({
                 </Button>
               )}
               {aboutLink && (
-                <button
+                <Link href={`/events/${slug}`}
                   className="px-4 py-4 rounded-full text-gold-500 text-base font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer"
-                  onClick={() => window.open(aboutLink, "_blank")}
                 >
                   <span className="underline underline-offset-4">About {title}</span>
                   <i className="ri-arrow-right-up-line group-hover:scale-130 transition-transform duration-400" />
-                </button>
+                </Link>
               )}
             </div>
           </div>

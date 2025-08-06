@@ -40,7 +40,7 @@ export default function About() {
           </h2>
 
           <p className="mt-6 text-base max-w-xl text-white font-light">
-            Next Models Nepal" stands as a dynamic force in Nepal's entertainment and fashion industry, offering comprehensive event management, model management, and talent management services. Established as a pioneering entity in the Nepalese market, it serves as a one-stop destination for individuals and organizations seeking top-notch solutions in the realms of modeling, talent representation, and event planning.
+            Next Models Nepal&quot; stands as a dynamic force in Nepal&apos;s entertainment and fashion industry, offering comprehensive event management, model management, and talent management services. Established as a pioneering entity in the Nepalese market, it serves as a one-stop destination for individuals and organizations seeking top-notch solutions in the realms of modeling, talent representation, and event planning.
           </p>
         </div>
       </motion.section>
@@ -58,7 +58,7 @@ export default function About() {
             <span>Us</span>
           </h2>
           <p className="text-lg px-8">
-            Next Models Nepal" stands as a dynamic force in Nepal's entertainment and fashion industry, offering comprehensive event management, model management, and talent management services. Established as a pioneering entity in the Nepalese market, it serves as a one-stop destination for individuals and organizations seeking top-notch solutions in the realms of modeling, talent representation, and event planning.
+            Next Models Nepal&quot; stands as a dynamic force in Nepal&apos;s entertainment and fashion industry, offering comprehensive event management, model management, and talent management services. Established as a pioneering entity in the Nepalese market, it serves as a one-stop destination for individuals and organizations seeking top-notch solutions in the realms of modeling, talent representation, and event planning.
           </p>
         </div>
       </motion.section>
@@ -77,7 +77,7 @@ export default function About() {
               <span>We are</span>
               <span>Next Models Nepal</span>
             </div>
-            <div className="text-primary">And we're here to empower talent,</div>
+            <div className="text-primary">And we&apos;re here to empower talent,</div>
             <div className="hidden mdplus:flex text-primary items-center gap-4">
               <span>one</span>
               <Image
@@ -99,7 +99,7 @@ export default function About() {
             className="flex justify-end"
           >
             <p className="text-center mdplus:text-right mdplus:max-w-3xl font-light text-base">
-              As an event management powerhouse, 'Next Models Nepal' excels in conceptualizing, planning, and executing a diverse range of events, from fashion shows and product launches to corporate gatherings and cultural extravaganzas. With a team of experienced professionals at the helm, the company ensures seamless coordination, impeccable execution, and memorable experiences that exceed client expectations.
+              As an event management powerhouse, &apos;Next Models Nepal&apos; excels in conceptualizing, planning, and executing a diverse range of events, from fashion shows and product launches to corporate gatherings and cultural extravaganzas. With a team of experienced professionals at the helm, the company ensures seamless coordination, impeccable execution, and memorable experiences that exceed client expectations.
             </p>
           </motion.div>
         </div>
@@ -171,7 +171,7 @@ export default function About() {
                 Full-Spectrum Talent Management
               </h3>
               <p>
-                We’re more than just a modeling agency. From actors and dancers to musicians and influencers, we manage a wide array of creative professionals. Through career planning, brand partnerships, and exclusive networking opportunities, we help each individual reach their full potential.
+                We&apos;re more than just a modeling agency. From actors and dancers to musicians and influencers, we manage a wide array of creative professionals. Through career planning, brand partnerships, and exclusive networking opportunities, we help each individual reach their full potential.
               </p>
             </div>
           </motion.article>
@@ -220,10 +220,10 @@ export default function About() {
             />
             <div className="flex flex-col gap-4 justify-center h-full order-1 mdplus:order-1 text-right mdplus:text-left">
               <h3 className="text-5xl text-primary font-newsreader font-light ml-20 mdplus:ml-0">
-                <span className="text-white">Shaping the Future of</span> Nepal's Creative Scene
+                <span className="text-white">Shaping the Future of</span> Nepal&apos;s Creative Scene
               </h3>
               <p>
-                We’re more than just a modeling agency. From actors and dancers to musicians and influencers, we manage a wide array of creative professionals. Through career planning, brand partnerships, and exclusive networking opportunities, we help each individual reach their full potential.
+                We&apos;re more than just a modeling agency. From actors and dancers to musicians and influencers, we manage a wide array of creative professionals. Through career planning, brand partnerships, and exclusive networking opportunities, we help each individual reach their full potential.
               </p>
             </div>
           </motion.article>

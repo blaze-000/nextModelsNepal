@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+// import { useParams } from "next/navigation";
 import Image from "next/image";
 import { motion } from "framer-motion";
 
@@ -24,7 +24,7 @@ const EVENT_DETAILS = {
 }
 
 export default function EventVoting() {
-  const { event_slug } = useParams();
+  // const { event_slug } = useParams();
   return (
     <main>
       {/* Hero Section */}
@@ -102,7 +102,7 @@ export default function EventVoting() {
           </motion.h2>
 
           <div className="grid xs:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-y-8 gap-x-4">
-            {EVENT_DETAILS?.contestants?.map((contestant, index) => (
+            {EVENT_DETAILS?.contestants?.map((contestant) => (
               <motion.div
                 key={contestant.id}
                 initial={{ opacity: 0, y: 20 }}

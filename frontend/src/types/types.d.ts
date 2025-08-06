@@ -5,6 +5,7 @@ type NewsletterSubscriptionProps = {
 
 interface EventCardProps {
   title: string,
+  slug: string,
   startDate: string,
   endDate: string,
   briefInfo: string,
@@ -27,6 +28,7 @@ type ImageBoxProps = {
 type EventType = {
   id: string,
   title: string,
+  slug: string,
   startDate: string,
   endDate: string,
   briefInfo: string,

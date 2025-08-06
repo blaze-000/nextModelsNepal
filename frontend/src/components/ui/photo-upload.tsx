@@ -58,7 +58,7 @@ const PhotoUpload = ({
     if (isMaxReached) return;
 
     const files = Array.from(e.dataTransfer.files);
-    
+
     // Filter files based on accepted types
     const validFiles = files.filter(file => {
       return acceptedTypes.some(type => {
@@ -71,11 +71,9 @@ const PhotoUpload = ({
 
     if (validFiles.length > 0) {
       // Create a synthetic event to pass to the onChange handler
-      const fileList = validFiles.reduce((dataTransfer, file, index) => {
-        const dt = new DataTransfer();
-        validFiles.forEach(f => dt.items.add(f));
-        return dt.files;
-      }, new DataTransfer().files);
+      const dt = new DataTransfer();
+      validFiles.forEach(f => dt.items.add(f));
+      const fileList = dt.files;
 
       const syntheticEvent = {
         target: {
@@ -89,7 +87,7 @@ const PhotoUpload = ({
           value: '',
         },
       } as unknown as React.ChangeEvent<HTMLInputElement>;
-      
+
       onChange(syntheticEvent);
     }
   };
@@ -100,12 +98,11 @@ const PhotoUpload = ({
         {label} <span className="text-red-500">*</span>
       </label>
 
-      <div 
-        className={`w-full bg-muted-background text-gray-100 px-3 md:px-4 py-8 md:py-12 outline-none rounded border-2 border-dashed ${
-          isDragActive 
-            ? "border-blue-400 bg-blue-50/10" 
-            : "border-gray-600"
-        } flex flex-col items-center justify-center min-h-[200px] transition-colors`}
+      <div
+        className={`w-full bg-muted-background text-gray-100 px-3 md:px-4 py-8 md:py-12 outline-none rounded border-2 border-dashed ${isDragActive
+          ? "border-blue-400 bg-blue-50/10"
+          : "border-gray-600"
+          } flex flex-col items-center justify-center min-h-[200px] transition-colors`}
         onDragEnter={handleDragEnter}
         onDragLeave={handleDragLeave}
         onDragOver={handleDragOver}
@@ -153,16 +150,15 @@ const PhotoUpload = ({
         {/* Upload Label */}
         <label
           htmlFor={isMaxReached ? undefined : name}
-          className={`text-center ${
-            isMaxReached ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
-          }`}
+          className={`text-center ${isMaxReached ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+            }`}
         >
           <p className="text-lg mb-2">
             {isMaxReached
               ? `Maximum ${maxFiles} photos reached`
               : isDragActive
-              ? "Drop your images here"
-              : "Drag or upload your images here"}
+                ? "Drop your images here"
+                : "Drag or upload your images here"}
           </p>
           <p className="text-sm text-gray-400">
             Supported formats: {supportedFormats} (Max {maxFileSize}MB each) -{" "}

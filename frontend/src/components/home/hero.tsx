@@ -55,7 +55,7 @@ const HeroSection = () => {
                   Agency
                 </span>
                 {/* Empty oval outline */}
-                <div className="w-40 h-16 rounded-full border-2 border-gold-500"/>
+                <div className="w-40 h-16 rounded-full border-2 border-gold-500" />
               </div>
             </div>
             {/* Description */}
@@ -66,9 +66,11 @@ const HeroSection = () => {
             </p>
             {/* Buttons */}
             <div className="flex flex-col items-start gap-4 lg:flex-row lg:gap-10 lg:items-center pt-4">
-              <Button variant="default" className="px-9 py-4 group">
-                Hire a model <i className="group-hover:scale-1.2 ri-arrow-right-up-line" />
-              </Button>
+              <Link href="/models">
+                <Button variant="default" className="px-9 py-4 group">
+                  Hire a model <i className="group-hover:scale-1.2 ri-arrow-right-up-line" />
+                </Button>
+              </Link>
               <Link
                 href={"#"}
                 className="px-4 py-4 rounded-full text-gold-500 text-base -tracking-tight font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer">

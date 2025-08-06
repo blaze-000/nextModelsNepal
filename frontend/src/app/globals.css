@@ -42,7 +42,8 @@ body {
   --gold-600: #E89B00;
   --gold-500: #ffaa00;
   --gold-400: #ffbb33;
-  --gold-900: #392806;
+  --gold-dark: #a06d06;
+  --gold-900: #54462a;
 
   --primary: #ffaa00;
   --primary-foreground: #312000;
@@ -68,11 +69,11 @@ body {
 
 ::-webkit-scrollbar {
   width: 5px;
-  background: var(--foreground);
+  background: var(--gold-900);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--gold-500);
+  background: var(--gold-600);
   border-radius: 9999px;
 }

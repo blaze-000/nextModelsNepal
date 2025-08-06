@@ -3,12 +3,23 @@ import Image from "next/image";
 import type { FC, ReactNode } from "react";
 import { motion } from "framer-motion";
 import NewsLetterBox from "./molecules/newsleterbox";
+import Link from "next/link";
 
 const Footer: FC = (): ReactNode => {
   const currentYear: number = new Date().getFullYear();
 
-  const quickLinks = ["Home", "About", "Services", "Contact"];
-  const events = ["Mr. Nepal", "Miss. Nepal Peace", "Models Hunt Nepal"];
+  const quickLinks = [
+    { label: "Home", href: "/" }, 
+    { label: "About", href: "/about" }, 
+    { label: "Services", href: "/apply" }, 
+    { label: "Contact", href: "/contact" }
+  ];
+  const events = [
+    { label: "Mr. Nepal", slug: "mr-nepal" },
+    { label: "Miss. Nepal Peace", slug: "miss-nepal-peace" },
+    { label: "Models Hunt Nepal", slug: "models-hunt-nepal" },
+    { label: "Miss Nepal Earth", slug: "miss-nepal-earth" },
+  ];
 
   // Variants
   const container = {
@@ -60,25 +71,54 @@ const Footer: FC = (): ReactNode => {
               <p className="text-base tracking-normal leading-loose">
                 Nepal&rsquo;s No.1 Modeling Agency
               </p>
-              <div className="flex items-center gap-4 pt-3 justify-center md:justify-start">
-                <i className="bg-gold-500 w-8 h-8 p-1.5 text-black rounded-full hover:opacity-80 transition-opacity cursor-pointer ri-instagram-line" />
-                <i className="bg-gold-500 w-8 h-8 p-1.5 text-black rounded-full hover:opacity-80 transition-opacity cursor-pointer ri-twitter-x-line" />
-                <i className="bg-gold-500 w-8 h-8 p-1.5 text-black rounded-full hover:opacity-80 transition-opacity cursor-pointer ri-facebook-circle-line" />
-                <i className="bg-gold-500 w-8 h-8 p-1.5 text-black rounded-full hover:opacity-80 transition-opacity cursor-pointer ri-linkedin-box-line" />
-              </div>
+                <div className="flex items-center gap-4 pt-3 justify-center md:justify-start">
+                  <Link
+                    href="https://instagram.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-gold-500 w-8 h-8 p-1.5 text-black rounded-full hover:opacity-80 transition-opacity flex items-center justify-center"
+                  >
+                    <i className="ri-instagram-line" />
+                  </Link>
+                  <Link
+                    href="https://twitter.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-gold-500 w-8 h-8 p-1.5 text-black rounded-full hover:opacity-80 transition-opacity flex items-center justify-center"
+                  >
+                    <i className="ri-twitter-x-line" />
+                  </Link>
+                  <Link
+                    href="https://facebook.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-gold-500 w-8 h-8 p-1.5 text-black rounded-full hover:opacity-80 transition-opacity flex items-center justify-center"
+                  >
+                    <i className="ri-facebook-circle-line" />
+                  </Link>
+                  <Link
+                    href="https://linkedin.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-gold-500 w-8 h-8 p-1.5 text-black rounded-full hover:opacity-80 transition-opacity flex items-center justify-center"
+                  >
+                    <i className="ri-linkedin-box-line" />
+                  </Link>
+                </div>
             </motion.div>
 
             {/* Quick Links */}
             <motion.div variants={item} className="space-y-8 md:space-y-6 col-span-1">
               <h3 className="text-base font-semibold">Quick Links</h3>
-              <nav className="space-y-6">
+              <nav className="space-y-6 flex flex-col">
                 {quickLinks.map((link) => (
-                  <div
-                    key={link}
+                  <Link
+                    href={link.href}
+                    key={link.label}
                     className="text-base font-light hover:text-gold-400 transition-colors cursor-pointer tracking-wider"
                   >
-                    {link}
-                  </div>
+                    {link.label}
+                  </Link>
                 ))}
               </nav>
             </motion.div>
@@ -86,14 +126,15 @@ const Footer: FC = (): ReactNode => {
             {/* Events */}
             <motion.div variants={item} className="space-y-8 md:space-y-6 col-span-1">
               <h3 className="text-base font-semibold">Events</h3>
-              <nav className="space-y-4">
+              <nav className="space-y-4 flex flex-col">
                 {events.map((event) => (
-                  <div
-                    key={event}
+                  <Link
+                    href={`events/${event.slug}`}
+                    key={event.label}
                     className="text-base font-light hover:text-gold-400 transition-colors cursor-pointer underline underline-offset-4 tracking-wider"
                   >
-                    {event}
-                  </div>
+                    {event.label}
+                  </Link>
                 ))}
               </nav>
             </motion.div>
@@ -102,21 +143,21 @@ const Footer: FC = (): ReactNode => {
             <motion.div id="footer-contact" variants={item} className="space-y-8 md:space-y-6 col-span-2 md:col-span-1">
               <h3 className="text-base font-semibold">Contact</h3>
               <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <i className="w-5 h-5 text-white flex-shrink-0 ri-phone-line" />
-                  <span className="text-base font-light hover:text-gold-400 transition-colors cursor-pointer">
+                <Link href="tel:+9779819686790" className="flex items-center gap-3 group/phone hover:text-gold-400">
+                  <i className="w-5 h-5 text-white flex-shrink-0 ri-phone-line group-hover/phone:text-gold-400" />
+                  <span className="text-base font-light  transition-colors">
                     9819686790
                   </span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <i className="w-5 h-5 text-white flex-shrink-0 ri-mail-line" />
-                  <span className="text-base font-light hover:text-gold-400 transition-colors cursor-pointer">
+                </Link>
+                <Link href="mailto:info@nextmodelsnepal.com" className="flex items-center gap-3 group/mail">
+                  <i className="w-5 h-5 text-white flex-shrink-0 ri-mail-line group-hover/mail:text-gold-400" />
+                  <span className="text-base font-light hover:text-gold-400 transition-colors">
                     info@nextmodelsnepal.com
                   </span>
-                </div>
+                </Link>
                 <div className="flex items-start gap-3">
                   <i className="w-5 h-5 text-white flex-shrink-0 ri-map-pin-line" />
-                  <span className="text-base font-light hover:text-gold-400 transition-colors cursor-pointer">
+                  <span className="text-base font-light transition-colors cursor-default">
                     Putalisadak, Kathmandu, Nepal
                   </span>
                 </div>
@@ -128,17 +169,17 @@ const Footer: FC = (): ReactNode => {
         {/* Footer Bottom */}
         <motion.div variants={item} className="border-t border-white/20 py-7">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="text-sm font-light opacity-65">
-              © {currentYear} Lift Media. All rights reserved.
+            <div className="text-sm font-light opacity-65 text-center mdplus:text-center">
+              Copyright © 2013 - {currentYear} Next Models Nepal. All Rights Reserved. Empowered by <Link href="https://protozoahost.com" rel="noopener noreferrer" target="_blank" className="font-bold text-nowrap">Protozoa Host</Link>
             </div>
-            <div className="flex items-center gap-6 text-[20px] font-urbanist">
+            {/* <div className="flex items-center gap-6 text-[20px] font-urbanist">
               <div className="text-base font-light hover:text-gold-400 transition-colors cursor-pointer underline underline-offset-4 tracking-wider">
                 Terms & Conditions
               </div>
               <div className="underline underline-offset-4 text-base font-light hover:text-gold-400 transition-colors cursor-pointer tracking-wider">
                 Privacy Policy
               </div>
-            </div>
+            </div> */}
           </div>
         </motion.div>
       </div>

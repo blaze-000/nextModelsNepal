@@ -133,7 +133,7 @@ const ModelsPortfolioSection = () => {
             </ModelGrid>
             <div className="flex justify-end">
               <Link
-                href={"#"}
+                href={"/models/#female"}
                 className="px-4 py-4 rounded-full text-gold-500 text-base -tracking-tight font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer">
                 <span className="underline underline-offset-4">See All Female Models</span>
                 <i className="ri-arrow-right-up-line group-hover:scale-130 transition-transform duration-400 text-xl font-extralight" />
@@ -172,7 +172,7 @@ const ModelsPortfolioSection = () => {
             </ModelGrid>
             <div className="flex justify-end">
               <Link
-                href={"#"}
+                href={"/models/#male"}
                 className="px-4 py-4 rounded-full text-gold-500 text-base -tracking-tight font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer">
                 <span className="underline underline-offset-4">See All Male Models</span>
                 <i className="ri-arrow-right-up-line group-hover:scale-130 transition-transform duration-400 text-xl font-extralight" />
