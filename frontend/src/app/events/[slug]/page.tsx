@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import ModelGrid from "@/components/molecules/model-grid";
 import PartnerScroller from "@/components/molecules/scroller";
+import SectionHeader from "@/components/ui/section-header";
 
 export default function EventDetails() {
   const { slug } = useParams();
@@ -103,52 +104,6 @@ export default function EventDetails() {
     transition: { duration: 0.6 },
     viewport: { once: true, amount: 0.6 },
   };
-
-  const sectionHeaderMotion = {
-    initial: { opacity: 0, y: 30 },
-    whileInView: { opacity: 1, y: 0 },
-    transition: { duration: 0.6 },
-    viewport: { once: true, amount: 0.6 },
-  };
-
-  // Reusable section header component
-  const SectionHeader = ({ title }: { title: string }) => (
-    <motion.div {...sectionHeaderMotion} className="pb-8">
-      {/* Desktop Layout */}
-      <div className="hidden md:flex justify-between items-center">
-        <div className="flex-1 flex items-center gap-2">
-          <Image
-            src="/small_star.svg"
-            alt=""
-            width={1}
-            height={0}
-            sizes="100vw"
-            className="w-4 h-4 rounded-full"
-          />
-          <h3 className="text-white text-xl font-normal font-newsreader tracking-wide">
-            {title}
-          </h3>
-        </div>
-      </div>
-
-      {/* Mobile Layout */}
-      <div className="block md:hidden space-y-4">
-        <div className="flex items-center justify-center gap-2">
-          <Image
-            src="/small_star.svg"
-            alt=""
-            width={1}
-            height={0}
-            sizes="100vw"
-            className="w-4 h-4 rounded-full"
-          />
-          <h3 className="text-white text-xl font-normal font-newsreader tracking-wide">
-            {title}
-          </h3>
-        </div>
-      </div>
-    </motion.div>
-  );
 
   return (
     <main>
@@ -291,25 +246,12 @@ export default function EventDetails() {
       {/* Timeline Intro */}
       <section className="w-full pb-24 bg-background2 mdplus:pt-20">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="flex flex-col w-full justify-center item-center space-y-8">
-            <div className="flex items-center justify-center gap-2">
-              <Image
-                src="/small_star.svg"
-                alt=""
-                width={20}
-                height={20}
-                className="w-4 h-4"
-              />
-              <h3 className="text-white text-xl font-medium font-newsreader tracking-tight">
-                Event Timeline
-              </h3>
-            </div>
-            <div className="text-base text-center flex item-center justify-center mx-auto max-w-3xl">
-              A journey designed to elevate you. From auditions to the grand
-              finale, each phase of this event is crafted to help you grow, gain
-              exposure, and shine. It&rsquo;s more than a timeline—it&rsquo;s
-              your path to becoming the next standout name in modeling.
-            </div>
+          <SectionHeader title="Event Timeline" centered />
+          <div className="text-base text-center flex item-center justify-center mx-auto max-w-3xl">
+            A journey designed to elevate you. From auditions to the grand
+            finale, each phase of this event is crafted to help you grow, gain
+            exposure, and shine. It&rsquo;s more than a timeline—it&rsquo;s your
+            path to becoming the next standout name in modeling.
           </div>
         </div>
       </section>
