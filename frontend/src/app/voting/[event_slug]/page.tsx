@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import Image from "next/image";
+import { motion } from "framer-motion";
 
 const EVENT_DETAILS = {
   name: "Miss Nepal Peace",
@@ -30,14 +31,19 @@ export default function EventVoting() {
       <section className="w-full bg-[#020202]">
         <div className="max-w-7xl mx-auto px-6 max-h-[810px] h-[80vh] grid mdplus:grid-cols-2 items-center justify-items-center mdplus:justify-items-end">
 
-
-          <div className="space-y-5 order-2 mdplus:order-1 text-center mdplus:text-left">
-            {/* Title of Event*/}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="space-y-5 order-2 mdplus:order-1 text-center mdplus:text-left"
+          >
             <h1 className="font-newsreader text-8xl font-light flex tracking-tighter px-4 ">
               <span>{EVENT_DETAILS.name}<i className="text-primary"> Voting</i></span>
             </h1>
 
-            <p className="text-primary text-sm">Voting Ends: <span className="text-white">{"UPDATING_TIME"}</span>
+            <p className="text-primary text-sm">
+              Voting Ends: <span className="text-white">{"UPDATING_TIME"}</span>
             </p>
 
             <div className="flex flex-col items-center mdplus:flex-row mdplus:justify-start gap-x-8">
@@ -50,28 +56,41 @@ export default function EventVoting() {
 
               <Link
                 href={"#"}
-                className="px-4 py-4 rounded-full text-gold-500 text-base tracking-tight font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer">
+                className="px-4 py-4 rounded-full text-gold-500 text-base tracking-tight font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer"
+              >
                 <span className="underline underline-offset-4 text-nowrap">View Leaderboard</span>
                 <i className="ri-arrow-right-up-line group-hover:scale-130 transition-transform duration-400 text-xl font-extralight" />
               </Link>
             </div>
-          </div>
+          </motion.div>
 
-          {/* Right Side */}
-          <Image
-            src={EVENT_DETAILS.image}
-            alt={EVENT_DETAILS.name}
-            width={500}
-            height={0}
-            className=" order-1 mdplus:order-2"
-          />
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="order-1 mdplus:order-2"
+          >
+            <Image
+              src={EVENT_DETAILS.image}
+              alt={EVENT_DETAILS.name}
+              width={500}
+              height={0}
+            />
+          </motion.div>
         </div>
       </section>
 
       {/* Contestants */}
       <section className="w-full bg-background2 pb-20" id="contestants">
         <div className="max-w-7xl mx-auto px-6 ">
-          <h2 className="font-newsreader flex items-baseline gap-2 text-2xl pt-7 pb-9">
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="font-newsreader flex items-baseline gap-2 text-2xl pt-7 pb-9"
+          >
             <Image
               src="/small_star.svg"
               height={20}
@@ -80,12 +99,16 @@ export default function EventVoting() {
               className="w-5 h-5"
             />
             Contestants
-          </h2>
+          </motion.h2>
 
           <div className="grid xs:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-y-8 gap-x-4">
-            {EVENT_DETAILS?.contestants?.map(contestant => (
-              <div
+            {EVENT_DETAILS?.contestants?.map((contestant, index) => (
+              <motion.div
                 key={contestant.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6}}
                 className="space-y-4 mx-auto"
               >
                 <Image
@@ -97,7 +120,7 @@ export default function EventVoting() {
                 />
 
                 <div className="flex justify-end gap-4 items-center pb-2 pr-1">
-                  <button className='border-primary border-[2px] rounded-full w-12 h-12 cursor-pointer'>
+                  <button className="border-primary border-[2px] rounded-full w-12 h-12 cursor-pointer">
                     <i className="ri-shopping-cart-2-line text-primary text-xl" />
                   </button>
                   <Button variant="default" className="px-6 mdplus:px-12">
@@ -105,10 +128,9 @@ export default function EventVoting() {
                     <i className="ri-arrow-right-up-line hidden md:flex" />
                   </Button>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
-
         </div>
       </section>
     </main>

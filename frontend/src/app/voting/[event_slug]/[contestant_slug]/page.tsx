@@ -137,8 +137,18 @@ const ModelVoting: React.FC = () => {
 
         {/* Modal */}
         {showModal && (
-          <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" onClick={() => setShowModal(false)}>
-            <div className="bg-background p-8 border-stone-600 border w-9/10 mdplus:w-1/2 h-1/2 flex flex-col justify-between relative" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center"
+            onClick={() => setShowModal(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.3 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-background p-8 border-stone-600 border w-9/10 mdplus:w-1/2 h-1/2 flex flex-col justify-between relative"
+            >
               <button
                 onClick={() => setShowModal(false)}
                 className='absolute -top-3 -right-3 bg-white rounded-full h-8 w-8 text-[#FF3636] flex justify-center items-center z-10 cursor-pointer'
@@ -179,12 +189,13 @@ const ModelVoting: React.FC = () => {
                   <i className='ri-arrow-right-up-line' />
                 </Button>
               </Link>
-            </div>
+            </motion.div>
           </div>
         )}
 
       </section>
     </main>
+
   );
 };
 
