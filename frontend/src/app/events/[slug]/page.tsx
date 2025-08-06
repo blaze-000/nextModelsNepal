@@ -3,9 +3,78 @@ import React from "react";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import ModelGrid from "@/components/molecules/model-grid";
+import PartnerScroller from "@/components/molecules/scroller";
+import SectionHeader from "@/components/ui/section-header";
 
 export default function EventDetails() {
   const { slug } = useParams();
+
+  const partners = [
+    { name: "1", image: "/partners/img1.png" },
+    { name: "2", image: "/partners/img2.png" },
+    { name: "3", image: "/partners/img3.png" },
+    { name: "4", image: "/partners/img4.png" },
+    { name: "5", image: "/partners/img5.png" },
+    { name: "6", image: "/partners/img6.png" },
+    { name: "7", image: "/partners/img7.png" },
+    { name: "8", image: "/partners/img8.png" },
+    { name: "9", image: "/partners/img9.png" },
+  ];
+
+  const winnerImages = [
+    "/winners/winner1.jpg",
+    "/winners/winner2.jpg",
+    "/winners/winner3.jpg",
+    "/winners/winner4.jpg",
+    "/winners/winner5.jpg",
+    "/winners/winner6.jpg",
+  ];
+
+  const models = [
+    {
+      tag: "Winner",
+      name: "Monika Adhikary",
+      designation: "Miss Nepal Peace 2024",
+      image: "/bro_1.png",
+      link: "https://nextmodelnepal.com/models/monika",
+    },
+    {
+      tag: "1st Runner Up",
+      name: "Anisha Parajuli",
+      designation: "Miss Nepal Peace",
+      image: "/bro_1.png",
+      link: "https://nextmodelnepal.com/models/anisha",
+    },
+    {
+      tag: "2nd Runner Up",
+      name: "Pala Regmi",
+      designation: "Miss Nepal Peace",
+      image: "/bro_1.png",
+      link: "https://nextmodelnepal.com/models/pala",
+    },
+    {
+      tag: "Nurse With a purpose",
+      name: "Monika Thapa Magar",
+      designation: "Miss Nepal Peace",
+      image: "/bro_1.png",
+      link: "https://nextmodelnepal.com/models/monikathapa",
+    },
+    {
+      tag: "2nd Runner Up",
+      name: "Pala Regmi",
+      designation: "Miss Nepal Peace",
+      image: "/bro_1.png",
+      link: "https://nextmodelnepal.com/models/pala",
+    },
+    {
+      tag: "Nurse With a purpose",
+      name: "Monika Thapa Magar",
+      designation: "Miss Nepal Peace",
+      image: "/bro_1.png",
+      link: "https://nextmodelnepal.com/models/monikathapa",
+    },
+  ];
 
   const timelineData = [
     {
@@ -28,14 +97,19 @@ export default function EventDetails() {
     },
   ];
 
+  // Reusable motion props
+  const fadeInUp = {
+    initial: { opacity: 0, y: 20 },
+    whileInView: { opacity: 1, y: 0 },
+    transition: { duration: 0.6 },
+    viewport: { once: true, amount: 0.6 },
+  };
+
   return (
     <main>
       {/* Hero image and text */}
       <motion.section
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        viewport={{ once: true, amount: 0.6 }}
+        {...fadeInUp}
         className="h-[40vh] md:h-[80vh] bg-black bg-cover bg-center relative"
         style={{ backgroundImage: "url('/events_1.jpg')" }}
       >
@@ -58,7 +132,6 @@ export default function EventDetails() {
               />
             </div>
           </h2>
-
           <p className="mt-2 text-2xl max-w-lg text-white font-light">
             DEDICATED TO NURSING FRATERNITY
           </p>
@@ -66,22 +139,16 @@ export default function EventDetails() {
       </motion.section>
 
       {/* Texts Mobile */}
-      <motion.section
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        viewport={{ once: true, amount: 0.6 }}
-        className="flex md:hidden py-30 bg-black"
-      >
+      <motion.section {...fadeInUp} className="flex md:hidden py-30 bg-black">
         <div className="text-center px-6">
           <h2 className="text-6xl font-newsreader text-primary font-extralight tracking-tighter leading-tight pb-8">
             Miss Nepal
           </h2>
-
           <p>DEDICATED TO NURSING FRATERNITY</p>
         </div>
       </motion.section>
 
+      {/* Overview Section */}
       <section className="w-full pb-16 mdplus:pt-16 bg-background">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
@@ -94,7 +161,6 @@ export default function EventDetails() {
                 className="w-full max-w-md h-auto rounded-lg shadow-md object-cover ml-auto"
               />
             </div>
-
             <div className="lg:order-1 flex flex-col justify-end gap-10">
               <div className="flex items-center gap-2">
                 <Image
@@ -122,9 +188,11 @@ export default function EventDetails() {
           </div>
         </div>
       </section>
-      <section className="w-full bg-[#100D08] pb-12 mdplus:pt-12 ">
+
+      {/* Quote Section */}
+      <section className="w-full bg-[#100D08] pb-12 mdplus:pt-12">
         <div className="max-w-7xl mx-auto px-6">
-          <h3 className="text-6xl font-newsreader text-white text-center tracking-tighter ">
+          <h3 className="text-6xl font-newsreader text-white text-center tracking-tighter">
             Celebrating the strength, compassion, and leadership of women in
             healthcare — because empowered nurses nurture a nation&rsquo;s
             well-being.
@@ -133,9 +201,9 @@ export default function EventDetails() {
       </section>
 
       {/* Purpose Section */}
-      <section className="w-full bg-background2 pb-24 mdplus:pt-20">
+      <section className="w-full bg-background2 pb-24 mdplus:pt-30">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center pb-30">
             {/* Image */}
             <div className="flex justify-center lg:justify-start pr-20">
               <Image
@@ -146,10 +214,8 @@ export default function EventDetails() {
                 className="w-full h-full max-w-md lg:max-w-full object-cover"
               />
             </div>
-
             {/* Content */}
             <div className="flex flex-col gap-12">
-              {/* Header */}
               <div className="flex items-center gap-2">
                 <Image
                   src="/small_star.svg"
@@ -162,8 +228,6 @@ export default function EventDetails() {
                   Purpose
                 </h3>
               </div>
-
-              {/* Description */}
               <p className="text-base font-light leading-relaxed">
                 Miss Nepal Peace is a national beauty pageant exclusively for
                 nursing students and professionals, promoting the theme
@@ -177,78 +241,181 @@ export default function EventDetails() {
             </div>
           </div>
         </div>
+      </section>
 
-        {/* /* Timeline */}
-        <section className="w-full pb-24 mdplus:pt-20">
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="flex flex-col w-full justify-center item-center space-y-8">
-              <div className="flex items-center justify-center gap-2 ">
-                <Image
-                  src="/small_star.svg"
-                  alt=""
-                  width={20}
-                  height={20}
-                  className="w-4 h-4"
-                />
-                <h3 className="text-white text-xl font-medium font-newsreader tracking-tight">
-                  Event Timeline
-                </h3>
-              </div>
-              <div className="text-base text-center flex item-center justify-center mx-auto max-w-3xl">
-                A journey designed to elevate you. From auditions to the grand
-                finale, each phase of this event is crafted to help you grow,
-                gain exposure, and shine. It&rsquo;s more than a
-                timeline—it&rsquo;s your path to becoming the next standout name
-                in modeling.
-              </div>
-            </div>
+      {/* Timeline Intro */}
+      <section className="w-full pb-24 bg-background2 mdplus:pt-20">
+        <div className="max-w-7xl mx-auto px-6">
+          <SectionHeader title="Event Timeline" centered />
+          <div className="text-base text-center flex item-center justify-center mx-auto max-w-3xl">
+            A journey designed to elevate you. From auditions to the grand
+            finale, each phase of this event is crafted to help you grow, gain
+            exposure, and shine. It&rsquo;s more than a timeline—it&rsquo;s your
+            path to becoming the next standout name in modeling.
           </div>
-        </section>
+        </div>
+      </section>
 
-        <div className="w-full relative px-4 overflow-hidden pt-40 pb-40">
-          {/* Base horizontal line */}
-          <div className="absolute w-full top-1/2 -translate-y-1/2 h-0.5 bg-white z-0 " />
-
-          {/* Timeline container */}
-          <div className="flex justify-center gap-4 w-full z-10 max-w-7xl mx-auto">
-            {timelineData.map((item, index) => (
-              <div key={index} className="relative flex justify-center flex-1">
-                {/* Card */}
-                <div
-                  className={`absolute ${
-                    item.position === "up" ? "top-[-160px]" : "top-[40px]"
-                  } w-100 pt-6 px-6 pb-8 bg-muted-background shadow-md`}
-                >
-                  <div className="flex items-start gap-3">
-                    {/* Icon */}
-                    <i className={`${item.icon} text-xl text-gold-500`}></i>
-
-                    {/* Date and Title Stack */}
-                    <div className="flex flex-col gap-2">
-                      <p className="text-lg font-medium text-gold-500">
-                        {item.date}
-                      </p>
-                      <h3 className="text-2xl font-newsreader font-normal text-white">
-                        {item.title}
-                      </h3>
-                    </div>
+      {/* Timeline Visual */}
+      <section className="w-full relative px-4 bg-background2 overflow-hidden pt-40 pb-40">
+        <div className="absolute w-full top-1/2 -translate-y-1/2 h-0.5 bg-white z-0" />
+        <div className="flex justify-center gap-4 w-full z-10 max-w-7xl mx-auto">
+          {timelineData.map((item, index) => (
+            <div key={index} className="relative flex justify-center flex-1">
+              <div
+                className={`absolute ${
+                  item.position === "up" ? "top-[-160px]" : "top-[40px]"
+                } w-100 pt-6 px-6 pb-8 bg-muted-background shadow-md`}
+              >
+                <div className="flex items-start gap-3">
+                  <i className={`${item.icon} text-xl text-gold-500`}></i>
+                  <div className="flex flex-col gap-2">
+                    <p className="text-lg font-medium text-gold-500">
+                      {item.date}
+                    </p>
+                    <h3 className="text-2xl font-newsreader font-normal text-white">
+                      {item.title}
+                    </h3>
                   </div>
                 </div>
-
-                {/* Dots and yellow segment */}
-                <div className="absolute top-1/2 -translate-y-1/2 w-full flex justify-between items-center px-1">
-                  {/* Left dot */}
-                  <div className="w-4 h-4 bg-white rounded-full border-4 border-gold-500 z-10" />
-
-                  {/* Yellow line segment */}
-                  <div className="absolute left-4 right-4 top-1/2 -translate-y-1/2 h-0.5 bg-gold-500 z-0 " />
-
-                  {/* Right dot */}
-                  <div className="w-4 h-4 bg-white rounded-full border-4 border-gold-500 z-10" />
-                </div>
               </div>
+              <div className="absolute top-1/2 -translate-y-1/2 w-full flex justify-between items-center px-1">
+                <div className="w-4 h-4 bg-white rounded-full border-4 border-gold-500 z-10" />
+                <div className="absolute left-4 right-4 top-1/2 -translate-y-1/2 h-0.5 bg-gold-500 z-0" />
+                <div className="w-4 h-4 bg-white rounded-full border-4 border-gold-500 z-10" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Big Event Timeline Title */}
+      <div className="w-full relative bg-background2 overflow-hidden flex items-center justify-center">
+        <h2 className="text-stone-800 text-center text-[120px] md:text-[160px] lg:text-[200px] font-bold font-newsreader whitespace-nowrap transform scale-x-[1.2]">
+          Event Timeline
+        </h2>
+      </div>
+
+      {/* Winners from 2024 */}
+      <section className="w-full bg-background2 py-16 md:py-2">
+        <div className="max-w-7xl mx-auto px-6">
+          <SectionHeader title="Winners from 2024" />
+          <ModelGrid models={models.slice(0, 4)}>
+            {(model) => (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+              >
+                {model.tag && (
+                  <div
+                    className={`${
+                      model.tag.toLowerCase() === "winner"
+                        ? "text-gold-500"
+                        : "text-white"
+                    } text-base font-bold flex items-center gap-1 pb-2`}
+                  >
+                    <i
+                      className={`ri-vip-crown-line text-base ${
+                        model.tag === "Winner" ? "text-gold-500" : "text-white"
+                      }`}
+                    />
+                    {model.tag}
+                  </div>
+                )}
+                <h4 className="text-white text-[22px] font-medium font-newsreader leading-5 tracking-tight">
+                  {model.name}
+                </h4>
+                <p className="text-white text-base font-light tracking-wider">
+                  {model.designation}
+                </p>
+              </motion.div>
+            )}
+          </ModelGrid>
+        </div>
+      </section>
+
+      {/* Juries Section */}
+      <section className="w-full bg-background2 py-16 md:py-20">
+        <div className="max-w-7xl mx-auto px-6">
+          <SectionHeader title="Juries for Miss Nepal Peace 2024" />
+          <ModelGrid models={models}>
+            {(model) => (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+              >
+                <h4 className="text-white text-[22px] font-medium font-newsreader leading-5 tracking-tight">
+                  {model.name}
+                </h4>
+                <p className="text-white text-base font-light tracking-wider">
+                  {model.designation}
+                </p>
+              </motion.div>
+            )}
+          </ModelGrid>
+        </div>
+      </section>
+
+      {/* Gallery */}
+      <section className="w-full bg-background2 py-16 md:py-8">
+        <div className="max-w-7xl mx-auto px-6">
+          <SectionHeader title="Highlights From 2024" />
+          <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 pt-4 pb-12">
+            {winnerImages.map((imagePath, index) => (
+              <motion.div
+                key={index}
+                className="break-inside-avoid mb-4 group cursor-pointer"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.05 * index }}
+              >
+                <div className="relative overflow-hidden rounded-lg bg-gray-200 transition-transform duration-300 hover:scale-105">
+                  <Image
+                    src={imagePath}
+                    alt={`Winner ${index + 1}`}
+                    width={400}
+                    height={600}
+                    className="w-full h-auto object-cover transition-opacity duration-300 group-hover:opacity-90"
+                    style={{
+                      aspectRatio:
+                        index % 3 === 0
+                          ? "3/4"
+                          : index % 3 === 1
+                          ? "4/5"
+                          : "2/3",
+                    }}
+                  />
+                </div>
+              </motion.div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Sponsors */}
+      <section className="w-full bg-background2 py-16">
+        <div className="max-w-7xl mx-auto px-6">
+          <SectionHeader title="Our Sponsors" />
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            viewport={{ once: true }}
+            className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-8"
+          />
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
+            viewport={{ once: true }}
+          >
+            <PartnerScroller partners={partners} speed={200} />
+          </motion.div>
         </div>
       </section>
     </main>
