@@ -74,8 +74,7 @@ export const uploadAnyImages = multer({
     },
 }).any();
 
-// New middleware specifically for next event with nested field support
-export const uploadNextEventFiles = multer({
+export const uploadNextEventRequiredFiles = multer({
     storage,
     fileFilter: (req, file, cb) => {
         if (file.mimetype.startsWith('image/') || file.mimetype === 'image/svg+xml') {
@@ -85,14 +84,9 @@ export const uploadNextEventFiles = multer({
         }
     },
 }).fields([
-    { name: 'images', maxCount: 10 },
-    { name: 'icons', maxCount: 10 },
-    { name: 'subtitle[0].icon', maxCount: 5 },
-    { name: 'subtitle[0].items[0].tagIcon', maxCount: 5 },
-    { name: 'subtitle[0].items[1].tagIcon', maxCount: 5 },
-    { name: 'subtitle[1].icon', maxCount: 5 },
-    { name: 'subtitle[1].items[0].tagIcon', maxCount: 5 },
-    { name: 'subtitle[1].items[1].tagIcon', maxCount: 5 },
+    { name: 'titleImage', maxCount: 1 },
+    { name: 'image', maxCount: 1 },
+    // Add other fields as needed
 ]);
 
 export const uploadImageFiles = multer({

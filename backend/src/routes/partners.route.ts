@@ -6,7 +6,7 @@ import {
     getPartnersItems, 
     updatePartnersById 
 } from "../controllers/partners.controller";
-import { uploadImagesAndIcons } from "../middleware/multer.middleware";
+import { uploadAnyImages } from "../middleware/multer.middleware";
 
 const router = Router();
 
@@ -14,13 +14,13 @@ const router = Router();
 router.route("/").get(getPartnersItems);
 
 // Create partners item 
-router.route("/").post(uploadImagesAndIcons, createPartnersItem);
+router.route("/").post(uploadAnyImages, createPartnersItem);
 
 // Get single partners item by ID
 router.route("/:id").get(getPartnersById);
 
 // Update partners item by ID
-router.route("/:id").patch(uploadImagesAndIcons, updatePartnersById);
+router.route("/:id").patch(uploadAnyImages, updatePartnersById);
 
 // Delete partners item by ID
 router.route("/:id").delete(deletePartnersById);
