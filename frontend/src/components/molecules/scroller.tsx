@@ -46,7 +46,7 @@ export default function PartnerScroller({ partners, speed = 1000 }: PartnerScrol
   }, [TOTAL_WIDTH]);
 
   return (
-    <div className="relative overflow-hidden mt-12 max-w-7xl mx-auto px-4">
+    <div className="relative overflow-hidden max-w-7xl mx-auto px-4">
       <div
         className="flex will-change-transform"
         style={{

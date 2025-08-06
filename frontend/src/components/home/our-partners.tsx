@@ -24,7 +24,7 @@ const OurPartners = () => {
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
         viewport={{ once: true }}
-        className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-8"
+        className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-8 pb-10"
       >
         {/* Left Section */}
         <div className="flex flex-col gap-3 font-newsreader">
