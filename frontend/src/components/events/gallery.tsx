@@ -6,13 +6,20 @@ import { motion } from "framer-motion";
 import { Button } from "../ui/button";
 import Link from "next/link";
 
+import MasonryGallery from "../molecules/masonary-gallery";
+
 const winnerImages = [
-  "/winners/winner1.jpg",
-  "/winners/winner2.jpg",
-  "/winners/winner3.jpg",
-  "/winners/winner4.jpg",
-  "/winners/winner5.jpg",
-  "/winners/winner6.jpg",
+  "/handshake.jpg",
+  "/events_1.jpg",
+  "/mr-nepal-2025-poster-1.jpg",
+  "/mr-nepal-2025-poster-1.jpg",
+  "/handshake.jpg",
+  "/events_1.jpg",
+   "/events_1.jpg",
+  "/mr-nepal-2025-poster-1.jpg",
+  "/mr-nepal-2025-poster-1.jpg",
+  "/handshake.jpg",
+  "/events_1.jpg",
 ];
 
 export const Gallery = () => {
@@ -86,44 +93,8 @@ export const Gallery = () => {
           </div>
         </motion.div>
 
-        {/* Masonry Gallery */}
-        <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 pt-4 pb-12">
-          {winnerImages.map((imagePath, index) => (
-            <motion.div
-              key={index}
-              className="break-inside-avoid mb-4 group cursor-pointer"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.05 * index }}
-            >
-              <div className="relative overflow-hidden rounded-lg bg-gray-200 transition-transform duration-300 hover:scale-105">
-                <Image
-                  src={imagePath}
-                  alt={`Winner ${index + 1}`}
-                  width={400}
-                  height={600}
-                  className="w-full h-auto object-cover transition-opacity duration-300 group-hover:opacity-90"
-                  style={{
-                    aspectRatio:
-                      index % 3 === 0
-                        ? "3/4"
-                        : index % 3 === 1
-                          ? "4/5"
-                          : "2/3",
-                  }}
-                />
-                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
-                  <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <Button variant="secondary" size="sm">
-                      View Details
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+        <MasonryGallery images={winnerImages}
+         />
 
         {/* See More Button */}
         <motion.div
@@ -135,8 +106,11 @@ export const Gallery = () => {
         >
           <Link
             href={"/events/gallery"}
-            className="px-4 py-4 rounded-full text-gold-500 text-base -tracking-tight font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer">
-            <span className="underline underline-offset-4">See More of our gallery</span>
+            className="px-4 py-4 rounded-full text-gold-500 text-base -tracking-tight font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer"
+          >
+            <span className="underline underline-offset-4">
+              See More of our gallery
+            </span>
             <i className="ri-arrow-right-up-line group-hover:scale-130 transition-transform duration-400 text-xl font-extralight" />
           </Link>
         </motion.div>

@@ -5,6 +5,7 @@ import React from "react";
 import SectionHeader from "@/components/ui/section-header";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import MasonryGallery from "@/components/molecules/masonary-gallery";
 
 export default function ModelPage() {
   const winnerImages = [
@@ -12,6 +13,11 @@ export default function ModelPage() {
     "/mr-nepal-2025-poster-1.jpg",
     "/handshake.jpg",
     "/events_1.jpg",
+    "/mr-nepal-2025-poster-1.jpg",
+    "/events_1.jpg",
+    "/mr-nepal-2025-poster-1.jpg",
+    "/handshake.jpg",
+    "/handshake.jpg",
     "/mr-nepal-2025-poster-1.jpg",
     "/handshake.jpg",
   ];
@@ -60,117 +66,8 @@ export default function ModelPage() {
         <div className="max-w-7xl mx-auto px-6">
           <SectionHeader title="Gallery" />
 
-          {/* Pinterest-Style Responsive Masonry Gallery */}
-          <div className="pt-4 pb-12">
-            {/* Mobile: Single column */}
-            <div className="block sm:hidden space-y-4">
-              {winnerImages.map((imagePath, index) => (
-                <motion.div
-                  key={index}
-                  className="group cursor-pointer"
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.1 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                >
-                  <div className="relative overflow-hidden rounded-lg bg-gray-200 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg">
-                    <Image
-                      src={imagePath}
-                      alt={`Gallery image ${index + 1}`}
-                      width={400}
-                      height={300}
-                      className="w-full h-auto object-cover transition-all duration-300 group-hover:brightness-105"
-                      sizes="100vw"
-                    />
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-
-            {/* Tablet: 2 columns */}
-            <div className="hidden sm:block lg:hidden">
-              <div className="columns-2 gap-4">
-                {winnerImages.map((imagePath, index) => (
-                  <motion.div
-                    key={index}
-                    className="break-inside-avoid mb-4 group cursor-pointer"
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, amount: 0.1 }}
-                    transition={{ duration: 0.5, delay: index * 0.05 }}
-                  >
-                    <div className="relative overflow-hidden rounded-lg bg-gray-200 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg">
-                      <Image
-                        src={imagePath}
-                        alt={`Gallery image ${index + 1}`}
-                        width={400}
-                        height={300}
-                        className="w-full h-auto object-cover transition-all duration-300 group-hover:brightness-105"
-                        style={{ maxHeight: "800px" }}
-                        sizes="50vw"
-                      />
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-
-            {/* Desktop: 3 columns */}
-            <div className="hidden lg:block xl:hidden">
-              <div className="columns-3 gap-4">
-                {winnerImages.map((imagePath, index) => (
-                  <motion.div
-                    key={index}
-                    className="break-inside-avoid mb-4 group cursor-pointer"
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, amount: 0.1 }}
-                    transition={{ duration: 0.5, delay: index * 0.03 }}
-                  >
-                    <div className="relative overflow-hidden rounded-lg bg-gray-200 transition-all duration-300 hover:scale-[1.01] hover:shadow-xl">
-                      <Image
-                        src={imagePath}
-                        alt={`Gallery image ${index + 1}`}
-                        width={400}
-                        height={300}
-                        className="w-full h-auto object-cover transition-all duration-300 group-hover:brightness-105"
-                        style={{ maxHeight: "800px" }}
-                        sizes="33vw"
-                      />
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-
-            {/* Large Desktop: 4 columns */}
-            <div className="hidden xl:block">
-              <div className="columns-4 gap-4">
-                {winnerImages.map((imagePath, index) => (
-                  <motion.div
-                    key={index}
-                    className="break-inside-avoid mb-4 group cursor-pointer"
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, amount: 0.1 }}
-                    transition={{ duration: 0.5, delay: index * 0.02 }}
-                  >
-                    <div className="relative overflow-hidden rounded-lg bg-gray-200 transition-all duration-300 hover:scale-[1.01] hover:shadow-xl">
-                      <Image
-                        src={imagePath}
-                        alt={`Gallery image ${index + 1}`}
-                        width={400}
-                        height={300}
-                        className="w-full h-auto object-cover transition-all duration-300 group-hover:brightness-105"
-                        style={{ maxHeight: "800px" }}
-                        sizes="25vw"
-                      />
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </div>
+          {/* Gallery using the reusable component */}
+          <MasonryGallery images={winnerImages} />
         </div>
       </section>
     </main>
