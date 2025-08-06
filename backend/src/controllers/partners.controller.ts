@@ -63,28 +63,76 @@ export const getPartnersById = async (req: Request, res: Response) => {
  */
 export const createPartnersItem = async (req: Request, res: Response) => {
     try {
-        const partnersData = partnersSchema.parse(req.body);
-        const { maintitle, description } = partnersData;
+        const { ...rest } = req.body;
+        let processedPartners: any[] = [];
 
-        const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
-        let iconPaths: string[] = [];
-        let imagePath: string | null = null;
-
-        if (files) {
-            if (files['icons']) {
-                iconPaths = files['icons'].map(file => file.path);
-            }
-            if (files['images'] && files['images'].length > 0) {
-                imagePath = files['images'][0].path;
+        // Parse nested formdata structure (partners[0][sponserName], partners[0][sponserImage], etc.)
+        const partnerKeys = Object.keys(rest).filter(key => key.startsWith('partners['));
+        
+        if (partnerKeys.length > 0) {
+            // Group by partner index
+            const partnerGroups: { [key: string]: any } = {};
+            partnerKeys.forEach(key => {
+                const match = key.match(/partners\[(\d+)\]\[(\w+)\]/);
+                if (match) {
+                    const [, index, field] = match;
+                    if (!partnerGroups[index]) {
+                        partnerGroups[index] = {};
+                    }
+                    partnerGroups[index][field] = rest[key];
+                }
+            });
+            
+            // Convert to array and sort by index
+            processedPartners = Object.values(partnerGroups).sort((a, b) => 
+                parseInt(Object.keys(partnerGroups).find(k => partnerGroups[k] === a) || '0') - 
+                parseInt(Object.keys(partnerGroups).find(k => partnerGroups[k] === b) || '0')
+            );
+        } else {
+            // Try to parse as JSON string if it's a single field
+            const partnerField = rest.partners;
+            if (partnerField) {
+                try {
+                    if (typeof partnerField === 'string') {
+                        processedPartners = JSON.parse(partnerField);
+                    } else if (Array.isArray(partnerField)) {
+                        processedPartners = partnerField;
+                    }
+                } catch (e) {
+                    console.log("Failed to parse partners field as JSON:", e);
+                }
             }
         }
 
-        const partnersSection = await PartnersModel.create({
-            maintitle,
-            description,
-            icon: iconPaths,
-            images: imagePath
-        });
+        const files = req.files as Express.Multer.File[] | undefined;
+
+        // Handle individual partner images (partners[0][sponserImage], partners[1][sponserImage], etc.)
+        if (files && files.length > 0) {
+            files.forEach(file => {
+                if (file.fieldname.startsWith('partners[') && file.fieldname.endsWith('[sponserImage]')) {
+                    const match = file.fieldname.match(/partners\[(\d+)\]\[sponserImage\]/);
+                    if (match) {
+                        const partnerIndex = parseInt(match[1]);
+                        
+                        if (processedPartners[partnerIndex]) {
+                            processedPartners[partnerIndex].sponserImage = file.path;
+                        }
+                    }
+                }
+            });
+        }
+
+        // Ensure all partners have proper structure
+        processedPartners = processedPartners.map((partner, index) => ({
+            index: index + 1, // Auto-increment starting from 1
+            sponserName: partner.sponserName || "Anonymous Partner",
+            sponserImage: partner.sponserImage || ""
+        }));
+
+        // Validate the processed data
+        const validatedData = partnersSchema.parse({ partners: processedPartners });
+
+        const partnersSection = await PartnersModel.create(validatedData);
 
         res.status(201).json({
             success: true,
@@ -108,62 +156,128 @@ export const updatePartnersById = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
         
+        // Get the existing partners item first
+        const existingPartners = await PartnersModel.findById(id);
+        if (!existingPartners) {
+            return res.status(404).json({
+                success: false,
+                message: `Partners item with ID ${id} not found.`,
+            });
+        }
+        
         // Check if files are present
-        const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
+        const files = req.files as Express.Multer.File[] | undefined;
         
         let updateData: any = {};
         
-        if (files) {
-            // If files are present, validate with partnersSchema
-            const validatedData = partnersSchema.parse(req.body);
-            const { maintitle, description } = validatedData;
+        // Parse formdata for partial updates
+        const { ...rest } = req.body;
+        
+        // Handle partners updates - Express parses nested formdata into objects
+        if (rest.partners && Array.isArray(rest.partners)) {
+            // Get existing partners as plain objects
+            let updatedPartners = existingPartners.partners.map(partner => ({
+                index: partner.index,
+                sponserName: partner.sponserName,
+                sponserImage: partner.sponserImage
+            }));
             
-            let newIconPaths: string[] = [];
-            let newImagePath: string | null = null;
+            // Apply updates from the partners array
+            rest.partners.forEach((partnerUpdate: any, index: number) => {
+                if (updatedPartners[index]) {
+                    // Update existing partner with provided fields
+                    updatedPartners[index] = {
+                        ...updatedPartners[index],
+                        ...partnerUpdate
+                    };
+                } else {
+                    // Create new partner if it doesn't exist
+                    updatedPartners[index] = {
+                        index: index + 1, // Auto-increment starting from 1
+                        sponserName: partnerUpdate.sponserName || "Anonymous Partner",
+                        sponserImage: partnerUpdate.sponserImage || ""
+                    };
+                }
+            });
             
-            // Get uploaded icon paths
-            if (files['icons']) {
-                newIconPaths = files['icons'].map(file => file.path);
-            }
+            updateData.partners = updatedPartners;
+        }
+        
+        // Also check for flat key structure as fallback
+        const partnerKeys = Object.keys(rest).filter(key => key.startsWith('partners['));
+        
+        if (partnerKeys.length > 0) {
+            // Get existing partners as plain objects (if not already set)
+            let updatedPartners = updateData.partners || existingPartners.partners.map(partner => ({
+                index: partner.index,
+                sponserName: partner.sponserName,
+                sponserImage: partner.sponserImage
+            }));
             
-            // Get uploaded image path
-            if (files['images'] && files['images'].length > 0) {
-                newImagePath = files['images'][0].path;
-            }
+            // Group updates by partner index
+            const partnerUpdates: { [key: string]: any } = {};
+            partnerKeys.forEach(key => {
+                const match = key.match(/partners\[(\d+)\]\[(\w+)\]/);
+                if (match) {
+                    const [, index, field] = match;
+                    if (!partnerUpdates[index]) {
+                        partnerUpdates[index] = {};
+                    }
+                    partnerUpdates[index][field] = rest[key];
+                }
+            });
             
-            // Get the existing partners item
-            const existingPartners = await PartnersModel.findById(id);
-            if (!existingPartners) {
-                return res.status(404).json({
-                    success: false,
-                    message: `Partners item with ID ${id} not found.`,
-                });
-            }
+            // Apply updates to existing partners
+            Object.keys(partnerUpdates).forEach(indexStr => {
+                const index = parseInt(indexStr);
+                const updates = partnerUpdates[index];
+                
+                if (updatedPartners[index]) {
+                    // Update existing partner
+                    updatedPartners[index] = {
+                        ...updatedPartners[index],
+                        ...updates
+                    };
+                } else {
+                    // Create new partner if it doesn't exist
+                    updatedPartners[index] = {
+                        index: index + 1, // Auto-increment starting from 1
+                        sponserName: updates.sponserName || "Anonymous Partner",
+                        sponserImage: updates.sponserImage || ""
+                    };
+                }
+            });
             
-            // Combine existing icons with new icons
-            const existingIcons = existingPartners.icon || [];
-            const updatedIcons = [...existingIcons, ...newIconPaths];
+            updateData.partners = updatedPartners;
+        }
+        
+        // Handle file updates
+        if (files && files.length > 0) {
+            // Get current partners (either from updateData or existing)
+            let currentPartners = updateData.partners || existingPartners.partners;
             
-            updateData = {
-                maintitle,
-                description,
-                icon: updatedIcons,
-                images: newImagePath || existingPartners.images
-            };
-        } else {
-            // If no files, only validate the fields that are present in req.body
-            const { maintitle, description } = req.body;
+            files.forEach(file => {
+                if (file.fieldname.startsWith('partners[') && file.fieldname.endsWith('[sponserImage]')) {
+                    const match = file.fieldname.match(/partners\[(\d+)\]\[sponserImage\]/);
+                    if (match) {
+                        const partnerIndex = parseInt(match[1]);
+                        
+                        if (currentPartners[partnerIndex]) {
+                            currentPartners[partnerIndex].sponserImage = file.path;
+                        }
+                    }
+                }
+            });
             
-            if (maintitle !== undefined) updateData.maintitle = maintitle;
-            if (description !== undefined) updateData.description = description;
-            
-            // If no fields are provided, return error
-            if (Object.keys(updateData).length === 0) {
-                return res.status(400).json({
-                    success: false,
-                    message: "At least one field must be provided for update.",
-                });
-            }
+            updateData.partners = currentPartners;
+        }
+        
+        // If no fields are provided, return error
+        if (Object.keys(updateData).length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: "At least one field must be provided for update.",
+            });
         }
         
         const updatedItem = await PartnersModel.findByIdAndUpdate(id, updateData, {
