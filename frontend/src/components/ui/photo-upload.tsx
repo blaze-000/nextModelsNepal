@@ -1,5 +1,6 @@
 "use client";
 import Image from "next/image";
+import { useState } from "react";
 
 interface PhotoUploadProps {
   label: string;
@@ -24,10 +25,74 @@ const PhotoUpload = ({
   maxFileSize = 5,
   acceptedTypes = ["image/*"],
 }: PhotoUploadProps) => {
+  const [isDragActive, setIsDragActive] = useState(false);
   const isMaxReached = selectedFiles.length >= maxFiles;
   const supportedFormats = acceptedTypes
     .join(", ")
     .replace("image/*", "JPG, PNG");
+
+  const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isMaxReached) {
+      setIsDragActive(true);
+    }
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragActive(false);
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragActive(false);
+
+    if (isMaxReached) return;
+
+    const files = Array.from(e.dataTransfer.files);
+    
+    // Filter files based on accepted types
+    const validFiles = files.filter(file => {
+      return acceptedTypes.some(type => {
+        if (type === "image/*") {
+          return file.type.startsWith("image/");
+        }
+        return file.type === type;
+      });
+    });
+
+    if (validFiles.length > 0) {
+      // Create a synthetic event to pass to the onChange handler
+      const fileList = validFiles.reduce((dataTransfer, file, index) => {
+        const dt = new DataTransfer();
+        validFiles.forEach(f => dt.items.add(f));
+        return dt.files;
+      }, new DataTransfer().files);
+
+      const syntheticEvent = {
+        target: {
+          files: fileList,
+          name: name,
+          value: '',
+        },
+        currentTarget: {
+          files: fileList,
+          name: name,
+          value: '',
+        },
+      } as unknown as React.ChangeEvent<HTMLInputElement>;
+      
+      onChange(syntheticEvent);
+    }
+  };
 
   return (
     <div className="w-full">
@@ -35,11 +100,21 @@ const PhotoUpload = ({
         {label} <span className="text-red-500">*</span>
       </label>
 
-      <div className="w-full bg-muted-background text-gray-100 px-3 md:px-4 py-8 md:py-12 outline-none rounded border-2 border-dashed border-gray-600 flex flex-col items-center justify-center min-h-[200px]">
+      <div 
+        className={`w-full bg-muted-background text-gray-100 px-3 md:px-4 py-8 md:py-12 outline-none rounded border-2 border-dashed ${
+          isDragActive 
+            ? "border-blue-400 bg-blue-50/10" 
+            : "border-gray-600"
+        } flex flex-col items-center justify-center min-h-[200px] transition-colors`}
+        onDragEnter={handleDragEnter}
+        onDragLeave={handleDragLeave}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+      >
         {/* Photo Preview Grid */}
         {selectedFiles.length > 0 && (
           <div className="mb-6 w-full">
-            <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
+            <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-10 gap-2">
               {selectedFiles.map((file, index) => (
                 <div key={index} className="relative group aspect-square">
                   <Image
@@ -77,14 +152,16 @@ const PhotoUpload = ({
 
         {/* Upload Label */}
         <label
-          htmlFor={name}
-          className={`cursor-pointer text-center ${
-            isMaxReached ? "opacity-50 cursor-not-allowed" : ""
+          htmlFor={isMaxReached ? undefined : name}
+          className={`text-center ${
+            isMaxReached ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
           }`}
         >
           <p className="text-lg mb-2">
             {isMaxReached
               ? `Maximum ${maxFiles} photos reached`
+              : isDragActive
+              ? "Drop your images here"
               : "Drag or upload your images here"}
           </p>
           <p className="text-sm text-gray-400">
