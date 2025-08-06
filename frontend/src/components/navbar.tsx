@@ -41,7 +41,7 @@ const Header = () => {
       initial={{ y: -80, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
-      className="w-full bg-background px-6 relative z-20"
+      className="w-full bg-background2 px-6 relative z-20"
     >
       <nav className="py-1 max-w-7xl mx-auto">
         <div className="flex items-center justify-between w-full">
