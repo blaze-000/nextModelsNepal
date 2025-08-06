@@ -1,39 +1,38 @@
 import mongoose from "mongoose";
 
-const NextEventSchema = new mongoose.Schema({
-    title: String,
-    heading: String,
-    description: String,
-    images: { type: [String], default: [] },
-    subtitle: {
-        type: [{
-            index: String,
-            name: { type: String, required: true },
-            icon: { type: [String], default: [] },
-            items: {
-                type: [{
-                    index: String,
-                    tag: String,
-                    tagContent: String,
-                    tagIcon: { type: [String], default: [] }
-                }],
-                default: []
-            }
-        }],
-        default: []
-    },
-    notice: { type: [String], default: [] }
+const cardItemSchema = new mongoose.Schema({
+    index: { type: String },  
+    criteriaTitle: { type: String, required: true },
+    criteria: { type: String, required: true },
+    criteriaIcon: { type: String, default: [] }
 });
 
-// Middleware to auto-generate indexes
-NextEventSchema.pre("save", function (next) {
-    this.subtitle.forEach((sub, subIdx) => {
-        sub.index = sub.index || `${subIdx + 1}`;
-        sub.items.forEach((item, itemIdx) => {
+const cardSchema = new mongoose.Schema({
+    index: { type: String },  
+    cardTitle: { type: String, required: true }, 
+    item: { type: [cardItemSchema], default: [] }
+});
+
+const nextEventSchema = new mongoose.Schema({
+    tag: { type: String, required: true },
+    title: { type: String, required: true },
+    titleImage: { type: String, required: true },
+    image: { type: String, required: true },
+    description: { type: String, required: true },
+    noticeName: { type: String, required: true },
+    notice: { type: [String], required: true },
+    card: { type: [cardSchema], default: [] } 
+});
+
+// Fixed Auto-indexing Middleware
+nextEventSchema.pre("save", function(next) {
+    this.card.forEach((card, cardIdx) => {
+        card.index = card.index || `${cardIdx + 1}`;
+        card.item.forEach((item, itemIdx) => {
             item.index = item.index || `${itemIdx + 1}`;
         });
     });
     next();
 });
 
-export const NextEventModel = mongoose.model("NextEventSection", NextEventSchema);
+export const NextEventModel = mongoose.model("NEXTEVENT", nextEventSchema);
