@@ -132,7 +132,7 @@ const EventCard: FC<EventCardProps> = ({
 
           {/* Image */}
           <div
-            className={`relative h-auto ${isContentLeft ? "" : "col-start-1"
+            className={`relative  h-auto ${isContentLeft ? "" : "col-start-1"
               } ${isContentLeft
                 ? "[mask:linear-gradient(to_right,transparent_0%,black_30%)]"
                 : "[mask:linear-gradient(to_left,transparent_0%,black_30%)]"

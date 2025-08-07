@@ -380,7 +380,7 @@ export default function EventDetails() {
 
       {/* Sponsors */}
       <section className="w-full bg-background2 py-16">
-        <div className="max-w-7xl mx-auto px-6">
+        <div className="max-w-7xl mx-auto px-6 ">
           <SectionHeader title="Our Sponsors" className="pb-6" />
           <motion.div
             initial={{ opacity: 0, y: 40 }}
