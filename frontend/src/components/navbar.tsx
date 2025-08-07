@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -69,38 +68,52 @@ export const menuItems: MenuItem[] = [
   },
 ];
 
-
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [openSubmenuId, setOpenSubmenuId] = useState<number | null>(null);
   const submenuRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
     setOpenSubmenuId(null);
   };
 
-  const toggleSubmenu = (id: number) => {
-    setOpenSubmenuId((prev) => (prev === id ? null : id));
+  const handleSubmenuClick = (id: number, event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setOpenSubmenuId(prevId => (prevId === id ? null : id));
   };
 
   useEffect(() => {
+    // Removed console.log
+  }, [openSubmenuId]);
+
+  useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        submenuRefs.current.every(
-          (ref) => ref && !ref.contains(event.target as Node)
-        )
-      ) {
+      // Only close if clicking outside both desktop submenus AND mobile menu
+      const clickedInsideDesktopSubmenu = submenuRefs.current.some(
+        (ref) => ref && ref.contains(event.target as Node)
+      );
+
+      const clickedInsideMobileMenu = mobileMenuRef.current &&
+        mobileMenuRef.current.contains(event.target as Node);
+
+      if (!clickedInsideDesktopSubmenu && !clickedInsideMobileMenu) {
         setOpenSubmenuId(null);
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
+    // Only add the listener if we're not in mobile menu mode
+    if (!isMobileMenuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [isMobileMenuOpen]);
 
   // Helper for submenu rendering
-  const renderSubmenu = (item: any, closeSubmenu: () => void) => {
+  const renderSubmenu = (item: MenuItem, closeSubmenu: () => void) => {
     if (!item.submenu) return null;
     if (item.submenu.columns === 1) {
       return (
@@ -125,20 +138,25 @@ const Header = () => {
           {[0, 1].map((col) => (
             <div key={col}>
               <div className="flex items-center justify-between mb-3 text-white text-xs font-light">
-                <span>{item.submenu.titles?.[col]}</span>
+                <span>{
+                  item.submenu && item.submenu.columns === 2 && 'titles' in item.submenu
+                    ? item.submenu.titles[col]
+                    : ""
+                }</span>
               </div>
               <div className="flex flex-col space-y-2">
-                {item.submenu.items[col].map((subItem: any, idx: number) => (
-                  <Link
-                    key={idx}
-                    href={subItem.href}
-                    className="flex items-center text-white text-sm"
-                    onClick={closeSubmenu}
-                  >
-                    <span className="underline underline-offset-2 text-nowrap">{subItem.label}</span>
-                    <i className="ri-arrow-right-up-line ml-1" />
-                  </Link>
-                ))}
+                {Array.isArray(item?.submenu?.items?.[col]) &&
+                  item.submenu.items[col].map((subItem: any, idx: number) => (
+                    <Link
+                      key={idx}
+                      href={subItem.href}
+                      className="flex items-center text-white text-sm"
+                      onClick={closeSubmenu}
+                    >
+                      <span className="underline underline-offset-2 text-nowrap">{subItem.label}</span>
+                      <i className="ri-arrow-right-up-line ml-1" />
+                    </Link>
+                  ))}
               </div>
             </div>
           ))}
@@ -161,14 +179,12 @@ const Header = () => {
           <div className="flex items-center">
             <Image src="/logo.png" alt="Logo" width={85} height={82} className="mr-16" />
           </div>
-
           {/* Desktop Menu */}
           <div className="hidden mdplus:flex items-center gap-20">
             <div className="flex items-center space-x-6 lg:space-x-10 ">
               {menuItems.map((item, index) => {
                 const hasSubmenu = !!item.submenu;
                 const isOpen = openSubmenuId === item.id;
-
                 // Helper to close submenu
                 const closeSubmenu = () => setOpenSubmenuId(null);
 
@@ -184,13 +200,7 @@ const Header = () => {
                       {item.id === 2 ? (
                         // "Events" acts as toggle only (no link)
                         <button
-                          onClick={() => {
-                            if (isOpen) {
-                              setOpenSubmenuId(null);
-                            } else {
-                              setOpenSubmenuId(item.id);
-                            }
-                          }}
+                          onClick={(e) => handleSubmenuClick(item.id, e)}
                           className="flex items-center font-urbanist text-white transition-colors cursor-pointer"
                           aria-expanded={!!isOpen}
                           aria-controls={hasSubmenu ? `submenu-${item.id}` : ""}
@@ -211,14 +221,8 @@ const Header = () => {
                           </Link>
                           {hasSubmenu && (
                             <button
-                              onClick={() => {
-                                if (isOpen) {
-                                  setOpenSubmenuId(null);
-                                } else {
-                                  setOpenSubmenuId(item.id);
-                                }
-                              }}
-                              className={`${isOpen?"rotate-180":""} ml-1 text-white transition-all duration-200 ease-in-out cursor-pointer`}
+                              onClick={(e) => handleSubmenuClick(item.id, e)}
+                              className={`${isOpen ? "rotate-180" : ""} ml-1 text-white transition-all duration-200 ease-in-out cursor-pointer`}
                               aria-label="Toggle submenu"
                               aria-expanded={!!isOpen}
                               aria-controls={hasSubmenu ? `submenu-${item.id}` : ""}
@@ -255,7 +259,6 @@ const Header = () => {
               </Button>
             </Link>
           </div>
-
           {/* Mobile Menu Button */}
           <div className="mdplus:hidden flex items-center gap-4">
             <button
@@ -270,11 +273,11 @@ const Header = () => {
             </button>
           </div>
         </div>
-
         {/* Mobile Menu */}
         <AnimatePresence>
           {isMobileMenuOpen && (
             <motion.div
+              ref={mobileMenuRef}
               initial={{ y: -20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: -20, opacity: 0 }}
@@ -289,92 +292,127 @@ const Header = () => {
                   return (
                     <div key={item.id} className="pt-6">
                       <div className="flex items-center justify-between font-urbanist text-white transition-colors">
-                        <Link
-                          href={item.href}
-                          onClick={() => !hasSubmenu && setIsMobileMenuOpen(false)}
-                        >
-                          {item.label}
-                        </Link>
-                        {hasSubmenu && (
+                        {/* Special handling for Events (id: 2) - no navigation, only toggle */}
+                        {item.id === 2 ? (
                           <button
-                            onClick={() => toggleSubmenu(item.id)}
-                            aria-label="Toggle submenu"
+                            onClick={(e) => handleSubmenuClick(item.id, e)}
+                            className="flex items-center justify-between w-full text-left"
                           >
+                            <span>{item.label}</span>
                             <i
-                              className={`text-xl ri-arrow-drop-down-line transition-transform ${isOpen ? "rotate-180" : ""
-                                }`}
+                              className={`text-xl ri-arrow-drop-down-line transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
                             />
                           </button>
+                        ) : (
+                          <>
+                            <Link
+                              href={item.href}
+                              onClick={() => {
+                                setIsMobileMenuOpen(false);
+                                setOpenSubmenuId(null);
+                              }}
+                            >
+                              {item.label}
+                            </Link>
+                            {hasSubmenu && (
+                              <button
+                                onClick={(e) => handleSubmenuClick(item.id, e)}
+                                aria-label="Toggle submenu"
+                              >
+                                <i
+                                  className={`text-xl ri-arrow-drop-down-line transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+                                />
+                              </button>
+                            )}
+                          </>
                         )}
                       </div>
-
                       {/* Mobile Submenu */}
-                      {hasSubmenu && isOpen && (
-                        <div className="pl-4 pt-4">
-                          {item?.submenu?.columns === 1 && (
-                            <div className="flex flex-col space-y-4 whitespace-nowrap min-w-max">
-                              {item.submenu.items.map((subItem, idx) => (
-                                <Link
-                                  key={idx}
-                                  href={subItem.href}
-                                  className="flex items-center text-white text-sm"
-                                  onClick={() => setIsMobileMenuOpen(false)}
-                                >
-                                  <span className="underline underline-offset-2">
-                                    {subItem.label}
-                                  </span>
-                                  <i className="ri-arrow-right-up-line ml-2" />
-                                </Link>
-                              ))}
-                            </div>
-                          )}
-
-                          {item?.submenu?.columns === 2 && (
-                            <div className="grid grid-cols-2 gap-6 pt-2">
-                              <div>
-                                <div className="flex items-center justify-between mb-3 text-white text-xs font-light">
-                                  <span>{item.submenu.titles?.[0]}</span>
-                                </div>
-                                <div className="flex flex-col space-y-4">
-                                  {item.submenu.items[0].map((subItem, idx) => (
+                      <AnimatePresence>
+                        {hasSubmenu && isOpen && (
+                          <motion.div
+                            key={`submenu-${item.id}`}
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="overflow-hidden"
+                          >
+                            <div className="pl-4 pt-4">
+                              {item?.submenu?.columns === 1 && (
+                                <div className="flex flex-col space-y-4 whitespace-nowrap min-w-max">
+                                  {item.submenu.items.map((subItem, idx) => (
                                     <Link
                                       key={idx}
                                       href={subItem.href}
                                       className="flex items-center text-white text-sm"
-                                      onClick={() => setIsMobileMenuOpen(false)}
+                                      onClick={() => {
+                                        setIsMobileMenuOpen(false);
+                                        setOpenSubmenuId(null);
+                                      }}
                                     >
-                                      <span className="underline underline-offset-2 leading-tight">
+                                      <span className="underline underline-offset-2">
                                         {subItem.label}
                                       </span>
                                       <i className="ri-arrow-right-up-line ml-2" />
                                     </Link>
                                   ))}
                                 </div>
-                              </div>
-                              <div>
-                                <div className="flex items-center justify-between mb-3 text-white text-xs font-light">
-                                  <span>{item.submenu.titles?.[1]}</span>
+                              )}
+                              {item?.submenu?.columns === 2 && (
+                                <div className="grid grid-cols-2 gap-6 pt-2">
+                                  <div>
+                                    <div className="flex items-center justify-between mb-3 text-white text-xs font-light">
+                                      <span>{item.submenu.titles?.[0]}</span>
+                                    </div>
+                                    <div className="flex flex-col space-y-4">
+                                      {item.submenu.items[0].map((subItem, idx) => (
+                                        <Link
+                                          key={idx}
+                                          href={subItem.href}
+                                          className="flex items-center text-white text-sm"
+                                          onClick={() => {
+                                            setIsMobileMenuOpen(false);
+                                            setOpenSubmenuId(null);
+                                          }}
+                                        >
+                                          <span className="underline underline-offset-2 leading-tight">
+                                            {subItem.label}
+                                          </span>
+                                          <i className="ri-arrow-right-up-line ml-2" />
+                                        </Link>
+                                      ))}
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <div className="flex items-center justify-between mb-3 text-white text-xs font-light">
+                                      <span>{item.submenu.titles?.[1]}</span>
+                                    </div>
+                                    <div className="flex flex-col space-y-4">
+                                      {item.submenu.items[1].map((subItem, idx) => (
+                                        <Link
+                                          key={idx}
+                                          href={subItem.href}
+                                          className="flex items-center text-white text-sm"
+                                          onClick={() => {
+                                            setIsMobileMenuOpen(false);
+                                            setOpenSubmenuId(null);
+                                          }}
+                                        >
+                                          <span className="underline underline-offset-2 leading-tight">
+                                            {subItem.label}
+                                          </span>
+                                          <i className="ri-arrow-right-up-line ml-1" />
+                                        </Link>
+                                      ))}
+                                    </div>
+                                  </div>
                                 </div>
-                                <div className="flex flex-col space-y-4">
-                                  {item.submenu.items[1].map((subItem, idx) => (
-                                    <Link
-                                      key={idx}
-                                      href={subItem.href}
-                                      className="flex items-center text-white text-sm"
-                                      onClick={() => setIsMobileMenuOpen(false)}
-                                    >
-                                      <span className="underline underline-offset-2 leading-tight">
-                                        {subItem.label}
-                                      </span>
-                                      <i className="ri-arrow-right-up-line ml-1" />
-                                    </Link>
-                                  ))}
-                                </div>
-                              </div>
+                              )}
                             </div>
-                          )}
-                        </div>
-                      )}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </div>
                   );
                 })}
