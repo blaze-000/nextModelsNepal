@@ -4,6 +4,7 @@ import React from "react";
 import ImageBox from "../molecules/image-box";
 import { Button } from "../ui/button";
 import { motion } from "framer-motion";
+import SectionHeader from "../ui/section-header";
 
 export const PastEvents = () => {
   const newsItems = [
@@ -52,7 +53,8 @@ export const PastEvents = () => {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true, amount: 0.6 }}
-          className="text-center">
+          className="text-center"
+        >
           {/* Desktop Title */}
           <div className="hidden md:block font-extralight">
             <div className="text-5xl font-newsreader text-white mb-1 flex items-center justify-center gap-2.5">
@@ -101,27 +103,18 @@ export const PastEvents = () => {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          className="px-2 py-6">
+          className="px-2"
+        >
           {/* Desktop Layout */}
           <div className="hidden md:flex justify-between items-center">
-            <div className="flex-1 flex items-center gap-2">
-              <Image
-                src="/small_star.svg"
-                alt=""
-                width={1}
-                height={0}
-                sizes="100vw"
-                className="w-4 h-4 rounded-full"
-              />
-              <h3 className="text-white text-xl font-normal font-newsreader">
-                Past Events
-              </h3>
+            <SectionHeader title="Past Events" />
+            <div className="pb-6">
+              <Button variant="outline" className="py-2">
+                <span>Sort By:</span>
+                <span>Most Recent</span>
+                <i className="ri-arrow-down-s-line text-lg" />
+              </Button>
             </div>
-            <Button variant="outline" className="py-2">
-              <span>Sort By:</span>
-              <span>Most Recent</span>
-              <i className="ri-arrow-down-s-line text-lg" />
-            </Button>
           </div>
 
           {/* Mobile Layout - Stacked */}
@@ -178,6 +171,6 @@ export const PastEvents = () => {
           </button>
         </div>
       </div>
-    </div >
+    </div>
   );
 };

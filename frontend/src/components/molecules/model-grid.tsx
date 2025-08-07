@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 const ModelGrid: React.FC<ModelGridProps> = ({ models, children }) => {
   return (
@@ -23,15 +24,13 @@ const ModelGrid: React.FC<ModelGridProps> = ({ models, children }) => {
             <div className="absolute bottom-4 left-6 right-6">
               {children(model)}
             </div>
-            {model.link && (
-              <a
-                href={model.link}
-                target="_blank"
-                rel="noopener noreferrer"
+            {model.slug && (
+              <Link
+                href={`/models/${model.slug}`}
                 className="absolute bottom-6 right-6"
               >
                 <i className="w-6 h-6 text-gold-400 rounded ri-arrow-right-up-line text-2xl font-light" />
-              </a>
+              </Link>
             )}
           </div>
         ))}
@@ -58,9 +57,9 @@ const ModelGrid: React.FC<ModelGridProps> = ({ models, children }) => {
               <div className="absolute bottom-6 left-6 right-6">
                 {children(model)}
               </div>
-              {model.link && (
+              {model.slug && (
                 <a
-                  href={model.link}
+                  href={`/models/${model.slug}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="absolute bottom-6 right-6"

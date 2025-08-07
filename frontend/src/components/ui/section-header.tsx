@@ -21,7 +21,7 @@ export default function SectionHeader({
   };
 
   return (
-    <motion.div {...sectionHeaderMotion} className={`pb-8 ${className}`}>
+    <motion.div {...sectionHeaderMotion} className={`pb-6 ${className}`}>
       {/* Desktop Layout */}
       <div
         className={`hidden md:flex ${
@@ -36,21 +36,21 @@ export default function SectionHeader({
               width={1}
               height={0}
               sizes="100vw"
-              className="w-4 h-4 rounded-full"
+              className="w-6 h-6 rounded-full"
             />
             <h3 className="text-white text-xl font-normal font-newsreader tracking-wide">
               {title}
             </h3>
           </div>
         ) : (
-          <div className="flex-1 flex items-center gap-2">
+          <div className="flex-1 flex gap-2">
             <Image
               src="/small_star.svg"
               alt=""
               width={1}
               height={0}
               sizes="100vw"
-              className="w-4 h-4 rounded-full"
+              className="w-6 h-6 rounded-full"
             />
             <h3 className="text-white text-xl font-normal font-newsreader tracking-wide">
               {title}

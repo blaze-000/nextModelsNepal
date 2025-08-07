@@ -69,7 +69,7 @@ interface Model {
   name: string,
   image: string,
   location?: string,
-  link?: string,
+  slug?: string,
   designation?: string,
   tag?: string,
 }

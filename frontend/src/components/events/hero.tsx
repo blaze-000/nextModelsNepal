@@ -1,6 +1,7 @@
 "use client";
 import React, { useCallback, useEffect, useRef } from "react";
 import useEmblaCarousel from "embla-carousel-react";
+import Autoplay from "embla-carousel-autoplay";
 import type { EmblaCarouselType } from "embla-carousel";
 import EventCard from "../molecules/event-card";
 import { motion } from "framer-motion";
@@ -10,7 +11,7 @@ const TWEEN_FACTOR_BASE = 0.52;
 const numberWithinRange = (number: number, min: number, max: number): number =>
   Math.min(Math.max(number, min), max);
 
-const events:EventType[] = [
+const events: EventType[] = [
   {
     id: "miss-nepal-peace-2024",
     title: "Miss Nepal Peace",
@@ -69,15 +70,17 @@ const events:EventType[] = [
   },
 ];
 
-
 const EventHero = () => {
-  const [emblaRef, emblaApi] = useEmblaCarousel({
-    loop: true,
-    align: "center",
-    slidesToScroll: 1,
-    containScroll: "trimSnaps",
-    duration: 30,
-  });
+  const [emblaRef, emblaApi] = useEmblaCarousel(
+    {
+      loop: true,
+      align: "center",
+      slidesToScroll: 1,
+      containScroll: "trimSnaps",
+      duration: 30,
+    },
+    [Autoplay({ delay: 4000, stopOnInteraction: false })]
+  );
 
   const tweenNodes = useRef<Array<HTMLElement | null>>([]);
   const tweenFactor = useRef<number>(0);
@@ -168,7 +171,8 @@ const EventHero = () => {
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        viewport={{ once: true, amount: 0.3 }}>
+        viewport={{ once: true, amount: 0.3 }}
+      >
         <div className="embla px-[10%]" ref={emblaRef}>
           <div className="embla__container flex">
             {events.map((event) => (
@@ -177,23 +181,22 @@ const EventHero = () => {
                 style={{ flex: "0 0 85%" }}
                 key={event.id}
               >
-
-                <div className="embla__slide__scale transition-transform duration-200 ease-out"
-                >
+                <div className="embla__slide__scale transition-transform duration-200 ease-out">
                   <EventCard {...event} />
                 </div>
-
               </div>
             ))}
           </div>
-        </div >
+        </div>
       </motion.div>
 
-      <motion.div className="w-full flex justify-center mt-6 gap-4"
+      <motion.div
+        className="w-full flex justify-center mt-6 gap-4"
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        viewport={{ once: true, amount: 0.3 }}>
+        viewport={{ once: true, amount: 0.3 }}
+      >
         <button
           onClick={scrollPrev}
           className="w-12 h-12 rounded-full bg-[#4D4D4D] text-white hover:bg-gray-800 transition-colors text-xl"
@@ -209,8 +212,7 @@ const EventHero = () => {
           <i className="ri-arrow-right-line" />
         </button>
       </motion.div>
-
-    </section >
+    </section>
   );
 };
 
