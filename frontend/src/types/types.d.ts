@@ -62,6 +62,7 @@ interface Testimonial {
 interface BreadcrumbProps {
   title: string,
   searchPlaceholder?: string,
+  showSearch?: boolean,
   onSearch?: (value: string) => void,
 }
 

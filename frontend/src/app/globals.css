@@ -77,3 +77,18 @@ body {
   background: var(--gold-600);
   border-radius: 9999px;
 }
+
+.responsive-bar {
+  height: var(--bar-height);
+}
+
+@media (max-width: 639px) {
+  .responsive-bar {
+    height: calc(var(--bar-height) / 2);
+  }
+}
+@media (max-width: 924px) {
+  .responsive-bar {
+    height: calc(2*var(--bar-height) / 3);
+  }
+}
