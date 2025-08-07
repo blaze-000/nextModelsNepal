@@ -93,21 +93,13 @@ const EventCard: FC<EventCardProps> = ({
         </div>
 
         {/* Desktop Layout */}
-        <div
-          className={`hidden lg:grid grid-cols-2 ${isContentLeft ? "" : "grid-flow-col-dense"
-            }`}
-        >
+        <div className={`hidden lg:grid grid-cols-2 ${isContentLeft ? "" : "grid-flow-col-dense"}`}>
           {/* Content */}
-          <div
-            className={`px-16 pt-24 pb-16 space-y-2 ${isContentLeft ? "" : "col-start-2"
-              }`}
-          >
-            <span
-              className={`inline-block px-3 py-1 rounded-full text-sm font-bold mb-4 ${stateConfig.bgColor} ${stateConfig.textColor}`}
-            >
+          <div className={`px-16 pt-24 pb-16 space-y-2 ${isContentLeft ? "" : "col-start-2" }`}>
+            <span className={`inline-block px-3 py-1 rounded-full text-sm font-bold mb-4 ${stateConfig.bgColor} ${stateConfig.textColor}`}>
               {stateConfig.label}
             </span>
-            <h2 className="text-white text-6xl font-newsreader tracking-tighter font-normal">
+            <h2 className="text-white text-5xl font-newsreader tracking-tighter font-normal">
               {title}
             </h2>
             <p className="text-white text-base font-semibold pb-4">{dateSpan}</p>

@@ -6,6 +6,7 @@ import Image from "next/image";
 import ModelGrid from "@/components/molecules/model-grid";
 import PartnerScroller from "@/components/molecules/scroller";
 import SectionHeader from "@/components/ui/section-header";
+import MasonryGallery from "@/components/molecules/masonary-gallery";
 
 export default function EventDetails() {
   const { slug } = useParams();
@@ -409,39 +410,12 @@ export default function EventDetails() {
       </section>
 
       {/* Gallery */}
-      <section className="w-full bg-background2 py-16 md:py-8">
-        <div className="max-w-7xl mx-auto px-6">
-          <SectionHeader title="Highlights From 2024" />
-          <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 pt-4 pb-12">
-            {winnerImages.map((imagePath, index) => (
-              <motion.div
-                key={index}
-                className="break-inside-avoid mb-4 group cursor-pointer"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: 0.05 * index }}
-              >
-                <div className="relative overflow-hidden rounded-lg bg-gray-200 transition-transform duration-300 hover:scale-105">
-                  <Image
-                    src={imagePath}
-                    alt={`Winner ${index + 1}`}
-                    width={400}
-                    height={600}
-                    className="w-full h-auto object-cover transition-opacity duration-300 group-hover:opacity-90"
-                    style={{
-                      aspectRatio:
-                        index % 3 === 0
-                          ? "3/4"
-                          : index % 3 === 1
-                          ? "4/5"
-                          : "2/3",
-                    }}
-                  />
-                </div>
-              </motion.div>
-            ))}
-          </div>
+      <section className="w-full bg-background2 py-16 md:py-20">
+        <div className="max-w-7xl mx-auto">
+          <SectionHeader title="Gallery" />
+
+          {/* Gallery using the reusable component */}
+          <MasonryGallery images={winnerImages} />
         </div>
       </section>
 

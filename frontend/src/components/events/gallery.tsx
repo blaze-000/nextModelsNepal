@@ -9,23 +9,25 @@ import Link from "next/link";
 import MasonryGallery from "../molecules/masonary-gallery";
 
 const winnerImages = [
+ 
+  "/mr-nepal-2025-poster-1.jpg",
+  "/mr-nepal-2025-poster-1.jpg",
   "/handshake.jpg",
+
+  "/handshake.jpg",
+  "/events_1.jpg",
   "/events_1.jpg",
   "/mr-nepal-2025-poster-1.jpg",
   "/mr-nepal-2025-poster-1.jpg",
   "/handshake.jpg",
   "/events_1.jpg",
    "/events_1.jpg",
-  "/mr-nepal-2025-poster-1.jpg",
-  "/mr-nepal-2025-poster-1.jpg",
-  "/handshake.jpg",
-  "/events_1.jpg",
 ];
 
 export const Gallery = () => {
   return (
     <div className="w-full bg-background py-16 md:py-20">
-      <div className="max-w-7xl mx-auto px-6">
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -93,8 +95,7 @@ export const Gallery = () => {
           </div>
         </motion.div>
 
-        <MasonryGallery images={winnerImages}
-         />
+        <MasonryGallery images={winnerImages} />
 
         {/* See More Button */}
         <motion.div
