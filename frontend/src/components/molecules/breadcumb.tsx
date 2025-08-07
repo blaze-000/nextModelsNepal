@@ -8,6 +8,7 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
   title,
   searchPlaceholder = "Search events, winners, judges",
   onSearch,
+  showSearch = true,
 }) => {
   const router = useRouter();
   const [search, setSearch] = React.useState("");
@@ -61,20 +62,22 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
           </motion.div>
 
           {/* Right: Search Bar */}
-          <motion.div className="w-xl" variants={item}>
-            <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-                <i className="ri-search-line text-lg" />
-              </span>
-              <input
-                type="text"
-                className="w-full pl-12 pr-4 py-4 rounded-full bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-400 text-base"
-                placeholder={searchPlaceholder}
-                value={search}
-                onChange={handleInputChange}
-              />
-            </div>
-          </motion.div>
+          {showSearch && (
+            <motion.div className="w-xl" variants={item}>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                  <i className="ri-search-line text-lg" />
+                </span>
+                <input
+                  type="text"
+                  className="w-full pl-12 pr-4 py-4 rounded-full bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-400 text-base"
+                  placeholder={searchPlaceholder}
+                  value={search}
+                  onChange={handleInputChange}
+                />
+              </div>
+            </motion.div>
+          )}
         </motion.div>
 
         {/* Mobile Layout */}
@@ -103,18 +106,21 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
           </motion.h1>
 
           {/* Search Bar */}
-          <motion.div className="relative" variants={item}>
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-              <i className="ri-search-line text-lg" />
-            </span>
-            <input
-              type="text"
-              className="w-full pl-12 pr-4 py-3 rounded-full bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-400 text-sm"
-              placeholder={searchPlaceholder}
-              value={search}
-              onChange={handleInputChange}
-            />
-          </motion.div>
+          {showSearch && (
+            <motion.div className="relative" variants={item}>
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                <i className="ri-search-line text-lg" />
+              </span>
+              <input
+                type="text"
+                className="w-full pl-12 pr-4 py-3 rounded-full bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-400 text-sm"
+                placeholder={searchPlaceholder}
+                value={search}
+                onChange={handleInputChange}
+              />
+            </motion.div>
+          )}
+
         </motion.div>
       </div>
     </div>
