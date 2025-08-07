@@ -274,7 +274,7 @@ export default function HireModel() {
                     <h4 className="text-gold-500 text-xl lg:text-2xl font-medium font-newsreader tracking-tight mb-2">
                       {model.name}
                     </h4>
-                    <div className="flex gap-2 ">
+                    <div className="flex gap-2">
                       <i className="w-4 h-4 ri-map-pin-line" />
                       <span className="text-white text-sm lg:text-base font-semibold font-urbanist">
                         {model.location}
