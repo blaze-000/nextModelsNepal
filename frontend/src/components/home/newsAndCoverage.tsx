@@ -49,7 +49,7 @@ const NewsSection = () => {
         </motion.div>
 
         {/* News Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-6 px-2 md:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-6">
           {newsItems.map((item, i) => (
             <motion.div
               key={item.id}

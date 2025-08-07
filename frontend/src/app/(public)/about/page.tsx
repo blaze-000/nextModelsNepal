@@ -108,7 +108,7 @@ export default function About() {
           initial={{ opacity: 0, y: 60 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, delay: 0.6, ease: "easeOut" }}
-          className="max-w-7xl mx-auto px-4 pt-24 hidden mdplus:flex"
+          className="max-w-7xl mx-auto px-6 pt-24 hidden mdplus:flex"
         >
           <Image
             src="/about.png"
@@ -122,7 +122,7 @@ export default function About() {
 
       {/* List of [title, paragraph, image] */}
       <section className="w-full">
-        <div className="max-w-7xl mx-auto px-4 space-y-36">
+        <div className="max-w-7xl mx-auto px-6 space-y-36">
 
           {/* A Home for Diverse Talent */}
           <motion.article

@@ -18,7 +18,9 @@ export default function PartnerScroller({ partners, speed = 1000 }: PartnerScrol
 
   useEffect(() => {
     if (itemRef.current) {
-      const width = itemRef.current.offsetWidth + 32; // 32px = gap-8
+      const style = getComputedStyle(itemRef.current);
+      const marginRight = parseFloat(style.marginRight || '0');
+      const width = itemRef.current.offsetWidth + marginRight;
       setItemWidth(width);
     }
   }, []);
@@ -29,15 +31,8 @@ export default function PartnerScroller({ partners, speed = 1000 }: PartnerScrol
     const animate = (now: number) => {
       if (!startTimeRef.current) startTimeRef.current = now;
       const elapsed = now - startTimeRef.current;
-      const newX = (elapsed * speedRef.current) / 1000;
-
-      if (newX >= TOTAL_WIDTH) {
-        startTimeRef.current = now;
-        setTranslateX(0);
-      } else {
-        setTranslateX(newX);
-      }
-
+      const newX = (elapsed * speedRef.current) / 1000 % TOTAL_WIDTH;
+      setTranslateX(newX);
       animationRef.current = requestAnimationFrame(animate);
     };
 
@@ -46,19 +41,19 @@ export default function PartnerScroller({ partners, speed = 1000 }: PartnerScrol
   }, [TOTAL_WIDTH]);
 
   return (
-    <div className="relative overflow-hidden max-w-7xl mx-auto px-4">
+    <div className="relative overflow-hidden max-w-7xl mx-auto px-6">
       <div
         className="flex will-change-transform"
         style={{
           transform: `translateX(-${translateX}px)`,
-          width: `${itemWidth * partners.length * 2}px`,
+          width: `${TOTAL_WIDTH * 2}px`,
         }}
       >
         {[...partners, ...partners].map((partner, idx) => (
           <div
             key={`${partner.name}-${idx}`}
             ref={idx === 0 ? itemRef : null}
-            className="h-14 w-40 flex-shrink-0 flex items-center justify-center"
+            className="h-14 w-40 mr-4 flex-shrink-0 flex items-center justify-center"
           >
             <Image
               src={partner.image}

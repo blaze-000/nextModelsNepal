@@ -9,6 +9,8 @@
   --color-background2: var(--background2);
   --color-muted-background: var(--muted-background);
 
+  --color-black-900: var(--black-900);
+
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
 
@@ -28,14 +30,15 @@
 
 body {
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;;
-
+  -moz-osx-font-smoothing: grayscale;
 }
 
 :root {
   --foreground: #ffffff;
   --background: #12110d;
   --background2: #080808;
+
+  --black-900: #0E0E0E;
 
   --muted-background: #1e1e1e;
 
@@ -87,6 +90,7 @@ body {
     height: calc(var(--bar-height) / 2);
   }
 }
+
 @media (max-width: 924px) {
   .responsive-bar {
     height: calc(2*var(--bar-height) / 3);

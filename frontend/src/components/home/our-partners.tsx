@@ -18,13 +18,13 @@ const partners = [
 
 const OurPartners = () => {
   return (
-    <section className="w-full py-16 overflow-hidden">
+    <section className="w-full py-16">
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
         viewport={{ once: true }}
-        className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-8 pb-10"
+        className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8 pb-10"
       >
         {/* Left Section */}
         <div className="flex flex-col gap-3 font-newsreader">

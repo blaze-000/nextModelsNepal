@@ -34,7 +34,7 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
 
   return (
     <div className="w-full bg-[#100d08] py-8 px-4 md:px-12">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto px-6">
         {/* Desktop Layout */}
         <motion.div
           className="hidden md:flex items-center justify-between"

@@ -136,6 +136,5 @@ export default function BarChart({ topThree }: CustomBarChartProps) {
         </motion.div>
       </div>
     </motion.section>
-
   );
 };

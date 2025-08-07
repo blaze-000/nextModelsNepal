@@ -67,7 +67,7 @@ const TestimonialSection: React.FC = () => {
   );
 
   return (
-    <section className="py-16 md:py-28 px-6">
+    <section className="py-16 pt-28 px-6">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
