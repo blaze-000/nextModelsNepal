@@ -28,19 +28,35 @@ export default function SectionHeader({
           centered ? "justify-center" : "justify-between"
         } items-center`}
       >
-        <div className="flex-1 flex items-center gap-2">
-          <Image
-            src="/small_star.svg"
-            alt=""
-            width={1}
-            height={0}
-            sizes="100vw"
-            className="w-4 h-4 rounded-full"
-          />
-          <h3 className="text-white text-xl font-normal font-newsreader tracking-wide">
-            {title}
-          </h3>
-        </div>
+        {centered ? (
+          <div className="flex items-center gap-2">
+            <Image
+              src="/small_star.svg"
+              alt=""
+              width={1}
+              height={0}
+              sizes="100vw"
+              className="w-4 h-4 rounded-full"
+            />
+            <h3 className="text-white text-xl font-normal font-newsreader tracking-wide">
+              {title}
+            </h3>
+          </div>
+        ) : (
+          <div className="flex-1 flex items-center gap-2">
+            <Image
+              src="/small_star.svg"
+              alt=""
+              width={1}
+              height={0}
+              sizes="100vw"
+              className="w-4 h-4 rounded-full"
+            />
+            <h3 className="text-white text-xl font-normal font-newsreader tracking-wide">
+              {title}
+            </h3>
+          </div>
+        )}
       </div>
 
       {/* Mobile Layout */}

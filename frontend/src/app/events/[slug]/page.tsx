@@ -139,30 +139,34 @@ export default function EventDetails() {
       </motion.section>
 
       {/* Texts Mobile */}
-      <motion.section {...fadeInUp} className="flex md:hidden py-30 bg-black">
+      <motion.section
+        {...fadeInUp}
+        className="flex justify-center md:hidden py-12 bg-black"
+      >
         <div className="text-center px-6">
-          <h2 className="text-6xl font-newsreader text-primary font-extralight tracking-tighter leading-tight pb-8">
-            Miss Nepal
+          <h2 className="text-6xl font-newsreader text-primary font-extralight tracking-tighter leading-tight pb-2">
+            <div>Miss Nepal</div>
+            <div>Peace</div>
           </h2>
           <p>DEDICATED TO NURSING FRATERNITY</p>
         </div>
       </motion.section>
 
       {/* Overview Section */}
-      <section className="w-full pb-16 mdplus:pt-16 bg-background">
+      <section className="w-full py-12 lg:pb-16 mdplus:pt-16 bg-background">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center">
             <div className="lg:order-2 flex justify-center items-end">
               <Image
                 src="/events/miss_nepal.png"
                 alt="Event Overview"
                 width={400}
                 height={400}
-                className="w-full max-w-md h-auto rounded-lg shadow-md object-cover ml-auto"
+                className="w-full max-w-md h-auto rounded-lg shadow-md object-cover lg:ml-auto"
               />
             </div>
-            <div className="lg:order-1 flex flex-col justify-end gap-10">
-              <div className="flex items-center gap-2">
+            <div className="lg:order-1 flex flex-col justify-end gap-6 lg:gap-10">
+              <div className="flex items-center gap-2 justify-center lg:justify-start">
                 <Image
                   src="/small_star.svg"
                   alt=""
@@ -174,7 +178,7 @@ export default function EventDetails() {
                   Overview
                 </h3>
               </div>
-              <p className="text-base font-light leading-relaxed">
+              <p className="text-base font-light leading-relaxed text-center lg:text-left">
                 Miss Nepal Peace is a national beauty pageant exclusively for
                 nursing students and professionals, promoting the theme
                 &rdquo;Empowered Women, Strong Nation.&rdquo; Organized by Next
@@ -190,9 +194,9 @@ export default function EventDetails() {
       </section>
 
       {/* Quote Section */}
-      <section className="w-full bg-[#100D08] pb-12 mdplus:pt-12">
+      <section className="w-full bg-[#100D08] py-12 mdplus:pt-12">
         <div className="max-w-7xl mx-auto px-6">
-          <h3 className="text-6xl font-newsreader text-white text-center tracking-tighter">
+          <h3 className="text-2xl md:text-6xl font-newsreader text-white text-center tracking-tighter">
             Celebrating the strength, compassion, and leadership of women in
             healthcare — because empowered nurses nurture a nation&rsquo;s
             well-being.
@@ -201,11 +205,11 @@ export default function EventDetails() {
       </section>
 
       {/* Purpose Section */}
-      <section className="w-full bg-background2 pb-24 mdplus:pt-30">
+      <section className="w-full bg-background2 py-12 mdplus:pt-30">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center pb-30">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center lg:pb-30">
             {/* Image */}
-            <div className="flex justify-center lg:justify-start pr-20">
+            <div className="flex justify-center lg:justify-start lg:pr-20">
               <Image
                 src="/events_1.jpg"
                 alt="Purpose Image"
@@ -215,8 +219,8 @@ export default function EventDetails() {
               />
             </div>
             {/* Content */}
-            <div className="flex flex-col gap-12">
-              <div className="flex items-center gap-2">
+            <div className="flex flex-col gap-6 lg:gap-12">
+              <div className="flex items-center gap-2 justify-center lg:justify-start">
                 <Image
                   src="/small_star.svg"
                   alt=""
@@ -228,7 +232,7 @@ export default function EventDetails() {
                   Purpose
                 </h3>
               </div>
-              <p className="text-base font-light leading-relaxed">
+              <p className="text-base font-light leading-relaxed text-center lg:text-left">
                 Miss Nepal Peace is a national beauty pageant exclusively for
                 nursing students and professionals, promoting the theme
                 &rdquo;Empowered Women, Strong Nation.&rdquo; Organized by Next
@@ -244,7 +248,7 @@ export default function EventDetails() {
       </section>
 
       {/* Timeline Intro */}
-      <section className="w-full pb-24 bg-background2 mdplus:pt-20">
+      <section className="w-full py-12 lg:pb-24 bg-background2">
         <div className="max-w-7xl mx-auto px-6">
           <SectionHeader title="Event Timeline" centered />
           <div className="text-base text-center flex item-center justify-center mx-auto max-w-3xl">
@@ -257,40 +261,84 @@ export default function EventDetails() {
       </section>
 
       {/* Timeline Visual */}
-      <section className="w-full relative px-4 bg-background2 overflow-hidden pt-40 pb-40">
-        <div className="absolute w-full top-1/2 -translate-y-1/2 h-0.5 bg-white z-0" />
-        <div className="flex justify-center gap-4 w-full z-10 max-w-7xl mx-auto">
-          {timelineData.map((item, index) => (
-            <div key={index} className="relative flex justify-center flex-1">
-              <div
-                className={`absolute ${
-                  item.position === "up" ? "top-[-160px]" : "top-[40px]"
-                } w-100 pt-6 px-6 pb-8 bg-muted-background shadow-md`}
-              >
-                <div className="flex items-start gap-3">
-                  <i className={`${item.icon} text-xl text-gold-500`}></i>
-                  <div className="flex flex-col gap-2">
-                    <p className="text-lg font-medium text-gold-500">
-                      {item.date}
-                    </p>
-                    <h3 className="text-2xl font-newsreader font-normal text-white">
-                      {item.title}
-                    </h3>
+      <section className="w-full relative px-4 bg-background2 overflow-hidden py-12 lg:pt-40 lg:pb-40">
+        {/* Desktop Timeline - Horizontal */}
+        <div className="hidden lg:block">
+          <div className="absolute w-full top-1/2 -translate-y-1/2 h-0.5 bg-white z-0" />
+          <div className="flex justify-center gap-4 w-full z-10 max-w-7xl mx-auto">
+            {timelineData.map((item, index) => (
+              <div key={index} className="relative flex justify-center flex-1">
+                <div
+                  className={`absolute ${
+                    item.position === "up" ? "top-[-160px]" : "top-[40px]"
+                  } w-100 pt-6 px-6 pb-8 bg-muted-background shadow-md`}
+                >
+                  <div className="flex items-start gap-3">
+                    <i className={`${item.icon} text-xl text-gold-500`}></i>
+                    <div className="flex flex-col gap-2">
+                      <p className="text-lg font-medium text-gold-500">
+                        {item.date}
+                      </p>
+                      <h3 className="text-2xl font-newsreader font-normal text-white">
+                        {item.title}
+                      </h3>
+                    </div>
                   </div>
                 </div>
+                <div className="absolute top-1/2 -translate-y-1/2 w-full flex justify-between items-center px-1">
+                  <div className="w-4 h-4 bg-white rounded-full border-4 border-gold-500 z-10" />
+                  <div className="absolute left-4 right-4 top-1/2 -translate-y-1/2 h-0.5 bg-gold-500 z-0" />
+                  <div className="w-4 h-4 bg-white rounded-full border-4 border-gold-500 z-10" />
+                </div>
               </div>
-              <div className="absolute top-1/2 -translate-y-1/2 w-full flex justify-between items-center px-1">
-                <div className="w-4 h-4 bg-white rounded-full border-4 border-gold-500 z-10" />
-                <div className="absolute left-4 right-4 top-1/2 -translate-y-1/2 h-0.5 bg-gold-500 z-0" />
-                <div className="w-4 h-4 bg-white rounded-full border-4 border-gold-500 z-10" />
+            ))}
+          </div>
+        </div>
+
+        {/* Mobile Timeline - Vertical */}
+        <div className="lg:hidden max-w-md mx-auto">
+          <div className="relative pl-2">
+            {/* Main vertical line */}
+            <div className="absolute left-2 -top-5 -bottom-5 w-0.5 bg-white z-0" />
+
+            {timelineData.map((item, index) => (
+              <div key={index} className="relative mb-20 last:mb-0">
+                {/* Content card */}
+                <div className="ml-6">
+                  <div className="bg-muted-background p-6 shadow-md w-full relative">
+                    <div className="flex items-start gap-3">
+                      <i className={`${item.icon} text-xl text-gold-500`}></i>
+                      <div className="flex flex-col gap-2">
+                        <p className="text-lg font-medium text-gold-500">
+                          {item.date}
+                        </p>
+                        <h3 className="text-2xl font-newsreader font-normal text-white">
+                          {item.title}
+                        </h3>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Timeline circles and connecting line - matching desktop pattern */}
+                <div className="absolute left-0 top-0 bottom-0 flex flex-col justify-between items-center w-4 transform -translate-x-1/2">
+                  {/* Top circle */}
+                  <div className="w-4 h-4 bg-white rounded-full border-4 border-gold-500 z-10" />
+
+                  {/* Connecting line between circles (gold) */}
+                  <div className="flex-1 w-1 bg-gold-500" />
+
+                  {/* Bottom circle */}
+                  <div className="w-4 h-4 bg-white rounded-full border-4 border-gold-500 z-10" />
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 
       {/* Big Event Timeline Title */}
-      <div className="w-full relative bg-background2 overflow-hidden flex items-center justify-center">
+      <div className="hidden w-full relative bg-background2 overflow-hidden md:flex items-center justify-center">
         <h2 className="text-stone-800 text-center text-[120px] md:text-[160px] lg:text-[200px] font-bold font-newsreader whitespace-nowrap transform scale-x-[1.2]">
           Event Timeline
         </h2>
