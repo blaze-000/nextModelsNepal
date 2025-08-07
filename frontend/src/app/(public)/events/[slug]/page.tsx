@@ -24,12 +24,17 @@ export default function EventDetails() {
   ];
 
   const winnerImages = [
-    "/winners/winner1.jpg",
-    "/winners/winner2.jpg",
-    "/winners/winner3.jpg",
-    "/winners/winner4.jpg",
-    "/winners/winner5.jpg",
-    "/winners/winner6.jpg",
+    "/handshake.jpg",
+    "/events_1.jpg",
+    "/mr-nepal-2025-poster-1.jpg",
+    "/mr-nepal-2025-poster-1.jpg",
+    "/handshake.jpg",
+    "/events_1.jpg",
+    "/events_1.jpg",
+    "/mr-nepal-2025-poster-1.jpg",
+    "/mr-nepal-2025-poster-1.jpg",
+    "/handshake.jpg",
+    "/events_1.jpg",
   ];
 
   const models = [
@@ -204,7 +209,7 @@ export default function EventDetails() {
       {/* Purpose Section */}
       <section className="w-full bg-background2 pb-24 mdplus:pt-30">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center pb-30">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
             {/* Image */}
             <div className="flex justify-center lg:justify-start pr-20">
               <Image
@@ -215,20 +220,10 @@ export default function EventDetails() {
                 className="w-full h-full max-w-md lg:max-w-full object-cover"
               />
             </div>
+
             {/* Content */}
-            <div className="flex flex-col gap-12">
-              <div className="flex items-center gap-2">
-                <Image
-                  src="/small_star.svg"
-                  alt=""
-                  width={20}
-                  height={20}
-                  className="w-4 h-4"
-                />
-                <h3 className="text-white text-xl font-medium font-newsreader tracking-tight">
-                  Purpose
-                </h3>
-              </div>
+            <div className="flex flex-col">
+              <SectionHeader title="Purpose" />
               <p className="text-base font-light leading-relaxed">
                 Miss Nepal Peace is a national beauty pageant exclusively for
                 nursing students and professionals, promoting the theme
@@ -266,7 +261,7 @@ export default function EventDetails() {
               <div
                 className={`absolute ${
                   item.position === "up" ? "top-[-160px]" : "top-[40px]"
-                } w-100 pt-6 px-6 pb-8 bg-muted-background shadow-md`}
+                } w-100 pt-6 px-6 pb-8 bg-muted-background shadow-md overflow-hidden`}
               >
                 <div className="flex items-start gap-3">
                   <i className={`${item.icon} text-xl text-gold-500`}></i>
@@ -279,6 +274,18 @@ export default function EventDetails() {
                     </h3>
                   </div>
                 </div>
+                {/* Crown SVG - only show on 3rd card */}
+                {index === 2 && (
+                  <div className="absolute right-0 -bottom-3">
+                    <Image
+                      width={100}
+                      height={0}
+                      src="/crown.svg"
+                      alt="Crown"
+                      className="w-24 h-24"
+                    />
+                  </div>
+                )}
               </div>
               <div className="absolute top-1/2 -translate-y-1/2 w-full flex justify-between items-center px-1">
                 <div className="w-4 h-4 bg-white rounded-full border-4 border-gold-500 z-10" />
@@ -373,8 +380,8 @@ export default function EventDetails() {
 
       {/* Sponsors */}
       <section className="w-full bg-background2 py-16">
-        <div className="max-w-7xl mx-auto px-6">
-          <SectionHeader title="Our Sponsors" />
+        <div className="max-w-7xl mx-auto px-6 ">
+          <SectionHeader title="Our Sponsors" className="pb-6" />
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}

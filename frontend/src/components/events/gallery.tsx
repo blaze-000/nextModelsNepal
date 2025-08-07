@@ -7,6 +7,7 @@ import { Button } from "../ui/button";
 import Link from "next/link";
 
 import MasonryGallery from "../molecules/masonary-gallery";
+import SectionHeader from "../ui/section-header";
 
 const winnerImages = [
   "/handshake.jpg",
@@ -32,34 +33,23 @@ export const Gallery = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="mb-6"
         >
           {/* Desktop Layout */}
-          <div className="hidden md:flex justify-between items-center">
-            <div className="flex-1 flex items-center gap-2">
-              <Image
-                src="/small_star.svg"
-                alt=""
-                width={1}
-                height={0}
-                sizes="100vw"
-                className="w-4 h-4 rounded-full"
-              />
-              <h3 className="text-white text-xl font-normal font-newsreader">
-                Highlights
-              </h3>
-            </div>
+          <div className="hidden md:flex justify-between items-center -mb-4">
+            <SectionHeader title="Gallery" />
 
-            <Button variant="outline" className="py-2 mr-4">
-              <span>Events:</span>
-              <span>Miss Nepal Peace</span>
-              <i className="ri-arrow-down-s-line text-lg" />
-            </Button>
-            <Button variant="outline" className="py-2">
-              <span>Year:</span>
-              <span>2024</span>
-              <i className="ri-arrow-down-s-line text-lg" />
-            </Button>
+            <div className="pb-8">
+              <Button variant="outline" className="py-2 mr-4">
+                <span>Events:</span>
+                <span>Miss Nepal Peace</span>
+                <i className="ri-arrow-down-s-line text-lg" />
+              </Button>
+              <Button variant="outline" className="py-2">
+                <span>Year:</span>
+                <span>2024</span>
+                <i className="ri-arrow-down-s-line text-lg" />
+              </Button>
+            </div>
           </div>
 
           {/* Mobile Layout */}
@@ -93,8 +83,7 @@ export const Gallery = () => {
           </div>
         </motion.div>
 
-        <MasonryGallery images={winnerImages}
-        />
+        <MasonryGallery images={winnerImages} />
 
         {/* See More Button */}
         <motion.div

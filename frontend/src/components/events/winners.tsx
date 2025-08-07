@@ -5,6 +5,7 @@ import React from "react";
 import { Button } from "../ui/button";
 import ModelGrid from "../molecules/model-grid";
 import { motion } from "framer-motion";
+import SectionHeader from "../ui/section-header";
 
 export const Winners = () => {
   const models = [
@@ -47,33 +48,23 @@ export const Winners = () => {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true, amount: 0.6 }}
-          className="pb-10">
+        >
           {/* Desktop Layout - No Changes */}
           <div className="hidden md:flex justify-between items-center">
-            <div className="flex-1 flex items-center gap-2">
-              <Image
-                src="/small_star.svg"
-                alt=""
-                width={1}
-                height={0}
-                sizes="100vw"
-                className="w-4 h-4 rounded-full"
-              />
-              <h3 className="text-white text-xl font-normal font-newsreader tracking-wide">
-                Winners from Past Events
-              </h3>
-            </div>
+            <SectionHeader title="Winners from Past Events" />
 
-            <Button variant="outline" className="py-2 mr-4">
-              <span>Sort By:</span>
-              <span>Most Recent</span>
-              <i className="ri-arrow-down-s-line text-lg" />
-            </Button>
-            <Button variant="outline" className="py-2">
-              <span>Sort By:</span>
-              <span>Most Recent</span>
-              <i className="ri-arrow-down-s-line text-lg" />
-            </Button>
+            <div className="flex pb-8">
+              <Button variant="outline" className="py-2 mr-4">
+                <span>Sort By:</span>
+                <span>Most Recent</span>
+                <i className="ri-arrow-down-s-line text-lg" />
+              </Button>
+              <Button variant="outline" className="py-2">
+                <span>Sort By:</span>
+                <span>Most Recent</span>
+                <i className="ri-arrow-down-s-line text-lg" />
+              </Button>
+            </div>
           </div>
 
           {/* Mobile Layout */}
@@ -120,14 +111,16 @@ export const Winners = () => {
             >
               {model.tag && (
                 <div
-                  className={`${model.tag.toLowerCase() === "winner"
-                    ? "text-gold-500"
-                    : "text-white"
-                    } text-base font-bold flex items-center gap-1 pb-2`}
+                  className={`${
+                    model.tag.toLowerCase() === "winner"
+                      ? "text-gold-500"
+                      : "text-white"
+                  } text-base font-bold flex items-center gap-1 pb-2`}
                 >
                   <i
-                    className={`ri-vip-crown-line text-base ${model.tag === "Winner" ? "text-gold-500" : "text-white"
-                      }`}
+                    className={`ri-vip-crown-line text-base ${
+                      model.tag === "Winner" ? "text-gold-500" : "text-white"
+                    }`}
                   />
                   {model.tag}
                 </div>
@@ -141,7 +134,6 @@ export const Winners = () => {
             </motion.div>
           )}
         </ModelGrid>
-
       </div>
     </div>
   );

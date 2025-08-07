@@ -216,7 +216,7 @@ const HireModelForm = () => {
   };
 
   return (
-    <section className="w-full py-16 md:py-16 flex flex-col items-center text-white font-urbanist">
+    <section className="w-full bg-background2 py-16 md:py-16 flex flex-col items-center text-white font-urbanist">
       <div className="max-w-7xl px-8 md:px-6">
         {/* Header */}
         <motion.div

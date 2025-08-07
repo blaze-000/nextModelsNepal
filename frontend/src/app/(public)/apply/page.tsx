@@ -19,7 +19,7 @@ export default function ApplyPage() {
         </h1>
 
         <div className="flex flex-col mdplus:flex-row gap-8 text-primary">
-          <Link href="/hire-a-model" className="border border-gold-500 rounded-full w-72 h-16 flex items-center gap-6 cursor-pointer hover:text-white">
+          <Link href="/models" className="border border-gold-500 rounded-full w-72 h-16 flex items-center gap-6 cursor-pointer hover:text-white">
             <Image
               src="/bro_1.png"
               width={150}
@@ -29,10 +29,10 @@ export default function ApplyPage() {
             />
             <span className="flex gap-1 items-center">
               Hire a model
-              <i className="ri-arrow-right-up-line text-lg" />
+              <i className="ri-arrow-right-up-line text-lg " />
             </span>
           </Link>
-          <Link href="/become-a-model" className="border border-gold-500 rounded-full w-72 h-16 flex items-center gap-6 cursor-pointer hover:text-white">
+          <Link href="/become-a-model" className="border  border-gold-500 rounded-full w-72 h-16 flex items-center gap-6 cursor-pointer hover:text-white">
             <Image
               src="/bro_1.png"
               width={150}

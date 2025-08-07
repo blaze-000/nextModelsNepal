@@ -16,11 +16,11 @@ export default function BecomeModel() {
         style={{ backgroundImage: "url('/events_1.jpg')" }}
       >
         {/* Gradient mask */}
-        <div className="hidden md:flex absolute inset-0 bg-gradient-to-r from-black via-black/80 to-black/20" />
+        <div className="hidden bg md:flex absolute inset-0 bg-gradient-to-r from-black via-black/80 to-black/20" />
         <div className="md:hidden absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
 
         {/* Texts Desktop */}
-        <div className="max-w-7xl mx-auto relative z-10 hidden md:flex flex-col justify-center h-full px-6">
+        <div className="max-w-7xl  mx-auto relative z-10 hidden md:flex flex-col justify-center h-full px-6">
           <h2 className="text-8xl font-newsreader text-primary font-extralight tracking-tighter leading-tighter">
             <span>Become a</span>
             <div className="flex items-baseline gap-3 mt-2">

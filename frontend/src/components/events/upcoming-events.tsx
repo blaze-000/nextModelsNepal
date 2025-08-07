@@ -5,6 +5,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import ImageBox from "../molecules/image-box";
 import { Button } from "../ui/button";
+import SectionHeader from "../ui/section-header";
 
 export const UpcomingEvents = () => {
   const newsItems = [
@@ -36,29 +37,16 @@ export const UpcomingEvents = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="pb-10"
         >
           {/* Desktop Layout */}
           <div className="hidden md:flex justify-between items-center px-2">
-            <div className="flex-1 flex items-center gap-2">
-              <Image
-                src="/small_star.svg"
-                alt=""
-                width={1}
-                height={0}
-                sizes="100vw"
-                className="w-4 h-4 rounded-full"
-              />
-              <h3 className="text-white text-xl font-normal font-newsreader">
-                Upcoming Events
-              </h3>
-            </div>
+            <SectionHeader title="Upcoming Events" />
 
-            <Button variant="outline" className="py-2">
+           <div className="pb-8"> <Button variant="outline" className="py-2">
               <span>Sort By:</span>
               <span>Most Recent</span>
               <i className="ri-arrow-down-s-line text-lg" />
-            </Button>
+            </Button></div>
           </div>
 
           {/* Mobile Layout */}
