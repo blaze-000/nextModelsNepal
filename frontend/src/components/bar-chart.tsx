@@ -1,4 +1,7 @@
+"use client";
+
 import Image from 'next/image';
+import { motion } from "framer-motion";
 
 type Contestant = {
   id: number;
@@ -38,14 +41,24 @@ export default function BarChart({ topThree }: CustomBarChartProps) {
   }
 
   return (
-    <section
+    <motion.section
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5 }}
       className='bg-top w-full pt-16 sticky bottom-0 self-end'
-      style={{ backgroundImage: `url('/runway/circular-glow.svg')` }}>
-      <div className="max-w-3xl mx-auto mdplus:pl-6 flex items-end justify-evenly gap-4 font-newsreader bg-top"
+      style={{ backgroundImage: `url('/runway/circular-glow.svg')` }}
+    >
+      <div className="max-w-3xl mx-auto mdplus:pl-6 flex items-end justify-evenly gap-4 font-newsreader bg-top">
 
-      >
         {/* Second place */}
-        <div className="flex flex-col justify-end items-center space-y-4 relative">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="flex flex-col justify-end items-center space-y-4 relative"
+        >
           <div>
             <Image
               src="/contestant_2.jpg"
@@ -56,7 +69,6 @@ export default function BarChart({ topThree }: CustomBarChartProps) {
             />
             <p className="text-center">{second.name}</p>
           </div>
-
           <div
             className="w-20 xs:w-24 sm:w-36 lg:w-44 overflow-hidden bg-no-repeat bg-top transition-all duration-500 responsive-bar"
             style={{
@@ -65,10 +77,16 @@ export default function BarChart({ topThree }: CustomBarChartProps) {
               backgroundSize: '100% auto',
             } as React.CSSProperties & { [key: string]: any }}
           />
-        </div>
+        </motion.div>
 
         {/* First place */}
-        <div className="flex flex-col items-center space-y-4 relative">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="flex flex-col items-center space-y-4 relative"
+        >
           <div>
             <Image
               src="/contestant_1.jpg"
@@ -79,7 +97,6 @@ export default function BarChart({ topThree }: CustomBarChartProps) {
             />
             <p className="text-center">{first.name}</p>
           </div>
-
           <div
             className="w-20 xs:w-24 sm:w-36 lg:w-44 overflow-hidden bg-no-repeat bg-top transition-all duration-500 responsive-bar"
             style={{
@@ -88,10 +105,16 @@ export default function BarChart({ topThree }: CustomBarChartProps) {
               backgroundSize: '100% auto',
             } as React.CSSProperties & { [key: string]: any }}
           />
-        </div>
+        </motion.div>
 
         {/* Third place */}
-        <div className="flex flex-col items-center space-y-4 relative">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="flex flex-col items-center space-y-4 relative"
+        >
           <div>
             <Image
               src="/contestant_2.jpg"
@@ -102,7 +125,6 @@ export default function BarChart({ topThree }: CustomBarChartProps) {
             />
             <p className="text-center">{third.name}</p>
           </div>
-
           <div
             className="w-20 xs:w-24 sm:w-36 lg:w-44 overflow-hidden bg-no-repeat bg-top transition-all duration-500 responsive-bar"
             style={{
@@ -111,8 +133,9 @@ export default function BarChart({ topThree }: CustomBarChartProps) {
               backgroundSize: '100% auto',
             } as React.CSSProperties & { [key: string]: any }}
           />
-        </div>
+        </motion.div>
       </div>
-    </section>
+    </motion.section>
+
   );
 };
