@@ -25,7 +25,7 @@ const winnerImages = [
 export const Gallery = () => {
   return (
     <div className="w-full bg-background py-16 md:py-20">
-      <div className="max-w-7xl mx-auto px-6">
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
