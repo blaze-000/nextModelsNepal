@@ -75,8 +75,8 @@ export default function BarChart({ topThree }: CustomBarChartProps) {
               '--bar-height': `${leftHeight}px`,
               backgroundImage: `url('/bar.svg')`,
               backgroundSize: '100% auto',
-            } as React.CSSProperties & { [key: string]: any }}
-          />
+            } as React.CSSProperties
+            } />
         </motion.div>
 
         {/* First place */}
@@ -103,8 +103,8 @@ export default function BarChart({ topThree }: CustomBarChartProps) {
               '--bar-height': `${centerHeight}px`,
               backgroundImage: `url('/bar.svg')`,
               backgroundSize: '100% auto',
-            } as React.CSSProperties & { [key: string]: any }}
-          />
+            } as React.CSSProperties
+            } />
         </motion.div>
 
         {/* Third place */}
@@ -131,8 +131,8 @@ export default function BarChart({ topThree }: CustomBarChartProps) {
               '--bar-height': `${rightHeight}px`,
               backgroundImage: `url('/bar.svg')`,
               backgroundSize: '100% auto',
-            } as React.CSSProperties & { [key: string]: any }}
-          />
+            } as React.CSSProperties
+            } />
         </motion.div>
       </div>
     </motion.section>
