@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { menuItems, type MenuItem, type MenuSection } from "../data/menuItems";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -31,12 +32,12 @@ function SidebarItem({ item, isCollapsed, isActive }: SidebarItemProps) {
     <Link href={item.href}>
       <motion.div
         className={cn(
-          "group flex items-center gap-3 px-3 py-3 rounded-lg cursor-pointer transition-all duration-200",
+          "group flex items-center gap-3 py-3 rounded-lg cursor-pointer transition-all duration-200",
           "hover:bg-gold-900/30 relative",
           isActive && "bg-gold-500/20 text-gold-600",
-          isActive && isCollapsed && "bg-gold-500/20 pr-8",
-          isActive && !isCollapsed && "border-r-2 border-gold-500",
-          !isActive && "text-foreground/80 hover:text-foreground"
+          isActive && !isCollapsed && "border-r-2 border-gold-500 px-3",
+          !isActive && "text-foreground/80 hover:text-foreground px-3 ",
+          isCollapsed && "justify-center -mx-1 px-5"
         )}
         whileHover={{ x: 2 }}
         whileTap={{ scale: 0.98 }}
@@ -164,15 +165,16 @@ export default function Sidebar({
         {!isMobile && (
           <div className="h-16 flex items-center border-b border-gold-900/20 px-4">
             <motion.div
-              className="flex items-center gap-3 w-full"
-              animate={{
-                justifyContent: shouldExpand ? "flex-start" : "center",
-              }}
+              className="flex items-center gap-3 w-full justify-center"
               transition={{ duration: 0.3, ease: "easeInOut" }}
             >
-              <div className="w-8 h-8 bg-gold-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                <i className="ri-crown-line text-primary-foreground text-lg" />
-              </div>
+              <Image
+                src={"/logo.png"}
+                alt="Logo"
+                width={48}
+                height={48}
+                className="justify-center items-center"
+              />
               <AnimatePresence>
                 {shouldExpand && (
                   <motion.div
@@ -182,7 +184,7 @@ export default function Sidebar({
                     transition={{ duration: 0.3, ease: "easeInOut" }}
                     className="overflow-hidden"
                   >
-                    <h2 className="font-bold text-lg text-foreground font-newsreader whitespace-nowrap">
+                    <h2 className="font-semibold text-lg text-foreground font-newsreader whitespace-nowrap">
                       Next Models
                     </h2>
                   </motion.div>
@@ -208,7 +210,8 @@ export default function Sidebar({
           <motion.div
             className={cn(
               "group flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-all duration-200",
-              "hover:bg-gold-900/30 text-foreground/80 hover:text-foreground relative"
+              "hover:bg-gold-900/30 text-foreground/80 hover:text-foreground relative",
+              (isMobile ? !isMobileOpen : !shouldExpand) && "justify-center"
             )}
             whileHover={{ x: 2 }}
             whileTap={{ scale: 0.98 }}
