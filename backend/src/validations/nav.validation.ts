@@ -2,22 +2,35 @@ import { z } from "zod";
 
 // Children schema
 const navChildSchema = z.object({
-    title: z.string().min(1, "Child title is required"),
+    label: z.string().min(1, "Child label is required"),
     path: z.string().min(1, "Child path is required"),
-    link: z.string(),
-    order: z.number().optional().default(0)
+    order: z.number().optional()
 });
 
 // Parent nav item schema
 export const navItemSchema = z.object({
-    _id: z.string().optional(),
-    title: z.string().min(1, "Title is required"),
-    path: z.string().optional().default(''),
-    link: z.string().optional(),
-    type: z.enum(['link', 'dropdown']).optional().default('link'),
-    children: z.array(navChildSchema).optional().default([]),
-    visible: z.boolean().optional().default(true),
-    order: z.number().optional().default(0)
+    label: z.string().min(1, "label is required"),
+    path: z.string().optional(),
+    type: z.enum(['link', 'dropdown']).optional(),
+    children: z.array(navChildSchema).optional(),
+    visible: z.boolean().optional(),
+    order: z.number().optional()
+});
+
+// Children schema
+const navChildUpdateSchema = z.object({
+    label: z.string().optional(),
+    path: z.string().optional(),
+    order: z.number().optional()
+});
+
+export const navItemUpdateSchema = z.object({
+  label: z.string().optional(),
+  path: z.string().optional(),
+  type: z.enum(['link', 'dropdown']).optional(),
+  children: z.array(navChildUpdateSchema).optional(),
+  visible: z.boolean().optional(),
+  order: z.number().optional()
 });
 
 // For array of nav items (if receiving multiple items)

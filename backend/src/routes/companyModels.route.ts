@@ -1,28 +1,29 @@
 import { Router } from "express";
-import {
-    createModels,
-    getModels,
-    getModelsById,
-    updateModelsById,
-    deleteModelsById
+import { 
+    createModels, 
+    deleteModelsById, 
+    getModels, 
+    getModelsById, 
+    updateModelsById 
 } from "../controllers/companyModels.controller";
 import { uploadCompanyModelFiles } from "../middleware/multer.middleware";
 
+
 const router = Router();
 
-// Get all models items
+// Get all models
 router.route("/").get(getModels);
 
-// Create models item 
+// Create model (admin only)
 router.route("/").post(uploadCompanyModelFiles, createModels);
 
-// Get single models item by ID
+// Get single model by ID
 router.route("/:id").get(getModelsById);
 
-// Update models item by ID
+// Update model by ID (admin only)
 router.route("/:id").patch(uploadCompanyModelFiles, updateModelsById);
 
-// Delete models item by ID
+// Delete model by ID (admin only)
 router.route("/:id").delete(deleteModelsById);
 
 export default router; 

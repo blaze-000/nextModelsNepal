@@ -1,21 +1,22 @@
 import { Router } from "express";
-import { createNavItem, deleteNavById, getNavItemById, getNavItem, updateNavById } from "../controllers/nav.controller";
+import { createNavItem, deleteNavById, getNavItem, getNavItemById, updateNavById } from "../controllers/nav.controller";
+
 
 const router = Router();
 
-// Get all Nav Item
+// Get all navigation items
 router.route("/").get(getNavItem);
 
-// Get all hero Item by Id
+// Get single navigation item by ID
 router.route("/:id").get(getNavItemById);
 
-// Create Nav Item 
+// Create navigation item (admin only)
 router.route("/").post(createNavItem);
 
-// update Nav Item by Id
+// Update navigation item by ID (admin only)
 router.route("/:id").patch(updateNavById);
 
-// Delete Nav Item by Id
+// Delete navigation item by ID (admin only)
 router.route("/:id").delete(deleteNavById);
 
 export default router;

@@ -27,3 +27,16 @@ export const nextEventSchema = z.object({
     .min(1, "At least one notice is required"),
   card: z.array(cardSchema).default([])
 });
+
+// Update Schema (all fields optional for partial updates)
+export const nextEventUpdateSchema = z.object({
+  tag: z.string().min(1, "Tag is required").optional(),
+  title: z.string().min(1, "Title is required").optional(),
+  titleImage: z.string().min(1, "Title image is required").optional(),
+  image: z.string().min(1, "Image is required").optional(),
+  description: z.string().min(1, "Description is required").optional(),
+  noticeName: z.string().min(1, "Notice name is required").optional(),
+  notice: z.array(z.string().min(1, "Notice item cannot be empty"))
+    .min(1, "At least one notice is required").optional(),
+  card: z.array(cardSchema).default([]).optional()
+});
