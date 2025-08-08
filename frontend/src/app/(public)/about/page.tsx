@@ -53,11 +53,11 @@ export default function About() {
         viewport={{ once: true, amount: 0.6 }}
         className="flex mdplus:hidden py-30 bg-black">
         <div className="text-center px-6">
-          <h2 className="text-6xl flex flex-col font-newsreader text-primary font-extralight tracking-tighter leading-tighter pb-8">
+          <h2 className="text-5xl flex flex-col font-newsreader text-primary font-extralight tracking-tighter leading-tighter pb-8">
             <span>About</span>
             <span>Us</span>
           </h2>
-          <p className="text-lg px-8">
+          <p className="text-lg px-3">
             Next Models Nepal&quot; stands as a dynamic force in Nepal&apos;s entertainment and fashion industry, offering comprehensive event management, model management, and talent management services. Established as a pioneering entity in the Nepalese market, it serves as a one-stop destination for individuals and organizations seeking top-notch solutions in the realms of modeling, talent representation, and event planning.
           </p>
         </div>
@@ -71,7 +71,7 @@ export default function About() {
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="font-newsreader text-5xl mdplus:text-6xl font-light text-center mdplus:text-left tracking-tighter"
+            className="font-newsreader text-4xl mdplus:text-6xl font-light text-center mdplus:text-left tracking-tighter"
           >
             <div className="flex flex-col mdplus:flex-row mdplus:gap-2.5">
               <span>We are</span>
@@ -108,7 +108,7 @@ export default function About() {
           initial={{ opacity: 0, y: 60 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, delay: 0.6, ease: "easeOut" }}
-          className="max-w-7xl mx-auto px-4 pt-24 hidden mdplus:flex"
+          className="max-w-7xl mx-auto px-6 pt-24 hidden mdplus:flex"
         >
           <Image
             src="/about.png"
@@ -122,7 +122,7 @@ export default function About() {
 
       {/* List of [title, paragraph, image] */}
       <section className="w-full">
-        <div className="max-w-7xl mx-auto px-4 space-y-36">
+        <div className="max-w-7xl mx-auto px-6 space-y-36">
 
           {/* A Home for Diverse Talent */}
           <motion.article
@@ -140,7 +140,7 @@ export default function About() {
               className="object-cover w-full h-86"
             />
             <div className="flex flex-col gap-4 justify-center h-full ">
-              <h3 className="text-5xl text-primary font-newsreader font-light max-w-lg">
+              <h3 className="text-4xl mdplus:text-5xl text-primary font-newsreader font-light max-w-lg">
                 <span className="text-white">A Home for </span>Diverse Talent
               </h3>
               <p>
@@ -165,7 +165,7 @@ export default function About() {
               className="object-cover w-full h-86 mdplus:order-2"
             />
             <div className="flex flex-col gap-4 justify-center h-full mdplus:order-1 text-right mdplus:text-left">
-              <h3 className="text-5xl text-primary font-newsreader font-light ml-20 mdplus:ml-0">
+              <h3 className="text-4xl mdplus:text-5xl text-primary font-newsreader font-light ml-20 mdplus:ml-0">
                 <span className="text-white">Beyond Modeling: </span>
                 <br className="hidden mdplus:flex" />
                 Full-Spectrum Talent Management
@@ -192,7 +192,7 @@ export default function About() {
               className="object-cover w-full h-86"
             />
             <div className="flex flex-col gap-4 justify-center h-full ">
-              <h3 className="text-5xl text-primary font-newsreader font-light max-w-xl">
+              <h3 className="text-4xl mdplus:text-5xl text-primary font-newsreader font-light max-w-xl">
                 <span className="text-white">A Reputation </span>
                 <br className="hidden mdplus:flex" />
                 Built on Professionalism
@@ -219,7 +219,7 @@ export default function About() {
               className="object-cover w-full h-86 mdplus:order-2"
             />
             <div className="flex flex-col gap-4 justify-center h-full order-1 mdplus:order-1 text-right mdplus:text-left">
-              <h3 className="text-5xl text-primary font-newsreader font-light ml-20 mdplus:ml-0">
+              <h3 className="text-4xl mdplus:text-5xl text-primary font-newsreader font-light ml-20 mdplus:ml-0">
                 <span className="text-white">Shaping the Future of</span> Nepal&apos;s Creative Scene
               </h3>
               <p>

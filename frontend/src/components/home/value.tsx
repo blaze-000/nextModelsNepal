@@ -22,7 +22,7 @@ const ValuesSection = () => {
 
   return (
     <section className="bg-background2 w-full pt-16 md:pt-12 pb-18 relative overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 md:px-8">
+      <div className="max-w-7xl mx-auto px-6">
         {/* Heading */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -33,7 +33,7 @@ const ValuesSection = () => {
         >
           <h2 className="font-newsreader text-5xl lg:text-5xl font-extralight text-white">
             At Next Models Nepal{" "}
-            <span className="text-gold-400 font-newsreader font-extralight">
+            <span className="text-gold-500 font-newsreader font-extralight">
               We Ensure
             </span>
             ,

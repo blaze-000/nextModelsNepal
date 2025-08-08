@@ -5,8 +5,8 @@ import Link from "next/link";
 
 const UpcomingEventSection = () => {
   return (
-    <section className="bg-background2 w-full">
-      <div className="max-w-7xl mx-auto px-8 md:px-16 lg:px-4 py-16">
+    <section className="bg-black-900 w-full">
+      <div className="max-w-7xl mx-auto px-6 py-16">
 
         {/* Header */}
         <motion.div

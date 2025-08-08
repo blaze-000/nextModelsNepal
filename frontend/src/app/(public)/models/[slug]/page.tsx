@@ -84,7 +84,7 @@ export default function ModelPage() {
 
       {/* Gallery */}
       <section className="w-full bg-background2 py-16 md:py-20">
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-7xl mx-auto px-6">
           <SectionHeader title="Gallery" />
 
           {/* Gallery using the reusable component */}

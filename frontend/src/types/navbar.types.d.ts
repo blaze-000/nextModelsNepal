@@ -1,28 +1,23 @@
-interface SubmenuItem {
-  label: string,
-  href: string,
-}
+// Type definitions for menu items and submenus
+type SubmenuSingleColumn = {
+  columns: 1;
+  items: { label: string; href: string }[];
+};
 
-interface SubmenuBase {
-  columns: 1 | 2,
-}
-
-interface SubmenuSingleColumn extends SubmenuBase {
-  columns: 1,
-  items: SubmenuItem[],
-}
-
-interface SubmenuTwoColumn extends SubmenuBase {
-  columns: 2,
-  titles?: string[],
-  items: SubmenuItem[][],
-}
+type SubmenuTwoColumn = {
+  columns: 2;
+  titles: [string, string];
+  items: [
+    { label: string; href: string }[],
+    { label: string; href: string }[]
+  ];
+};
 
 type Submenu = SubmenuSingleColumn | SubmenuTwoColumn;
 
-interface MenuItem {
-  id: number,
-  label: string,
-  href: string,
-  submenu?: Submenu,
-}
+type MenuItem = {
+  id: number;
+  label: string;
+  href: string;
+  submenu?: Submenu;
+};

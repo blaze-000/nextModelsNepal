@@ -165,7 +165,7 @@ export default function HireModel() {
       <HireModelForm />
 
       <section className="bg-background2 py-16 lg:py-24">
-        <div className="max-w-7xl mx-auto px-6 md:px-8">
+        <div className="max-w-7xl mx-auto px-6">
           {/* Section Header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}

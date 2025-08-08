@@ -49,7 +49,7 @@ export default function ContactUs() {
         viewport={{ once: true, amount: 0.6 }}
         className="flex md:hidden py-30 bg-black">
         <div className="text-center px-6">
-          <h2 className="text-6xl font-newsreader text-primary font-extralight tracking-tighter leading-tight pb-8">
+          <h2 className="text-5xl font-newsreader text-primary font-extralight tracking-tighter leading-tight pb-8">
             Contact Us
           </h2>
           <p>

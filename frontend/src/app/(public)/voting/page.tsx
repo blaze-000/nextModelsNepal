@@ -11,7 +11,7 @@ const ongoingEvents = [
 
 export default function Voting() {
   return (
-    <section className="py-40 mdplus:py-20 flex flex-col">
+    <section className="w-full py-40 mdplus:py-20 flex flex-col">
       <div className="max-w-7xl px-6 mx-auto">
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
@@ -49,7 +49,7 @@ export default function Voting() {
             >
               <Link
                 href={`/voting/${item.slug}`}
-                className="border border-gold-500 rounded-full min-w-96 h-24 flex items-center gap-6 cursor-pointer hover:text-white px-16"
+                className="border border-gold-500 rounded-full h-24 mdplus:min-w-96 flex items-center gap-3 mdplus:gap-6 cursor-pointer hover:text-white px-16"
               >
                 <Image
                   src={item.icon}

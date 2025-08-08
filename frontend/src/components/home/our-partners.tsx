@@ -18,18 +18,25 @@ const partners = [
 
 const OurPartners = () => {
   return (
-    <section className="w-full py-16 overflow-hidden">
+    <section className="w-full py-16">
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
         viewport={{ once: true }}
-        className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-8 pb-10"
+        className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8 pb-10"
       >
         {/* Left Section */}
-        <div className="flex flex-col gap-3 font-newsreader">
-          <h2 className="text-5xl font-extralight tracking-tight">
+        <div className="flex flex-col items-center md:items-start gap-3 font-newsreader">
+          <h2 className="text-4xl md:text-5xl font-extralight tracking-tight text-center md:text-left relative">
             Our Strategic
+            <Image
+              src="/star.svg"
+              alt=""
+              width={30}
+              height={0}
+              className=" absolute w-5 h-5 animate-bounce-slow -right-6 top-0"
+            />
           </h2>
           <div className="flex items-center gap-4">
             <Image
@@ -37,11 +44,11 @@ const OurPartners = () => {
               alt=""
               width={187}
               height={80}
-              className="rounded-[38px] w-36 h-16 object-cover"
+              className="rounded-[38px] w-36 h-16 object-cover hidden md:flex"
             />
-            <span className="text-gold-500 text-6xl font-light tracking-tighter">
+            <p className="text-gold-500 text-5xl md:text-6xl font-light tracking-tighter">
               Partners
-            </span>
+            </p>
           </div>
         </div>
 

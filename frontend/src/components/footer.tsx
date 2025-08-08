@@ -9,9 +9,9 @@ const Footer: FC = (): ReactNode => {
   const currentYear: number = new Date().getFullYear();
 
   const quickLinks = [
-    { label: "Home", href: "/" }, 
-    { label: "About", href: "/about" }, 
-    { label: "Services", href: "/apply" }, 
+    { label: "Home", href: "/" },
+    { label: "About", href: "/about" },
+    { label: "Services", href: "/apply" },
     { label: "Contact", href: "/contact" }
   ];
   const events = [
@@ -47,7 +47,7 @@ const Footer: FC = (): ReactNode => {
       className="w-full bg-background2 border-t border-white/20 text-white relative"
       variants={container}
     >
-      <div className="sm:px-6 pt-9 max-w-7xl mx-auto px-4 md:px-8">
+      <div className="px-6 pt-9 max-w-7xl mx-auto">
         {/* Newsletter Section */}
         <motion.div variants={item} className="flex justify-center">
           <NewsLetterBox />
@@ -71,40 +71,40 @@ const Footer: FC = (): ReactNode => {
               <p className="text-base tracking-normal leading-loose">
                 Nepal&rsquo;s No.1 Modeling Agency
               </p>
-                <div className="flex items-center gap-4 pt-3 justify-center md:justify-start">
-                  <Link
-                    href="https://instagram.com/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-gold-500 w-8 h-8 p-1.5 text-black rounded-full hover:opacity-80 transition-opacity flex items-center justify-center"
-                  >
-                    <i className="ri-instagram-line" />
-                  </Link>
-                  <Link
-                    href="https://twitter.com/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-gold-500 w-8 h-8 p-1.5 text-black rounded-full hover:opacity-80 transition-opacity flex items-center justify-center"
-                  >
-                    <i className="ri-twitter-x-line" />
-                  </Link>
-                  <Link
-                    href="https://facebook.com/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-gold-500 w-8 h-8 p-1.5 text-black rounded-full hover:opacity-80 transition-opacity flex items-center justify-center"
-                  >
-                    <i className="ri-facebook-circle-line" />
-                  </Link>
-                  <Link
-                    href="https://linkedin.com/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-gold-500 w-8 h-8 p-1.5 text-black rounded-full hover:opacity-80 transition-opacity flex items-center justify-center"
-                  >
-                    <i className="ri-linkedin-box-line" />
-                  </Link>
-                </div>
+              <div className="flex items-center gap-4 pt-3 justify-center md:justify-start">
+                <Link
+                  href="https://instagram.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-gold-500 w-8 h-8 p-1.5 text-black rounded-full hover:opacity-80 transition-opacity flex items-center justify-center"
+                >
+                  <i className="ri-instagram-line" />
+                </Link>
+                <Link
+                  href="https://twitter.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-gold-500 w-8 h-8 p-1.5 text-black rounded-full hover:opacity-80 transition-opacity flex items-center justify-center"
+                >
+                  <i className="ri-twitter-x-line" />
+                </Link>
+                <Link
+                  href="https://facebook.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-gold-500 w-8 h-8 p-1.5 text-black rounded-full hover:opacity-80 transition-opacity flex items-center justify-center"
+                >
+                  <i className="ri-facebook-circle-line" />
+                </Link>
+                <Link
+                  href="https://linkedin.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-gold-500 w-8 h-8 p-1.5 text-black rounded-full hover:opacity-80 transition-opacity flex items-center justify-center"
+                >
+                  <i className="ri-linkedin-box-line" />
+                </Link>
+              </div>
             </motion.div>
 
             {/* Quick Links */}
@@ -140,7 +140,11 @@ const Footer: FC = (): ReactNode => {
             </motion.div>
 
             {/* Contact */}
-            <motion.div id="footer-contact" variants={item} className="space-y-8 md:space-y-6 col-span-2 md:col-span-1">
+            <motion.div
+              id="footer-contact"
+              variants={item}
+              className="space-y-8 md:space-y-6 col-span-2 md:col-span-1 outline-none"
+            >
               <h3 className="text-base font-semibold">Contact</h3>
               <div className="space-y-4">
                 <Link href="tel:+9779819686790" className="flex items-center gap-3 group/phone hover:text-gold-400">
@@ -170,7 +174,7 @@ const Footer: FC = (): ReactNode => {
         <motion.div variants={item} className="border-t border-white/20 py-7">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="text-sm font-light opacity-65 text-center mdplus:text-center">
-              Copyright © 2013 - {currentYear} Next Models Nepal. All Rights Reserved. Empowered by <Link href="https://protozoahost.com" rel="noopener noreferrer" target="_blank" className="font-bold text-nowrap">Protozoa Host</Link>
+              Copyright © 2013 - {currentYear} Next Models Nepal. All Rights Reserved. Empowered by <Link href="https://protozoahost.com" rel="noopener noreferrer" target="_blank" className="font-bold text-nowrap hover:underline underline-offset-1">Protozoa Host</Link>
             </div>
             {/* <div className="flex items-center gap-6 text-[20px] font-urbanist">
               <div className="text-base font-light hover:text-gold-400 transition-colors cursor-pointer underline underline-offset-4 tracking-wider">

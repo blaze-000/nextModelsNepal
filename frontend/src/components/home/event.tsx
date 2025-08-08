@@ -69,8 +69,8 @@ const EventsSection = () => {
   const partnerEvents = events.filter(event => event.managedBy === "partner");
 
   return (
-    <section className="bg-gold-500/5 pt-20 pb-16">
-      <div className="max-w-7xl mx-auto px-6 md:px-8">
+    <section className="bg-[#19160D] pt-20 pb-16">
+      <div className="max-w-7xl mx-auto px-6">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}

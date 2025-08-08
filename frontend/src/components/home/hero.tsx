@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 
 const HeroSection = () => {
   return (
-    <section className="bg-background w-full">
+    <section className="bg-gradient-to-b from-background2 to-background w-full">
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-[1fr_1.5fr] gap-8">
           {/* Left Content */}
@@ -72,7 +72,7 @@ const HeroSection = () => {
                 </Button>
               </Link>
               <Link
-                href={"#"}
+                href="/events/upcoming-events"
                 className="px-4 py-4 rounded-full text-gold-500 text-base -tracking-tight font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer">
                 <span className="underline underline-offset-4">Upcoming Events</span>
                 <i className="ri-arrow-right-up-line group-hover:scale-130 transition-transform duration-400 text-xl font-extralight" />
@@ -147,7 +147,7 @@ const HeroSection = () => {
                 width={25}
                 height={25}
                 priority
-                className="object-cover"
+                className="h-14 w-14 object-cover"
               />
             </div>
           </motion.div>

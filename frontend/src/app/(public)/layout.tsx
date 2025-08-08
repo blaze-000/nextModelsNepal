@@ -9,11 +9,12 @@ export const metadata: Metadata = {
 };
 
 export default function Layout({ children }: { children: ReactNode }) {
+
   return (
     <>
-      <Navbar />
-      {children}
-      <Footer />
+        <Navbar />
+        {children}
+        <Footer />
     </>
   );
 };

@@ -255,7 +255,7 @@ export default function EventDetails() {
       {/* Timeline Visual */}
       <section className="w-full relative px-4 bg-background2 overflow-hidden pt-40 pb-40">
         <div className="absolute w-full top-1/2 -translate-y-1/2 h-0.5 bg-white z-0" />
-        <div className="flex justify-center gap-4 w-full z-10 max-w-7xl mx-auto">
+        <div className="flex justify-center gap-4 w-full z-10 max-w-7xl mx-auto px-6">
           {timelineData.map((item, index) => (
             <div key={index} className="relative flex justify-center flex-1">
               <div
@@ -370,7 +370,7 @@ export default function EventDetails() {
 
       {/* Gallery */}
       <section className="w-full bg-background2 py-16 md:py-20">
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-7xl mx-auto px-6">
           <SectionHeader title="Gallery" />
 
           {/* Gallery using the reusable component */}
@@ -387,7 +387,7 @@ export default function EventDetails() {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
             viewport={{ once: true }}
-            className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-8"
+            className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8"
           />
           <motion.div
             initial={{ opacity: 0 }}
