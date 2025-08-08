@@ -25,7 +25,8 @@ export const nextEventSchema = z.object({
   noticeName: z.string().min(1, "Notice name is required"),
   notice: z.array(z.string().min(1, "Notice item cannot be empty"))
     .min(1, "At least one notice is required"),
-  card: z.array(cardSchema).default([])
+  card: z.array(cardSchema).default([]),
+  slug: z.string().optional()
 });
 
 // Update Schema (all fields optional for partial updates)
@@ -38,5 +39,7 @@ export const nextEventUpdateSchema = z.object({
   noticeName: z.string().min(1, "Notice name is required").optional(),
   notice: z.array(z.string().min(1, "Notice item cannot be empty"))
     .min(1, "At least one notice is required").optional(),
-  card: z.array(cardSchema).default([]).optional()
+  card: z.array(cardSchema).default([]).optional(),
+  slug: z.string().optional()
+
 });

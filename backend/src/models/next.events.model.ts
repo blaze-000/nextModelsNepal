@@ -21,7 +21,8 @@ const nextEventSchema = new mongoose.Schema({
     description: { type: String, required: true },
     noticeName: { type: String, required: true },
     notice: { type: [String], required: true },
-    card: { type: [cardSchema], default: [] } 
+    card: { type: [cardSchema], default: [] },
+    slug: {type: String, unique: true, default: ""}
 });
 
 // Fixed Auto-indexing Middleware

@@ -104,7 +104,8 @@ if (Array.isArray(req.files)) {
             description: body.description,
             noticeName: body.noticeName,
             notice,
-            card: cardData
+            card: cardData,
+            slug: body.slug
         };
 
         // Validate using zod
@@ -201,6 +202,7 @@ export const updateNextEventById = async (req: Request, res: Response) => {
 
         // Only update fields that are present in the request body
         if (body.tag !== undefined) mergedData.tag = body.tag;
+        if (body.slug !== undefined) mergedData.slug = body.slug;
         if (body.title !== undefined) mergedData.title = body.title;
         if (body.description !== undefined) mergedData.description = body.description;
         if (body.noticeName !== undefined) mergedData.noticeName = body.noticeName;

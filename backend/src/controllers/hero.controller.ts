@@ -7,7 +7,7 @@ import { heroItemSchema } from "../validations/hero.validation";
  */
 export const getHeroItem = async (_req: Request, res: Response) => {
     try {
-        const heroItems = await HeroModel.find({});
+        const heroItems = await HeroModel.find();
         if (!heroItems || heroItems.length === 0) {
             return res.status(404).json({
                 success: false,

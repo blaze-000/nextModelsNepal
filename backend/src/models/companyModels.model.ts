@@ -6,7 +6,8 @@ const COMMODELSchema = new mongoose.Schema({
     address: { type: String, required: true },
     coverImage: {type: String, required: true},
     images: { type: [String], default: [] },
-    gender: { type: String, required: true }
+    gender: { type: String, required: true },
+    slug: {type: String, default: "", unique: true}
 });
 
 export const COMMODEL = mongoose.model("COMMODEL", COMMODELSchema);
