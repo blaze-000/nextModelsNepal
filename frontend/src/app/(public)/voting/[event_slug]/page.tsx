@@ -28,8 +28,8 @@ export default function EventVoting() {
   return (
     <main>
       {/* Hero Section */}
-      <section className="w-full bg-[#020202]">
-        <div className="max-w-7xl mx-auto px-6 max-h-[810px] h-[80vh] grid mdplus:grid-cols-2 items-center justify-items-center mdplus:justify-items-end">
+      <section className="w-full bg-[#020202] py-12 mdplus:py-4">
+        <div className="max-w-7xl mx-auto px-6 mdplus:max-h-[810px] mdplus:h-[80vh] grid mdplus:grid-cols-2 items-center justify-items-center mdplus:justify-items-end">
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -38,7 +38,7 @@ export default function EventVoting() {
             transition={{ duration: 0.6 }}
             className="space-y-5 order-2 mdplus:order-1 text-center mdplus:text-left"
           >
-            <h1 className="font-newsreader text-8xl font-light flex tracking-tighter px-4 ">
+            <h1 className="font-newsreader text-5xl mdplus:text-8xl font-light flex tracking-tighter px-4 ">
               <span>{EVENT_DETAILS.name}<i className="text-primary"> Voting</i></span>
             </h1>
 

@@ -53,7 +53,7 @@ export default function PartnerScroller({ partners, speed = 1000 }: PartnerScrol
           <div
             key={`${partner.name}-${idx}`}
             ref={idx === 0 ? itemRef : null}
-            className="h-14 w-40 mr-4 flex-shrink-0 flex items-center justify-center"
+            className="h-16 w-40 mr-4 flex-shrink-0 flex items-center justify-center"
           >
             <Image
               src={partner.image}

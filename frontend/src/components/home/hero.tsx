@@ -147,7 +147,7 @@ const HeroSection = () => {
                 width={25}
                 height={25}
                 priority
-                className="object-cover"
+                className="h-14 w-14 object-cover"
               />
             </div>
           </motion.div>

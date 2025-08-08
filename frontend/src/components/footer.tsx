@@ -174,7 +174,7 @@ const Footer: FC = (): ReactNode => {
         <motion.div variants={item} className="border-t border-white/20 py-7">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="text-sm font-light opacity-65 text-center mdplus:text-center">
-              Copyright © 2013 - {currentYear} Next Models Nepal. All Rights Reserved. Empowered by <Link href="https://protozoahost.com" rel="noopener noreferrer" target="_blank" className="font-bold text-nowrap">Protozoa Host</Link>
+              Copyright © 2013 - {currentYear} Next Models Nepal. All Rights Reserved. Empowered by <Link href="https://protozoahost.com" rel="noopener noreferrer" target="_blank" className="font-bold text-nowrap hover:underline underline-offset-1">Protozoa Host</Link>
             </div>
             {/* <div className="flex items-center gap-6 text-[20px] font-urbanist">
               <div className="text-base font-light hover:text-gold-400 transition-colors cursor-pointer underline underline-offset-4 tracking-wider">
