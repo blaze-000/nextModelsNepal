@@ -9,21 +9,21 @@ const eventCounterSchema = new mongoose.Schema({
 const Counter = mongoose.model('Counter', eventCounterSchema);
 
 const eventSchema = new mongoose.Schema({
-    index: { type: Number, unique: true, default: "1" },
-    tag: { type: String },
+    index: { type: Number, unique: true },
+    state: { type: String },
     coverImage: { type: String },
     title: { type: String, required: true },
-    titleImage: {type: String, default: []},
+    titleImage: {type: String, default: ""},
     date: { type: String },
     overview: { type: String, required: true },
     logo: {type: String, required: true},
-    subImage: {type: String, default: []},
+    subImage: {type: String, default: ""},
     purpose: { type: String },
-    Member: {
+    member: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "MemberModel",
     },
-    highlight:{ type: [String]},
+    highlight:{ type: [String], default: []},
 
     // Event Timeline 
     eventDescription: {type: String},
@@ -41,8 +41,7 @@ const eventSchema = new mongoose.Schema({
     endTimelineEvent: {type: String},
 
     // sponsers
-    sponsers: {type: String},
-    sponsersImage: {type: [String], required: true}
+    sponsersImage: {type: [String], required: true, default: []}
 
 });
 

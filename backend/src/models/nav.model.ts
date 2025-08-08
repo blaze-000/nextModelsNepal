@@ -1,20 +1,18 @@
 import mongoose from "mongoose";
 
 const navSchema = new mongoose.Schema({
-    title: { type: String, required: true, unique: true },
+    label: { type: String, required: true, unique: true },
     path: { type: String, default: '' },
-    link: { type: String },
     type: { type: String, enum: ['link', 'dropdown'], default: 'link' },
     children: [
         {
-            title: { type: String, required: true },
+            label: { type: String, required: true },
             path: { type: String, required: true },
-            link: { type: String, required: true },
-            order: { type: Number, default: 0 }
+            order: { type: Number, default: 1}
         }
     ],
     visible: { type: Boolean, default: true },
-    order: { type: Number, default: 0 }
+    order: { type: Number, default: 1 }
 });
 
 export const NavModel = mongoose.model("NavModel", navSchema);

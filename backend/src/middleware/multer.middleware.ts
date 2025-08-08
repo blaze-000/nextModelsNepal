@@ -51,15 +51,22 @@ export const uploadIcon = multer({
 export const uploadImagesAndIcons = multer({
     storage,
     fileFilter: (req, file, cb) => {
-        if (file.mimetype.startsWith('image/') || file.mimetype === 'image/svg+xml') {
-            cb(null, true);
-        } else {
-            cb(new Error('Only image files (including SVG) are allowed.'));
+        // Enforce SVG for the icon field, and standard images for images field
+        if (file.fieldname === 'icon') {
+            if (file.mimetype === 'image/svg+xml') return cb(null, true);
+            return cb(new Error('Only SVG files are allowed for icon.'));
         }
+
+        if (file.fieldname === 'images') {
+            if (file.mimetype.startsWith('image/')) return cb(null, true);
+            return cb(new Error('Only image files are allowed for images.'));
+        }
+
+        return cb(new Error(`Unexpected field: ${file.fieldname}`));
     },
 }).fields([
     { name: 'images', maxCount: 10 },
-    { name: 'icons', maxCount: 10 }
+    { name: 'icon', maxCount: 1 },
 ]);
 
 // Enhanced middleware for handling any image files with nested field names

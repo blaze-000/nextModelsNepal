@@ -1,11 +1,14 @@
 import { Request, Response } from "express";
+import mongoose from "mongoose";
 import { EventModel } from "../models/events.model";
 import { eventZodSchema } from "../validations/event.validation";
+import { ZodError } from "zod";
+import { MemberModel } from "../models/member.model";
 
 //  Fetch all Event items
 export const getEventItems = async (_req: Request, res: Response) => {
     try {
-        const eventItems = await EventModel.find({});
+        const eventItems = await EventModel.find({}).populate('member');
         if (!eventItems || eventItems.length === 0) {
             return res.status(404).json({
                 success: false,
@@ -31,7 +34,7 @@ export const getEventItems = async (_req: Request, res: Response) => {
 export const getEventById = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
-        const eventItem = await EventModel.findOne({ index: id });
+        const eventItem = await EventModel.findOne({ index: id }).populate('member');
 
         if (!eventItem) {
             return res.status(404).json({
@@ -57,122 +60,130 @@ export const getEventById = async (req: Request, res: Response) => {
 //  Create Event item
 export const createEventItem = async (req: Request, res: Response) => {
     try {
-        
+        const files = req.files as { [key: string]: Express.Multer.File[] };
+
+        // Inject file paths into req.body before validation
+        req.body.coverImage = files?.coverImage?.[0]?.path || "";
+        req.body.logo = files?.logo?.[0]?.path || "";
+        req.body.titleImage = files?.titleImage?.[0]?.path || "";
+        req.body.subImage = files?.subImage?.[0]?.path || "";
+
+        req.body.highlight = files?.highlight?.map(f => f.path) || [];
+        req.body.sponsersImage = files?.sponsersImage?.map(f => f.path) || [];
+
+        req.body.startingTimelineIcon = files?.startingTimelineIcon?.[0]?.path || "";
+        req.body.midTimelineIcon = files?.midTimelineIcon?.[0]?.path || "";
+        req.body.endTimelineIcon = files?.endTimelineIcon?.[0]?.path || "";
+
+        // Parse request body with Zod (after injecting file paths)
         const eventData = eventZodSchema.parse(req.body);
-        const { tag, title, date, overview, purpose, eventDescription, startingTimelineDate, startingTimelineEvent, midTimelineDate, midTimelineEvent, endTimelineDate, endTimelineEvent, sponsers } = eventData;
 
-        const files = req.files as {
-            [fieldname: string]: Express.Multer.File[];
-        };
-
-        // Get cover image 
-        const coverImageFiles = files?.coverImage || [];
-        const coverImagePath = coverImageFiles.length > 0 ? coverImageFiles[0].path : null;
-        if(!coverImagePath) return res.status(401).send("Cover Image Is Required.");
-
-        // Get title image 
-        const titleImageFiles = files?.titleImage || [];
-        const titleImagePath = titleImageFiles.length > 0 ? titleImageFiles[0].path : null;
-        if(!titleImagePath) return res.status(401).send("Title Image Is Required.");
-
-        // Get sub image 
-        const subImageFiles = files?.subImage || [];
-        const subImagePath = subImageFiles.length > 0 ? subImageFiles[0].path : null;
-        if(!subImagePath) return res.status(401).send("Sub Image Is Required.");
-
-        // Get highlight images 
-        const highlightImageFiles = files?.highlight || [];
-        const highlightImagePaths = highlightImageFiles.map(file => file.path);
-        if(!highlightImageFiles) return res.status(401).send("Highlight Image Is Required.");
-
-        // Get sponsers images 
-        const sponsersImageFile = files?.sponsersImage || [];
-        if (sponsersImageFile.length === 0) {
-            return res.status(400).send("Please provide sponser images.");
+        // Resolve member id robustly from form-data that may send duplicates
+        let memberIdRaw: unknown = (req.body as any).member ?? (req.body as any).memberId ?? (req.body as any).id;
+        if (Array.isArray(memberIdRaw)) {
+            // pick the last non-empty value
+            const nonEmpty = memberIdRaw.filter((v) => typeof v === 'string' && v.trim().length > 0);
+            memberIdRaw = nonEmpty.length > 0 ? nonEmpty[nonEmpty.length - 1] : '';
         }
-        const sponsersImagePaths = sponsersImageFile.map(file => file.path);
+        const memberId: string = typeof memberIdRaw === 'string' ? memberIdRaw : '';
 
-        // Get logo 
-        const logoFiles = files?.logo || [];
-        if (logoFiles.length === 0) {
-            return res.status(400).send("Please provide a logo.");
+        if (!memberId || !mongoose.Types.ObjectId.isValid(memberId)) {
+            return res.status(400).json({ success: false, message: 'Invalid member id' });
         }
-        const logoPath = logoFiles[0].path;
 
-        // Get icon 
-        const iconFiles = files?.startingTimelineIcon || [];
-        if (iconFiles.length === 0) {
-            return res.status(400).send("Please provide a starting timeline icon.");
+        const existMember = await MemberModel.findById(memberId);
+        if (!existMember) {
+            return res.status(404).send("Member not found with this id");
         }
-        const startingIconPath = iconFiles[0].path;
 
-        // Get mid timeline icon 
-        const midIconFiles = files?.midTimelineIcon || [];
-        if (midIconFiles.length === 0) {
-            return res.status(400).send("Please provide a mid timeline icon.");
-        }
-        const midIconPath = midIconFiles[0].path;
-
-        // Get end timeline icon 
-        const endIconFiles = files?.endTimelineIcon || [];
-        if (endIconFiles.length === 0) {
-            return res.status(400).send("Please provide a ending timeline icon.");
-        }
-        const endIconPath = endIconFiles[0].path;
-
-        const eventSection = await EventModel.create({
-            tag,
+        // Destructure eventData
+        const {
+            state,
             title,
             date,
             overview,
             purpose,
-            coverImage: coverImagePath,
-            titleImage: titleImagePath,
-            subImage: subImagePath,
-            logo: logoPath,
-            highlight: highlightImagePaths,
-
             eventDescription,
-            startingTimelineIcon: startingIconPath,
             startingTimelineDate,
             startingTimelineEvent,
-
-            midTimelineIcon: midIconPath,
             midTimelineDate,
             midTimelineEvent,
-
-            endTimelineIcon: endIconPath,
             endTimelineDate,
             endTimelineEvent,
+            coverImage,
+            titleImage,
+            subImage,
+            logo,
+            highlight,
+            startingTimelineIcon,
+            midTimelineIcon,
+            endTimelineIcon,
+            sponsersImage
+        } = eventData;
 
-            sponsers,
-            sponsersImage: sponsersImagePaths
+        // Create the event document in MongoDB
+        const eventSection = await EventModel.create({
+            state,
+            title,
+            date,
+            overview,
+            purpose,
+            coverImage,
+            titleImage,
+            subImage,
+            logo,
+            highlight,
+            eventDescription,
+            startingTimelineIcon,
+            startingTimelineDate,
+            startingTimelineEvent,
+            midTimelineIcon,
+            midTimelineDate,
+            midTimelineEvent,
+            endTimelineIcon,
+            endTimelineDate,
+            endTimelineEvent,
+            sponsersImage,
+            member: existMember._id
         });
 
-        res.status(201).json({
+        return res.status(201).json({
             success: true,
             message: "Event section item created successfully.",
             data: eventSection
         });
+
     } catch (error: any) {
-        console.error("Error creating Event item:", error.message);
-        
-        // Handle Multer errors specifically
-        if (error.code === 'LIMIT_UNEXPECTED_FILE') {
+        console.error("Error creating Event item:", error);
+
+        // Handle Zod validation errors
+        if (error instanceof ZodError) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid input data.",
+                error: error.message
+            });
+        }
+
+        // Handle Multer unexpected file fields
+        if (error.code === "LIMIT_UNEXPECTED_FILE") {
             return res.status(400).json({
                 success: false,
                 message: "Unexpected file field. Please check your form field names.",
                 error: error.message,
-                expectedFields: ['coverImage', 'titleImage', 'subImage', 'highlight', 'logo', 'startingTimelineIcon', 'midTimelineIcon', 'endTimelineIcon', 'sponsersImage']
+                expectedFields: [
+                    "coverImage", "titleImage", "subImage", "highlight", "logo",
+                    "startingTimelineIcon", "midTimelineIcon", "endTimelineIcon", "sponsersImage"
+                ]
             });
         }
-        
-        return res.status(400).json({
+
+        return res.status(500).json({
             success: false,
-            message: "Invalid input data.",
-            error: error.message,
+            message: "Internal server error.",
+            error: error.message
         });
-    };
+    }
 };
 
 //  Update a Event item by ID
@@ -183,7 +194,7 @@ export const updateEventById = async (req: Request, res: Response) => {
         // Check if the event exists
         const existEvent = await EventModel.findOne({ index: id });
         if (!existEvent) {
-            return res.status(401).send("Invalid Event Id.");
+            return res.status(404).send("Invalid Event Id.");
         }
 
         // When using uploadEventFiles.fields(), files come as an object with field names
@@ -196,9 +207,9 @@ export const updateEventById = async (req: Request, res: Response) => {
 
         // Check if req.body exists before destructuring
         if (req.body) {
-            const { tag, title, date, overview, purpose, eventDescription, startingTimelineDate, startingTimelineEvent, midTimelineDate, midTimelineEvent, endTimelineDate, endTimelineEvent } = req.body;
+            const { state, title, date, overview, purpose, eventDescription, startingTimelineDate, startingTimelineEvent, midTimelineDate, midTimelineEvent, endTimelineDate, endTimelineEvent } = req.body;
 
-            if (tag !== undefined) updateData.tag = tag;
+            if (state !== undefined) updateData.state = state;
             if (title !== undefined) updateData.title = title;
             if (date !== undefined) updateData.date = date;
             if (overview !== undefined) updateData.overview = overview;
@@ -274,7 +285,7 @@ export const updateEventById = async (req: Request, res: Response) => {
         const updatedItem = await EventModel.findOneAndUpdate({ index: id }, updateData, {
             new: true,
             upsert: false,
-        });
+        }).populate('member');
 
         if (!updatedItem) {
             return res.status(404).json({
