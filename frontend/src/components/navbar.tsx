@@ -118,7 +118,7 @@ const Header = () => {
     if (item.submenu.columns === 1) {
       return (
         <div className="flex flex-col space-y-2 whitespace-nowrap min-w-max">
-          {item.submenu.items.map((subItem: any, idx: number) => (
+          {item.submenu.items.map((subItem: { label: string, href: string }, idx: number) => (
             <Link
               key={idx}
               href={subItem.href}
@@ -146,7 +146,7 @@ const Header = () => {
               </div>
               <div className="flex flex-col space-y-2">
                 {Array.isArray(item?.submenu?.items?.[col]) &&
-                  item.submenu.items[col].map((subItem: any, idx: number) => (
+                  item.submenu.items[col].map((subItem: { label: string, href: string }, idx: number) => (
                     <Link
                       key={idx}
                       href={subItem.href}
