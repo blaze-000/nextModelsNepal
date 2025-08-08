@@ -32,11 +32,13 @@ const imageFilter = (req: Express.Request, file: Express.Multer.File, cb: multer
 export const uploadImages = multer({
     storage,
     fileFilter: imageFilter,
+    limits: { fileSize: 5 * 1024 * 1024, files: 10 },
 }).array('images', 10);
 
 export const uploadImage = multer({
     storage,
     fileFilter: imageFilter,
+    limits: { fileSize: 5 * 1024 * 1024, files: 1 },
 }).single('image');
 
 export const uploadIcon = multer({
@@ -45,6 +47,7 @@ export const uploadIcon = multer({
         if (file.mimetype === 'image/svg+xml') cb(null, true);
         else cb(new Error('Only SVG files are allowed.'));
     },
+    limits: { fileSize: 1 * 1024 * 1024, files: 1 },
 }).single('icon');
 
 // Combined middleware for handling both images and icons
@@ -64,6 +67,7 @@ export const uploadImagesAndIcons = multer({
 
         return cb(new Error(`Unexpected field: ${file.fieldname}`));
     },
+    limits: { fileSize: 5 * 1024 * 1024 },
 }).fields([
     { name: 'images', maxCount: 10 },
     { name: 'icon', maxCount: 1 },
@@ -79,6 +83,7 @@ export const uploadAnyImages = multer({
             cb(new Error('Only image files (including SVG) are allowed.'));
         }
     },
+    limits: { fileSize: 5 * 1024 * 1024 },
 }).any();
 
 export const uploadNextEventRequiredFiles = multer({
@@ -90,6 +95,7 @@ export const uploadNextEventRequiredFiles = multer({
             cb(new Error('Only image files (including SVG) are allowed.'));
         }
     },
+    limits: { fileSize: 5 * 1024 * 1024 },
 }).fields([
     { name: 'titleImage', maxCount: 1 },
     { name: 'image', maxCount: 1 },
@@ -99,6 +105,7 @@ export const uploadNextEventRequiredFiles = multer({
 export const uploadImageFiles = multer({
     storage,
     fileFilter: imageFilter,
+    limits: { fileSize: 5 * 1024 * 1024 },
 }).fields([
     { name: 'coverImage', maxCount: 1 },  // Single cover image
     { name: 'gallery', maxCount: 10 }     // Multiple gallery images
@@ -108,6 +115,7 @@ export const uploadImageFiles = multer({
 export const uploadCompanyModelFiles = multer({
     storage,
     fileFilter: imageFilter,
+    limits: { fileSize: 5 * 1024 * 1024 },
 }).fields([
     { name: 'coverImage', maxCount: 1 },  // Single cover image
     { name: 'images', maxCount: 10 }      // Multiple gallery images
@@ -117,6 +125,7 @@ export const uploadCompanyModelFiles = multer({
 export const uploadEventFiles = multer({
     storage,
     fileFilter: imageFilter,
+    limits: { fileSize: 5 * 1024 * 1024 },
 }).fields([
     { name: 'coverImage', maxCount: 1 },  // Single cover image
     { name: 'titleImage', maxCount: 1 },  // Single title image

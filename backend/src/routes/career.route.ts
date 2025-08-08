@@ -8,21 +8,22 @@ import {
 } from "../controllers/career.controller";
 import { uploadImages } from "../middleware/multer.middleware";
 
+
 const router = Router();
 
 // Get all career items
 router.route("/").get(getCareerItems);
 
-// Create career item 
+// Create career item (admin only)
 router.route("/").post(uploadImages, createCareerItem);
 
 // Get single career item by ID
 router.route("/:id").get(getCareerById);
 
-// Update career item by ID
+// Update career item by ID (admin only)
 router.route("/:id").patch(uploadImages, updateCareerById);
 
-// Delete career item by ID
+// Delete career item by ID (admin only)
 router.route("/:id").delete(deleteCareerById);
 
 export default router; 

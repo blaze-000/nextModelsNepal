@@ -47,9 +47,10 @@ export const createContact = async (req: Request, res: Response) => {
         });
     } catch (error: any) {
         console.error("Error creating contact:", error);
-        return res.status(500).json({
+        const status = error?.name === 'ZodError' ? 400 : 500;
+        return res.status(status).json({
             success: false,
-            message: "Failed to Submit contact.",
+            message: status === 400 ? "Invalid input data." : "Failed to submit contact.",
         });
     }
 };

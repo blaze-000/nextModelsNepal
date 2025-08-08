@@ -1,29 +1,29 @@
 import { Router } from "express";
-import {
-    createMember,
-    getMemberById,
-    getAllMember,
-    updateMemberById,
-    deleteMemberById
+import { 
+    createMember, 
+    deleteMemberById, 
+    getMemberById, 
+    getAllMember, 
+    updateMemberById 
 } from "../controllers/member.controller";
 import { uploadImagesAndIcons } from "../middleware/multer.middleware";
 
+
 const router = Router();
 
-// Get all Nav Item
+// Get all members
 router.route("/").get(getAllMember);
 
-// Create Nav Item 
+// Create member (admin only)
 router.route("/").post(uploadImagesAndIcons, createMember);
 
-// Get all hero Item by Id
+// Get single member by ID
 router.route("/:id").get(getMemberById);
 
-// update Nav Item by Id
+// Update member by ID (admin only)
 router.route("/:id").patch(uploadImagesAndIcons, updateMemberById);
 
-// Delete Nav Item by Id
+// Delete member by ID (admin only)
 router.route("/:id").delete(deleteMemberById);
-
 
 export default router;

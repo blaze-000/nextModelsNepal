@@ -8,21 +8,22 @@ import {
 } from "../controllers/feedback.controller";
 import { uploadAnyImages } from "../middleware/multer.middleware";
 
+
 const router = Router();
 
 // Get all feedback items
 router.route("/").get(getFeedbackItems);
 
-// Create feedback item 
+// Create feedback item (admin only)
 router.route("/").post(uploadAnyImages, createFeedbackItem);
 
 // Get single feedback item by ID
 router.route("/:id").get(getFeedbackById);
 
-// Update feedback item by ID
+// Update feedback item by ID (admin only)
 router.route("/:id").patch(uploadAnyImages, updateFeedbackById);
 
-// Delete feedback item by ID
+// Delete feedback item by ID (admin only)
 router.route("/:id").delete(deleteFeedbackById);
 
 export default router; 
