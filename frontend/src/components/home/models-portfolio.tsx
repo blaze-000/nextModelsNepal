@@ -80,11 +80,11 @@ const ModelsPortfolioSection = () => {
             <div className="flex items-center gap-4">
               <h2 className="text-white text-3xl lg:text-5xl font-light font-newsreader">Find a</h2>
               <Image
-                className="w-24 h-12 lg:w-36 lg:h-16 rounded-full border border-stone-300 mb-3"
-                width={32}
+                width={300}
                 height={0}
-                src="https://placehold.co/187x80"
+                src="/find-a-face.jpg"
                 alt=""
+                className="object-cover w-24 h-12 lg:w-36 lg:h-16 rounded-full border border-stone-300 mb-3"
               />
               <h2 className="text-white text-4xl lg:text-5xl font-light font-newsreader">Face</h2>
             </div>

@@ -1,10 +1,28 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "../ui/button";
 import { motion } from 'framer-motion';
+import axios from "@/lib/axios-instance";
 
 const HeroSection = () => {
+  const [data, setData] = useState<HeroData|null>(null);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await axios.get('/api/hero');
+        const data = res.data;
+        // console.log(data.data[0]);
+        setData(data.data[0])
+      }
+      catch (err) {
+        // console.log(err);
+      }
+    })();
+  }, []);
+
+
   return (
     <section className="bg-gradient-to-b from-background2 to-background w-full">
       <div className="max-w-7xl mx-auto px-6">
@@ -93,7 +111,7 @@ const HeroSection = () => {
               {/* Image 1 - Award ceremony */}
               <div className="relative overflow-hidden rounded-xl">
                 <Image
-                  src="/news_1.jpg"
+                  src={`${process.env.NEXT_PUBLIC_API_URL}/${data?.images[0]}`}
                   alt="Award ceremony"
                   fill
                   className="object-cover transition-transform duration-500 hover:scale-110"
@@ -103,7 +121,7 @@ const HeroSection = () => {
               {/* Image 2 - Pageant */}
               <div className="relative overflow-hidden rounded-xl">
                 <Image
-                  src="/news_1.jpg"
+                  src={`${process.env.NEXT_PUBLIC_API_URL}/${data?.images[1]}`}
                   alt="Beauty pageant"
                   fill
                   className="object-cover transition-transform duration-500 hover:scale-110"
@@ -113,7 +131,7 @@ const HeroSection = () => {
               {/* Image 3 - Group photo */}
               <div className="relative overflow-hidden rounded-xl">
                 <Image
-                  src="/news_1.jpg"
+                  src={`${process.env.NEXT_PUBLIC_API_URL}/${data?.images[2]}`}
                   alt="Models group photo"
                   fill
                   className="object-cover transition-transform duration-500 hover:scale-110"
@@ -123,7 +141,7 @@ const HeroSection = () => {
               {/* Image 4 - Runway show */}
               <div className="relative overflow-hidden rounded-xl">
                 <Image
-                  src="/news_1.jpg"
+                  src={`${process.env.NEXT_PUBLIC_API_URL}/${data?.images[3]}`}
                   alt="Runway show"
                   fill
                   className="object-cover transition-transform duration-500 hover:scale-110"
