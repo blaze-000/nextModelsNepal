@@ -13,6 +13,7 @@ export default function AdminLayout({
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isSidebarHovered, setIsSidebarHovered] = useState(false);
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -37,25 +38,46 @@ export default function AdminLayout({
     setIsMobileSidebarOpen(false);
   };
 
+  const handleSidebarHover = (isHovered: boolean) => {
+    if (!isMobile) {
+      setIsSidebarHovered(isHovered);
+    }
+  };
+
+  // Calculate sidebar width based on state
+  const getSidebarWidth = () => {
+    if (isMobile) return 0;
+    if (!isSidebarCollapsed) return 280;
+    return isSidebarHovered ? 280 : 64;
+  };
+
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="min-h-screen bg-background2 flex">
       {/* Sidebar */}
       <Sidebar
         isCollapsed={isSidebarCollapsed}
         isMobileOpen={isMobileSidebarOpen}
         onClose={closeMobileSidebar}
+        onHoverChange={handleSidebarHover}
+        isMobile={isMobile}
       />
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col lg:ml-0">
+      <div
+        className="flex-1 flex flex-col transition-all duration-300 ease-in-out"
+        style={{
+          marginLeft: getSidebarWidth(),
+        }}
+      >
         {/* Header */}
         <Header
           onToggleSidebar={toggleSidebar}
-          isSidebarCollapsed={isMobileSidebarOpen}
+          isSidebarCollapsed={isSidebarCollapsed}
+          isMobileSidebarOpen={isMobileSidebarOpen}
         />
 
         {/* Page Content */}
-        <main className="flex-1 overflow-auto">
+        <main className="flex-1 overflow-auto bg-background">
           <div className="p-4 lg:p-6">{children}</div>
         </main>
       </div>
