@@ -42,11 +42,13 @@ export const UpcomingEvents = () => {
           <div className="hidden md:flex justify-between items-center px-2">
             <SectionHeader title="Upcoming Events" />
 
-           <div className="pb-8"> <Button variant="outline" className="py-2">
-              <span>Sort By:</span>
-              <span>Most Recent</span>
-              <i className="ri-arrow-down-s-line text-lg" />
-            </Button></div>
+            <div className="pb-8">
+              <Button variant="outline" className="py-2">
+                <span>Sort By:</span>
+                <span>Most Recent</span>
+                <i className="ri-arrow-down-s-line text-lg" />
+              </Button>
+            </div>
           </div>
 
           {/* Mobile Layout */}
