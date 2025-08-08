@@ -85,3 +85,26 @@ interface TimelineProps {
   title?: string,
   children: React.ReactNode,
 }
+
+type HeroData = {
+  maintitle: string,
+  subtitle: string,
+  description: string,
+  images: File<Image>[4],
+}
+
+type UpcomingEventData = {
+  title: string,
+  titleImage: File<Image>,
+  slug: string,
+  image: string,
+  description: string,
+  notice: string[],
+  card: {
+    cardTitle: string,
+    index: string,
+    item: { criteriaTitle: string, criteria: string, criteriaIcon: File<Image> }[]
+  }[],
+  notice: string[],
+  noticeName: string,
+};

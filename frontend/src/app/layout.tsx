@@ -22,6 +22,9 @@ const newsreader = Newsreader({
 export const metadata = {
   title: "Next Models Nepal",
   description: "Next Models Nepal - Nepal's No.1 Modeling Agency",
+  icons:{
+    icon:'/favicon.png'
+  }
 };
 
 export default function RootLayout({
