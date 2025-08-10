@@ -2,9 +2,7 @@ import axios from "axios";
 
 const Axios = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL,
-    headers: {
-        "Content-Type": "application/json",
-    },
+    // Remove the default Content-Type header to allow FormData to set multipart/form-data
     withCredentials: true,
 });
 

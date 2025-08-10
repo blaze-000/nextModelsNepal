@@ -99,9 +99,21 @@ app.use((error: any, req: Request, res: Response, next: NextFunction) => {
       success: false,
       message: 'File upload error',
       error: error.message,
-      code: error.code
+      code: error.code,
+      field: error.field
     });
   }
+  
+  // Handle other file-related errors
+  if (error.message && error.message.includes('Only image files are allowed')) {
+    console.error('File type error:', error.message);
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid file type',
+      error: error.message
+    });
+  }
+  
   next(error);
 });
 
