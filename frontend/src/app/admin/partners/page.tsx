@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import Image from "next/image";
 
@@ -11,34 +11,55 @@ import { AdminButton } from "@/components/admin/AdminButton";
 import Input from "@/components/admin/form/input";
 
 import { apiClient } from "@/lib/api";
-import { Partner, PartnerFormData } from "@/types/admin";
+import { Partner, PartnerFormData, PartnerItem } from "@/types/admin";
 
-const initialFormData: PartnerFormData = {
-  maintitle: "",
-  partners: [],
+// Types
+type PartnerWithCollection = PartnerItem & {
+  collectionId: string;
+  _id: string;
+};
+
+// Constants
+const INITIAL_FORM_DATA: PartnerFormData = {
+  partners: [{ sponserName: "", sponserImage: null }],
+};
+
+const INITIAL_EDIT_FORM = {
+  sponserName: "",
+  sponserImage: null as File | null,
 };
 
 export default function PartnersPage() {
   const [partnersData, setPartnersData] = useState<Partner[]>([]);
+  const [allPartners, setAllPartners] = useState<PartnerWithCollection[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [editingPartner, setEditingPartner] = useState<Partner | null>(null);
-  const [viewingPartner, setViewingPartner] = useState<Partner | null>(null);
-  const [formData, setFormData] = useState<PartnerFormData>(initialFormData);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingPartner, setEditingPartner] =
+    useState<PartnerWithCollection | null>(null);
+  const [formData, setFormData] = useState<PartnerFormData>(INITIAL_FORM_DATA);
+  const [editFormData, setEditFormData] = useState(INITIAL_EDIT_FORM);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  useEffect(() => {
-    fetchPartners();
-  }, []);
-
-  const fetchPartners = async () => {
+  // Fetch partners
+  const fetchPartners = useCallback(async () => {
     try {
       setLoading(true);
       const response = await apiClient.get<Partner>("/partners");
+
       if (response.success && response.data) {
         setPartnersData(response.data);
+
+        // Flatten partners for table display
+        const flatPartners = response.data.flatMap((collection) =>
+          collection.partners.map((partner) => ({
+            ...partner,
+            collectionId: collection._id,
+            _id: `${collection._id}-${partner.index}`,
+          }))
+        );
+        setAllPartners(flatPartners);
       }
     } catch (error) {
       toast.error("Failed to fetch partners");
@@ -46,268 +67,388 @@ export default function PartnersPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const handleCreate = () => {
-    setEditingPartner(null);
-    setFormData(initialFormData);
+  useEffect(() => {
+    fetchPartners();
+  }, [fetchPartners]);
+
+  // Modal handlers
+  const handleCreate = useCallback(() => {
+    setFormData(INITIAL_FORM_DATA);
     setErrors({});
     setIsModalOpen(true);
-  };
+  }, []);
 
-  const handleEdit = (partner: Partner) => {
-    setEditingPartner(partner);
-    setFormData({
-      maintitle: partner.maintitle,
-      partners: partner.partners.map((p) => ({ name: p.name, image: null })),
+  const handleEdit = useCallback((item: PartnerWithCollection) => {
+    setEditingPartner(item);
+    setEditFormData({
+      sponserName: item.sponserName,
+      sponserImage: null,
     });
     setErrors({});
-    setIsModalOpen(true);
-  };
+    setIsEditModalOpen(true);
+  }, []);
 
-  const handleView = (partner: Partner) => {
-    setViewingPartner(partner);
-    setIsViewModalOpen(true);
-  };
+  const closeModals = useCallback(() => {
+    setIsModalOpen(false);
+    setIsEditModalOpen(false);
+    setEditingPartner(null);
+    setErrors({});
+  }, []);
 
-  const handleDelete = async (partner: Partner) => {
-    if (!confirm("Are you sure you want to delete this partner section?"))
-      return;
+  // Form handlers
+  const updatePartner = useCallback(
+    (
+      index: number,
+      field: "sponserName" | "sponserImage",
+      value: string | File | null
+    ) => {
+      setFormData((prev) => ({
+        ...prev,
+        partners: prev.partners.map((partner, i) =>
+          i === index ? { ...partner, [field]: value } : partner
+        ),
+      }));
 
-    try {
-      const response = await apiClient.delete("/partners", partner._id);
-      if (response.success) {
-        toast.success("Partner section deleted successfully");
-        fetchPartners();
-      } else {
-        toast.error("Failed to delete partner section");
+      // Clear related error
+      const errorKey =
+        field === "sponserName"
+          ? `partner_name_${index}`
+          : `partner_image_${index}`;
+      if (errors[errorKey]) {
+        setErrors((prev) => ({ ...prev, [errorKey]: "" }));
       }
-    } catch (error) {
-      toast.error("Failed to delete partner section");
-      console.error("Error deleting partner:", error);
-    }
-  };
+    },
+    [errors]
+  );
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev: PartnerFormData) => ({ ...prev, [name]: value }));
-    if (errors[name]) {
-      setErrors((prev: Record<string, string>) => ({ ...prev, [name]: "" }));
-    }
-  };
-
-  const handlePartnerNameChange = (index: number, value: string) => {
-    setFormData((prev: PartnerFormData) => ({
+  const addPartner = useCallback(() => {
+    setFormData((prev) => ({
       ...prev,
-      partners: prev.partners.map((partner, i) =>
-        i === index ? { ...partner, name: value } : partner
-      ),
+      partners: [...prev.partners, { sponserName: "", sponserImage: null }],
     }));
-  };
+  }, []);
 
-  const handlePartnerImageChange = (index: number, file: File | null) => {
-    setFormData((prev: PartnerFormData) => ({
-      ...prev,
-      partners: prev.partners.map((partner, i) =>
-        i === index ? { ...partner, image: file } : partner
-      ),
-    }));
-  };
+  const removePartner = useCallback(
+    (index: number) => {
+      if (formData.partners.length === 1) {
+        toast.error("At least one partner is required");
+        return;
+      }
+      setFormData((prev) => ({
+        ...prev,
+        partners: prev.partners.filter((_, i) => i !== index),
+      }));
+    },
+    [formData.partners.length]
+  );
 
-  const addPartner = () => {
-    setFormData((prev: PartnerFormData) => ({
-      ...prev,
-      partners: [...prev.partners, { name: "", image: null }],
-    }));
-  };
+  const handleEditInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { name, value } = e.target;
+      setEditFormData((prev) => ({ ...prev, [name]: value }));
+      if (errors[name]) {
+        setErrors((prev) => ({ ...prev, [name]: "" }));
+      }
+    },
+    [errors]
+  );
 
-  const removePartner = (index: number) => {
-    setFormData((prev: PartnerFormData) => ({
-      ...prev,
-      partners: prev.partners.filter((_, i) => i !== index),
-    }));
-  };
-
-  const validateForm = (): boolean => {
+  // Validation
+  const validateForm = useCallback((): boolean => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.maintitle.trim())
-      newErrors.maintitle = "Main title is required";
-    if (formData.partners.length === 0)
+    if (formData.partners.length === 0) {
       newErrors.partners = "At least one partner is required";
+    }
 
     formData.partners.forEach((partner, index) => {
-      if (!partner.name.trim()) {
+      if (!partner.sponserName.trim()) {
         newErrors[`partner_name_${index}`] = "Partner name is required";
       }
-      if (!editingPartner && !partner.image) {
+      if (!partner.sponserImage) {
         newErrors[`partner_image_${index}`] = "Partner image is required";
       }
     });
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  };
+  }, [formData.partners]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const validateEditForm = useCallback((): boolean => {
+    const newErrors: Record<string, string> = {};
 
-    if (!validateForm()) return;
-
-    setSubmitting(true);
-    const submitFormData = new FormData();
-
-    submitFormData.append("maintitle", formData.maintitle);
-
-    // Convert partners to JSON string for the partners field
-    const partnersData = formData.partners.map((partner) => ({
-      name: partner.name,
-    }));
-    submitFormData.append("partners", JSON.stringify(partnersData));
-
-    // Append partner images
-    formData.partners.forEach((partner) => {
-      if (partner.image) {
-        submitFormData.append("partners", partner.image);
-      }
-    });
-
-    try {
-      const response = editingPartner
-        ? await apiClient.update(
-            "/partners",
-            editingPartner._id,
-            submitFormData
-          )
-        : await apiClient.create("/partners", submitFormData);
-
-      if (response.success) {
-        toast.success(
-          `Partners ${editingPartner ? "updated" : "created"} successfully`
-        );
-        setIsModalOpen(false);
-        fetchPartners();
-      } else {
-        toast.error(
-          `Failed to ${editingPartner ? "update" : "create"} partners`
-        );
-      }
-    } catch (error) {
-      toast.error(`Failed to ${editingPartner ? "update" : "create"} partners`);
-      console.error("Error submitting partners:", error);
-    } finally {
-      setSubmitting(false);
+    if (!editFormData.sponserName.trim()) {
+      newErrors.sponserName = "Partner name is required";
     }
-  };
 
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  }, [editFormData.sponserName]);
+
+  // API operations
+  const handleDelete = useCallback(
+    async (item: PartnerWithCollection) => {
+      if (
+        !confirm(
+          `Are you sure you want to delete partner "${item.sponserName}"?`
+        )
+      ) {
+        return;
+      }
+
+      try {
+        const collection = partnersData.find(
+          (c) => c._id === item.collectionId
+        );
+        if (!collection) {
+          toast.error("Partner collection not found");
+          return;
+        }
+
+        const updatedPartners = collection.partners.filter(
+          (p) => p.index !== item.index
+        );
+
+        if (updatedPartners.length === 0) {
+          const response = await apiClient.delete(
+            "/partners",
+            item.collectionId
+          );
+          if (response.success) {
+            toast.success("Partner deleted successfully");
+            fetchPartners();
+          } else {
+            toast.error("Failed to delete partner");
+          }
+        } else {
+          const updateFormData = new FormData();
+          updatedPartners.forEach((p, index) => {
+            updateFormData.append(
+              `partners[${index}][sponserName]`,
+              p.sponserName
+            );
+            updateFormData.append(
+              `partners[${index}][sponserImage]`,
+              p.sponserImage
+            );
+          });
+
+          const response = await apiClient.update(
+            "/partners",
+            item.collectionId,
+            updateFormData
+          );
+          if (response.success) {
+            toast.success("Partner deleted successfully");
+            fetchPartners();
+          } else {
+            toast.error("Failed to delete partner");
+          }
+        }
+      } catch (error) {
+        toast.error("Failed to delete partner");
+        console.error("Error deleting partner:", error);
+      }
+    },
+    [partnersData, fetchPartners]
+  );
+
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+
+      if (!validateForm()) return;
+
+      setSubmitting(true);
+      const submitFormData = new FormData();
+
+      formData.partners.forEach((partner, index) => {
+        submitFormData.append(
+          `partners[${index}][sponserName]`,
+          partner.sponserName
+        );
+        if (partner.sponserImage) {
+          submitFormData.append(
+            `partners[${index}][sponserImage]`,
+            partner.sponserImage
+          );
+        }
+      });
+
+      try {
+        const response = await apiClient.create("/partners", submitFormData);
+
+        if (response.success) {
+          toast.success("Partners created successfully");
+          closeModals();
+          fetchPartners();
+        } else {
+          toast.error("Failed to create partners");
+        }
+      } catch (error) {
+        toast.error("Failed to create partners");
+        console.error("Error submitting partners:", error);
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    [formData, validateForm, closeModals, fetchPartners]
+  );
+
+  const handleEditSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+
+      if (!validateEditForm() || !editingPartner) return;
+
+      setSubmitting(true);
+
+      try {
+        const collection = partnersData.find(
+          (c) => c._id === editingPartner.collectionId
+        );
+        if (!collection) {
+          toast.error("Partner collection not found");
+          return;
+        }
+
+        const updatedPartners = collection.partners.map((p) =>
+          p.index === editingPartner.index
+            ? { ...p, sponserName: editFormData.sponserName }
+            : p
+        );
+
+        const updateFormData = new FormData();
+        updatedPartners.forEach((partner, index) => {
+          updateFormData.append(
+            `partners[${index}][sponserName]`,
+            partner.sponserName
+          );
+
+          if (
+            partner.index === editingPartner.index &&
+            editFormData.sponserImage
+          ) {
+            updateFormData.append(
+              `partners[${index}][sponserImage]`,
+              editFormData.sponserImage
+            );
+          } else {
+            updateFormData.append(
+              `partners[${index}][sponserImage]`,
+              partner.sponserImage
+            );
+          }
+        });
+
+        const response = await apiClient.update(
+          "/partners",
+          editingPartner.collectionId,
+          updateFormData
+        );
+
+        if (response.success) {
+          toast.success("Partner updated successfully");
+          closeModals();
+          fetchPartners();
+        } else {
+          toast.error("Failed to update partner");
+        }
+      } catch (error) {
+        toast.error("Failed to update partner");
+        console.error("Error updating partner:", error);
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    [
+      editFormData,
+      editingPartner,
+      partnersData,
+      validateEditForm,
+      closeModals,
+      fetchPartners,
+    ]
+  );
+
+  // Table columns configuration
   const columns = [
     {
-      key: "maintitle",
-      label: "Title",
+      key: "sponserName",
+      label: "Partner Name",
       sortable: true,
       render: (value: unknown) => (
-        <div className="font-medium">{String(value)}</div>
+        <div className="font-medium text-sm sm:text-base truncate">
+          {String(value)}
+        </div>
       ),
     },
     {
-      key: "partners",
-      label: "Partners",
-      render: (value: unknown) => {
-        const partners = value as { name: string; image: string }[];
-        return (
-          <div className="flex items-center gap-2">
-            <span className="text-xs bg-gray-500/20 text-gray-400 px-2 py-1 rounded">
-              {partners?.length || 0} partners
-            </span>
-            {partners && partners.length > 0 && (
-              <div className="flex -space-x-2">
-                {partners.slice(0, 3).map((partner, index) => (
-                  <div
-                    key={index}
-                    className="w-6 h-6 bg-gray-800 rounded border border-gray-600 overflow-hidden"
-                  >
-                    <Image
-                      src={`http://localhost:8000/${partner.image}`}
-                      alt={partner.name}
-                      width={24}
-                      height={24}
-                      className="w-full h-full object-cover"
-                      unoptimized
-                    />
-                  </div>
-                ))}
-                {partners.length > 3 && (
-                  <div className="w-6 h-6 bg-gray-700 rounded border border-gray-600 flex items-center justify-center">
-                    <span className="text-xs text-gray-300">
-                      +{partners.length - 3}
-                    </span>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        );
-      },
+      key: "sponserImage",
+      label: "Image",
+      render: (value: unknown) => (
+        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-800 rounded-lg overflow-hidden border border-gray-600 flex-shrink-0">
+          <Image
+            src={`http://localhost:8000/${String(value)}`}
+            alt="Partner"
+            width={48}
+            height={48}
+            className="w-full h-full object-cover"
+            unoptimized
+          />
+        </div>
+      ),
+    },
+    {
+      key: "index",
+      label: "Index",
+      sortable: true,
+      render: (value: unknown) => (
+        <div className="text-xs sm:text-sm text-gray-400">#{String(value)}</div>
+      ),
     },
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 p-4 sm:p-6 lg:p-8">
       <PageHeader
         title="Partners"
         description="Manage business partners and sponsors"
       >
-        <AdminButton onClick={handleCreate} >
-          Add Partners Section
+        <AdminButton onClick={handleCreate} className="w-full sm:w-auto">
+          Add Partners
         </AdminButton>
       </PageHeader>
 
-      <DataTable
-        data={partnersData}
-        columns={columns}
-        onView={handleView}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        loading={loading}
-        emptyMessage="No partner sections found. Create your first partners section to get started."
-        searchPlaceholder="Search partners..."
-      />
+      <div className="overflow-hidden">
+        <DataTable
+          data={allPartners}
+          columns={columns}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          loading={loading}
+          emptyMessage="No partners found. Create your first partners to get started."
+          searchPlaceholder="Search partners..."
+        />
+      </div>
 
-      {/* Create/Edit Modal */}
+      {/* Create Modal */}
       <Modal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title={
-          editingPartner ? "Edit Partners Section" : "Create Partners Section"
-        }
+        onClose={closeModals}
+        title="Add Partners"
         size="xl"
       >
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          <Input
-            label="Main Title"
-            name="maintitle"
-            value={formData.maintitle}
-            onChange={handleInputChange}
-            placeholder="Enter section title"
-            error={errors.maintitle}
-            required
-          />
-
+        <form
+          onSubmit={handleSubmit}
+          className="p-4 sm:p-6 space-y-4 sm:space-y-6"
+        >
           <div>
-            <div className="flex items-center justify-between mb-4">
-              <label className="block text-sm font-medium text-gray-300">
-                Partners
-              </label>
-              <AdminButton
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={addPartner}
-              
-              >
-                Add Partner
-              </AdminButton>
-            </div>
+            <label className="block text-sm font-medium text-gray-300 mb-4">
+              Partners
+            </label>
 
             {errors.partners && (
               <p className="text-red-400 text-sm mb-4">{errors.partners}</p>
@@ -317,135 +458,181 @@ export default function PartnersPage() {
               {formData.partners.map((partner, index) => (
                 <div
                   key={index}
-                  className="p-4 border border-gray-600 rounded-lg space-y-4"
+                  className="p-4 border border-gray-600 rounded-lg space-y-4 bg-gray-800/30"
                 >
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <h4 className="font-medium text-gray-300">
                       Partner {index + 1}
                     </h4>
-                    <AdminButton
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removePartner(index)}
-                   
-                      className="text-red-400 hover:text-red-300"
-                    >
-                      Remove
-                    </AdminButton>
+                    {formData.partners.length > 1 && (
+                      <AdminButton
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removePartner(index)}
+                        className="text-red-400 hover:text-red-300 self-start sm:self-auto"
+                      >
+                        Remove
+                      </AdminButton>
+                    )}
                   </div>
 
-                  <Input
-                    name={`partner_name_${index}`}
-                    label="Partner Name"
-                    value={partner.name}
-                    onChange={(e) =>
-                      handlePartnerNameChange(index, e.target.value)
-                    }
-                    placeholder="Enter partner name"
-                    error={errors[`partner_name_${index}`]}
-                    required
-                  />
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Partner Image *
-                    </label>
-                    <input
-                      type="file"
-                      accept="image/*"
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <Input
+                      name={`partner_name_${index}`}
+                      label="Partner Name"
+                      value={partner.sponserName}
                       onChange={(e) =>
-                        handlePartnerImageChange(
-                          index,
-                          e.target.files?.[0] || null
-                        )
+                        updatePartner(index, "sponserName", e.target.value)
                       }
-                      className="w-full p-3 bg-transparent border border-gray-600 rounded-lg text-gray-100 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:bg-gold-500/20 file:text-gold-400 hover:file:bg-gold-500/30"
+                      placeholder="Enter partner name"
+                      error={errors[`partner_name_${index}`]}
+                      required
                     />
-                    {errors[`partner_image_${index}`] && (
-                      <p className="text-red-400 text-sm mt-1">
-                        {errors[`partner_image_${index}`]}
-                      </p>
-                    )}
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                        Partner Image *
+                      </label>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) =>
+                          updatePartner(
+                            index,
+                            "sponserImage",
+                            e.target.files?.[0] || null
+                          )
+                        }
+                        className="w-full p-3 bg-transparent border border-gray-600 rounded-lg text-gray-100 
+                          file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm 
+                          file:bg-gold-500/20 file:text-gold-400 hover:file:bg-gold-500/30 
+                          focus:border-gold-500 focus:ring-1 focus:ring-gold-500 transition-colors"
+                      />
+                      {errors[`partner_image_${index}`] && (
+                        <p className="text-red-400 text-sm mt-1">
+                          {errors[`partner_image_${index}`]}
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
+
+            <div className="flex justify-center mt-6">
+              <AdminButton
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={addPartner}
+                className="w-full sm:w-auto"
+              >
+                Add Partner
+              </AdminButton>
+            </div>
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-gray-600">
+          <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-gray-600">
             <AdminButton
               variant="ghost"
-              onClick={() => setIsModalOpen(false)}
+              onClick={closeModals}
               type="button"
+              className="order-2 sm:order-1"
             >
               Cancel
             </AdminButton>
-            <AdminButton type="submit" >
-              {editingPartner ? "Update" : "Create"} Partners
+            <AdminButton
+              type="submit"
+              disabled={submitting}
+              className="order-1 sm:order-2"
+            >
+              {submitting ? "Creating..." : "Create Partners"}
             </AdminButton>
           </div>
         </form>
       </Modal>
 
-      {/* View Modal */}
+      {/* Edit Modal */}
       <Modal
-        isOpen={isViewModalOpen}
-        onClose={() => setIsViewModalOpen(false)}
-        title="View Partners Section"
-        size="xl"
+        isOpen={isEditModalOpen}
+        onClose={closeModals}
+        title="Edit Partner"
+        size="lg"
       >
-        {viewingPartner && (
-          <div className="p-6 space-y-6">
+        <form
+          onSubmit={handleEditSubmit}
+          className="p-4 sm:p-6 space-y-4 sm:space-y-6"
+        >
+          <div className="grid grid-cols-1 gap-4 sm:gap-6">
+            <Input
+              label="Partner Name"
+              name="sponserName"
+              value={editFormData.sponserName}
+              onChange={handleEditInputChange}
+              placeholder="Enter partner name"
+              error={errors.sponserName}
+              required
+            />
+
             <div>
-              <h3 className="text-xl font-semibold text-gray-100 mb-2">
-                {viewingPartner.maintitle}
-              </h3>
-              <div className="text-sm text-gray-400">
-                {viewingPartner.partners?.length || 0} partners
-              </div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Partner Image
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) =>
+                  setEditFormData((prev) => ({
+                    ...prev,
+                    sponserImage: e.target.files?.[0] || null,
+                  }))
+                }
+                className="w-full p-3 bg-transparent border border-gray-600 rounded-lg text-gray-100 
+                  file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm 
+                  file:bg-gold-500/20 file:text-gold-400 hover:file:bg-gold-500/30 
+                  focus:border-gold-500 focus:ring-1 focus:ring-gold-500 transition-colors"
+              />
+              <p className="text-sm text-gray-400 mt-2">
+                Leave empty to keep current image
+              </p>
             </div>
 
-            {viewingPartner.partners && viewingPartner.partners.length > 0 && (
-              <div>
-                <h4 className="font-medium text-gray-300 mb-3">Partners</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {viewingPartner.partners.map((partner, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg border border-gray-600"
-                    >
-                      <div className="w-12 h-12 bg-gray-800 rounded-lg overflow-hidden border border-gray-600">
-                        <Image
-                          src={`http://localhost:8000/${partner.image}`}
-                          alt={partner.name}
-                          width={48}
-                          height={48}
-                          className="w-full h-full object-cover"
-                          unoptimized
-                        />
-                      </div>
-                      <div>
-                        <div className="font-medium text-gray-200">
-                          {partner.name}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+            {editingPartner && (
+              <div className="p-3 bg-gray-800/50 rounded-lg border border-gray-600">
+                <p className="text-sm text-gray-400 mb-2">Current Image:</p>
+                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-800 rounded-lg overflow-hidden border border-gray-600">
+                  <Image
+                    src={`http://localhost:8000/${editingPartner.sponserImage}`}
+                    alt={editingPartner.sponserName}
+                    width={80}
+                    height={80}
+                    className="w-full h-full object-cover"
+                    unoptimized
+                  />
                 </div>
               </div>
             )}
-
-            <div className="flex justify-end pt-4 border-t border-gray-600">
-              <AdminButton
-                variant="ghost"
-                onClick={() => setIsViewModalOpen(false)}
-              >
-                Close
-              </AdminButton>
-            </div>
           </div>
-        )}
+
+          <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-gray-600">
+            <AdminButton
+              variant="ghost"
+              onClick={closeModals}
+              type="button"
+              className="order-2 sm:order-1"
+            >
+              Cancel
+            </AdminButton>
+            <AdminButton
+              type="submit"
+              disabled={submitting}
+              className="order-1 sm:order-2"
+            >
+              {submitting ? "Updating..." : "Update Partner"}
+            </AdminButton>
+          </div>
+        </form>
       </Modal>
     </div>
   );
