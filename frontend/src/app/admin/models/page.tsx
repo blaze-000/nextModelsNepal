@@ -10,12 +10,11 @@ import Modal from "@/components/admin/Modal";
 import { AdminButton } from "@/components/admin/AdminButton";
 import Input from "@/components/admin/form/input";
 import Textarea from "@/components/admin/form/textarea";
+import Select from "@/components/admin/form/select";
+import PhotoUpload from "@/components/admin/form/photo-upload";
 
 import { apiClient } from "@/lib/api";
 import { CompanyModel, ModelFormData } from "@/types/admin";
-
-// Types
-type GenderFilter = "all" | "male" | "female";
 
 const initialFormData: ModelFormData = {
   name: "",
@@ -28,10 +27,7 @@ const initialFormData: ModelFormData = {
 
 export default function ModelsPage() {
   const [models, setModels] = useState<CompanyModel[]>([]);
-  const [filteredModels, setFilteredModels] = useState<CompanyModel[]>([]);
   const [loading, setLoading] = useState(true);
-  const [genderFilter, setGenderFilter] = useState<GenderFilter>("all");
-  const [searchQuery, setSearchQuery] = useState("");
 
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -56,38 +52,9 @@ export default function ModelsPage() {
     }
   }, []);
 
-  // Filter models based on gender and search
-  const filterModels = useCallback(() => {
-    let filtered = models;
-
-    // Filter by gender
-    if (genderFilter !== "all") {
-      filtered = filtered.filter(
-        (model) => model.gender.toLowerCase() === genderFilter
-      );
-    }
-
-    // Filter by search query
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(
-        (model) =>
-          model.name.toLowerCase().includes(query) ||
-          model.address.toLowerCase().includes(query) ||
-          model.intro.toLowerCase().includes(query)
-      );
-    }
-
-    setFilteredModels(filtered);
-  }, [models, genderFilter, searchQuery]);
-
   useEffect(() => {
     fetchModels();
   }, [fetchModels]);
-
-  useEffect(() => {
-    filterModels();
-  }, [filterModels]);
 
   // Modal handlers
   const handleCreate = useCallback(() => {
@@ -183,10 +150,6 @@ export default function ModelsPage() {
     }));
   }, []);
 
-  const removeCoverImage = useCallback(() => {
-    setFormData((prev) => ({ ...prev, coverImage: null }));
-  }, []);
-
   // Validation
   const validateForm = useCallback((): boolean => {
     const newErrors: Record<string, string> = {};
@@ -252,15 +215,6 @@ export default function ModelsPage() {
     },
     [editingModel, formData, validateForm, closeModal, fetchModels]
   );
-
-  // Calculate statistics
-  const totalModels = models.length;
-  const maleModels = models.filter(
-    (model) => model.gender.toLowerCase() === "male"
-  ).length;
-  const femaleModels = models.filter(
-    (model) => model.gender.toLowerCase() === "female"
-  ).length;
 
   // Table columns configuration
   const columns = [
@@ -342,7 +296,7 @@ export default function ModelsPage() {
   ];
 
   return (
-    <div className="space-y-4 sm:space-y-6 p-4 sm:p-6 lg:p-8">
+    <div className="space-y-4 sm:space-y-6 p-2 sm:p-6 lg:p-2">
       <PageHeader
         title="Models Management"
         description="Manage your model portfolio with easy access to add, view, and organize models"
@@ -359,7 +313,7 @@ export default function ModelsPage() {
             <div>
               <p className="text-sm font-medium text-gray-400">Total Models</p>
               <p className="text-xl sm:text-2xl font-bold text-white">
-                {loading ? "..." : totalModels}
+                {loading ? "..." : models.length}
               </p>
             </div>
             <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gold-500/20 rounded-lg flex items-center justify-center">
@@ -385,7 +339,11 @@ export default function ModelsPage() {
             <div>
               <p className="text-sm font-medium text-gray-400">Male Models</p>
               <p className="text-xl sm:text-2xl font-bold text-blue-400">
-                {loading ? "..." : maleModels}
+                {loading
+                  ? "..."
+                  : models.filter(
+                      (model) => model.gender.toLowerCase() === "male"
+                    ).length}
               </p>
             </div>
             <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
@@ -411,7 +369,11 @@ export default function ModelsPage() {
             <div>
               <p className="text-sm font-medium text-gray-400">Female Models</p>
               <p className="text-xl sm:text-2xl font-bold text-pink-400">
-                {loading ? "..." : femaleModels}
+                {loading
+                  ? "..."
+                  : models.filter(
+                      (model) => model.gender.toLowerCase() === "female"
+                    ).length}
               </p>
             </div>
             <div className="w-10 h-10 sm:w-12 sm:h-12 bg-pink-500/20 rounded-lg flex items-center justify-center">
@@ -433,81 +395,15 @@ export default function ModelsPage() {
         </div>
       </div>
 
-      {/* Filters and Search */}
-      <div className="bg-gray-800 rounded-lg border border-gray-700 p-4 sm:p-6">
-        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center w-full sm:w-auto">
-            <div className="w-full sm:w-auto">
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Filter by Gender
-              </label>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setGenderFilter("all")}
-                  className={`px-3 py-2 text-xs sm:text-sm rounded-lg transition-colors ${
-                    genderFilter === "all"
-                      ? "bg-gold-500/20 text-gold-400 border border-gold-500/30"
-                      : "bg-gray-700 text-gray-300 hover:bg-gray-600"
-                  }`}
-                >
-                  All ({totalModels})
-                </button>
-                <button
-                  onClick={() => setGenderFilter("male")}
-                  className={`px-3 py-2 text-xs sm:text-sm rounded-lg transition-colors ${
-                    genderFilter === "male"
-                      ? "bg-blue-500/20 text-blue-400 border border-blue-500/30"
-                      : "bg-gray-700 text-gray-300 hover:bg-gray-600"
-                  }`}
-                >
-                  Male ({maleModels})
-                </button>
-                <button
-                  onClick={() => setGenderFilter("female")}
-                  className={`px-3 py-2 text-xs sm:text-sm rounded-lg transition-colors ${
-                    genderFilter === "female"
-                      ? "bg-pink-500/20 text-pink-400 border border-pink-500/30"
-                      : "bg-gray-700 text-gray-300 hover:bg-gray-600"
-                  }`}
-                >
-                  Female ({femaleModels})
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div className="w-full sm:w-64">
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Search Models
-            </label>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by name, address, or intro..."
-              className="w-full p-3 bg-gray-900 border border-gray-600 rounded-lg text-gray-100 text-sm focus:border-gold-500 focus:ring-1 focus:ring-gold-500 transition-colors"
-            />
-          </div>
-        </div>
-      </div>
-
       {/* Models Table */}
       <div className="overflow-hidden">
         <DataTable
-          data={filteredModels}
+          data={models}
           columns={columns}
           onEdit={handleEdit}
           onDelete={handleDelete}
           loading={loading}
-          emptyMessage={
-            genderFilter === "all"
-              ? "No models found. Add your first model to get started."
-              : `No ${genderFilter} models found. ${
-                  searchQuery
-                    ? "Try adjusting your search."
-                    : "Add your first model to get started."
-                }`
-          }
+          emptyMessage="No models found. Add your first model to get started."
           searchPlaceholder="Search models..."
         />
       </div>
@@ -540,25 +436,19 @@ export default function ModelsPage() {
                 required
               />
 
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Gender <span className="text-red-400">*</span>
-                </label>
-                <select
-                  name="gender"
-                  value={formData.gender}
-                  onChange={handleInputChange}
-                  className="w-full p-3 bg-gray-900 border border-gray-600 rounded-lg text-gray-100 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 transition-colors"
-                >
-                  <option value="">Select gender</option>
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                  <option value="Other">Other</option>
-                </select>
-                {errors.gender && (
-                  <p className="text-red-400 text-sm mt-1">{errors.gender}</p>
-                )}
-              </div>
+              <Select
+                label="Gender"
+                name="gender"
+                value={formData.gender}
+                onChange={handleInputChange}
+                options={[
+                  { value: "Male", label: "Male" },
+                  { value: "Female", label: "Female" },
+                ]}
+                placeholder="Select gender"
+                error={errors.gender}
+                required
+              />
             </div>
 
             <Input
@@ -589,58 +479,24 @@ export default function ModelsPage() {
               Cover Image
             </h3>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Cover Image{" "}
-                {!editingModel && <span className="text-red-400">*</span>}
-              </label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleCoverImageChange}
-                className="w-full p-3 bg-gray-900 border border-gray-600 rounded-lg text-gray-100 
-                  file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm 
-                  file:bg-gold-500/20 file:text-gold-400 hover:file:bg-gold-500/30 
-                  focus:border-gold-500 focus:ring-1 focus:ring-gold-500 transition-colors"
-              />
-              {errors.coverImage && (
-                <p className="text-red-400 text-sm mt-1">{errors.coverImage}</p>
-              )}
-              {editingModel && (
-                <p className="text-sm text-gray-400 mt-2">
-                  Leave empty to keep current cover image
-                </p>
-              )}
+            <PhotoUpload
+              label="Cover Image"
+              name="coverImage"
+              mode="single"
+              selectedFiles={formData.coverImage ? [formData.coverImage] : []}
+              onRemoveFile={() =>
+                setFormData((prev) => ({ ...prev, coverImage: null }))
+              }
+              onChange={handleCoverImageChange}
+              error={errors.coverImage}
+              required={!editingModel}
+              acceptedTypes={["image/*"]}
+              maxFileSize={5}
+            />
 
-              {formData.coverImage && (
-                <div className="mt-4 p-3 bg-gray-800/50 rounded-lg border border-gray-600">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-gray-300">
-                      Selected Cover Image:
-                    </span>
-                    <AdminButton
-                      variant="ghost"
-                      size="sm"
-                      onClick={removeCoverImage}
-                      type="button"
-                      className="text-red-400 hover:text-red-300"
-                    >
-                      Remove
-                    </AdminButton>
-                  </div>
-                  <div className="w-20 h-20 bg-gray-800 rounded-lg overflow-hidden border border-gray-600">
-                    <Image
-                      src={URL.createObjectURL(formData.coverImage)}
-                      alt="Cover preview"
-                      width={80}
-                      height={80}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                </div>
-              )}
-
-              {editingModel && (
+            {editingModel &&
+              editingModel.coverImage &&
+              !formData.coverImage && (
                 <div className="mt-4 p-3 bg-gray-800/50 rounded-lg border border-gray-600">
                   <p className="text-sm text-gray-400 mb-2">
                     Current Cover Image:
@@ -657,7 +513,6 @@ export default function ModelsPage() {
                   </div>
                 </div>
               )}
-            </div>
           </div>
 
           {/* Gallery Images */}
@@ -666,87 +521,44 @@ export default function ModelsPage() {
               Gallery Images
             </h3>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Additional Images{" "}
-                {!editingModel && <span className="text-red-400">*</span>}
-              </label>
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleImagesChange}
-                className="w-full p-3 bg-gray-900 border border-gray-600 rounded-lg text-gray-100 
-                  file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm 
-                  file:bg-gold-500/20 file:text-gold-400 hover:file:bg-gold-500/30 
-                  focus:border-gold-500 focus:ring-1 focus:ring-gold-500 transition-colors"
-              />
-              {errors.images && (
-                <p className="text-red-400 text-sm mt-1">{errors.images}</p>
-              )}
-              {editingModel && (
-                <p className="text-sm text-gray-400 mt-2">
-                  Add new images to the gallery
+            <PhotoUpload
+              label="Additional Images"
+              name="images"
+              mode="multiple"
+              selectedFiles={formData.images}
+              onRemoveFile={removeImage}
+              onChange={handleImagesChange}
+              error={errors.images}
+              required={!editingModel}
+              acceptedTypes={["image/*"]}
+              maxFiles={10}
+              maxFileSize={5}
+            />
+
+            {editingModel && editingModel.images.length > 0 && (
+              <div className="mt-4 p-3 bg-gray-800/50 rounded-lg border border-gray-600">
+                <p className="text-sm text-gray-400 mb-2">
+                  Current Images ({editingModel.images.length}):
                 </p>
-              )}
-
-              {formData.images.length > 0 && (
-                <div className="mt-4 p-3 bg-gray-800/50 rounded-lg border border-gray-600">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-gray-300">
-                      Selected Images ({formData.images.length}):
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
-                    {formData.images.map((image, index) => (
-                      <div key={index} className="relative group">
-                        <div className="w-16 h-16 bg-gray-800 rounded-lg overflow-hidden border border-gray-600">
-                          <Image
-                            src={URL.createObjectURL(image)}
-                            alt={`Image ${index + 1}`}
-                            width={64}
-                            height={64}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => removeImage(index)}
-                          className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs hover:bg-red-600 transition-colors opacity-0 group-hover:opacity-100"
-                        >
-                          ×
-                        </button>
-                      </div>
-                    ))}
-                  </div>
+                <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+                  {editingModel.images.map((image, index) => (
+                    <div
+                      key={index}
+                      className="w-16 h-16 bg-gray-800 rounded-lg overflow-hidden border border-gray-600"
+                    >
+                      <Image
+                        src={`http://localhost:8000/${image}`}
+                        alt={`Current image ${index + 1}`}
+                        width={64}
+                        height={64}
+                        className="w-full h-full object-cover"
+                        unoptimized
+                      />
+                    </div>
+                  ))}
                 </div>
-              )}
-
-              {editingModel && editingModel.images.length > 0 && (
-                <div className="mt-4 p-3 bg-gray-800/50 rounded-lg border border-gray-600">
-                  <p className="text-sm text-gray-400 mb-2">
-                    Current Images ({editingModel.images.length}):
-                  </p>
-                  <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
-                    {editingModel.images.map((image, index) => (
-                      <div
-                        key={index}
-                        className="w-16 h-16 bg-gray-800 rounded-lg overflow-hidden border border-gray-600"
-                      >
-                        <Image
-                          src={`http://localhost:8000/${image}`}
-                          alt={`Current image ${index + 1}`}
-                          width={64}
-                          height={64}
-                          className="w-full h-full object-cover"
-                          unoptimized
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
 
           {/* Submit Buttons */}

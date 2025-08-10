@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 
 import PageHeader from "@/components/admin/PageHeader";
 import { AdminButton } from "@/components/admin/AdminButton";
+import PhotoUpload from "@/components/admin/form/photo-upload";
 
 import { apiClient } from "@/lib/api";
 import { Hero } from "@/types/admin";
@@ -30,12 +31,6 @@ export default function HeroAdminPage() {
   const [formData, setFormData] = useState<CustomHeroFormData>(initialFormData);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [previewImages, setPreviewImages] = useState<(string | null)[]>([
-    null,
-    null,
-    null,
-    null,
-  ]);
 
   useEffect(() => {
     fetchHero();
@@ -51,8 +46,7 @@ export default function HeroAdminPage() {
         setFormData({
           images: [null, null, null, null],
         });
-        // Set existing images for preview
-        setPreviewImages(heroData.images.map((img) => getImageUrl(img)));
+        // Images will be handled by PhotoUpload component preview
       }
     } catch (error) {
       toast.error("Failed to fetch hero data");
@@ -66,17 +60,6 @@ export default function HeroAdminPage() {
     const newImages = [...formData.images];
     newImages[index] = file;
     setFormData((prev: CustomHeroFormData) => ({ ...prev, images: newImages }));
-
-    // Update preview
-    const newPreviews = [...previewImages];
-    if (file) {
-      newPreviews[index] = URL.createObjectURL(file);
-    } else {
-      newPreviews[index] = hero?.images[index]
-        ? getImageUrl(hero.images[index])
-        : null;
-    }
-    setPreviewImages(newPreviews);
 
     if (errors[`image_${index}`]) {
       setErrors((prev) => ({ ...prev, [`image_${index}`]: "" }));
@@ -140,10 +123,8 @@ export default function HeroAdminPage() {
       setFormData({
         images: [null, null, null, null],
       });
-      setPreviewImages(hero.images.map((img) => getImageUrl(img)));
     } else {
       setFormData(initialFormData);
-      setPreviewImages([null, null, null, null]);
     }
     setErrors({});
   };
@@ -170,73 +151,21 @@ export default function HeroAdminPage() {
         </h3>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[0, 1, 2, 3].map((index) => (
-              <div key={index} className="space-y-2">
-                <label className="block text-sm font-medium text-gray-300">
-                  Image {index + 1}
-                </label>
-
-                <div className="relative">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0] || null;
-                      handleImageChange(index, file);
-                    }}
-                    className="hidden"
-                    id={`image-${index}`}
-                  />
-
-                  <label
-                    htmlFor={`image-${index}`}
-                    className="cursor-pointer block w-full h-32 bg-gray-800 border-2 border-dashed border-gray-600 rounded-lg hover:border-gold-500 transition-colors"
-                  >
-                    {previewImages[index] ? (
-                      <div className="relative w-full h-full">
-                        <Image
-                          src={previewImages[index]!}
-                          alt={`Preview ${index + 1}`}
-                          fill
-                          className="object-cover rounded-lg"
-                          unoptimized
-                        />
-                        <div className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
-                          <span className="text-white text-sm">
-                            Change Image
-                          </span>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex flex-col items-center justify-center h-full text-gray-400">
-                        <i className="ri-upload-cloud-2-line text-2xl mb-2"></i>
-                        <span className="text-xs">
-                          Upload Image {index + 1}
-                        </span>
-                      </div>
-                    )}
-                  </label>
-
-                  {formData.images[index] && (
-                    <button
-                      type="button"
-                      onClick={() => handleImageChange(index, null)}
-                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600 transition-colors"
-                    >
-                      ×
-                    </button>
-                  )}
-                </div>
-
-                {errors[`image_${index}`] && (
-                  <p className="text-red-500 text-xs">
-                    {errors[`image_${index}`]}
-                  </p>
-                )}
-              </div>
-            ))}
-          </div>
+          <PhotoUpload
+            label="Hero Section Images"
+            name="heroImages"
+            mode="fixed"
+            fixedSlots={4}
+            selectedFiles={formData.images.filter(
+              (img): img is File => img !== null
+            )}
+            existingImages={hero?.images.map((img) => getImageUrl(img)) || []}
+            onImageChange={handleImageChange}
+            error={Object.values(errors).find((err) => err) || ""}
+            required={true}
+            acceptedTypes={["image/*"]}
+            maxFileSize={5}
+          />
 
           <div className="flex gap-3 pt-4">
             <AdminButton type="submit" disabled={submitting}>
@@ -361,26 +290,38 @@ export default function HeroAdminPage() {
                 {/* 2x2 image grid */}
                 <div className="top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 grid grid-cols-2 grid-rows-2 gap-6 w-[80%] max-w-[390px] aspect-square z-10 relative">
                   {/* Images 1-4 */}
-                  {previewImages.map((image, index) => (
-                    <div
-                      key={index}
-                      className="relative overflow-hidden rounded-xl"
-                    >
-                      {image ? (
-                        <Image
-                          src={image}
-                          alt={`Preview ${index + 1}`}
-                          fill
-                          className="object-cover transition-transform duration-500 hover:scale-110"
-                          unoptimized
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gray-700 flex items-center justify-center rounded-xl">
-                          <i className="ri-image-line text-gray-500 text-lg md:text-xl"></i>
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                  {[0, 1, 2, 3].map((index) => {
+                    const hasNewFile = formData.images[index];
+                    const hasExistingImage = hero?.images[index];
+
+                    let imageSrc: string | null = null;
+                    if (hasNewFile) {
+                      imageSrc = URL.createObjectURL(hasNewFile);
+                    } else if (hasExistingImage) {
+                      imageSrc = getImageUrl(hasExistingImage);
+                    }
+
+                    return (
+                      <div
+                        key={index}
+                        className="relative overflow-hidden rounded-xl"
+                      >
+                        {imageSrc ? (
+                          <Image
+                            src={imageSrc}
+                            alt={`Preview ${index + 1}`}
+                            fill
+                            className="object-cover transition-transform duration-500 hover:scale-110"
+                            unoptimized
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gray-700 flex items-center justify-center rounded-xl">
+                            <i className="ri-image-line text-gray-500 text-lg md:text-xl"></i>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
 
                   {/* Background grid lines */}
                   <div className="absolute -left-[50%] -top-5 w-[200%] h-[1px] bg-gradient-to-r from-transparent via-gray-700 to-transparent" />
