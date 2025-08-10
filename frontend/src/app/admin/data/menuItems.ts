@@ -19,15 +19,32 @@ export const menuItems: MenuSection[] = [
         id: "dashboard",
         label: "Dashboard",
         icon: "ri-dashboard-line",
-        href: "/admin/dashboard"
+        href: "/admin/dashboard",
+      },
+    ],
+  },
+  {
+    title: "Website",
+    items: [
+      {
+        id: "hero",
+        label: "Hero Section",
+        icon: "ri-image-line",
+        href: "/admin/hero",
       },
       {
-        id: "analytics",
-        label: "Analytics",
-        icon: "ri-bar-chart-line",
-        href: "/admin/analytics"
-      }
-    ]
+        id: "partners",
+        label: "Partners",
+        icon: "ri-image-line",
+        href: "/admin/partners",
+      },
+      {
+        id: "feedback",
+        label: "Feedback",
+        icon: "ri-message-2-line",
+        href: "/admin/feedback",
+      },
+    ],
   },
   {
     title: "Content Management",
@@ -36,27 +53,27 @@ export const menuItems: MenuSection[] = [
         id: "models",
         label: "Models",
         icon: "ri-user-star-line",
-        href: "/admin/models"
+        href: "/admin/models",
       },
       {
         id: "events",
         label: "Events",
         icon: "ri-calendar-event-line",
-        href: "/admin/events"
+        href: "/admin/events",
       },
       {
         id: "news",
         label: "News",
         icon: "ri-newspaper-line",
-        href: "/admin/news"
+        href: "/admin/news",
       },
       {
         id: "careers",
         label: "Careers",
         icon: "ri-briefcase-line",
-        href: "/admin/careers"
-      }
-    ]
+        href: "/admin/careers",
+      },
+    ],
   },
   {
     title: "User Management",
@@ -66,46 +83,24 @@ export const menuItems: MenuSection[] = [
         label: "Applications",
         icon: "ri-file-user-line",
         href: "/admin/applications",
-        badge: 12
+        badge: 12,
       },
       {
         id: "members",
         label: "Members",
         icon: "ri-team-line",
-        href: "/admin/members"
+        href: "/admin/members",
       },
       {
         id: "contacts",
         label: "Contacts",
         icon: "ri-contacts-line",
         href: "/admin/contacts",
-        badge: 5
-      }
-    ]
-  },
-  {
-    title: "Website",
-    items: [
-      {
-        id: "hero",
-        label: "Hero Section",
-        icon: "ri-image-line",
-        href: "/admin/hero"
+        badge: 5,
       },
-      {
-        id: "partners",
-        label: "Partners",
-        icon: "ri-handshake-line",
-        href: "/admin/partners"
-      },
-      {
-        id: "feedback",
-        label: "Feedback",
-        icon: "ri-message-2-line",
-        href: "/admin/feedback"
-      }
-    ]
+    ],
   },
+
   {
     title: "Settings",
     items: [
@@ -113,14 +108,14 @@ export const menuItems: MenuSection[] = [
         id: "navigation",
         label: "Navigation",
         icon: "ri-navigation-line",
-        href: "/admin/navigation"
+        href: "/admin/navigation",
       },
       {
         id: "settings",
         label: "Site Settings",
         icon: "ri-settings-line",
-        href: "/admin/settings"
-      }
-    ]
-  }
+        href: "/admin/settings",
+      },
+    ],
+  },
 ];

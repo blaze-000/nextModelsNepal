@@ -21,7 +21,6 @@
 
   --font-newsreader: var(--font-newsreader), serif;
   --font-urbanist: var(--font-urbanist), sans-serif;
-
 }
 
 * {
@@ -38,11 +37,11 @@ body {
   --background: #12110d;
   --background2: #080808;
 
-  --black-900: #0E0E0E;
+  --black-900: #0e0e0e;
 
   --muted-background: #1e1e1e;
 
-  --gold-600: #E89B00;
+  --gold-600: #e89b00;
   --gold-500: #ffaa00;
   --gold-400: #ffbb33;
   --gold-dark: #a06d06;
@@ -55,7 +54,6 @@ body {
 }
 
 @keyframes bounce-slow {
-
   0%,
   100% {
     transform: translateY(0);
@@ -81,6 +79,18 @@ body {
   border-radius: 9999px;
 }
 
+/* Hide scrollbar utility class */
+.scrollbar-hide {
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  -webkit-scrollbar: none;
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 .responsive-bar {
   height: var(--bar-height);
 }
@@ -93,6 +103,6 @@ body {
 
 @media (max-width: 924px) {
   .responsive-bar {
-    height: calc(2*var(--bar-height) / 3);
+    height: calc(2 * var(--bar-height) / 3);
   }
 }
