@@ -4,7 +4,11 @@ const newsSchema = new mongoose.Schema({
     title: { type: String, required: true },
     description: { type: String, required: true },
     content: {type: String},
-    year: { type: Number, default: () => new Date().getFullYear() },
+    year: { 
+        type: Number, 
+        default: () => new Date().getFullYear(),
+        required: false 
+    },
     images: {
         type: [String],
     },

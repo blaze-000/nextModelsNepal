@@ -80,6 +80,7 @@ export const createEventItem = async (req: Request, res: Response) => {
 
         // Resolve member id robustly from form-data that may send duplicates
         let memberIdRaw: unknown = (req.body as any).member ?? (req.body as any).memberId ?? (req.body as any).id;
+        console.log(memberIdRaw)
         if (Array.isArray(memberIdRaw)) {
             // pick the last non-empty value
             const nonEmpty = memberIdRaw.filter((v) => typeof v === 'string' && v.trim().length > 0);
@@ -101,6 +102,7 @@ export const createEventItem = async (req: Request, res: Response) => {
             state,
             title,
             date,
+            year,
             overview,
             purpose,
             eventDescription,
@@ -126,6 +128,7 @@ export const createEventItem = async (req: Request, res: Response) => {
             state,
             title,
             date,
+            year,
             overview,
             purpose,
             coverImage,
@@ -207,11 +210,12 @@ export const updateEventById = async (req: Request, res: Response) => {
 
         // Check if req.body exists before destructuring
         if (req.body) {
-            const { state, title, date, overview, purpose, eventDescription, startingTimelineDate, startingTimelineEvent, midTimelineDate, midTimelineEvent, endTimelineDate, endTimelineEvent } = req.body;
+            const { state, title, date, year, overview, purpose, eventDescription, startingTimelineDate, startingTimelineEvent, midTimelineDate, midTimelineEvent, endTimelineDate, endTimelineEvent } = req.body;
 
             if (state !== undefined) updateData.state = state;
             if (title !== undefined) updateData.title = title;
             if (date !== undefined) updateData.date = date;
+            if (year !== undefined) updateData.year = year;
             if (overview !== undefined) updateData.overview = overview;
             if (purpose !== undefined) updateData.purpose = purpose;
             if (eventDescription !== undefined) updateData.eventDescription = eventDescription;

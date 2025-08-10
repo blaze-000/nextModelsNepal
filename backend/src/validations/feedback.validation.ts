@@ -8,6 +8,5 @@ const commentSchema = z.object({
 });
 
 export const feedbackSchema = z.object({
-    maintitle: z.string().min(1, "Main title is required"),
     item: z.array(commentSchema).min(1, "At least one feedback item is required")
 });

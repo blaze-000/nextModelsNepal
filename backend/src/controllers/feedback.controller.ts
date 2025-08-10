@@ -7,13 +7,14 @@ import { feedbackSchema } from "../validations/feedback.validation";
  */
 export const getFeedbackItems = async (_req: Request, res: Response) => {
     try {
-        const feedbackItems = await FeedBackModel.find({});
-        if (!feedbackItems || feedbackItems.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "No feedback items found.",
-            });
-        }
+const feedbackItems = await FeedBackModel.findOne();
+if (!feedbackItems || feedbackItems.item.length === 0) {
+    return res.status(404).json({
+        success: false,
+        message: "No feedback items found.",
+    });
+}
+
 
         return res.status(200).json({
             success: true,
@@ -63,7 +64,7 @@ export const getFeedbackById = async (req: Request, res: Response) => {
  */
 export const createFeedbackItem = async (req: Request, res: Response) => {
     try {
-        const { maintitle, ...rest } = req.body;
+        const { ...rest } = req.body;
         
         let processedItems: any[] = [];
         
@@ -148,7 +149,6 @@ export const createFeedbackItem = async (req: Request, res: Response) => {
         }));
 
         const feedbackSection = await FeedBackModel.create({
-            maintitle,
             item: processedItems
         });
 
@@ -189,12 +189,7 @@ export const updateFeedbackById = async (req: Request, res: Response) => {
         let updateData: any = {};
         
         // Parse formdata for partial updates
-        const { maintitle, ...rest } = req.body;
-        
-        // Update maintitle if provided
-        if (maintitle !== undefined) {
-            updateData.maintitle = maintitle;
-        }
+        const { ...rest } = req.body;
         
         // Handle item updates - Express parses nested formdata into objects
         if (rest.item && Array.isArray(rest.item)) {

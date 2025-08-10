@@ -15,6 +15,7 @@ const eventSchema = new mongoose.Schema({
     title: { type: String, required: true },
     titleImage: {type: String, default: ""},
     date: { type: String },
+    year: {type: String, default:"2025"},
     overview: { type: String, required: true },
     logo: {type: String, required: true},
     subImage: {type: String, default: ""},

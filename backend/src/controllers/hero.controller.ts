@@ -7,7 +7,7 @@ import { heroItemSchema } from "../validations/hero.validation";
  */
 export const getHeroItem = async (_req: Request, res: Response) => {
     try {
-        const heroItems = await HeroModel.find({});
+        const heroItems = await HeroModel.find();
         if (!heroItems || heroItems.length === 0) {
             return res.status(404).json({
                 success: false,
@@ -63,23 +63,48 @@ export const getHeroItemById = async (req: Request, res: Response) => {
  */
 export const createHeroItem = async (req: Request, res: Response) => {
     try {
-        const files = req.files as Express.Multer.File[];
-        if (!files || files.length === 0) {
-            return res.status(400).json({ error: "One image file is required." });
+        const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+        if (!files || Object.keys(files).length === 0) {
+            return res.status(400).json({ error: "At least one image file is required." });
         }
 
         // Handle req.body properly for file uploads
         const bodyData = req.body || {};
-        const heroItem = heroItemSchema.parse(bodyData);
-        const { maintitle, subtitle, description } = heroItem;
+        
+        // Validate only the text fields, not the file fields
+        const textFields = heroItemSchema.pick({ maintitle: true, subtitle: true, description: true }).parse(bodyData);
+        const { maintitle, subtitle, description } = textFields;
 
-        const imagePaths = files.map(file => file.path);
+        // Extract image paths from uploaded files
+        const imagePaths: string[] = [];
+        let titleImagePath: string | undefined;
+
+        // Handle images field
+        if (files.images && files.images.length > 0) {
+            imagePaths.push(...files.images.map(file => file.path));
+        }
+
+        // Handle titleImage field
+        if (files.titleImage && files.titleImage.length > 0) {
+            titleImagePath = files.titleImage[0].path;
+        }
+
+        // If no titleImage was uploaded, use the first image as titleImage
+        if (!titleImagePath && imagePaths.length > 0) {
+            titleImagePath = imagePaths[0];
+        }
+
+        // Ensure we have at least one image
+        if (imagePaths.length === 0 && !titleImagePath) {
+            return res.status(400).json({ error: "At least one image file is required." });
+        }
 
         const heroSection = await HeroModel.create({
             maintitle,
             subtitle,
             description,
-            images: imagePaths
+            images: imagePaths,
+            titleImage: titleImagePath || imagePaths[0] // Use titleImage if available, otherwise first image
         });
 
         res.status(201).json({ message: "Hero section item created successfully.", heroSection });
@@ -100,23 +125,21 @@ export const updateheroById = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
 
-        const files = req.files as Express.Multer.File[] | undefined;
+        const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
 
         let updateData: any = {};
 
-        if (files && files.length > 0) {
-            // When files are present, req.body might be undefined, so we need to handle it properly
+        if (files && Object.keys(files).length > 0) {
+            // When files are present, handle them properly
             const bodyData = req.body || {};
             
-            // Only validate if there are text fields in the body
+            // Only validate text fields if they exist
             let validatedData: any = { maintitle: undefined, subtitle: undefined, description: undefined };
             if (Object.keys(bodyData).length > 0) {
-                validatedData = heroItemSchema.parse(bodyData);
+                validatedData = heroItemSchema.pick({ maintitle: true, subtitle: true, description: true }).parse(bodyData);
             }
             
             const { maintitle, subtitle, description } = validatedData;
-
-            const newImagePaths = files.map(file => file.path);
 
             const existingHero = await HeroModel.findById(id);
             if (!existingHero) {
@@ -126,18 +149,30 @@ export const updateheroById = async (req: Request, res: Response) => {
                 });
             }
 
-            // Combine existing images with new images
-            const existingImages = existingHero.images || [];
-            const updatedImages = [...existingImages, ...newImagePaths];
+            // Handle image updates
+            let updatedImages = existingHero.images || [];
+            let updatedTitleImage = existingHero.titleImage;
+
+            // Handle images field
+            if (files.images && files.images.length > 0) {
+                const newImagePaths = files.images.map(file => file.path);
+                updatedImages = [...newImagePaths];
+            }
+
+            // Handle titleImage field
+            if (files.titleImage && files.titleImage.length > 0) {
+                updatedTitleImage = files.titleImage[0].path;
+            }
 
             updateData = {
                 ...(maintitle !== undefined && { maintitle }),
                 ...(subtitle !== undefined && { subtitle }),
                 ...(description !== undefined && { description }),
-                images: updatedImages
+                images: updatedImages,
+                titleImage: updatedTitleImage
             };
         } else {
-            // Handle case where req.body might be undefined
+            // Handle case where only text fields are updated
             const bodyData = req.body || {};
             const { maintitle, subtitle, description } = bodyData;
 

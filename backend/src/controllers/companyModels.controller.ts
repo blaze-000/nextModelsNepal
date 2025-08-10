@@ -56,7 +56,7 @@ export const getModelsById = async (req: Request, res: Response) => {
 //  Create Models item
 export const createModels = async (req: Request, res: Response) => {
     try {
-        const { name, intro, address, gender } = req.body;
+        const { name, intro, address, gender, slug } = req.body;
 
         // Check if model with same name exists
         const existMember = await COMMODEL.findOne({ name });
@@ -88,6 +88,7 @@ export const createModels = async (req: Request, res: Response) => {
             gender,
             coverImage: coverImagePath,
             images: galleryImagePaths,
+            slug
         });
 
         res.status(201).json({
@@ -122,12 +123,13 @@ export const updateModelsById = async (req: Request, res: Response) => {
 
         // Check if req.body exists before destructuring
         if (req.body) {
-            const { name, intro, address, gender } = req.body;
+            const { name, intro, address, gender, slug } = req.body;
 
             if (name !== undefined) updateData.name = name;
             if (intro !== undefined) updateData.intro = intro;
             if (address !== undefined) updateData.address = address;
             if (gender !== undefined) updateData.gender = gender;
+            if (slug !== undefined) updateData.slug = slug;
         }
 
         // Handle cover image update

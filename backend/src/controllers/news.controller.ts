@@ -2,6 +2,14 @@ import { Request, Response } from "express";
 import { NewsModel } from "../models/news.model";
 import { newsSchema, newsUpdateSchema } from "../validations/news.validation";
 
+// Helper function to get relative upload path
+const getRelativeUploadPath = (file: Express.Multer.File | undefined) => {
+    if (!file) return undefined;
+    // Convert backslashes to forward slashes and ensure it's a relative path
+    const relativePath = file.path.replace(/\\/g, '/').replace(/^.*[\/\\]uploads[\/\\]/, 'uploads/');
+    return relativePath;
+};
+
 /**
  * Fetch all News items
  */
@@ -66,11 +74,18 @@ export const createNewsItem = async (req: Request, res: Response) => {
         const newsData = newsSchema.parse(req.body);
         const { title, description, content, year } = newsData;
 
-        const files = req.files as Express.Multer.File[] | undefined;
+        console.log('Parsed news data:', newsData);
+        console.log('Year value:', year, 'Type:', typeof year);
+
+        const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
         let imagePaths: string[] = [];
 
-        if (files && files.length > 0) {
-            imagePaths = files.map(file => file.path);
+        console.log('Files received:', files);
+        console.log('Files.images:', files?.images);
+
+        if (files && files.images && files.images.length > 0) {
+            imagePaths = files.images.map(file => getRelativeUploadPath(file)).filter(Boolean) as string[];
+            console.log('Processed image paths:', imagePaths);
         }
 
         const newsSection = await NewsModel.create({
@@ -80,6 +95,8 @@ export const createNewsItem = async (req: Request, res: Response) => {
             year,
             images: imagePaths
         });
+
+        console.log('Created news section:', newsSection);
 
         res.status(201).json({
             success: true,
@@ -104,17 +121,21 @@ export const updateNewsById = async (req: Request, res: Response) => {
         const { id } = req.params;
         
         // Check if files are present
-        const files = req.files as Express.Multer.File[] | undefined;
+        const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
         
         let updateData: any = {};
         
-        if (files && files.length > 0) {
+        console.log('Update - Files received:', files);
+        console.log('Update - Files.images:', files?.images);
+        
+        if (files && files.images && files.images.length > 0) {
             // If files are present, validate with update schema (all fields optional)
             const validatedData = newsUpdateSchema.parse(req.body);
             const { title, description, content, year } = validatedData;
             
             // Get all uploaded image paths
-            const newImagePaths = files.map(file => file.path);
+            const newImagePaths = files.images.map(file => getRelativeUploadPath(file)).filter(Boolean) as string[];
+            console.log('Update - New image paths:', newImagePaths);
             
             // Get the existing news item
             const existingNews = await NewsModel.findById(id);

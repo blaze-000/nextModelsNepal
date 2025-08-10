@@ -17,7 +17,7 @@ const cardSchema = z.object({
 
 // Main Event Schema
 export const nextEventSchema = z.object({
-  tag: z.string().min(1, "Tag is required"),
+  state: z.string().min(1, "state is required"),
   title: z.string().min(1, "Title is required"),
   titleImage: z.string().min(1, "Title image is required"),
   image: z.string().min(1, "Image is required"),
@@ -25,12 +25,13 @@ export const nextEventSchema = z.object({
   noticeName: z.string().min(1, "Notice name is required"),
   notice: z.array(z.string().min(1, "Notice item cannot be empty"))
     .min(1, "At least one notice is required"),
-  card: z.array(cardSchema).default([])
+  card: z.array(cardSchema).default([]),
+  slug: z.string().optional()
 });
 
 // Update Schema (all fields optional for partial updates)
 export const nextEventUpdateSchema = z.object({
-  tag: z.string().min(1, "Tag is required").optional(),
+  state: z.string().min(1, "state is required").optional(),
   title: z.string().min(1, "Title is required").optional(),
   titleImage: z.string().min(1, "Title image is required").optional(),
   image: z.string().min(1, "Image is required").optional(),
@@ -38,5 +39,7 @@ export const nextEventUpdateSchema = z.object({
   noticeName: z.string().min(1, "Notice name is required").optional(),
   notice: z.array(z.string().min(1, "Notice item cannot be empty"))
     .min(1, "At least one notice is required").optional(),
-  card: z.array(cardSchema).default([]).optional()
+  card: z.array(cardSchema).default([]).optional(),
+  slug: z.string().optional()
+
 });

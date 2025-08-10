@@ -15,12 +15,13 @@ const memberSchema = new mongoose.Schema({
     uniqueId: { type: String, unique: true },
     bio: { type: String, default: "" },
     images: { type: [String], default: [] },
-    icon: { type: String, required: true },
     event: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "EventSection",
         required: true,
     },
+    slug: {type: String, required: true, default: ""},
+    year: {type: String, default:"2025"}
 });
 
 // 🔧 Pre-save middleware to generate uniqueId dynamically

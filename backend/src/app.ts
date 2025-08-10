@@ -28,8 +28,10 @@ import appRoutes from "./routes/appForm.route"
 
 const app = express();
 
-// Trust proxy if behind load balancer / reverse proxy
-app.set('trust proxy', true);
+// Trust proxy if behind load balancer / reverse proxy (only in production)
+if (NODE_ENV === 'production') {
+  app.set('trust proxy', true);
+}
 
 // Security headers
 app.use(helmet());

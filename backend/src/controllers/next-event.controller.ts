@@ -97,14 +97,15 @@ if (Array.isArray(req.files)) {
 }
         // Prepare final validated object
         const formData = {
-            tag: body.tag,
+            state: body.state,
             title: body.title,
             titleImage,
             image,
             description: body.description,
             noticeName: body.noticeName,
             notice,
-            card: cardData
+            card: cardData,
+            slug: body.slug
         };
 
         // Validate using zod
@@ -200,7 +201,8 @@ export const updateNextEventById = async (req: Request, res: Response) => {
         let mergedData: any = _.cloneDeep(existingEvent);
 
         // Only update fields that are present in the request body
-        if (body.tag !== undefined) mergedData.tag = body.tag;
+        if (body.state !== undefined) mergedData.state = body.state;
+        if (body.slug !== undefined) mergedData.slug = body.slug;
         if (body.title !== undefined) mergedData.title = body.title;
         if (body.description !== undefined) mergedData.description = body.description;
         if (body.noticeName !== undefined) mergedData.noticeName = body.noticeName;
@@ -261,14 +263,14 @@ export const updateNextEventById = async (req: Request, res: Response) => {
             });
         }
 
-        // Validate the merged data using the main schema (all required fields must be present after merge)
-        const validData = nextEventSchema.parse(mergedData);
+        // Validate the merged data using the update schema (all fields optional for partial updates)
+        const validData = nextEventUpdateSchema.parse(mergedData);
 
         // Update the event in DB
         const updatedEvent = await NextEventModel.findByIdAndUpdate(
             id,
             validData,
-            { new: true, runValidators: true }
+            { new: true, runValidators: false }
         );
 
         if (!updatedEvent) {
