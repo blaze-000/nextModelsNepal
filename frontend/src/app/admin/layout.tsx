@@ -1,15 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import "remixicon/fonts/remixicon.css";
 import Header from "./layout/Header";
 import Sidebar from "./layout/Sidebar";
+import useAuth from "@/hooks/useAuth";
+import { useRouter } from "next/navigation";
 
-export default function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -26,6 +26,10 @@ export default function AdminLayout({
     return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
 
+    if (!loading && !user) {
+      router.push("/login");
+    }
+
   const toggleSidebar = () => {
     if (isMobile) {
       setIsMobileSidebarOpen(!isMobileSidebarOpen);
@@ -34,14 +38,10 @@ export default function AdminLayout({
     }
   };
 
-  const closeMobileSidebar = () => {
-    setIsMobileSidebarOpen(false);
-  };
+  const closeMobileSidebar = () => setIsMobileSidebarOpen(false);
 
   const handleSidebarHover = (isHovered: boolean) => {
-    if (!isMobile) {
-      setIsSidebarHovered(isHovered);
-    }
+    if (!isMobile) setIsSidebarHovered(isHovered);
   };
 
   // Calculate sidebar width based on state
@@ -50,6 +50,11 @@ export default function AdminLayout({
     if (!isSidebarCollapsed) return 280;
     return isSidebarHovered ? 280 : 64;
   };
+
+  if (loading) {
+    // Show nothing or loading while redirecting
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-background2 flex">
@@ -65,9 +70,7 @@ export default function AdminLayout({
       {/* Main Content Area */}
       <div
         className="flex-1 flex flex-col transition-all duration-300 ease-in-out"
-        style={{
-          marginLeft: getSidebarWidth(),
-        }}
+        style={{ marginLeft: getSidebarWidth() }}
       >
         {/* Header */}
         <Header

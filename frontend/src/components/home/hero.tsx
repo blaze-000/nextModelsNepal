@@ -22,7 +22,6 @@ const HeroSection = () => {
     })();
   }, []);
 
-
   return (
     <section className="bg-gradient-to-b from-background2 to-background w-full">
       <div className="max-w-7xl mx-auto px-6">
@@ -108,45 +107,17 @@ const HeroSection = () => {
 
             {/* 2x2 image grid */}
             <div className="top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 grid grid-cols-2 grid-rows-2 gap-6 w-[80%] max-w-[390px] aspect-square z-10 relative">
-              {/* Image 1 - Award ceremony */}
-              <div className="relative overflow-hidden rounded-xl">
-                <Image
-                  src={`${process.env.NEXT_PUBLIC_API_URL}/${data?.images[0]}`}
-                  alt="Award ceremony"
-                  fill
-                  className="object-cover transition-transform duration-500 hover:scale-110"
-                />
-              </div>
-
-              {/* Image 2 - Pageant */}
-              <div className="relative overflow-hidden rounded-xl">
-                <Image
-                  src={`${process.env.NEXT_PUBLIC_API_URL}/${data?.images[1]}`}
-                  alt="Beauty pageant"
-                  fill
-                  className="object-cover transition-transform duration-500 hover:scale-110"
-                />
-              </div>
-
-              {/* Image 3 - Group photo */}
-              <div className="relative overflow-hidden rounded-xl">
-                <Image
-                  src={`${process.env.NEXT_PUBLIC_API_URL}/${data?.images[2]}`}
-                  alt="Models group photo"
-                  fill
-                  className="object-cover transition-transform duration-500 hover:scale-110"
-                />
-              </div>
-
-              {/* Image 4 - Runway show */}
-              <div className="relative overflow-hidden rounded-xl">
-                <Image
-                  src={`${process.env.NEXT_PUBLIC_API_URL}/${data?.images[3]}`}
-                  alt="Runway show"
-                  fill
-                  className="object-cover transition-transform duration-500 hover:scale-110"
-                />
-              </div>
+            
+              {data?.images.map((x, index) => (
+                <div key={index} className="relative overflow-hidden rounded-xl">
+                  <Image
+                    src={`${process.env.NEXT_PUBLIC_API_URL}/${x}`}
+                    alt="Featured Images"
+                    fill
+                    className="object-cover transition-transform duration-500 hover:scale-110"
+                  />
+                </div>
+              ))}
 
               {/* Background grid lines */}
               <div className="absolute -left-[50%] -top-5 w-[200%] h-[1px] bg-gradient-to-r from-transparent via-gray-700 to-transparent" />

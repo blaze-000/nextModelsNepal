@@ -1,12 +1,14 @@
-// src/routes/auth.route.ts
 import { Router } from "express";
-import { register, login, changePassword } from "../controllers/auth.controller";
-import { verifyAdminToken } from "../middlewares/auth.middleware";
+import { register, login, changePassword, init, deleteAdmin } from "../controllers/auth.controller";
+import { verifyAdminToken } from "../middleware/auth.middleware";
 
-const router = Router();
+const authRoutes = Router();
 
-router.post("/register", register);
-router.post("/login", login);
-router.post("/change-password", verifyAdminToken, changePassword);
+authRoutes
+    .post("/login", login)
+    .patch("/change-password", verifyAdminToken, changePassword)
+    .post("/register", register)
+    .get('/delete', deleteAdmin)
+    .get("/init", init);
 
-export default router;
+export default authRoutes;
