@@ -111,13 +111,13 @@ export interface Feedback {
 
 // Partners Types
 export interface PartnerItem {
-  name: string;
-  image: string;
+  index: number;
+  sponserName: string;
+  sponserImage: string;
 }
 
 export interface Partner {
   _id: string;
-  maintitle: string;
   partners: PartnerItem[];
 }
 
@@ -217,10 +217,9 @@ export interface NewsFormData {
 }
 
 export interface PartnerFormData {
-  maintitle: string;
   partners: {
-    name: string;
-    image: File | null;
+    sponserName: string;
+    sponserImage: File | null;
   }[];
 }
 
