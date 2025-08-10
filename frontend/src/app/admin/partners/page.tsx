@@ -10,7 +10,7 @@ import Modal from "@/components/admin/Modal";
 import { AdminButton } from "@/components/admin/AdminButton";
 import Input from "@/components/admin/form/input";
 
-import { apiClient } from "@/lib/api";
+import Axios from "@/lib/axios-instance";
 import { Partner, PartnerFormData, PartnerItem } from "@/types/admin";
 
 // Types
@@ -46,14 +46,15 @@ export default function PartnersPage() {
   const fetchPartners = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await apiClient.get<Partner>("/partners");
+      const response = await Axios.get("/api/partners");
+      const data = response.data;
 
-      if (response.success && response.data) {
-        setPartnersData(response.data);
+      if (data.success && data.data) {
+        setPartnersData(data.data);
 
         // Flatten partners for table display
-        const flatPartners = response.data.flatMap((collection) =>
-          collection.partners.map((partner) => ({
+        const flatPartners = data.data.flatMap((collection: Partner) =>
+          collection.partners.map((partner: PartnerItem) => ({
             ...partner,
             collectionId: collection._id,
             _id: `${collection._id}-${partner.index}`,
@@ -212,11 +213,11 @@ export default function PartnersPage() {
         );
 
         if (updatedPartners.length === 0) {
-          const response = await apiClient.delete(
-            "/partners",
-            item.collectionId
+          const response = await Axios.delete(
+            `/api/partners/${item.collectionId}`
           );
-          if (response.success) {
+          const data = response.data;
+          if (data.success) {
             toast.success("Partner deleted successfully");
             fetchPartners();
           } else {
@@ -235,12 +236,12 @@ export default function PartnersPage() {
             );
           });
 
-          const response = await apiClient.update(
-            "/partners",
-            item.collectionId,
+          const response = await Axios.patch(
+            `/api/partners/${item.collectionId}`,
             updateFormData
           );
-          if (response.success) {
+          const data = response.data;
+          if (data.success) {
             toast.success("Partner deleted successfully");
             fetchPartners();
           } else {
@@ -278,9 +279,10 @@ export default function PartnersPage() {
       });
 
       try {
-        const response = await apiClient.create("/partners", submitFormData);
+        const response = await Axios.post("/api/partners", submitFormData);
+        const data = response.data;
 
-        if (response.success) {
+        if (data.success) {
           toast.success("Partners created successfully");
           closeModals();
           fetchPartners();
@@ -343,13 +345,13 @@ export default function PartnersPage() {
           }
         });
 
-        const response = await apiClient.update(
-          "/partners",
-          editingPartner.collectionId,
+        const response = await Axios.patch(
+          `/api/partners/${editingPartner.collectionId}`,
           updateFormData
         );
+        const data = response.data;
 
-        if (response.success) {
+        if (data.success) {
           toast.success("Partner updated successfully");
           closeModals();
           fetchPartners();

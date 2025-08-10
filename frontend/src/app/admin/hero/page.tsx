@@ -9,7 +9,7 @@ import PageHeader from "@/components/admin/PageHeader";
 import { AdminButton } from "@/components/admin/AdminButton";
 import PhotoUpload from "@/components/admin/form/photo-upload";
 
-import { apiClient } from "@/lib/api";
+import Axios from "@/lib/axios-instance";
 import { Hero } from "@/types/admin";
 
 interface CustomHeroFormData {
@@ -21,8 +21,8 @@ const initialFormData: CustomHeroFormData = {
 };
 
 const getImageUrl = (imagePath: string): string => {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-  return `${baseUrl}/${imagePath}`;
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/";
+  return `${baseUrl}${imagePath}`;
 };
 
 export default function HeroAdminPage() {
@@ -39,14 +39,14 @@ export default function HeroAdminPage() {
   const fetchHero = async () => {
     try {
       setLoading(true);
-      const response = await apiClient.get<Hero>("/hero");
-      if (response.success && response.data && response.data[0]) {
-        const heroData = response.data[0];
+      const response = await Axios.get("/api/hero");
+      const data = response.data;
+      if (data.success && data.data && data.data.length > 0) {
+        const heroData = data.data[0];
         setHero(heroData);
         setFormData({
           images: [null, null, null, null],
         });
-        // Images will be handled by PhotoUpload component preview
       }
     } catch (error) {
       toast.error("Failed to fetch hero data");
@@ -78,7 +78,6 @@ export default function HeroAdminPage() {
         newErrors[`image_${i}`] = "At least one image is required";
       }
     }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -91,18 +90,33 @@ export default function HeroAdminPage() {
     setSubmitting(true);
     const submitFormData = new FormData();
 
+    // Debug logging
+    console.log("Form data images:", formData.images);
+
     formData.images.forEach((image: File | null) => {
       if (image) {
         submitFormData.append("images", image);
       }
     });
 
-    try {
-      const response = hero
-        ? await apiClient.update("/hero", hero._id, submitFormData)
-        : await apiClient.create("/hero", submitFormData);
+    // Debug: log FormData contents
+    console.log("FormData entries:");
+    for (const [key, value] of submitFormData.entries()) {
+      console.log(key, value);
+    }
 
-      if (response.success) {
+    try {
+      let response;
+      if (hero) {
+        // Update existing hero
+        response = await Axios.patch(`/api/hero/${hero._id}`, submitFormData);
+      } else {
+        // Create new hero
+        response = await Axios.post("/api/hero", submitFormData);
+      }
+
+      const data = response.data;
+      if (data.success) {
         toast.success(
           `Hero section ${hero ? "updated" : "created"} successfully`
         );
