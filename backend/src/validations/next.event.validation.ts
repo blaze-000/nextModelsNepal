@@ -17,7 +17,7 @@ const cardSchema = z.object({
 
 // Main Event Schema
 export const nextEventSchema = z.object({
-  tag: z.string().min(1, "Tag is required"),
+  state: z.string().min(1, "state is required"),
   title: z.string().min(1, "Title is required"),
   titleImage: z.string().min(1, "Title image is required"),
   image: z.string().min(1, "Image is required"),
@@ -31,7 +31,7 @@ export const nextEventSchema = z.object({
 
 // Update Schema (all fields optional for partial updates)
 export const nextEventUpdateSchema = z.object({
-  tag: z.string().min(1, "Tag is required").optional(),
+  state: z.string().min(1, "state is required").optional(),
   title: z.string().min(1, "Title is required").optional(),
   titleImage: z.string().min(1, "Title image is required").optional(),
   image: z.string().min(1, "Image is required").optional(),

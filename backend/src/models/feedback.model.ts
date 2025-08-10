@@ -11,7 +11,6 @@ const commentSchema = new mongoose.Schema({
 })
 
 const feedbackSchema = new mongoose.Schema({
-    maintitle: { type: String, required: true },
     item: { type: [commentSchema], required: true, default: [] }
 });
 

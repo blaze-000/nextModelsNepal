@@ -9,4 +9,5 @@ export const heroItemSchema = z.object({
     images: z
         .array(z.string().min(1, 'Image path is required.'))
         .default([]).optional(),
+    titleImage: z.string().optional() // Made optional since it's handled as file upload
 });

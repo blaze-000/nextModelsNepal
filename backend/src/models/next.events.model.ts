@@ -14,7 +14,7 @@ const cardSchema = new mongoose.Schema({
 });
 
 const nextEventSchema = new mongoose.Schema({
-    tag: { type: String, required: true },
+    state: { type: String, required: true },
     title: { type: String, required: true },
     titleImage: { type: String, required: true },
     image: { type: String, required: true },
