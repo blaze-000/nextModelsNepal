@@ -21,8 +21,14 @@ const initialFormData: CustomHeroFormData = {
 };
 
 const getImageUrl = (imagePath: string): string => {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/";
-  return `${baseUrl}${imagePath}`;
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+  // Ensure the baseUrl doesn't end with a slash and imagePath starts with uploads/
+  if (imagePath.startsWith('uploads/')) {
+    const fullUrl = `${baseUrl}/${imagePath}`;
+    return fullUrl;
+  }
+  // If imagePath already has a full URL or different format, return as is
+  return imagePath;
 };
 
 export default function HeroAdminPage() {

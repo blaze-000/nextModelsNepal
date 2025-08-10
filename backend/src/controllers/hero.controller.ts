@@ -71,9 +71,17 @@ export const createHeroItem = async (req: Request, res: Response) => {
         // Handle req.body properly for file uploads
         const bodyData = req.body || {};
         
-        // Validate only the text fields, not the file fields
-        const textFields = heroItemSchema.pick({ maintitle: true, subtitle: true, description: true }).parse(bodyData);
-        const { maintitle, subtitle, description } = textFields;
+        // Only validate text fields if they exist and are not empty
+        let maintitle, subtitle, description;
+        if (Object.keys(bodyData).length > 0) {
+            try {
+                const textFields = heroItemSchema.pick({ maintitle: true, subtitle: true, description: true }).parse(bodyData);
+                ({ maintitle, subtitle, description } = textFields);
+            } catch (validationError: any) {
+                // If validation fails, set fields to undefined (they're optional anyway)
+                maintitle = subtitle = description = undefined;
+            }
+        }
 
         // Extract image paths from uploaded files
         const imagePaths: string[] = [];
@@ -81,12 +89,17 @@ export const createHeroItem = async (req: Request, res: Response) => {
 
         // Handle images field
         if (files.images && files.images.length > 0) {
-            imagePaths.push(...files.images.map(file => file.path));
+            // Remove duplicates based on filename to prevent storing the same image multiple times
+            const uniqueFiles = files.images.filter((file, index, self) => 
+                index === self.findIndex(f => f.filename === file.filename)
+            );
+            
+            imagePaths.push(...uniqueFiles.map(file => file.path.replace(/\\/g, '/')));
         }
 
         // Handle titleImage field
         if (files.titleImage && files.titleImage.length > 0) {
-            titleImagePath = files.titleImage[0].path;
+            titleImagePath = files.titleImage[0].path.replace(/\\/g, '/');
         }
 
         // If no titleImage was uploaded, use the first image as titleImage
