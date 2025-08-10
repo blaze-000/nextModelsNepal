@@ -1,6 +1,6 @@
-import Axios from "axios";
+import axios from "axios";
 
-const axios = Axios.create({
+const Axios = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL,
     headers: {
         "Content-Type": "application/json",
@@ -8,4 +8,4 @@ const axios = Axios.create({
     withCredentials: true,
 });
 
-export default axios;
+export default Axios;

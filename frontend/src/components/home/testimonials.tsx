@@ -1,67 +1,85 @@
 "use client";
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import Axios from "@/lib/axios-instance";
+import { normalizeImagePath } from "@/lib/utils";
 
-const dummyTestimonials: Testimonial[] = [
-  {
-    quote:
-      "Next Model Nepal is a game-changer in the modeling industry. Their commitment to nurturing talent and providing a platform for models to shine is commendable. The events are well-organized, and the networking opportunities are immense. I've learned and grown so much since joining, and I highly recommend it to any aspiring model.",
-    name: "Ronish Khadgi",
-    image: "/news_1.jpg",
-  },
-  {
-    quote:
-      "As a model for Next Model Nepal, I've had an incredible experience. The opportunities provided by this platform are unparalleled, and the exposure I've gained has significantly boosted my career. The team is professional, supportive, and always strives to bring out the best in us. I'm proud to be associated with such a prestigious organization.",
-    name: "Bikram Aditya Mahaseth",
-    image: "/news_1.jpg",
-  },
-  {
-    quote:
-      "Being a part of Next Model Nepal has been a transformative experience for me. The platform offers excellent training, exposure, and opportunities that have helped me advance my modeling career and grow as a model. The team's dedication to excellence is evident in every aspect of their work.",
-    name: "Samrat Pratap Singh",
-    image: "/news_1.jpg",
-  },
-  {
-    quote:
-      "Next Model Nepal is a game-changer in the modeling industry. Their commitment to nurturing talent and providing a platform for models to shine is commendable. The events are well-organized, and the networking opportunities are immense. I've learned and grown so much since joining, and I highly recommend it to any aspiring model.",
-    name: "Monika Adhikary",
-    image: "/news_1.jpg",
-  },
-  {
-    quote:
-      "As a model for Next Model Nepal, I've had an incredible experience. The opportunities provided by this platform are unparalleled, and the exposure I've gained has significantly boosted my career. The team is professional, supportive, and always strives to bring out the best in us. I'm proud to be associated with such a prestigious organization.",
-    name: "Bikram Aditya Mahaseth",
-    image: "/news_1.jpg",
-  },
-  {
-    quote:
-      "Next Model Nepal is a game-changer in the modeling industry. Their commitment to nurturing talent and providing a platform for models to shine is commendable. The events are well-organized, and the networking opportunities are immense. I've learned and grown so much since joining, and I highly recommend it to any aspiring model.",
-    name: "Ronish Khadgi",
-    image: "/news_1.jpg",
-  },
-  {
-    quote:
-      "Next Model Nepal is a game-changer in the modeling industry. Their commitment to nurturing talent and providing a platform for models to shine is commendable. The events are well-organized, and the networking opportunities are immense. I've learned and grown so much since joining, and I highly recommend it to any aspiring model.",
-    name: "Monika Adhikary",
-    image: "/news_1.jpg",
-  },
-  {
-    quote:
-      "Being a part of Next Model Nepal has been a transformative experience for me. The platform offers excellent training, exposure, and opportunities that have helped me advance my modeling career and grow as a model. The team's dedication to excellence is evident in every aspect of their work.",
-    name: "Samrat Pratap Singh",
-    image: "/news_1.jpg",
-  },
-];
+// const dummyTestimonials: Testimonial[] = [
+//   {
+//     quote:
+//       "Next Model Nepal is a game-changer in the modeling industry. Their commitment to nurturing talent and providing a platform for models to shine is commendable. The events are well-organized, and the networking opportunities are immense. I've learned and grown so much since joining, and I highly recommend it to any aspiring model.",
+//     name: "Ronish Khadgi",
+//     image: "/news_1.jpg",
+//   },
+//   {
+//     quote:
+//       "As a model for Next Model Nepal, I've had an incredible experience. The opportunities provided by this platform are unparalleled, and the exposure I've gained has significantly boosted my career. The team is professional, supportive, and always strives to bring out the best in us. I'm proud to be associated with such a prestigious organization.",
+//     name: "Bikram Aditya Mahaseth",
+//     image: "/news_1.jpg",
+//   },
+//   {
+//     quote:
+//       "Being a part of Next Model Nepal has been a transformative experience for me. The platform offers excellent training, exposure, and opportunities that have helped me advance my modeling career and grow as a model. The team's dedication to excellence is evident in every aspect of their work.",
+//     name: "Samrat Pratap Singh",
+//     image: "/news_1.jpg",
+//   },
+//   {
+//     quote:
+//       "Next Model Nepal is a game-changer in the modeling industry. Their commitment to nurturing talent and providing a platform for models to shine is commendable. The events are well-organized, and the networking opportunities are immense. I've learned and grown so much since joining, and I highly recommend it to any aspiring model.",
+//     name: "Monika Adhikary",
+//     image: "/news_1.jpg",
+//   },
+//   {
+//     quote:
+//       "As a model for Next Model Nepal, I've had an incredible experience. The opportunities provided by this platform are unparalleled, and the exposure I've gained has significantly boosted my career. The team is professional, supportive, and always strives to bring out the best in us. I'm proud to be associated with such a prestigious organization.",
+//     name: "Bikram Aditya Mahaseth",
+//     image: "/news_1.jpg",
+//   },
+//   {
+//     quote:
+//       "Next Model Nepal is a game-changer in the modeling industry. Their commitment to nurturing talent and providing a platform for models to shine is commendable. The events are well-organized, and the networking opportunities are immense. I've learned and grown so much since joining, and I highly recommend it to any aspiring model.",
+//     name: "Ronish Khadgi",
+//     image: "/news_1.jpg",
+//   },
+//   {
+//     quote:
+//       "Next Model Nepal is a game-changer in the modeling industry. Their commitment to nurturing talent and providing a platform for models to shine is commendable. The events are well-organized, and the networking opportunities are immense. I've learned and grown so much since joining, and I highly recommend it to any aspiring model.",
+//     name: "Monika Adhikary",
+//     image: "/news_1.jpg",
+//   },
+//   {
+//     quote:
+//       "Being a part of Next Model Nepal has been a transformative experience for me. The platform offers excellent training, exposure, and opportunities that have helped me advance my modeling career and grow as a model. The team's dedication to excellence is evident in every aspect of their work.",
+//     name: "Samrat Pratap Singh",
+//     image: "/news_1.jpg",
+//   },
+// ];
 
 const TestimonialSection: React.FC = () => {
+  const [data, setData] = useState<Testimonial[] | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await Axios.get('/api/feedback');
+        const data = res.data;
+        console.log(data.data[0].item);
+        setData(data.data[0].item);
+      }
+      catch (err) {
+        // console.log(err);
+      }
+    })();
+  }, []);
+
   const [page, setPage] = useState(0);
   const itemsPerPage = 4;
-  const maxPage = Math.ceil(dummyTestimonials.length / itemsPerPage) - 1;
+  const maxPage = Math.ceil((data?.length || 0 )/ itemsPerPage) - 1;
 
   const handlePrev = () => setPage((p) => (p > 0 ? p - 1 : p));
   const handleNext = () => setPage((p) => (p < maxPage ? p + 1 : p));
-  const currentTestimonials = dummyTestimonials.slice(
+  const currentTestimonials = data?.slice(
     page * itemsPerPage,
     page * itemsPerPage + itemsPerPage
   );
@@ -90,48 +108,43 @@ const TestimonialSection: React.FC = () => {
       <div className="max-w-7xl mx-auto">
         {/* Desktop Grid */}
         <div className="hidden md:grid grid-cols-1 md:grid-cols-2 gap-12">
-          {currentTestimonials.map((testimonial, index) => (
-            // <div
-              
-            //   className="bg-muted-background lg:m-10 flex flex-col justify-between min-h-[280px] h-full hover:shadow-xl transition-shadow duration-300"
-            // >
-              <motion.div
+          {currentTestimonials?.map((testimonial, index) => (
+            <motion.div
               key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, ease: "easeOut", delay: index * 0.1 }}
-                viewport={{ once: true }}
-                className="bg-muted-background p-10 flex flex-col justify-between min-h-[280px] h-full hover:shadow-xl transition-shadow duration-300"
-              >
-                <div>
-                  <i className="ri-double-quotes-l text-gold-500 w-10 h-10 text-2xl" />
-                  <p className="text-neutral-300 leading-relaxed mb-4">
-                    {testimonial.quote}
-                  </p>
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: "easeOut", delay: index * 0.1 }}
+              viewport={{ once: true }}
+              className="bg-muted-background p-10 flex flex-col justify-between min-h-[280px] h-full hover:shadow-xl transition-shadow duration-300"
+            >
+              <div>
+                <i className="ri-double-quotes-l text-gold-500 w-10 h-10 text-2xl" />
+                <p className="text-neutral-300 leading-relaxed mb-4">
+                  {testimonial.message}
+                </p>
+              </div>
+              <div className="flex items-center mt-auto pt-4">
+                <div className="relative w-10 h-10 rounded-full overflow-hidden mr-3">
+                  <Image
+                    src={normalizeImagePath(testimonial.images)}
+                    alt={testimonial.name}
+                    layout="fill"
+                    objectFit="cover"
+                    quality={75}
+                  />
                 </div>
-                <div className="flex items-center mt-auto pt-4">
-                  <div className="relative w-10 h-10 rounded-full overflow-hidden mr-3">
-                    <Image
-                      src={testimonial.image}
-                      alt={testimonial.name}
-                      layout="fill"
-                      objectFit="cover"
-                      quality={75}
-                    />
-                  </div>
-                  <p className="text-neutral-100 font-semibold">
-                    {testimonial.name}
-                  </p>
-                </div>
-              </motion.div>
-            // </div>
+                <p className="text-neutral-100 font-semibold">
+                  {testimonial.name}
+                </p>
+              </div>
+            </motion.div>
           ))}
         </div>
 
         {/* Mobile Slider */}
         <div className="md:hidden overflow-x-auto overflow-y-hidden snap-x snap-mandatory scroll-smooth -mx-6 px-6">
           <div className="flex space-x-6 w-max">
-            {dummyTestimonials.map((testimonial, index) => (
+            {data?.map((testimonial, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
@@ -143,13 +156,13 @@ const TestimonialSection: React.FC = () => {
                 <div>
                   <i className="ri-double-quotes-l text-gold-500 w-10 h-10 text-2xl" />
                   <p className="text-neutral-300 leading-relaxed mb-4">
-                    {testimonial.quote}
+                    {testimonial.message}
                   </p>
                 </div>
                 <div className="flex items-center mt-auto pt-4">
                   <div className="relative w-10 h-10 rounded-full overflow-hidden mr-3">
                     <Image
-                      src={testimonial.image}
+                      src={normalizeImagePath(testimonial.images)}
                       alt={testimonial.name}
                       layout="fill"
                       objectFit="cover"

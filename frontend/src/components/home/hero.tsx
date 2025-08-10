@@ -3,21 +3,21 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "../ui/button";
 import { motion } from 'framer-motion';
-import axios from "@/lib/axios-instance";
+import Axios from "@/lib/axios-instance";
 
 const HeroSection = () => {
-  const [data, setData] = useState<HeroData|null>(null);
+  const [data, setData] = useState<HeroData | null>(null);
 
   useEffect(() => {
     (async () => {
       try {
-        const res = await axios.get('/api/hero');
+        const res = await Axios.get('/api/hero');
         const data = res.data;
         // console.log(data.data[0]);
         setData(data.data[0])
       }
       catch (err) {
-        // console.log(err);
+        console.log(err);
       }
     })();
   }, []);
