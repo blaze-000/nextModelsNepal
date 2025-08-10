@@ -257,7 +257,7 @@ export default function EventsPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="Events" description="Manage events and competitions">
-        <AdminButton onClick={handleCreate} icon="ri-add-line">
+        <AdminButton onClick={handleCreate}>
           Add Event
         </AdminButton>
       </PageHeader>
@@ -413,7 +413,7 @@ export default function EventsPage() {
             >
               Cancel
             </AdminButton>
-            <AdminButton type="submit" loading={submitting}>
+            <AdminButton type="submit">
               {editingEvent ? "Update" : "Create"} Event
             </AdminButton>
           </div>

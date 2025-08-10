@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import PageHeader from "@/components/admin/PageHeader";
 import DataTable from "@/components/admin/DataTable";
 import Modal from "@/components/admin/Modal";
-import AdminButton from "@/components/admin/AdminButton";
+
 import Input from "@/components/admin/form/input";
 import Textarea from "@/components/admin/form/textarea";
 import PhotoUpload from "@/components/admin/form/photo-upload";
@@ -14,6 +14,7 @@ import IconUpload from "@/components/admin/form/icon-upload";
 
 import { apiClient } from "@/lib/api";
 import { CompanyModel, ModelFormData } from "@/types/admin";
+import { AdminButton } from "@/components/admin/AdminButton";
 
 const initialFormData: ModelFormData = {
   name: "",
@@ -252,7 +253,7 @@ export default function ModelsPage() {
         title="Models"
         description="Manage company models and their profiles"
       >
-        <AdminButton onClick={handleCreate} icon="ri-add-line">
+        <AdminButton onClick={handleCreate} >
           Add Model
         </AdminButton>
       </PageHeader>
@@ -357,7 +358,7 @@ export default function ModelsPage() {
             >
               Cancel
             </AdminButton>
-            <AdminButton type="submit" loading={submitting}>
+            <AdminButton type="submit" >
               {editingModel ? "Update" : "Create"} Model
             </AdminButton>
           </div>

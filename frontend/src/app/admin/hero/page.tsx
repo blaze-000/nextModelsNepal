@@ -6,13 +6,13 @@ import { toast } from "sonner";
 import PageHeader from "@/components/admin/PageHeader";
 import DataTable from "@/components/admin/DataTable";
 import Modal from "@/components/admin/Modal";
-import AdminButton from "@/components/admin/AdminButton";
 import Input from "@/components/admin/form/input";
 import Textarea from "@/components/admin/form/textarea";
 import PhotoUpload from "@/components/admin/form/photo-upload";
 
 import { apiClient } from "@/lib/api";
 import { Hero, HeroFormData } from "@/types/admin";
+import { AdminButton } from "@/components/admin/AdminButton";
 
 const initialFormData: HeroFormData = {
   maintitle: "",
@@ -216,7 +216,7 @@ export default function HeroSectionPage() {
         title="Hero Section"
         description="Manage hero sections displayed on the homepage"
       >
-        <AdminButton onClick={handleCreate} icon="ri-add-line">
+        <AdminButton onClick={handleCreate} >
           Add Hero Section
         </AdminButton>
       </PageHeader>
@@ -288,7 +288,7 @@ export default function HeroSectionPage() {
             >
               Cancel
             </AdminButton>
-            <AdminButton type="submit" loading={submitting}>
+            <AdminButton type="submit">
               {editingHero ? "Update" : "Create"} Hero Section
             </AdminButton>
           </div>

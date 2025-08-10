@@ -7,7 +7,7 @@ import Image from "next/image";
 import PageHeader from "@/components/admin/PageHeader";
 import DataTable from "@/components/admin/DataTable";
 import Modal from "@/components/admin/Modal";
-import AdminButton from "@/components/admin/AdminButton";
+import { AdminButton } from "@/components/admin/AdminButton";
 import Input from "@/components/admin/form/input";
 
 import { apiClient } from "@/lib/api";
@@ -257,7 +257,7 @@ export default function PartnersPage() {
         title="Partners"
         description="Manage business partners and sponsors"
       >
-        <AdminButton onClick={handleCreate} icon="ri-add-line">
+        <AdminButton onClick={handleCreate} >
           Add Partners Section
         </AdminButton>
       </PageHeader>
@@ -303,7 +303,7 @@ export default function PartnersPage() {
                 variant="ghost"
                 size="sm"
                 onClick={addPartner}
-                icon="ri-add-line"
+              
               >
                 Add Partner
               </AdminButton>
@@ -328,7 +328,7 @@ export default function PartnersPage() {
                       variant="ghost"
                       size="sm"
                       onClick={() => removePartner(index)}
-                      icon="ri-delete-bin-line"
+                   
                       className="text-red-400 hover:text-red-300"
                     >
                       Remove
@@ -381,7 +381,7 @@ export default function PartnersPage() {
             >
               Cancel
             </AdminButton>
-            <AdminButton type="submit" loading={submitting}>
+            <AdminButton type="submit" >
               {editingPartner ? "Update" : "Create"} Partners
             </AdminButton>
           </div>

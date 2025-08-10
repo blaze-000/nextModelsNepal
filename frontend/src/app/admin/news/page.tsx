@@ -7,7 +7,7 @@ import Image from "next/image";
 import PageHeader from "@/components/admin/PageHeader";
 import DataTable from "@/components/admin/DataTable";
 import Modal from "@/components/admin/Modal";
-import AdminButton from "@/components/admin/AdminButton";
+import { AdminButton } from "@/components/admin/AdminButton";
 import Input from "@/components/admin/form/input";
 import Textarea from "@/components/admin/form/textarea";
 import PhotoUpload from "@/components/admin/form/photo-upload";
@@ -232,7 +232,7 @@ export default function NewsPage() {
         title="News"
         description="Manage news articles and press coverage"
       >
-        <AdminButton onClick={handleCreate} icon="ri-add-line">
+        <AdminButton onClick={handleCreate} >
           Add News Article
         </AdminButton>
       </PageHeader>
@@ -320,7 +320,7 @@ export default function NewsPage() {
             >
               Cancel
             </AdminButton>
-            <AdminButton type="submit" loading={submitting}>
+            <AdminButton type="submit">
               {editingNews ? "Update" : "Create"} Article
             </AdminButton>
           </div>
