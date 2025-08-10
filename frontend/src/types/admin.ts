@@ -5,6 +5,7 @@ export interface Hero {
   subtitle: string;
   description: string;
   images: string[];
+  titleImage: string;
 }
 
 // Navigation Types
@@ -129,6 +130,7 @@ export interface News {
   content: string;
   year: string;
   images: string[];
+  event?: string; // Optional event reference
 }
 
 // Contact Types
@@ -214,6 +216,7 @@ export interface NewsFormData {
   content: string;
   year: string;
   images: File[];
+  event?: string; // Optional event reference
 }
 
 export interface PartnerFormData {

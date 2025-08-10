@@ -10,7 +10,7 @@ import Modal from "@/components/admin/Modal";
 import Input from "@/components/admin/form/input";
 import Textarea from "@/components/admin/form/textarea";
 
-import { apiClient } from "@/lib/api";
+import Axios from "@/lib/axios-instance";
 import { Event } from "@/types/admin";
 import { AdminButton } from "@/components/admin/AdminButton";
 
@@ -60,9 +60,10 @@ export default function EventsPage() {
   const fetchEvents = async () => {
     try {
       setLoading(true);
-      const response = await apiClient.get<Event>("/event");
-      if (response.success && response.data) {
-        setEvents(response.data);
+      const response = await Axios.get("/api/events");
+      const data = response.data;
+      if (data.success && data.data) {
+        setEvents(data.data);
       }
     } catch (error) {
       toast.error("Failed to fetch events");
@@ -106,8 +107,9 @@ export default function EventsPage() {
     if (!confirm("Are you sure you want to delete this event?")) return;
 
     try {
-      const response = await apiClient.delete("/event", event._id);
-      if (response.success) {
+      const response = await Axios.delete(`/api/events/${event._id}`);
+      const data = response.data;
+      if (data.success) {
         toast.success("Event deleted successfully");
         fetchEvents();
       } else {
@@ -190,11 +192,20 @@ export default function EventsPage() {
     if (formData.logo) submitFormData.append("logo", formData.logo);
 
     try {
-      const response = editingEvent
-        ? await apiClient.update("/event", editingEvent._id, submitFormData)
-        : await apiClient.create("/event", submitFormData);
+      let response;
+      if (editingEvent) {
+        // Update existing event
+        response = await Axios.patch(
+          `/api/events/${editingEvent._id}`,
+          submitFormData
+        );
+      } else {
+        // Create new event
+        response = await Axios.post("/api/events", submitFormData);
+      }
 
-      if (response.success) {
+      const data = response.data;
+      if (data.success) {
         toast.success(
           `Event ${editingEvent ? "updated" : "created"} successfully`
         );
@@ -257,9 +268,7 @@ export default function EventsPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="Events" description="Manage events and competitions">
-        <AdminButton onClick={handleCreate}>
-          Add Event
-        </AdminButton>
+        <AdminButton onClick={handleCreate}>Add Event</AdminButton>
       </PageHeader>
 
       <DataTable
@@ -413,8 +422,9 @@ export default function EventsPage() {
             >
               Cancel
             </AdminButton>
-            <AdminButton type="submit">
-              {editingEvent ? "Update" : "Create"} Event
+            <AdminButton type="submit" disabled={submitting}>
+              {submitting ? "Saving..." : editingEvent ? "Update" : "Create"}{" "}
+              Event
             </AdminButton>
           </div>
         </form>

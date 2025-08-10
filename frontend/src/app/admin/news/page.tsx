@@ -5,15 +5,16 @@ import { toast } from "sonner";
 import Image from "next/image";
 
 import PageHeader from "@/components/admin/PageHeader";
-import DataTable from "@/components/admin/DataTable";
 import Modal from "@/components/admin/Modal";
 import { AdminButton } from "@/components/admin/AdminButton";
 import Input from "@/components/admin/form/input";
 import Textarea from "@/components/admin/form/textarea";
+import Select from "@/components/admin/form/select";
 import PhotoUpload from "@/components/admin/form/photo-upload";
 
-import { apiClient } from "@/lib/api";
-import { News, NewsFormData } from "@/types/admin";
+import Axios from "@/lib/axios-instance";
+import { News, NewsFormData, Event } from "@/types/admin";
+import { Button } from "@/components/ui/button";
 
 const initialFormData: NewsFormData = {
   title: "",
@@ -21,10 +22,12 @@ const initialFormData: NewsFormData = {
   content: "",
   year: new Date().getFullYear().toString(),
   images: [],
+  event: "",
 };
 
 export default function NewsPage() {
   const [news, setNews] = useState<News[]>([]);
+  const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
@@ -32,24 +35,39 @@ export default function NewsPage() {
   const [viewingNews, setViewingNews] = useState<News | null>(null);
   const [formData, setFormData] = useState<NewsFormData>(initialFormData);
   const [submitting, setSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     fetchNews();
+    fetchEvents();
   }, []);
 
   const fetchNews = async () => {
     try {
       setLoading(true);
-      const response = await apiClient.get<News>("/news");
-      if (response.success && response.data) {
-        setNews(response.data);
+      const response = await Axios.get("/api/news");
+      const data = response.data;
+      if (data.success && data.data) {
+        setNews(data.data);
       }
     } catch (error) {
       toast.error("Failed to fetch news");
       console.error("Error fetching news:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchEvents = async () => {
+    try {
+      const response = await Axios.get("/api/events");
+      const data = response.data;
+      if (data.success && data.data) {
+        setEvents(data.data);
+      }
+    } catch (error) {
+      console.error("Error fetching events:", error);
     }
   };
 
@@ -68,6 +86,7 @@ export default function NewsPage() {
       content: newsItem.content,
       year: newsItem.year,
       images: [],
+      event: newsItem.event || "",
     });
     setErrors({});
     setIsModalOpen(true);
@@ -81,9 +100,11 @@ export default function NewsPage() {
   const handleDelete = async (newsItem: News) => {
     if (!confirm("Are you sure you want to delete this news article?")) return;
 
+    setIsDeleting(newsItem._id);
     try {
-      const response = await apiClient.delete("/news", newsItem._id);
-      if (response.success) {
+      const response = await Axios.delete(`/api/news/${newsItem._id}`);
+      const data = response.data;
+      if (data.success) {
         toast.success("News article deleted successfully");
         fetchNews();
       } else {
@@ -92,11 +113,15 @@ export default function NewsPage() {
     } catch (error) {
       toast.error("Failed to delete news article");
       console.error("Error deleting news:", error);
+    } finally {
+      setIsDeleting(null);
     }
   };
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value } = e.target;
     setFormData((prev: NewsFormData) => ({ ...prev, [name]: value }));
@@ -152,17 +177,29 @@ export default function NewsPage() {
     submitFormData.append("description", formData.description);
     submitFormData.append("content", formData.content);
     submitFormData.append("year", formData.year);
+    if (formData.event) {
+      submitFormData.append("event", formData.event);
+    }
 
     formData.images.forEach((image: File) => {
       submitFormData.append("images", image);
     });
 
     try {
-      const response = editingNews
-        ? await apiClient.update("/news", editingNews._id, submitFormData)
-        : await apiClient.create("/news", submitFormData);
+      let response;
+      if (editingNews) {
+        // Update existing news
+        response = await Axios.patch(
+          `/api/news/${editingNews._id}`,
+          submitFormData
+        );
+      } else {
+        // Create new news
+        response = await Axios.post("/api/news", submitFormData);
+      }
 
-      if (response.success) {
+      const data = response.data;
+      if (data.success) {
         toast.success(
           `News article ${editingNews ? "updated" : "created"} successfully`
         );
@@ -183,48 +220,24 @@ export default function NewsPage() {
     }
   };
 
-  const columns = [
-    {
-      key: "title",
-      label: "Title",
-      sortable: true,
-      render: (value: unknown) => (
-        <div className="font-medium max-w-xs truncate">{String(value)}</div>
-      ),
-    },
-    {
-      key: "description",
-      label: "Description",
-      render: (value: unknown) => (
-        <div className="max-w-sm truncate text-gray-400">{String(value)}</div>
-      ),
-    },
-    {
-      key: "year",
-      label: "Year",
-      sortable: true,
-      width: "100px",
-      render: (value: unknown) => (
-        <span className="px-2 py-1 text-xs bg-gold-500/20 text-gold-400 rounded">
-          {String(value)}
-        </span>
-      ),
-    },
-    {
-      key: "images",
-      label: "Images",
-      render: (value: unknown) => {
-        const images = value as string[];
-        return (
-          <div className="flex items-center gap-2">
-            <span className="text-xs bg-gray-500/20 text-gray-400 px-2 py-1 rounded">
-              {images?.length || 0} images
-            </span>
-          </div>
-        );
-      },
-    },
-  ];
+  const eventOptions = events.map((event) => ({
+    value: event._id,
+    label: event.title,
+  }));
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          title="News"
+          description="Manage news articles and press coverage"
+        />
+        <div className="flex justify-center py-12">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gold-500"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -232,21 +245,118 @@ export default function NewsPage() {
         title="News"
         description="Manage news articles and press coverage"
       >
-        <AdminButton onClick={handleCreate} >
+        <Button variant="default" onClick={handleCreate}>
           Add News Article
-        </AdminButton>
+        </Button>
       </PageHeader>
 
-      <DataTable
-        data={news}
-        columns={columns}
-        onView={handleView}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        loading={loading}
-        emptyMessage="No news articles found. Create your first news article to get started."
-        searchPlaceholder="Search news articles..."
-      />
+      {news.length === 0 ? (
+        <div className="text-center py-12 text-gray-400">
+          No news articles found. Create your first news article to get started.
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {news.map((newsItem) => {
+            const linkedEvent = events.find(
+              (event) => event._id === newsItem.event
+            );
+
+            return (
+              <div
+                key={newsItem._id}
+                className="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden hover:border-gold-500/50 transition-all duration-200 group"
+              >
+                {/* Image */}
+                {newsItem.images && newsItem.images.length > 0 && (
+                  <div className="aspect-video relative overflow-hidden">
+                    <Image
+                      src={`http://localhost:8000/${newsItem.images[0]}`}
+                      alt={newsItem.title}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-200"
+                      unoptimized
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+                  </div>
+                )}
+
+                {/* Content */}
+                <div className="p-4 space-y-3">
+                  {/* Title */}
+                  <h3 className="font-semibold text-gray-100 text-lg line-clamp-2 leading-tight group-hover:text-gold-400 transition-colors">
+                    {newsItem.title}
+                  </h3>
+
+                  {/* Description */}
+                  <p className="text-gray-400 text-sm line-clamp-3 leading-relaxed">
+                    {newsItem.description}
+                  </p>
+
+                  {/* Year and Event */}
+                  <div className="flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-1 text-gray-500">
+                      <i className="ri-calendar-line text-xs" />
+                      <span>{newsItem.year}</span>
+                    </div>
+                    {linkedEvent && (
+                      <div className="flex items-center gap-1 bg-gold-500/20 text-gold-400 px-2 py-1 rounded-full">
+                        <i className="ri-external-link-line text-xs" />
+                        <span className="truncate max-w-20">
+                          {linkedEvent.title}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Content Length */}
+                  <div className="flex items-center gap-1 text-xs text-gray-500 pt-1">
+                    <i className="ri-file-text-line text-xs" />
+                    <span>{newsItem.content.length} characters</span>
+                    {newsItem.images && newsItem.images.length > 1 && (
+                      <>
+                        <span>•</span>
+                        <span>{newsItem.images.length} images</span>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center justify-between pt-3 border-t border-gray-700">
+                    <button
+                      onClick={() => handleView(newsItem)}
+                      className="flex items-center gap-1 text-xs text-gray-400 hover:text-gold-400 transition-colors"
+                    >
+                      <i className="ri-eye-line text-xs" />
+                      <span>View</span>
+                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleEdit(newsItem)}
+                        className="p-1.5 text-gray-400 hover:text-gold-400 hover:bg-gold-500/10 rounded transition-colors"
+                        title="Edit news"
+                      >
+                        <i className="ri-pencil-line text-sm" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(newsItem)}
+                        disabled={isDeleting === newsItem._id}
+                        className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded transition-colors disabled:opacity-50"
+                        title="Delete news"
+                      >
+                        {isDeleting === newsItem._id ? (
+                          <div className="w-4 h-4 animate-spin rounded-full border-b border-red-400"></div>
+                        ) : (
+                          <i className="ri-delete-bin-line text-sm" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* Create/Edit Modal */}
       <Modal
@@ -301,6 +411,15 @@ export default function NewsPage() {
             rows={8}
           />
 
+          <Select
+            label="Related Event (Optional)"
+            name="event"
+            value={formData.event || ""}
+            onChange={handleInputChange}
+            options={eventOptions}
+            placeholder="Select an event..."
+          />
+
           <PhotoUpload
             label="Images"
             name="images"
@@ -320,8 +439,9 @@ export default function NewsPage() {
             >
               Cancel
             </AdminButton>
-            <AdminButton type="submit">
-              {editingNews ? "Update" : "Create"} Article
+            <AdminButton type="submit" disabled={submitting}>
+              {submitting ? "Saving..." : editingNews ? "Update" : "Create"}{" "}
+              Article
             </AdminButton>
           </div>
         </form>
@@ -345,6 +465,16 @@ export default function NewsPage() {
                   <span>Year: {viewingNews.year}</span>
                   <span>•</span>
                   <span>{viewingNews.images?.length || 0} images</span>
+                  {viewingNews.event && (
+                    <>
+                      <span>•</span>
+                      <span className="text-gold-400">
+                        Event:{" "}
+                        {events.find((e) => e._id === viewingNews.event)
+                          ?.title || "Unknown"}
+                      </span>
+                    </>
+                  )}
                 </div>
               </div>
             </div>

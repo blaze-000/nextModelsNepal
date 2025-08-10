@@ -13,7 +13,7 @@ import Textarea from "@/components/admin/form/textarea";
 import Select from "@/components/admin/form/select";
 import PhotoUpload from "@/components/admin/form/photo-upload";
 
-import { apiClient } from "@/lib/api";
+import Axios from "@/lib/axios-instance";
 import { CompanyModel, ModelFormData } from "@/types/admin";
 
 const initialFormData: ModelFormData = {
@@ -40,9 +40,10 @@ export default function ModelsPage() {
   const fetchModels = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await apiClient.get<CompanyModel>("/models");
-      if (response.success && response.data) {
-        setModels(response.data);
+      const response = await Axios.get("/api/models");
+      const data = response.data;
+      if (data.success && data.data) {
+        setModels(data.data);
       }
     } catch (error) {
       toast.error("Failed to fetch models");
@@ -83,8 +84,9 @@ export default function ModelsPage() {
       if (!confirm(`Are you sure you want to delete "${model.name}"?`)) return;
 
       try {
-        const response = await apiClient.delete("/models", model._id);
-        if (response.success) {
+        const response = await Axios.delete(`/api/models/${model._id}`);
+        const data = response.data;
+        if (data.success) {
           toast.success("Model deleted successfully");
           fetchModels();
         } else {
@@ -193,11 +195,20 @@ export default function ModelsPage() {
       });
 
       try {
-        const response = editingModel
-          ? await apiClient.update("/models", editingModel._id, submitFormData)
-          : await apiClient.create("/models", submitFormData);
+        let response;
+        if (editingModel) {
+          // Update existing model
+          response = await Axios.patch(
+            `/api/models/${editingModel._id}`,
+            submitFormData
+          );
+        } else {
+          // Create new model
+          response = await Axios.post("/api/models", submitFormData);
+        }
 
-        if (response.success) {
+        const data = response.data;
+        if (data.success) {
           toast.success(
             `Model ${editingModel ? "updated" : "created"} successfully`
           );
