@@ -3,7 +3,7 @@ import { Button } from "../ui/button";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import axios from "@/lib/axios-instance";
+import Axios from "@/lib/axios-instance";
 
 const UpcomingEventSection = () => {
   const [data, setData] = useState<UpcomingEventData | null>(null);
@@ -11,9 +11,9 @@ const UpcomingEventSection = () => {
   useEffect(() => {
     (async () => {
       try {
-        const res = await axios.get('/api/next-events');
+        const res = await Axios.get('/api/next-events');
         const data = res.data;
-        console.log(data.data[0]);
+        // console.log(data.data[0]);
         setData(data.data[0])
       }
       catch (err) {

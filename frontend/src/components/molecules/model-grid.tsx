@@ -2,19 +2,20 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { normalizeImagePath } from "@/lib/utils";
 
 const ModelGrid: React.FC<ModelGridProps> = ({ models, children }) => {
   return (
     <div className="space-y-8">
       {/* Desktop Grid */}
       <div className="hidden lg:grid lg:grid-cols-4 gap-6 ">
-        {models.map((model: Model, index: number) => (
+        {models?.map((model: Model, index: number) => (
           <div
             key={index}
             className="relative bg-white overflow-hidden group transition-transform"
           >
             <Image
-              src={model.image}
+              src={normalizeImagePath(model.coverImage)}
               alt="model"
               width={400}
               height={0}
@@ -39,7 +40,7 @@ const ModelGrid: React.FC<ModelGridProps> = ({ models, children }) => {
       {/* Mobile Slider */}
       <div className="lg:hidden overflow-x-auto snap-x snap-mandatory scroll-smooth">
         <div className="flex space-x-6 w-max px-6">
-          {models.map((model: Model, index: number) => (
+          {models?.map((model: Model, index: number) => (
             <div
               key={index}
 
@@ -49,7 +50,7 @@ const ModelGrid: React.FC<ModelGridProps> = ({ models, children }) => {
             >
               <Image
                 className="w-full h-80 object-cover [mask:linear-gradient(to_top,transparent_0%,black_30%)]"
-                src={model.image}
+                src={normalizeImagePath(model.coverImage)}
                 alt="model"
                 width={300}
                 height={0}
