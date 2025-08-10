@@ -86,7 +86,7 @@ export const uploadAnyImages = multer({
             cb(new Error('Only image files (including SVG) are allowed.'));
         }
     },
-    limits: { fileSize: 5 * 1024 * 1024 },
+    // limits: { fileSize: 5 * 1024 * 1024 },
 }).any();
 
 export const uploadNextEventRequiredFiles = multer({

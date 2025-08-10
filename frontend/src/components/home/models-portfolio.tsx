@@ -4,57 +4,33 @@ import Image from "next/image";
 import ModelGrid from "../molecules/model-grid";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import axios from "@/lib/axios-instance";
 
 
 const ModelsPortfolioSection = () => {
-  const femaleModels = [
-    {
-      name: "Monika Adhikary",
-      location: "Kathmandu, Nepal",
-      image: "/bro_1.png",
-      link: "https://nextmodelnepal.com/models/monika",
-    },
-    {
-      name: "Pratista",
-      location: "Kathmandu, Nepal",
-      image: "/bro_1.png",
-      link: "https://nextmodelnepal.com/models/pratista",
-    },
-    {
-      name: "Kristina",
-      location: "Kathmandu, Nepal",
-      image: "/bro_1.png",
-    },
-    {
-      name: "Aayushma Poudel",
-      location: "Kathmandu, Nepal",
-      image: "/bro_1.png",
-    },
-  ];
+  const [data, setData] = useState<Model[] | null>(null);
 
-  const maleModels = [
-    {
-      name: "Model Name 1",
-      location: "Kathmandu, Nepal",
-      image: "/bro_1.png",
-      link: "https://nextmodelnepal.com/models/male1",
-    },
-    {
-      name: "Model Name 2",
-      location: "Kathmandu, Nepal",
-      image: "/bro_1.png",
-    },
-    {
-      name: "Model Name 3",
-      location: "Kathmandu, Nepal",
-      image: "/bro_1.png",
-    },
-    {
-      name: "Model Name 4",
-      location: "Kathmandu, Nepal",
-      image: "/bro_1.png",
-    },
-  ];
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await axios.get('/api/models');
+        const data = res.data;
+        // console.log(data.data);
+        setData(data.data)
+      }
+      catch (err) {
+        // console.log(err);
+      }
+    })();
+  }, []);
+
+  const femaleModels = data?.filter(x => x.gender === "Female");
+  const maleModels = data?.filter(x => x.gender === "Male");
+
+  // console.log(femaleModels ?? "No female models")
+  // console.log(maleModels ?? "No male models")
+  // console.log(data);
 
   return (
     <section className="bg-background2 py-16 lg:py-24">
@@ -80,11 +56,11 @@ const ModelsPortfolioSection = () => {
             <div className="flex items-center gap-4">
               <h2 className="text-white text-3xl lg:text-5xl font-light font-newsreader">Find a</h2>
               <Image
-                className="w-24 h-12 lg:w-36 lg:h-16 rounded-full border border-stone-300 mb-3"
-                width={32}
+                width={300}
                 height={0}
-                src="https://placehold.co/187x80"
+                src="/find-a-face.jpg"
                 alt=""
+                className="object-cover w-24 h-12 lg:w-36 lg:h-16 rounded-full border border-stone-300 mb-3"
               />
               <h2 className="text-white text-4xl lg:text-5xl font-light font-newsreader">Face</h2>
             </div>
@@ -125,7 +101,7 @@ const ModelsPortfolioSection = () => {
                   <div className="flex items-center gap-2">
                     <i className="w-4 h-4 ri-map-pin-line" />
                     <span className="text-white text-sm lg:text-base font-semibold font-urbanist">
-                      {model.location}
+                      {model.address}
                     </span>
                   </div>
                 </>
@@ -164,7 +140,7 @@ const ModelsPortfolioSection = () => {
                   <div className="flex items-center gap-2">
                     <i className="w-4 h-4 ri-map-pin-line" />
                     <span className="text-white text-sm lg:text-base font-semibold font-['Urbanist']">
-                      {model.location}
+                      {model.address}
                     </span>
                   </div>
                 </>

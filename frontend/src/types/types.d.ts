@@ -54,9 +54,9 @@ type PartnerScrollerProps = {
 
 
 interface Testimonial {
-  quote: string,
+  message: string,
   name: string,
-  image: string,
+  images: string,
 }
 
 interface BreadcrumbProps {
@@ -68,15 +68,18 @@ interface BreadcrumbProps {
 
 interface Model {
   name: string,
-  image: string,
-  location?: string,
+  coverImage: string,
+  images: string[],
+  gender: 'Male' | 'Female' | 'Other',
+  address?: string,
   slug?: string,
+  intro: string,
   designation?: string,
   tag?: string,
 }
 
 interface ModelGridProps {
-  models: Model[],
+  models: Model[] | undefined,
   children: (model: Model) => React.ReactNode,
 }
 
@@ -85,3 +88,26 @@ interface TimelineProps {
   title?: string,
   children: React.ReactNode,
 }
+
+type HeroData = {
+  maintitle: string,
+  subtitle: string,
+  description: string,
+  images: File<Image>[4],
+}
+
+type UpcomingEventData = {
+  title: string,
+  titleImage: File<Image>,
+  slug: string,
+  image: string,
+  description: string,
+  notice: string[],
+  card: {
+    cardTitle: string,
+    index: string,
+    item: { criteriaTitle: string, criteria: string, criteriaIcon: File<Image> }[]
+  }[],
+  notice: string[],
+  noticeName: string,
+};

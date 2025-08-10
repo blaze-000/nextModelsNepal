@@ -1,38 +1,27 @@
-"use client";
-
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import axios from "axios";
 import { Button } from "../ui/button";
-import { motion } from "framer-motion";
-
-type HeroData = {
-  maintitle: string;
-  subtitle: string;
-  description: string;
-  images: string[];
-};
+import { motion } from 'framer-motion';
+import Axios from "@/lib/axios-instance";
 
 const HeroSection = () => {
-  const [heroData, setHeroData] = useState<HeroData | null>(null);
+  const [data, setData] = useState<HeroData | null>(null);
 
   useEffect(() => {
-    const fetchHero = async () => {
+    (async () => {
       try {
-        const response = await axios.get("http://localhost:8000/api/hero");
-        setHeroData(response.data.data[0]);
-      } catch (error) {
-        console.error("Failed to fetch hero data:", error);
+        const res = await Axios.get('/api/hero');
+        const data = res.data;
+        // console.log(data.data[0]);
+        setData(data.data[0])
       }
-    };
-
-    fetchHero();
+      catch (err) {
+        console.log(err);
+      }
+    })();
   }, []);
 
-  if (!heroData) {
-    return <div className="text-white text-center py-20">Loading...</div>;
-  }
 
   return (
     <section className="bg-gradient-to-b from-background2 to-background w-full">
@@ -45,85 +34,121 @@ const HeroSection = () => {
             transition={{ duration: 0.6 }}
             className="space-y-2 pt-8 lg:pt-20 lg:pb-[7.5rem] -mb-8 md:mb-0"
           >
+            {/* We are Next Models Nepal */}
             <div className="self-stretch justify-center">
               <span className="text-white text-2xl leading-loose tracking-wide">
                 We are{" "}
               </span>
               <span className="text-gold-500 text-2xl font-normal leading-loose tracking-wide">
-                {heroData.subtitle}
+                Next Models Nepal
               </span>
             </div>
-
+            {/* Main Title with Badge */}
             <div className="space-y-2 text-6xl md:text-7xl lg:text-8xl">
               <div>
                 <span className="text-white font-extralight font-newsreader tracking-tighter">
-                  {heroData.maintitle}
+                  Nepal&rsquo;s{" "}
+                </span>
+                <span className="text-gold-500 font-extralight font-newsreader tracking-tighter">
+                  No.1
                 </span>
               </div>
               <div className="flex items-baseline gap-2">
+                {/* Badge image with soft layered shadow */}
                 <div className="w-40 h-16 relative">
                   <Image
                     src="/span-image.jpg"
-                    alt="badge"
+                    alt=""
                     fill
                     className="rounded-full object-cover border border-stone-300 shadow-[-10px_8px_20px_10px_rgba(179,131,0,0.19)]"
                   />
                 </div>
+                {/* Label */}
+                <span className="text-white font-extralight font-newsreader tracking-tighter leading-px">
+                  Modeling
+                </span>
               </div>
               <div className="flex items-center gap-4">
+                <span className="text-white font-extralight font-newsreader tracking-tighter italic pt-4 pr-2">
+                  Agency
+                </span>
+                {/* Empty oval outline */}
                 <div className="w-40 h-16 rounded-full border-2 border-gold-500" />
               </div>
             </div>
-
+            {/* Description */}
             <p className="text-white text-base leading-relaxed font-light pt-6">
-              {heroData.description}
+              Next Models Nepal is a team of seasoned professionals dedicated to
+              <br />
+              talent management, elite training, and launching aspiring models.
             </p>
-
+            {/* Buttons */}
             <div className="flex flex-col items-start gap-4 lg:flex-row lg:gap-10 lg:items-center pt-4">
               <Link href="/models">
                 <Button variant="default" className="px-9 py-4 group">
-                  Hire a model{" "}
-                  <i className="group-hover:scale-1.2 ri-arrow-right-up-line" />
+                  Hire a model <i className="group-hover:scale-1.2 ri-arrow-right-up-line" />
                 </Button>
               </Link>
               <Link
                 href="/events/upcoming-events"
-                className="px-4 py-4 rounded-full text-gold-500 text-base -tracking-tight font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer"
-              >
-                <span className="underline underline-offset-4">
-                  Upcoming Events
-                </span>
+                className="px-4 py-4 rounded-full text-gold-500 text-base -tracking-tight font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer">
+                <span className="underline underline-offset-4">Upcoming Events</span>
                 <i className="ri-arrow-right-up-line group-hover:scale-130 transition-transform duration-400 text-xl font-extralight" />
               </Link>
             </div>
           </motion.div>
 
-          {/* Right Images */}
+          {/* Right side */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="w-full relative overflow-hidden py-32 md:py-0"
+            className="w-full relative overflow-x-hidden overflow-y-hidden py-32 md:py-0"
           >
-            <div className="grid grid-cols-2 grid-rows-2 gap-6 w-[80%] max-w-[390px] aspect-square z-10 relative mx-auto">
-              {heroData.images.map((imgUrl, index) => {
-                // Fix Windows backslashes and prefix with backend URL
-                const fixedUrl = `http://localhost:8000/${imgUrl.replace(/\\/g, "/")}`;
 
-                return (
-                  <div key={index} className="relative overflow-hidden rounded-xl">
-                    <Image
-                      src={fixedUrl}
-                      alt={`Hero image ${index + 1}`}
-                      fill
-                      className="object-cover transition-transform duration-500 hover:scale-110"
-                      unoptimized // Disable Next.js image optimization for backend images
-                    />
-                  </div>
-                );
-              })}
+            {/* 2x2 image grid */}
+            <div className="top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 grid grid-cols-2 grid-rows-2 gap-6 w-[80%] max-w-[390px] aspect-square z-10 relative">
+              {/* Image 1 - Award ceremony */}
+              <div className="relative overflow-hidden rounded-xl">
+                <Image
+                  src={`${process.env.NEXT_PUBLIC_API_URL}/${data?.images[0]}`}
+                  alt="Award ceremony"
+                  fill
+                  className="object-cover transition-transform duration-500 hover:scale-110"
+                />
+              </div>
 
-              {/* Decorative lines */}
+              {/* Image 2 - Pageant */}
+              <div className="relative overflow-hidden rounded-xl">
+                <Image
+                  src={`${process.env.NEXT_PUBLIC_API_URL}/${data?.images[1]}`}
+                  alt="Beauty pageant"
+                  fill
+                  className="object-cover transition-transform duration-500 hover:scale-110"
+                />
+              </div>
+
+              {/* Image 3 - Group photo */}
+              <div className="relative overflow-hidden rounded-xl">
+                <Image
+                  src={`${process.env.NEXT_PUBLIC_API_URL}/${data?.images[2]}`}
+                  alt="Models group photo"
+                  fill
+                  className="object-cover transition-transform duration-500 hover:scale-110"
+                />
+              </div>
+
+              {/* Image 4 - Runway show */}
+              <div className="relative overflow-hidden rounded-xl">
+                <Image
+                  src={`${process.env.NEXT_PUBLIC_API_URL}/${data?.images[3]}`}
+                  alt="Runway show"
+                  fill
+                  className="object-cover transition-transform duration-500 hover:scale-110"
+                />
+              </div>
+
+              {/* Background grid lines */}
               <div className="absolute -left-[50%] -top-5 w-[200%] h-[1px] bg-gradient-to-r from-transparent via-gray-700 to-transparent" />
               <div className="absolute -left-[50%] top-1/2 w-[200%] h-[1px] bg-gradient-to-r from-transparent via-gray-700 to-transparent" />
               <div className="absolute -left-[50%] -bottom-5 w-[200%] h-[1px] bg-gradient-to-r from-transparent via-gray-700 to-transparent" />
@@ -132,10 +157,11 @@ const HeroSection = () => {
               <div className="absolute -bottom-[50%] -right-5 h-[200%] w-[1px] bg-gradient-to-b from-transparent via-gray-700 to-transparent" />
             </div>
 
+            {/* Center decorative element */}
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
               <Image
                 src="/small_star.svg"
-                alt="Decorative Star"
+                alt=""
                 width={25}
                 height={25}
                 priority
@@ -144,8 +170,8 @@ const HeroSection = () => {
             </div>
           </motion.div>
         </div>
-      </div>
-    </section>
+      </div >
+    </section >
   );
 };
 

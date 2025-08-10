@@ -97,7 +97,7 @@ const CTASection = () => {
                   The Runway
                 </h3>
                 <Image
-                  src="/span-image.jpg"
+                  src="/platform.jpg"
                   alt="Badge"
                   height={200}
                   width={200}

@@ -2,8 +2,26 @@ import Image from "next/image";
 import { Button } from "../ui/button";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useState, useEffect } from "react";
+import Axios from "@/lib/axios-instance";
 
 const UpcomingEventSection = () => {
+  const [data, setData] = useState<UpcomingEventData | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await Axios.get('/api/next-events');
+        const data = res.data;
+        // console.log(data.data[0]);
+        setData(data.data[0])
+      }
+      catch (err) {
+        console.log(err);
+      }
+    })();
+  }, []);
+
   return (
     <section className="bg-black-900 w-full">
       <div className="max-w-7xl mx-auto px-6 py-16">
@@ -53,7 +71,7 @@ const UpcomingEventSection = () => {
                 Presenting,
               </div>
               <div className="text-5xl font-light font-newsreader tracking-tighter text-gold-500 mb-4">
-                MR. Nepal 2025
+                {data?.title}
               </div>
             </div>
 
@@ -65,14 +83,14 @@ const UpcomingEventSection = () => {
                   <Image
                     src="/star.svg"
                     alt=""
-                    height={1}
-                    width={1}
+                    height={20}
+                    width={20}
                     className="h-5 w-5 absolute -top-2 -right-2 select-none animate-bounce-slow"
                   />
                 </span>
                 <span>on Nepal&rsquo;s Premier</span>
                 <Image
-                  src="/span-image.jpg"
+                  src={`${process.env.NEXT_PUBLIC_API_URL}/${data?.titleImage}`}
                   alt=""
                   width={1}
                   height={0}
@@ -82,16 +100,14 @@ const UpcomingEventSection = () => {
                 <span>Fashion Event.</span>
               </div>
               <div className="text-6xl font-light font-newsreader tracking-tighter text-gold-500 mb-4">
-                Presenting MR. Nepal 2025
+                Presenting {data?.title}
               </div>
             </div>
 
             {/* Description - mobile */}
             <div className="text-center lg:hidden">
               <p className="text-white text-base font-light max-w-2xl mx-auto">
-                Next Models Nepal leads Nepal&rsquo;s fashion and entertainment
-                scene—discovering talent, creating iconic events, and shaping
-                industry trends.
+                {data?.description}
               </p>
             </div>
           </div>
@@ -110,7 +126,7 @@ const UpcomingEventSection = () => {
               width={500}
               height={600}
               className="h-full w-auto"
-              src="/mr-nepal-2025-poster-1.jpg"
+              src={`${process.env.NEXT_PUBLIC_API_URL}/${data?.image}`}
               alt="Mr. Nepal 2025"
             />
             <div className="h-[115%] absolute right-0 -top-[7.5%] w-[1px] bg-gradient-to-b from-transparent via-white to-transparent" />
@@ -128,9 +144,7 @@ const UpcomingEventSection = () => {
             className="order-2 lg:order-2 space-y-8"
           >
             <p className="hidden lg:block text-white text-md lg:text-lg font-light lead">
-              Next Models Nepal leads Nepal&rsquo;s fashion and entertainment
-              scene—discovering talent, creating iconic events, and shaping
-              industry trends.
+              {data?.description}
             </p>
 
             {/* Eligibility */}
@@ -138,38 +152,26 @@ const UpcomingEventSection = () => {
               <div className="flex items-center gap-3">
                 <div className="w-8 h-4 rounded-full border-2 border-white " />
                 <h4 className="text-white text-xl font-bold font-['Urbanist'] leading-loose tracking-tight">
-                  Eligibility Criteria
+                  {data?.card[0].cardTitle}
                 </h4>
               </div>
 
               <div className="flex justify-between flex-col lg:flex-row gap-4 space-y-8 md:space-y-0 lg:gap-0">
-                {[
-                  {
-                    label: "Age Range",
-                    value: "Required 18-32 Years",
-                    icon: "/cake-1.svg",
-                  },
-                  {
-                    label: "Min. Height",
-                    value: "Height 5.7 or above is preferred",
-                    icon: "/ruler-1.svg",
-                  },
-                  { label: "Gender", value: "Male", icon: "/gender.svg" },
-                ].map((item, index) => (
+                {data?.card[0].item.map((itm, index) => (
                   <div key={index} className="flex items-center gap-4 ">
                     <Image
-                      src={item.icon}
+                      src={`${process.env.NEXT_PUBLIC_API_URL}/${itm.criteriaIcon}`}
                       alt=""
                       width={1}
                       height={0}
-                      className="w-5 h-5 text-gold-500"
+                      className="w-5 h-5"
                     />
                     <div>
                       <p className="text-zinc-300 text-sm font-medium font-urbanist leading-tight tracking-tight">
-                        {item.label}
+                        {itm.criteriaTitle}
                       </p>
                       <p className="text-white text-nowrap text-sm font-semibold font-urbanist leading-loose tracking-tight">
-                        {item.value}
+                        {itm.criteria}
                       </p>
                     </div>
                   </div>
@@ -182,15 +184,12 @@ const UpcomingEventSection = () => {
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-8 h-4 rounded-full border-2 border-white" />
                 <h4 className="text-white text-xl font-bold leading-loose tracking-tight">
-                  Auditions
+                  {data?.card[1].cardTitle}
                 </h4>
               </div>
 
               <div className="grid sm:grid-cols-2 gap-4">
-                {[
-                  { city: "Pokhara", date: "22nd July, Shrawan 6th" },
-                  { city: "Kathmandu", date: "26th July, Shrawan 10th" },
-                ].map((audition, index) => (
+                {data?.card[1].item.map((audition, index) => (
                   <div
                     key={index}
                     className="bg-neutral-900 p-4 flex items-center gap-4"
@@ -202,10 +201,10 @@ const UpcomingEventSection = () => {
                     </div>
                     <div>
                       <p className="text-zinc-300 text-sm font-medium font-['Urbanist']">
-                        {audition.city}
+                        {audition.criteriaTitle}
                       </p>
                       <p className="text-white text-sm font-semibold font-['Urbanist']">
-                        {audition.date}
+                        {audition.criteria}
                       </p>
                     </div>
                   </div>
@@ -216,15 +215,17 @@ const UpcomingEventSection = () => {
             {/* Notice */}
             <div className="space-y-3">
               <p className="text-gold-500 text-base font-semibold font-urbanist">
-                Notice:
+                {data?.noticeName}
               </p>
               <div className="space-y-2">
-                <p className="text-white text-sm font-light font-urbanist">
-                  1. Participants must pay NRS. 1,000 to register for the event
-                </p>
-                <p className="text-white text-sm font-light font-urbanist">
-                  2. Registrations are non-refundable & non-transferable
-                </p>
+                {data?.notice.map((item, index) => (
+                  <p
+                    key={index}
+                    className="text-white text-sm font-light font-urbanist">
+                    {`${index + 1}. ${item}`}
+                  </p>
+                ))}
+
               </div>
             </div>
 
