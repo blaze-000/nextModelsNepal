@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Spinner } from "@geist-ui/react";
 import { motion } from "framer-motion";
 import ModelDropdown from "./ui/modelDropdown";
+import { validateEmail } from "@/lib/utils";
 
 // Model data - can be moved to a separate data file later
 const femaleModels = [
@@ -78,9 +79,6 @@ const maleModels = [
   },
 ];
 
-// Email validation regex
-const validateEmail = (email: string) =>
-  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
 // Reusable Input Component
 const InputField = ({

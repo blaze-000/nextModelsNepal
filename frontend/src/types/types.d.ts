@@ -93,12 +93,12 @@ type HeroData = {
   maintitle: string,
   subtitle: string,
   description: string,
-  images: File<Image>[4],
+  images: string[],
 }
 
 type UpcomingEventData = {
   title: string,
-  titleImage: File<Image>,
+  titleImage: string,
   slug: string,
   image: string,
   description: string,
@@ -106,8 +106,13 @@ type UpcomingEventData = {
   card: {
     cardTitle: string,
     index: string,
-    item: { criteriaTitle: string, criteria: string, criteriaIcon: File<Image> }[]
+    item: { criteriaTitle: string, criteria: string, criteriaIcon: string }[]
   }[],
   notice: string[],
   noticeName: string,
 };
+
+type AdminUser = {
+  email: string,
+  role: 'admin',
+}

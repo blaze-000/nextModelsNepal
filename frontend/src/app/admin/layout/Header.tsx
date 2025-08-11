@@ -2,6 +2,9 @@
 
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import useAuth from "@/hooks/useAuth";
+import { useRouter } from "next/navigation";
+import Axios from "@/lib/axios-instance";
 
 interface HeaderProps {
   onToggleSidebar: () => void;
@@ -33,15 +36,48 @@ const IconButton = ({
   </Button>
 );
 
-const ProfileButton = () => (
-  <Button
-    variant="ghost"
-    size="icon"
-    className="w-8 h-8 rounded-full bg-gold-500 text-primary-foreground hover:bg-gold-400"
-  >
-    <i className="ri-user-line text-lg" />
-  </Button>
-);
+const ProfileButton = () => {
+  const auth = useAuth();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      await Axios.post("/api/auth/logout");
+      auth?.logout();
+      router.push("/login");
+    } catch (error) {
+      console.error("Logout failed:", error);
+      // Still logout locally even if server request fails
+      auth?.logout();
+      router.push("/login");
+    }
+  };
+
+  return (
+    <div className="relative group">
+      <Button
+        variant="ghost"
+        size="icon"
+        className="w-8 h-8 rounded-full bg-gold-500 text-primary-foreground hover:bg-gold-400"
+      >
+        <i className="ri-user-line text-lg" />
+      </Button>
+
+      {/* Dropdown menu */}
+      <div className="absolute right-0 top-full mt-2 w-48 bg-background2 border border-gold-900/20 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+        <div className="py-2">
+          <button
+            onClick={handleLogout}
+            className="w-full px-4 py-2 text-left text-sm text-foreground hover:bg-gold-900/20 transition-colors flex items-center gap-2"
+          >
+            <i className="ri-logout-box-r-line" />
+            Logout
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const SearchBar = () => (
   <div className="flex-1 max-w-md mx-4">

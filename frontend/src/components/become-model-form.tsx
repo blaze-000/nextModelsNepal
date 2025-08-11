@@ -5,10 +5,8 @@ import { toast } from "sonner";
 import { Spinner } from "@geist-ui/react";
 import { motion } from "framer-motion";
 import PhotoUpload from "./ui/photo-upload";
+import { validateEmail } from "@/lib/utils";
 
-// Email validation regex
-const validateEmail = (email: string) =>
-  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
 // Reusable Input Component
 const InputField = ({

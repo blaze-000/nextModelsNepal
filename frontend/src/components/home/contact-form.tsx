@@ -1,15 +1,11 @@
-"use client";
-
 import { useState } from "react";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
 import { Spinner } from "@geist-ui/react";
 import { motion } from "framer-motion";
 import { highlightContact } from "@/lib/highlightContact";
-
-// Email validation regex
-const validateEmail = (email: string) =>
-  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+import Axios from "@/lib/axios-instance";
+import { validateEmail } from "@/lib/utils";
 
 // Reusable Input Component
 const InputField = ({
@@ -110,13 +106,12 @@ const ContactForm = () => {
 
     setIsSending(true);
     try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-      const data = await res.json();
-      if (!res.ok || !data.success) throw new Error();
+      // Simulate api call
+      // await new Promise((resolve) => setTimeout(resolve, 5000));
+
+      const { data } = await Axios.post('/api/contact', formData);
+      if (!data.success) throw new Error();
+      
       toast.success("Message sent!");
       setFormData({ name: "", subject: "", email: "", phone: "", message: "" });
     } catch {

@@ -2,6 +2,8 @@ import "./globals.css";
 import { Urbanist, Newsreader } from "next/font/google";
 import TopLoader from 'nextjs-toploader';
 import 'remixicon/fonts/remixicon.css';
+import { Toaster } from "sonner";
+import { AuthProvider } from "@/context/authContext";
 
 
 const urbanist = Urbanist({
@@ -22,8 +24,8 @@ const newsreader = Newsreader({
 export const metadata = {
   title: "Next Models Nepal",
   description: "Next Models Nepal - Nepal's No.1 Modeling Agency",
-  icons:{
-    icon:'/favicon.png'
+  icons: {
+    icon: '/favicon.png'
   }
 };
 
@@ -37,9 +39,13 @@ export default function RootLayout({
       lang="en"
       className={`${urbanist.variable} ${newsreader.variable} scroll-smooth`}
     >
+
       <body className="bg-background text-foreground antialiased font-urbanist">
-        <TopLoader showSpinner={false} color="#a06d06" height={1}/>
-        {children}
+        <TopLoader showSpinner={false} color="#a06d06" height={1} />
+        <Toaster position="top-center" richColors duration={2000} />
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );

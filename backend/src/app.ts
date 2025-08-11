@@ -25,6 +25,7 @@ import contactRoutes from "./routes/contact.route";
 import memberRoutes from "./routes/member.route";
 import hireRoutes from "./routes/hire.route";
 import appRoutes from "./routes/appForm.route"
+import authRoutes from "./routes/auth.route";
 
 const app = express();
 
@@ -90,6 +91,7 @@ app.use("/api/contact", contactRoutes);
 app.use("/api/member", memberRoutes);
 app.use("/api/hire-model", hireRoutes);
 app.use("/api/app-form", appRoutes);
+app.use("/api/auth", authRoutes);
 
 // Global error handler for Multer errors
 app.use((error: any, req: Request, res: Response, next: NextFunction) => {
