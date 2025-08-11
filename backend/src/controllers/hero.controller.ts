@@ -68,33 +68,26 @@ export const createHeroItem = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "At least one image file is required." });
     }
 
-    // Handle req.body properly for file uploads
     const bodyData = req.body || {};
 
-    // Only validate text fields if they exist and are not empty
     let maintitle, subtitle, description;
     if (Object.keys(bodyData).length > 0) {
       try {
         const textFields = heroItemSchema.pick({ maintitle: true, subtitle: true, description: true }).parse(bodyData);
         ({ maintitle, subtitle, description } = textFields);
-      } catch (validationError: any) {
-        // If validation fails, set fields to undefined (they're optional anyway)
+      } catch {
         maintitle = subtitle = description = undefined;
       }
     }
 
-    // Initialize images array with 4 slots
     const imagePaths: string[] = new Array(4).fill("");
     let titleImagePath: string | undefined;
 
-    // Handle position-specific image uploads
-   
     const filesArray = files as unknown as Express.Multer.File[];
 
     if (filesArray && Array.isArray(filesArray)) {
       filesArray.forEach((file) => {
         const fieldName = file.fieldname;
-
         if (fieldName.startsWith("image_")) {
           const position = parseInt(fieldName.split("_")[1]);
           if (!isNaN(position) && position >= 0 && position < 4) {
@@ -107,7 +100,6 @@ export const createHeroItem = async (req: Request, res: Response) => {
       });
     }
 
-    // If no titleImage was uploaded, use the first non-empty image as titleImage
     if (!titleImagePath) {
       const firstImage = imagePaths.find((img) => img && img.length > 0);
       if (firstImage) {
@@ -115,31 +107,58 @@ export const createHeroItem = async (req: Request, res: Response) => {
       }
     }
 
-    // Ensure we have at least one image
-    const hasImage =
-      imagePaths.some((img) => img && img.length > 0) || titleImagePath;
+    const hasImage = imagePaths.some((img) => img && img.length > 0) || titleImagePath;
     if (!hasImage) {
-      return res
-        .status(400)
-        .json({ error: "At least one image file is required." });
+      return res.status(400).json({ error: "At least one image file is required." });
     }
 
-    const heroSection = await HeroModel.create({
-      maintitle,
-      subtitle,
-      description,
-      images: imagePaths,
-      titleImage:
-        titleImagePath || imagePaths.find((img) => img && img.length > 0) || "",
-    });
+    // ✅ Check if a hero section already exists
+    const existingHero = await HeroModel.findOne();
 
-    res.status(201).json({
-      success: true,
-      message: "Hero section item created successfully.",
-      data: heroSection,
-    });
+    let heroSection;
+    if (existingHero) {
+      // Update existing
+      existingHero.maintitle = maintitle ?? existingHero.maintitle;
+      existingHero.subtitle = subtitle ?? existingHero.subtitle;
+      existingHero.description = description ?? existingHero.description;
+
+      // Replace only provided images, keep existing ones
+      imagePaths.forEach((path, idx) => {
+        if (path && path.length > 0) {
+          existingHero.images[idx] = path;
+        }
+      });
+
+      if (titleImagePath) {
+        existingHero.titleImage = titleImagePath;
+      }
+
+      heroSection = await existingHero.save();
+
+      res.status(200).json({
+        success: true,
+        message: "Hero section item updated successfully.",
+        data: heroSection,
+      });
+    } else {
+      // Create new
+      heroSection = await HeroModel.create({
+        maintitle,
+        subtitle,
+        description,
+        images: imagePaths,
+        titleImage:
+          titleImagePath || imagePaths.find((img) => img && img.length > 0) || "",
+      });
+
+      res.status(201).json({
+        success: true,
+        message: "Hero section item created successfully.",
+        data: heroSection,
+      });
+    }
   } catch (error: any) {
-    console.error("Error creating Hero items:", error.message);
+    console.error("Error creating/updating Hero items:", error.message);
     return res.status(400).json({
       success: false,
       message: "Invalid input data.",
@@ -147,6 +166,7 @@ export const createHeroItem = async (req: Request, res: Response) => {
     });
   }
 };
+
 
 /**
  * Update a Hero item by ID

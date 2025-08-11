@@ -4,6 +4,8 @@ export const eventZodSchema = z.object({
   state: z.string().optional(),
 
   title: z.string().min(1, { message: "Title is required" }),
+  slug: z.string(),
+  manageBy: z.enum(["partners", "self"]).default("self"),
   date: z.string().min(1, { message: "Date is required" }),
   year: z.string().optional().transform((val) => {
         if (!val || val.trim() === "") return "2025";
@@ -40,6 +42,9 @@ export const eventUpdateSchema = z.object({
   state: z.string().optional(),
 
   title: z.string().optional(),
+  slug: z.string(),
+  manageBy: z.enum(["partners", "self"]).optional(),
+
   date: z.string().optional(),
 
   coverImage: z.string().optional(),

@@ -16,10 +16,19 @@ if (!feedbackItems || feedbackItems.item.length === 0) {
 }
 
 
+        // Map to include single image field for convenience
+        const normalized = {
+            ...feedbackItems.toObject(),
+            item: feedbackItems.item.map((it: any) => ({
+                ...it.toObject?.() || it,
+                image: (it.images && it.images.length > 0) ? it.images[0] : undefined,
+            }))
+        };
+
         return res.status(200).json({
             success: true,
             message: "Feedback items retrieved successfully.",
-            data: feedbackItems,
+            data: normalized,
         });
     } catch (error: any) {
         console.error("Error fetching Feedback items:", error.message);
@@ -63,109 +72,110 @@ export const getFeedbackById = async (req: Request, res: Response) => {
  * Create Feedback item
  */
 export const createFeedbackItem = async (req: Request, res: Response) => {
-    try {
-        const { ...rest } = req.body;
-        
-        let processedItems: any[] = [];
-        
-        // Method 1: Try to parse nested formdata structure (item[0][name], item[0][message], etc.)
-        const itemKeys = Object.keys(rest).filter(key => key.startsWith('item['));
-        
-        if (itemKeys.length > 0) {
-            // Group by item index
-            const itemGroups: { [key: string]: any } = {};
-            itemKeys.forEach(key => {
-                const match = key.match(/item\[(\d+)\]\[(\w+)\]/);
-                if (match) {
-                    const [, index, field] = match;
-                    if (!itemGroups[index]) {
-                        itemGroups[index] = { index: (parseInt(index) + 1).toString() };
-                    }
-                    itemGroups[index][field] = rest[key];
-                }
-            });
-            
-            // Convert to array and sort by index
-            processedItems = Object.values(itemGroups).sort((a, b) => 
-                parseInt(a.index) - parseInt(b.index)
-            );
-        } else {
-            // Method 2: Try to parse as JSON string if it's a single field
-            const itemField = rest.item;
-            if (itemField) {
-                try {
-                    if (typeof itemField === 'string') {
-                        processedItems = JSON.parse(itemField);
-                    } else if (Array.isArray(itemField)) {
-                        processedItems = itemField;
-                    }
-                } catch (e) {
-                    console.log("Failed to parse item field as JSON:", e);
-                }
-            }
-            
-            // Method 3: Try to find individual item fields
-            const individualItemKeys = Object.keys(rest).filter(key => 
-                key.startsWith('name') || key.startsWith('message')
-            );
-            
-            if (individualItemKeys.length > 0 && processedItems.length === 0) {
-                // Create a single item from individual fields
-                processedItems = [{
-                    index: "1",
-                    name: rest.name || "Anonymous",
-                    message: rest.message || "",
-                    images: []
-                }];
-            }
+  try {
+    const { ...rest } = req.body;
+
+    const norm = (p?: string) => (p ? p.replace(/\\/g, "/") : p);
+
+    let processedItems: Array<{ index?: string; name?: string; message?: string; images?: string[]; image?: string }> = [];
+
+    // ---- parse request exactly like before ----
+    const itemKeys = Object.keys(rest).filter((key) => key.startsWith("item["));
+    if (itemKeys.length > 0) {
+      const itemGroups: Record<string, any> = {};
+      itemKeys.forEach((key) => {
+        const match = key.match(/item\[(\d+)\]\[(\w+)\]/);
+        if (match) {
+          const [, idx, field] = match;
+          if (!itemGroups[idx]) itemGroups[idx] = {};
+          itemGroups[idx][field] = (rest as any)[key];
         }
-        
-        const files = req.files as Express.Multer.File[] | undefined;
-
-        // Handle individual item images (item[0][image], item[1][image], etc.)
-        if (files && files.length > 0) {
-            files.forEach(file => {
-                // Check if this is an item image field
-                if (file.fieldname.startsWith('item[') && file.fieldname.endsWith('[image]')) {
-                    const match = file.fieldname.match(/item\[(\d+)\]\[image\]/);
-                    if (match) {
-                        const itemIndex = parseInt(match[1]);
-                        
-                        // Add image to the corresponding item
-                        if (processedItems[itemIndex]) {
-                            processedItems[itemIndex].images = [file.path];
-                        }
-                    }
-                }
-            });
+      });
+      processedItems = Object.values(itemGroups).sort((a: any, b: any) => 0); // keep incoming order
+    } else {
+      const itemField = (rest as any).item;
+      if (itemField) {
+        try {
+          if (typeof itemField === "string") processedItems = JSON.parse(itemField);
+          else if (Array.isArray(itemField)) processedItems = itemField;
+        } catch (e) {
+          console.log("Failed to parse item field as JSON:", e);
         }
+      }
+      const individualItemKeys = Object.keys(rest).filter((k) => k.startsWith("name") || k.startsWith("message"));
+      if (individualItemKeys.length > 0 && processedItems.length === 0) {
+        processedItems = [{ name: (rest as any).name || "Anonymous", message: (rest as any).message || "", images: [] }];
+      }
+    }
 
-        // Ensure all items have images array and proper structure
-        processedItems = processedItems.map((item, index) => ({
-            index: (index + 1).toString(),
-            name: item.name || "Anonymous",
-            message: item.message || "",
-            images: item.images || []
-        }));
+    const files = req.files as Express.Multer.File[] | undefined;
+    if (files && files.length > 0) {
+      files.forEach((file) => {
+        if (file.fieldname.startsWith("item[") && file.fieldname.endsWith("[image]")) {
+          const match = file.fieldname.match(/item\[(\d+)\]\[image\]/);
+          if (match) {
+            const itemIndex = parseInt(match[1]);
+            if (processedItems[itemIndex]) {
+              const p = norm(file.path)!;
+              processedItems[itemIndex].images = [p];
+              processedItems[itemIndex].image = p; // legacy
+            }
+          }
+        }
+      });
+    }
 
-        const feedbackSection = await FeedBackModel.create({
-            item: processedItems
-        });
+    // ---- fetch existing to compute next index ----
+    const existing = await FeedBackModel.findOne().lean();
+    const currentMaxIndex =
+      existing?.item?.reduce((max: number, it: any) => {
+        const n = parseInt(it?.index ?? "0", 10);
+        return Number.isFinite(n) ? Math.max(max, n) : max;
+      }, 0) ?? 0;
 
-        res.status(201).json({
-            success: true,
-            message: "Feedback section item created successfully.",
-            data: feedbackSection
-        });
-    } catch (error: any) {
-        console.error("Error creating Feedback item:", error.message);
-        return res.status(400).json({
-            success: false,
-            message: "Invalid input data.",
-            error: error.message,
-        });
-    };
+    // ---- normalize & assign CONTIGUOUS new indices (5,6,...) ----
+    const normalized = processedItems.map((item, i) => ({
+      index: String(currentMaxIndex + i + 1),
+      name: item.name || "Anonymous",
+      message: item.message || "",
+      images: item.image ? [norm(item.image)!] : (item.images || []).map(norm).filter(Boolean) as string[],
+    }));
+
+    if (normalized.length === 0) {
+      return res.status(400).json({ success: false, message: "No feedback items found in request." });
+    }
+
+    let feedbackSection;
+    if (existing) {
+      feedbackSection = await FeedBackModel.findByIdAndUpdate(
+        existing._id,
+        { $push: { item: { $each: normalized } } },
+        { new: true }
+      );
+      return res.status(200).json({
+        success: true,
+        message: "Feedback items appended successfully.",
+        data: feedbackSection,
+      });
+    } else {
+      feedbackSection = await FeedBackModel.create({ item: normalized });
+      return res.status(201).json({
+        success: true,
+        message: "Feedback section created successfully.",
+        data: feedbackSection,
+      });
+    }
+  } catch (error: any) {
+    console.error("Error creating/appending Feedback item:", error.message);
+    return res.status(400).json({
+      success: false,
+      message: "Invalid input data.",
+      error: error.message,
+    });
+  }
 };
+
+
 
 /**
  * Update a Feedback item by ID
@@ -289,6 +299,7 @@ export const updateFeedbackById = async (req: Request, res: Response) => {
                         // Update image for the corresponding item
                         if (currentItems[itemIndex]) {
                             currentItems[itemIndex].images = [file.path];
+                            (currentItems as any)[itemIndex].image = file.path;
                         }
                     }
                 }

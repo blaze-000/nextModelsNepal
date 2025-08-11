@@ -4,6 +4,7 @@ const commentSchema = z.object({
     index: z.string().optional(),
     name: z.string().min(1, "Name is required"),
     message: z.string().min(1, "Message is required"),
+    image: z.string().optional(),
     images: z.array(z.string()).optional().default([])
 });
 
