@@ -25,5 +25,5 @@ export function normalizeImagePath(path: string): string {
 
   // Prepend API URL (remove trailing slash if present to avoid //)
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-  return `${baseUrl}/${fixed}`;
+  return `${baseUrl}${fixed}`;
 };

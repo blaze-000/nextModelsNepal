@@ -20,16 +20,32 @@ interface SidebarItemProps {
   item: MenuItem;
   isCollapsed: boolean;
   isActive: boolean;
+  onClose?: () => void;
+  isMobile?: boolean;
 }
 
 interface SidebarSectionProps {
   section: MenuSection;
   isCollapsed: boolean;
+  onClose?: () => void;
+  isMobile?: boolean;
 }
 
-function SidebarItem({ item, isCollapsed, isActive }: SidebarItemProps) {
+function SidebarItem({
+  item,
+  isCollapsed,
+  isActive,
+  onClose,
+  isMobile,
+}: SidebarItemProps) {
+  const handleClick = () => {
+    if (isMobile && onClose) {
+      onClose();
+    }
+  };
+
   return (
-    <Link href={item.href}>
+    <Link href={item.href} onClick={handleClick}>
       <motion.div
         className={cn(
           "group flex items-center gap-3 py-3 rounded-lg cursor-pointer transition-all duration-200",
@@ -69,7 +85,12 @@ function SidebarItem({ item, isCollapsed, isActive }: SidebarItemProps) {
   );
 }
 
-function SidebarSection({ section, isCollapsed }: SidebarSectionProps) {
+function SidebarSection({
+  section,
+  isCollapsed,
+  onClose,
+  isMobile,
+}: SidebarSectionProps) {
   const pathname = usePathname();
 
   return (
@@ -94,6 +115,8 @@ function SidebarSection({ section, isCollapsed }: SidebarSectionProps) {
             item={item}
             isCollapsed={isCollapsed}
             isActive={pathname === item.href}
+            onClose={onClose}
+            isMobile={isMobile}
           />
         ))}
       </div>
@@ -201,6 +224,8 @@ export default function Sidebar({
               key={section.title}
               section={section}
               isCollapsed={isMobile ? !isMobileOpen : !shouldExpand}
+              onClose={onClose}
+              isMobile={isMobile}
             />
           ))}
         </nav>

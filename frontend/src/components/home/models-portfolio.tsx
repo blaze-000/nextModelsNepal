@@ -19,7 +19,7 @@ const ModelsPortfolioSection = () => {
         // console.log(data.data);
         setData(data.data)
       }
-      catch (err) {
+      catch {
         // console.log(err);
       }
     })();
