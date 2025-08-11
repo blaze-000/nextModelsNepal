@@ -1,7 +1,12 @@
 import { Router } from "express";
-import { createHeroItem, deleteheroById, getHeroItem, getHeroItemById, updateheroById } from "../controllers/hero.controller";
-import { uploadImages } from "../middleware/multer.middleware";
-
+import {
+  createHeroItem,
+  deleteheroById,
+  getHeroItem,
+  getHeroItemById,
+  updateheroById,
+} from "../controllers/hero.controller";
+import { uploadAnyImages } from "../middleware/multer.middleware";
 
 const router = Router();
 
@@ -12,10 +17,10 @@ router.route("/").get(getHeroItem);
 router.route("/:id").get(getHeroItemById);
 
 // Create hero item (admin only)
-router.route("/").post(uploadImages, createHeroItem);
+router.route("/").post(uploadAnyImages, createHeroItem);
 
 // Update hero item by ID (admin only)
-router.route("/:id").patch(uploadImages, updateheroById);
+router.route("/:id").patch(uploadAnyImages, updateheroById);
 
 // Delete hero item by ID (admin only)
 router.route("/:id").delete(deleteheroById);

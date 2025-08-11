@@ -14,21 +14,22 @@ import { Hero } from "@/types/admin";
 
 interface CustomHeroFormData {
   images: (File | null)[];
+  removedExistingIndices: Set<number>; // Track which existing images have been removed
 }
 
 const initialFormData: CustomHeroFormData = {
   images: [null, null, null, null],
+  removedExistingIndices: new Set<number>(),
 };
 
 const getImageUrl = (imagePath: string): string => {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
   // Ensure the baseUrl doesn't end with a slash and imagePath starts with uploads/
-  if (imagePath.startsWith('uploads/')) {
-    const fullUrl = `${baseUrl}/${imagePath}`;
-    return fullUrl;
-  }
+
+  const fullUrl = `${baseUrl}/${imagePath}`;
+
   // If imagePath already has a full URL or different format, return as is
-  return imagePath;
+  return fullUrl;
 };
 
 export default function HeroAdminPage() {
@@ -52,20 +53,42 @@ export default function HeroAdminPage() {
         setHero(heroData);
         setFormData({
           images: [null, null, null, null],
+          removedExistingIndices: new Set<number>(),
         });
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to fetch hero data");
-      console.error("Error fetching hero:", error);
     } finally {
       setLoading(false);
     }
   };
 
   const handleImageChange = (index: number, file: File | null) => {
-    const newImages = [...formData.images];
-    newImages[index] = file;
-    setFormData((prev: CustomHeroFormData) => ({ ...prev, images: newImages }));
+    setFormData((prev: CustomHeroFormData) => {
+      const newImages = [...prev.images];
+      const newRemovedIndices = new Set(prev.removedExistingIndices);
+
+      // Cleanup old URL if replacing a file
+      if (newImages[index] && newImages[index] instanceof File) {
+        URL.revokeObjectURL(URL.createObjectURL(newImages[index] as File));
+      }
+
+      if (file === null) {
+        // User is removing an image
+        newImages[index] = null;
+        newRemovedIndices.add(index);
+      } else {
+        // User is adding a new image
+        newImages[index] = file;
+        newRemovedIndices.delete(index);
+      }
+
+      return {
+        ...prev,
+        images: newImages,
+        removedExistingIndices: newRemovedIndices,
+      };
+    });
 
     if (errors[`image_${index}`]) {
       setErrors((prev) => ({ ...prev, [`image_${index}`]: "" }));
@@ -75,49 +98,60 @@ export default function HeroAdminPage() {
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    // Only validate images
     const hasImages =
       formData.images.some((img: File | null) => img !== null) ||
       (hero?.images?.length ?? 0) > 0;
+
     if (!hasImages) {
-      for (let i = 0; i < 4; i++) {
-        newErrors[`image_${i}`] = "At least one image is required";
-      }
+      newErrors.images = "At least one image is required";
     }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation();
 
     if (!validateForm()) return;
 
     setSubmitting(true);
     const submitFormData = new FormData();
 
-    // Debug logging
-    console.log("Form data images:", formData.images);
-
-    formData.images.forEach((image: File | null) => {
+    // Send each image with its position index
+    formData.images.forEach((image: File | null, index: number) => {
       if (image) {
-        submitFormData.append("images", image);
+        submitFormData.append(`image_${index}`, image);
       }
     });
 
-    // Debug: log FormData contents
-    console.log("FormData entries:");
-    for (const [key, value] of submitFormData.entries()) {
-      console.log(key, value);
+    // Send position tracking data
+    const updatedPositions = formData.images
+      .map((img, idx) => (img !== null ? idx : null))
+      .filter((pos) => pos !== null);
+
+    submitFormData.append("updatedPositions", JSON.stringify(updatedPositions));
+
+    if (formData.removedExistingIndices.size > 0) {
+      submitFormData.append(
+        "removedExistingIndices",
+        JSON.stringify(Array.from(formData.removedExistingIndices))
+      );
     }
+
+    const imageState = formData.images.map((img) => {
+      if (img instanceof File) return "new_file";
+      if (img === null) return "removed";
+      return "existing";
+    });
+    submitFormData.append("imageState", JSON.stringify(imageState));
 
     try {
       let response;
       if (hero) {
-        // Update existing hero
         response = await Axios.patch(`/api/hero/${hero._id}`, submitFormData);
       } else {
-        // Create new hero
         response = await Axios.post("/api/hero", submitFormData);
       }
 
@@ -126,28 +160,26 @@ export default function HeroAdminPage() {
         toast.success(
           `Hero section ${hero ? "updated" : "created"} successfully`
         );
-        fetchHero();
+        setFormData({
+          images: [null, null, null, null],
+          removedExistingIndices: new Set<number>(),
+        });
+        if (hero && data.data) {
+          setHero(data.data);
+        } else if (!hero && data.data) {
+          setHero(data.data);
+        }
       } else {
         toast.error(`Failed to ${hero ? "update" : "create"} hero section`);
       }
-    } catch (error) {
+    } catch {
       toast.error(`Failed to ${hero ? "update" : "create"} hero section`);
-      console.error("Error submitting hero:", error);
     } finally {
       setSubmitting(false);
     }
   };
 
-  const resetForm = () => {
-    if (hero) {
-      setFormData({
-        images: [null, null, null, null],
-      });
-    } else {
-      setFormData(initialFormData);
-    }
-    setErrors({});
-  };
+ 
 
   if (loading) {
     return (
@@ -176,10 +208,15 @@ export default function HeroAdminPage() {
             name="heroImages"
             mode="fixed"
             fixedSlots={4}
-            selectedFiles={formData.images.filter(
-              (img): img is File => img !== null
-            )}
-            existingImages={hero?.images.map((img) => getImageUrl(img)) || []}
+            selectedFiles={formData.images}
+            existingImages={
+              hero?.images.map((img, idx) => {
+                const isRemoved = formData.removedExistingIndices.has(idx);
+                return isRemoved || !img || img.trim() === ""
+                  ? ""
+                  : getImageUrl(img);
+              }) || []
+            }
             onImageChange={handleImageChange}
             error={Object.values(errors).find((err) => err) || ""}
             required={true}
@@ -194,14 +231,6 @@ export default function HeroAdminPage() {
                 : hero
                 ? "Update Images"
                 : "Upload Images"}
-            </AdminButton>
-            <AdminButton
-              variant="ghost"
-              onClick={resetForm}
-              type="button"
-              disabled={submitting}
-            >
-              Reset
             </AdminButton>
           </div>
         </form>

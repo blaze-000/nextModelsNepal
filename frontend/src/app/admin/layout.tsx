@@ -1,6 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
+
+import "remixicon/fonts/remixicon.css";
+import { Toaster } from "sonner";
+
 import Header from "./layout/Header";
 import Sidebar from "./layout/Sidebar";
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -73,6 +77,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </main>
         </div>
       </div>
+
+      <Toaster
+        position="top-right"
+        offset="80px"
+        toastOptions={{
+          style: {
+            background: "var(--background2)",
+            border: "1px solid var(--border)",
+            color: "var(--foreground)",
+          },
+        }}
+        richColors
+      />
+    </div>
     </ProtectedRoute>
   );
 }
