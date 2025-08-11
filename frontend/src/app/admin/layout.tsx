@@ -90,7 +90,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         }}
         richColors
       />
-    </div>
     </ProtectedRoute>
   );
 }
