@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import "remixicon/fonts/remixicon.css";
+import { Toaster } from "sonner";
 import Header from "./layout/Header";
 import Sidebar from "./layout/Sidebar";
 
@@ -81,6 +82,18 @@ export default function AdminLayout({
           <div className="p-4 lg:p-6">{children}</div>
         </main>
       </div>
+      <Toaster
+        position="top-right"
+        offset="80px"
+        toastOptions={{
+          style: {
+            background: "var(--background2)",
+            border: "1px solid var(--border)",
+            color: "var(--foreground)",
+          },
+        }}
+        richColors
+      />
     </div>
   );
 }
