@@ -13,8 +13,11 @@ const eventSchema = new mongoose.Schema({
     state: { type: String },
     coverImage: { type: String },
     title: { type: String, required: true },
-    slug: { type: String, required: true, unique: true },
-    titleImage: { type: String, default: "" },
+
+    slug: {type: String, required: true, unique: true},
+    manageBy:{type: String,  enum: ["partners", "self"], default: "self"}, 
+    titleImage: {type: String, default: ""},
+
     date: { type: String },
     year: { type: String, default: "2025" },
     overview: { type: String, required: true },

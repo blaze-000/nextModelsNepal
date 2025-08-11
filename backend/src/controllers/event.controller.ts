@@ -102,6 +102,9 @@ export const createEventItem = async (req: Request, res: Response) => {
             state,
             title,
             slug,
+
+            manageBy,
+
             date,
             year,
             overview,
@@ -129,6 +132,9 @@ export const createEventItem = async (req: Request, res: Response) => {
             state,
             title,
             slug,
+
+            manageBy,
+
             date,
             year,
             overview,
@@ -212,11 +218,16 @@ export const updateEventById = async (req: Request, res: Response) => {
 
         // Check if req.body exists before destructuring
         if (req.body) {
-            const { state, title,slug, date, year, overview, purpose, eventDescription, startingTimelineDate, startingTimelineEvent, midTimelineDate, midTimelineEvent, endTimelineDate, endTimelineEvent } = req.body;
+
+            const { state, title, slug, manageBy, date, year, overview, purpose, eventDescription, startingTimelineDate, startingTimelineEvent, midTimelineDate, midTimelineEvent, endTimelineDate, endTimelineEvent } = req.body;
+
 
             if (state !== undefined) updateData.state = state;
             if (title !== undefined) updateData.title = title;
             if (slug !== undefined) updateData.slug = slug;
+
+            if (manageBy !== undefined) updateData.manageBy = manageBy;
+
             if (date !== undefined) updateData.date = date;
             if (year !== undefined) updateData.year = year;
             if (overview !== undefined) updateData.overview = overview;

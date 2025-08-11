@@ -80,51 +80,157 @@ export const getHeroItemById = async (req: Request, res: Response) => {
  * Create hero item
  */
 export const createHeroItem = async (req: Request, res: Response) => {
-  try {
-    const files = req.files as Express.Multer.File[];
 
-    if (!files || files.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: "At least one image file is required.",
-      });
+  try {
+
+    const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+
+    if (!files || Object.keys(files).length === 0) {
+
+      return res.status(400).json({ error: "At least one image file is required." });
+
     }
 
-    // Initialize images array with 4 empty slots
-    const images: string[] = ["", "", "", ""];
+    // Handle req.body properly for file uploads
 
-    // Process uploaded files - multer already generates consistent naming like "timestamp-image_0.jpg"
-    files.forEach((file) => {
-      if (file.fieldname.startsWith("image_")) {
-        const position = parseInt(file.fieldname.split("_")[1]);
-        if (position >= 0 && position < 4) {
-          images[position] = file.path.replace(/\\/g, "/");
-        }
+    const bodyData = req.body || {};
+
+    // Only validate text fields if they exist and are not empty
+
+    let maintitle, subtitle, description;
+
+    if (Object.keys(bodyData).length > 0) {
+
+      try {
+
+        const textFields = heroItemSchema.pick({ maintitle: true, subtitle: true, description: true }).parse(bodyData);
+
+        ({ maintitle, subtitle, description } = textFields);
+
+      } catch (validationError: any) {
+
+        // If validation fails, set fields to undefined (they're optional anyway)
+
+        maintitle = subtitle = description = undefined;
+
       }
-    });
 
-    // Use first non-empty image as titleImage
-    const titleImage = images.find((img) => img !== "") || "";
+    }
+
+    // Initialize images array with 4 slots
+
+    const imagePaths: string[] = new Array(4).fill("");
+
+    let titleImagePath: string | undefined;
+
+    // Handle position-specific image uploads
+
+   
+
+    const filesArray = files as unknown as Express.Multer.File[];
+
+    if (filesArray && Array.isArray(filesArray)) {
+
+      filesArray.forEach((file) => {
+
+        const fieldName = file.fieldname;
+
+        if (fieldName.startsWith("image_")) {
+
+          const position = parseInt(fieldName.split("_")[1]);
+
+          if (!isNaN(position) && position >= 0 && position < 4) {
+
+            const newImagePath = file.path.replace(/\\/g, "/");
+
+            imagePaths[position] = newImagePath;
+
+          }
+
+        } else if (fieldName === "titleImage") {
+
+          titleImagePath = file.path.replace(/\\/g, "/");
+
+        }
+
+      });
+
+    }
+
+    // If no titleImage was uploaded, use the first non-empty image as titleImage
+
+    if (!titleImagePath) {
+
+      const firstImage = imagePaths.find((img) => img && img.length > 0);
+
+      if (firstImage) {
+
+        titleImagePath = firstImage;
+
+      }
+
+    }
+
+    // Ensure we have at least one image
+
+    const hasImage =
+
+      imagePaths.some((img) => img && img.length > 0) || titleImagePath;
+
+    if (!hasImage) {
+
+      return res
+
+        .status(400)
+
+        .json({ error: "At least one image file is required." });
+
+    }
 
     const heroSection = await HeroModel.create({
-      images,
-      titleImage,
+
+      maintitle,
+
+      subtitle,
+
+      description,
+
+      images: imagePaths,
+
+      titleImage:
+
+        titleImagePath || imagePaths.find((img) => img && img.length > 0) || "",
+
     });
 
     res.status(201).json({
+
       success: true,
-      message: "Hero section created successfully.",
+
+      message: "Hero section item created successfully.",
+
       data: heroSection,
+
     });
+
   } catch (error: any) {
-    console.error("Error creating Hero item:", error.message);
-    return res.status(500).json({
+
+    console.error("Error creating Hero items:", error.message);
+
+    return res.status(400).json({
+
       success: false,
-      message: "Error creating hero section.",
+
+      message: "Invalid input data.",
+
       error: error.message,
+
     });
+
   }
+
 };
+
 
 /**
  * Update hero by ID
