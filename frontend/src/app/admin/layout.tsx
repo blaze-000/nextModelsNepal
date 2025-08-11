@@ -1,15 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import "remixicon/fonts/remixicon.css";
 import Header from "./layout/Header";
 import Sidebar from "./layout/Sidebar";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
-export default function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -34,14 +30,10 @@ export default function AdminLayout({
     }
   };
 
-  const closeMobileSidebar = () => {
-    setIsMobileSidebarOpen(false);
-  };
+  const closeMobileSidebar = () => setIsMobileSidebarOpen(false);
 
   const handleSidebarHover = (isHovered: boolean) => {
-    if (!isMobile) {
-      setIsSidebarHovered(isHovered);
-    }
+    if (!isMobile) setIsSidebarHovered(isHovered);
   };
 
   // Calculate sidebar width based on state
@@ -52,35 +44,35 @@ export default function AdminLayout({
   };
 
   return (
-    <div className="min-h-screen bg-background2 flex">
-      {/* Sidebar */}
-      <Sidebar
-        isCollapsed={isSidebarCollapsed}
-        isMobileOpen={isMobileSidebarOpen}
-        onClose={closeMobileSidebar}
-        onHoverChange={handleSidebarHover}
-        isMobile={isMobile}
-      />
-
-      {/* Main Content Area */}
-      <div
-        className="flex-1 flex flex-col transition-all duration-300 ease-in-out"
-        style={{
-          marginLeft: getSidebarWidth(),
-        }}
-      >
-        {/* Header */}
-        <Header
-          onToggleSidebar={toggleSidebar}
-          isSidebarCollapsed={isSidebarCollapsed}
-          isMobileSidebarOpen={isMobileSidebarOpen}
+    <ProtectedRoute>
+      <div className="min-h-screen bg-background2 flex">
+        {/* Sidebar */}
+        <Sidebar
+          isCollapsed={isSidebarCollapsed}
+          isMobileOpen={isMobileSidebarOpen}
+          onClose={closeMobileSidebar}
+          onHoverChange={handleSidebarHover}
+          isMobile={isMobile}
         />
 
-        {/* Page Content */}
-        <main className="flex-1 overflow-auto bg-background">
-          <div className="p-4 lg:p-6">{children}</div>
-        </main>
+        {/* Main Content Area */}
+        <div
+          className="flex-1 flex flex-col transition-all duration-300 ease-in-out"
+          style={{ marginLeft: getSidebarWidth() }}
+        >
+          {/* Header */}
+          <Header
+            onToggleSidebar={toggleSidebar}
+            isSidebarCollapsed={isSidebarCollapsed}
+            isMobileSidebarOpen={isMobileSidebarOpen}
+          />
+
+          {/* Page Content */}
+          <main className="flex-1 overflow-auto bg-background">
+            <div className="p-4 lg:p-6">{children}</div>
+          </main>
+        </div>
       </div>
-    </div>
+    </ProtectedRoute>
   );
 }
