@@ -10,32 +10,23 @@ import { AdminButton } from "@/components/admin/AdminButton";
 import PhotoUpload from "@/components/admin/form/photo-upload";
 
 import Axios from "@/lib/axios-instance";
+import { normalizeImagePath } from "@/lib/utils";
 import { Hero } from "@/types/admin";
 
-interface CustomHeroFormData {
+interface HeroFormData {
   images: (File | null)[];
-  removedExistingIndices: Set<number>; // Track which existing images have been removed
+  removedExistingIndices: Set<number>;
 }
 
-const initialFormData: CustomHeroFormData = {
+const initialFormData: HeroFormData = {
   images: [null, null, null, null],
   removedExistingIndices: new Set<number>(),
-};
-
-const getImageUrl = (imagePath: string): string => {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-  // Ensure the baseUrl doesn't end with a slash and imagePath starts with uploads/
-
-  const fullUrl = `${baseUrl}/${imagePath}`;
-
-  // If imagePath already has a full URL or different format, return as is
-  return fullUrl;
 };
 
 export default function HeroAdminPage() {
   const [hero, setHero] = useState<Hero | null>(null);
   const [loading, setLoading] = useState(true);
-  const [formData, setFormData] = useState<CustomHeroFormData>(initialFormData);
+  const [formData, setFormData] = useState<HeroFormData>(initialFormData);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -48,9 +39,9 @@ export default function HeroAdminPage() {
       setLoading(true);
       const response = await Axios.get("/api/hero");
       const data = response.data;
-      if (data.success && data.data && data.data.length > 0) {
-        const heroData = data.data[0];
-        setHero(heroData);
+      if (data.success && data.data?.length > 0) {
+        setHero(data.data[0]);
+        // Reset form data when loading new hero data
         setFormData({
           images: [null, null, null, null],
           removedExistingIndices: new Set<number>(),
@@ -64,7 +55,7 @@ export default function HeroAdminPage() {
   };
 
   const handleImageChange = (index: number, file: File | null) => {
-    setFormData((prev: CustomHeroFormData) => {
+    setFormData((prev: HeroFormData) => {
       const newImages = [...prev.images];
       const newRemovedIndices = new Set(prev.removedExistingIndices);
 
@@ -76,10 +67,14 @@ export default function HeroAdminPage() {
       if (file === null) {
         // User is removing an image
         newImages[index] = null;
-        newRemovedIndices.add(index);
+        // If there was an existing image at this position, mark it for removal
+        if (hero?.images?.[index] && hero.images[index].trim() !== "") {
+          newRemovedIndices.add(index);
+        }
       } else {
         // User is adding a new image
         newImages[index] = file;
+        // If we had marked this position for removal, unmark it
         newRemovedIndices.delete(index);
       }
 
@@ -90,6 +85,7 @@ export default function HeroAdminPage() {
       };
     });
 
+    // Clear any errors for this specific image
     if (errors[`image_${index}`]) {
       setErrors((prev) => ({ ...prev, [`image_${index}`]: "" }));
     }
@@ -98,6 +94,7 @@ export default function HeroAdminPage() {
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
+    // Check if at least one image exists (new or existing, not removed)
     const hasImages =
       formData.images.some((img: File | null) => img !== null) ||
       (hero?.images?.length ?? 0) > 0;
@@ -179,8 +176,6 @@ export default function HeroAdminPage() {
     }
   };
 
- 
-
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -214,7 +209,7 @@ export default function HeroAdminPage() {
                 const isRemoved = formData.removedExistingIndices.has(idx);
                 return isRemoved || !img || img.trim() === ""
                   ? ""
-                  : getImageUrl(img);
+                  : normalizeImagePath(img);
               }) || []
             }
             onImageChange={handleImageChange}
@@ -242,7 +237,7 @@ export default function HeroAdminPage() {
           Live Preview
         </h3>
 
-        {/* Hero Section Preview - Exact Frontend Match */}
+        {/* Hero Section Preview */}
         <section className="bg-gradient-to-b from-background2 to-background rounded-b-lg w-full">
           <div className="max-w-7xl mx-auto px-6">
             <div className="grid grid-cols-1 md:grid-cols-[1fr_1.5fr] gap-8">
@@ -253,7 +248,6 @@ export default function HeroAdminPage() {
                 transition={{ duration: 0.6 }}
                 className="space-y-2 pt-8 lg:pt-20 lg:pb-[7.5rem] -mb-8 md:mb-0"
               >
-                {/* We are Next Models Nepal */}
                 <div className="self-stretch justify-center">
                   <span className="text-white text-2xl leading-loose tracking-wide">
                     We are{" "}
@@ -262,7 +256,6 @@ export default function HeroAdminPage() {
                     Next Models Nepal
                   </span>
                 </div>
-                {/* Main Title with Badge */}
                 <div className="space-y-2 text-6xl md:text-7xl lg:text-8xl">
                   <div>
                     <span className="text-white font-extralight font-newsreader tracking-tighter">
@@ -273,7 +266,6 @@ export default function HeroAdminPage() {
                     </span>
                   </div>
                   <div className="flex items-baseline gap-2">
-                    {/* Badge image with soft layered shadow */}
                     <div className="w-40 h-16 relative">
                       <Image
                         src="/span-image.jpg"
@@ -282,7 +274,6 @@ export default function HeroAdminPage() {
                         className="rounded-full object-cover border border-stone-300 shadow-[-10px_8px_20px_10px_rgba(179,131,0,0.19)]"
                       />
                     </div>
-                    {/* Label */}
                     <span className="text-white font-extralight font-newsreader tracking-tighter leading-px">
                       Modeling
                     </span>
@@ -291,11 +282,9 @@ export default function HeroAdminPage() {
                     <span className="text-white font-extralight font-newsreader tracking-tighter italic pt-4 pr-2">
                       Agency
                     </span>
-                    {/* Empty oval outline */}
                     <div className="w-40 h-16 rounded-full border-2 border-gold-500" />
                   </div>
                 </div>
-                {/* Description */}
                 <p className="text-white text-base leading-relaxed font-light pt-6">
                   Next Models Nepal is a team of seasoned professionals
                   dedicated to
@@ -303,7 +292,6 @@ export default function HeroAdminPage() {
                   talent management, elite training, and launching aspiring
                   models.
                 </p>
-                {/* Buttons */}
                 <div className="flex flex-col items-start gap-4 lg:flex-row lg:gap-10 lg:items-center pt-4">
                   <button className="px-9 py-4 bg-primary text-primary-foreground hover:bg-white font-bold rounded-full text-base tracking-[0.02em] overflow-hidden relative gap-1.5 group cursor-pointer inline-flex items-center justify-center transition-colors">
                     <span className="relative">
@@ -329,25 +317,30 @@ export default function HeroAdminPage() {
                 </div>
               </motion.div>
 
-              {/* Right side */}
+              {/* Right side - Image Grid */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
                 className="w-full relative overflow-x-hidden overflow-y-hidden py-32 md:py-0"
               >
-                {/* 2x2 image grid */}
                 <div className="top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 grid grid-cols-2 grid-rows-2 gap-6 w-[80%] max-w-[390px] aspect-square z-10 relative">
-                  {/* Images 1-4 */}
                   {[0, 1, 2, 3].map((index) => {
+                    // Show new file if exists, otherwise show existing image (if not removed)
                     const hasNewFile = formData.images[index];
-                    const hasExistingImage = hero?.images[index];
+                    const hasExistingImage = hero?.images?.[index];
+                    const isRemoved =
+                      formData.removedExistingIndices.has(index);
 
                     let imageSrc: string | null = null;
                     if (hasNewFile) {
                       imageSrc = URL.createObjectURL(hasNewFile);
-                    } else if (hasExistingImage) {
-                      imageSrc = getImageUrl(hasExistingImage);
+                    } else if (
+                      hasExistingImage &&
+                      hasExistingImage.trim() !== "" &&
+                      !isRemoved
+                    ) {
+                      imageSrc = normalizeImagePath(hasExistingImage);
                     }
 
                     return (

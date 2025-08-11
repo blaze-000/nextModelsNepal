@@ -23,11 +23,8 @@ interface PhotoUploadProps {
 const PhotoUpload = ({
   label,
   name,
-  onChange,
   error,
   selectedFiles = [],
-  onRemoveFile,
-  maxFiles = 10,
   maxFileSize = 5,
   acceptedTypes = ["image/*"],
   required = false,
@@ -38,20 +35,16 @@ const PhotoUpload = ({
   className = "",
 }: PhotoUploadProps) => {
   const [isDragActive, setIsDragActive] = useState(false);
-  
-  const isMaxReached = mode === "single" 
-    ? selectedFiles.filter(Boolean).length >= 1
-    : selectedFiles.filter(Boolean).length >= maxFiles;
-    
+
   const supportedFormats = acceptedTypes
     .join(", ")
-    .replace("image/*", "JPG, PNG");
+    .replace("image/*", "JPG, PNG, WEBP");
 
   // Drag handlers
   const handleDragEnter = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!isMaxReached) setIsDragActive(true);
+    setIsDragActive(true);
   };
 
   const handleDragLeave = (e: React.DragEvent) => {
@@ -65,46 +58,34 @@ const PhotoUpload = ({
     e.stopPropagation();
   };
 
-  // Common drop handler
-  const processDroppedFiles = (files: File[]) => {
-    const validFiles = files.filter(file =>
-      acceptedTypes.some(type =>
-        type === "image/*" ? file.type.startsWith("image/") : file.type === type
-      )
-    );
-
-    if (validFiles.length === 0 || !onChange) return null;
-
-    const dt = new DataTransfer();
-    const filesToAdd = mode === "single" ? [validFiles[0]] : validFiles;
-    filesToAdd.forEach(f => dt.items.add(f));
-
-    return {
-      target: { files: dt.files, name, value: "" },
-      currentTarget: { files: dt.files, name, value: "" },
-    } as React.ChangeEvent<HTMLInputElement>;
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragActive(false);
-
-    if (isMaxReached) return;
-
-    const files = Array.from(e.dataTransfer.files);
-    const syntheticEvent = processDroppedFiles(files);
-    if (syntheticEvent) onChange?.(syntheticEvent);
-  };
-
   const handleFixedSlotDrop = (e: React.DragEvent, index: number) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragActive(false);
 
     const files = Array.from(e.dataTransfer.files);
-    const validFile = files.find(file => file.type.startsWith("image/"));
-    if (validFile) onImageChange?.(index, validFile);
+    const validFile = files.find(file => 
+      acceptedTypes.some(type =>
+        type === "image/*" ? file.type.startsWith("image/") : file.type === type
+      )
+    );
+    
+    if (validFile && validFile.size <= maxFileSize * 1024 * 1024) {
+      onImageChange?.(index, validFile);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+    const file = e.target.files?.[0] || null;
+    if (file && file.size <= maxFileSize * 1024 * 1024) {
+      onImageChange?.(index, file);
+    }
+    // Reset input value to allow re-selecting same file
+    e.target.value = '';
+  };
+
+  const handleRemove = (index: number) => {
+    onImageChange?.(index, null);
   };
 
   // Common drag props
@@ -114,10 +95,9 @@ const PhotoUpload = ({
     onDragOver: handleDragOver,
   };
 
-  // Common container classes
-  const getContainerClasses = (isActive = isDragActive) => 
+  const getContainerClasses = (isActive = false) => 
     `bg-muted-background border-2 border-dashed rounded-lg transition-colors ${
-      isActive ? "border-gold-400 bg-gold-500/10" : "border-gray-600"
+      isActive ? "border-gold-400 bg-gold-500/10" : "border-gray-600 hover:border-gray-500"
     }`;
 
   // Remove button component
@@ -129,64 +109,69 @@ const PhotoUpload = ({
         e.stopPropagation();
         onClick();
       }}
-      className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 
-        flex items-center justify-center text-sm hover:bg-red-600 transition-colors z-10"
+      className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-7 h-7 
+        flex items-center justify-center text-sm hover:bg-red-600 transition-colors z-10
+        shadow-lg hover:shadow-xl"
+      title="Remove image"
     >
       ×
     </button>
   );
 
-  // Fixed mode render
+  // Fixed mode render (for hero section)
   if (mode === "fixed") {
     return (
       <div className={`w-full ${className}`}>
-        <label className="block mb-4 md:mb-2 text-sm md:text-base font-medium">
+        <label className="block mb-4 text-sm font-medium text-gray-200">
           {label} {required && <span className="text-red-500">*</span>}
         </label>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {Array.from({ length: fixedSlots }).map((_, index) => {
-            const hasFile = selectedFiles[index];
-            const hasExisting = existingImages[index];
+            const newFile = selectedFiles[index];
+            const existingImage = existingImages[index];
+            
+            // Show new file if exists, otherwise show existing image
+            const hasNewFile = newFile instanceof File;
+            const hasExistingImage = existingImage && existingImage.trim() !== "";
+            const hasAnyImage = hasNewFile || hasExistingImage;
 
             return (
               <div key={index} className="space-y-2">
                 <div
-                  className={`aspect-square ${getContainerClasses()} 
-                    flex flex-col items-center justify-center p-4 relative overflow-hidden`}
+                  className={`aspect-square ${getContainerClasses(isDragActive)} 
+                    flex flex-col items-center justify-center p-2 relative overflow-hidden
+                    group cursor-pointer`}
                   {...dragProps}
                   onDrop={(e) => handleFixedSlotDrop(e, index)}
                 >
-                  {hasFile instanceof File ? (
+                  {hasAnyImage ? (
                     <>
                       <Image
-                        src={URL.createObjectURL(hasFile)}
-                        alt={`Preview ${index + 1}`}
+                        src={hasNewFile 
+                          ? URL.createObjectURL(newFile) 
+                          : existingImage!
+                        }
+                        alt={`Image ${index + 1}`}
                         fill
                         className="object-cover rounded"
                         unoptimized
                       />
-                      <RemoveButton onClick={() => onImageChange?.(index, null)} />
-                    </>
-                  ) : hasExisting ? (
-                    <>
-                      <Image
-                        src={hasExisting}
-                        alt={`Existing ${index + 1}`}
-                        fill
-                        className="object-cover rounded"
-                        unoptimized
-                      />
-                      <RemoveButton onClick={() => onImageChange?.(index, null)} />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
+                      <RemoveButton onClick={() => handleRemove(index)} />
                     </>
                   ) : (
                     <label
                       htmlFor={`${name}_${index}`}
-                      className="text-center cursor-pointer w-full h-full flex flex-col items-center justify-center"
+                      className="text-center cursor-pointer w-full h-full flex flex-col items-center justify-center
+                        hover:bg-gray-800/50 transition-colors rounded"
                     >
-                      <div className="text-gold-400 mb-2 text-2xl">+</div>
+                      <div className="text-gold-400 mb-2 text-3xl font-light">+</div>
                       <p className="text-xs text-gray-400 text-center">
-                        Image {index + 1}
+                        Add Image {index + 1}
+                      </p>
+                      <p className="text-xs text-gray-500 text-center mt-1">
+                        Drag or click
                       </p>
                     </label>
                   )}
@@ -194,10 +179,7 @@ const PhotoUpload = ({
                   <input
                     type="file"
                     id={`${name}_${index}`}
-                    onChange={(e) => {
-                      const file = e.target.files?.[0] || null;
-                      onImageChange?.(index, file);
-                    }}
+                    onChange={(e) => handleFileChange(e, index)}
                     className="hidden"
                     accept={acceptedTypes.join(",")}
                   />
@@ -207,7 +189,11 @@ const PhotoUpload = ({
           })}
         </div>
 
-        {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+        <div className="mt-3 text-xs text-gray-400">
+          Supported formats: {supportedFormats} (Max {maxFileSize}MB each)
+        </div>
+
+        {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
       </div>
     );
   }
@@ -218,15 +204,23 @@ const PhotoUpload = ({
 
     return (
       <div className={`w-full ${className}`}>
-        <label className="block mb-4 md:mb-2 text-sm md:text-base font-medium">
+        <label className="block mb-4 text-sm font-medium text-gray-200">
           {label} {required && <span className="text-red-500">*</span>}
         </label>
 
         <div
-          className={`w-full text-gray-100 px-4 py-8 md:py-12 outline-none 
-            ${getContainerClasses()} flex flex-col items-center justify-center min-h-[200px]`}
+          className={`w-full text-gray-100 px-4 py-8 outline-none 
+            ${getContainerClasses(isDragActive)} flex flex-col items-center justify-center min-h-[200px]`}
           {...dragProps}
-          onDrop={handleDrop}
+          onDrop={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setIsDragActive(false);
+            
+            const files = Array.from(e.dataTransfer.files);
+            const validFile = files.find(file => file.type.startsWith("image/"));
+            if (validFile) onImageChange?.(0, validFile);
+          }}
         >
           {hasFile instanceof File && (
             <div className="mb-6 w-full flex justify-center">
@@ -239,14 +233,7 @@ const PhotoUpload = ({
                   className="w-30 h-30 object-cover rounded border-2 border-gray-600"
                   unoptimized
                 />
-                <button
-                  type="button"
-                  onClick={() => onRemoveFile?.(0)}
-                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 
-                    flex items-center justify-center text-sm hover:bg-red-600 transition-colors cursor-pointer"
-                >
-                  ×
-                </button>
+                <RemoveButton onClick={() => handleRemove(0)} />
               </div>
             </div>
           )}
@@ -254,24 +241,18 @@ const PhotoUpload = ({
           <input
             type="file"
             name={name}
-            onChange={onChange}
+            onChange={(e) => handleFileChange(e, 0)}
             className="hidden"
             id={name}
             accept={acceptedTypes.join(",")}
-            disabled={isMaxReached}
           />
 
-          <label
-            htmlFor={isMaxReached ? undefined : name}
-            className={`text-center ${
-              isMaxReached ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
-            }`}
-          >
+          <label htmlFor={name} className="text-center cursor-pointer">
             <p className="text-lg mb-2 text-gray-100">
-              {isMaxReached
-                ? "Image selected"
-                : isDragActive
+              {isDragActive
                 ? "Drop your image here"
+                : hasFile
+                ? "Change image"
                 : "Drag or upload your image here"}
             </p>
             <p className="text-sm text-gray-400">
@@ -285,80 +266,17 @@ const PhotoUpload = ({
     );
   }
 
-  // Multiple mode render (default)
+  // Multiple mode - keeping original logic for other uses
   return (
     <div className={`w-full ${className}`}>
-      <label className="block mb-4 md:mb-2 text-sm md:text-base font-medium">
+      <label className="block mb-4 text-sm font-medium text-gray-200">
         {label} {required && <span className="text-red-500">*</span>}
       </label>
-
-      <div
-        className={`w-full text-gray-100 px-4 py-8 md:py-12 outline-none 
-          ${getContainerClasses()} flex flex-col items-center justify-center min-h-[200px]`}
-        {...dragProps}
-        onDrop={handleDrop}
-      >
-        {/* Photo Preview Grid */}
-        {selectedFiles.filter(Boolean).length > 0 && (
-          <div className="mb-6 w-full">
-            <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-10 gap-2">
-              {selectedFiles
-                .filter((file): file is File => file !== null)
-                .map((file, index) => (
-                  <div key={index} className="relative group aspect-square">
-                    <Image
-                      src={URL.createObjectURL(file)}
-                      alt={`Preview ${index + 1}`}
-                      width={80}
-                      height={80}
-                      className="w-full h-full object-cover rounded border-2 border-gray-600"
-                      unoptimized
-                    />
-                    <button
-                      type="button"
-                      onClick={() => onRemoveFile?.(index)}
-                      className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 
-                      flex items-center justify-center text-xs hover:bg-red-600 transition-colors"
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
-            </div>
-          </div>
-        )}
-
-        <input
-          type="file"
-          name={name}
-          onChange={onChange}
-          className="hidden"
-          id={name}
-          multiple
-          accept={acceptedTypes.join(",")}
-          disabled={isMaxReached}
-        />
-
-        <label
-          htmlFor={isMaxReached ? undefined : name}
-          className={`text-center ${
-            isMaxReached ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
-          }`}
-        >
-          <p className="text-lg mb-2 text-gray-100">
-            {isMaxReached
-              ? `Maximum ${maxFiles} photos reached`
-              : isDragActive
-              ? "Drop your images here"
-              : "Drag or upload your images here"}
-          </p>
-          <p className="text-sm text-gray-400">
-            Supported formats: {supportedFormats} (Max {maxFileSize}MB each) -{" "}
-            {selectedFiles.filter(Boolean).length}/{maxFiles} photos
-          </p>
-        </label>
+      
+      <div className="text-center p-8 border-2 border-dashed border-gray-600 rounded-lg">
+        <p className="text-gray-400">Multiple mode not fully implemented in simplified version</p>
       </div>
-
+      
       {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
     </div>
   );
