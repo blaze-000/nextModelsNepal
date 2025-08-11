@@ -7,7 +7,7 @@ interface AuthContextType {
   setUser: React.Dispatch<React.SetStateAction<AdminUser | null>>;
   loading: boolean;
   logout: () => void;
-  checkAuth: () => void;
+  refreshAuth: () => void;
 }
 
 export const authContext = createContext<AuthContextType | undefined>(undefined);
@@ -21,7 +21,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
   };
 
-  const checkAuth = () => {
+  const refreshAuth = () => {
     const sessionCookie = Cookies.get('session');
     if (sessionCookie) {
       try {
@@ -36,12 +36,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
-    checkAuth();
+    refreshAuth();
     setLoading(false);
   }, []);
 
   return (
-    <authContext.Provider value={{ user, setUser, loading, logout, checkAuth }}>
+    <authContext.Provider value={{ user, setUser, loading, logout, refreshAuth }}>
       {children}
     </authContext.Provider>
   );

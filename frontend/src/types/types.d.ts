@@ -6,15 +6,13 @@ type NewsletterSubscriptionProps = {
 interface EventCardProps {
   title: string,
   slug: string,
-  startDate: string,
-  endDate: string,
-  briefInfo: string,
-  imageSrc: string,
+  date:string,
+  overview: string,
+  coverImage: string,
   state: "ongoing" | "ended",
   timelinePosition?: "left" | "right" | false,
-  managedBy?: "self" | "partner",
-  getTicketLink?: string,
-  aboutLink?: string,
+  manageBy?: "self" | "partners",
+  getTicketLink?: string
 }
 
 type ImageBoxProps = {
@@ -29,14 +27,12 @@ type EventType = {
   id: string,
   title: string,
   slug: string,
-  startDate: string,
-  endDate: string,
-  briefInfo: string,
-  imageSrc: string,
+  date: string,
+  overview: string,
+  coverImage: string,
   state: "ongoing" | "ended",
-  managedBy: "self" | "partner",
-  getTicketLink: stringstring,
-  aboutLink: stringstring,
+  manageBy: "self" | "partners",
+  getTicketLink: string,
 }
 
 type LoopPoint = { target: () => number; index: number };

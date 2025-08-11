@@ -2,29 +2,26 @@ import Image from "next/image";
 import { Button } from "../ui/button";
 import type { FC } from "react";
 import Link from "next/link";
+import { normalizeImagePath } from "@/lib/utils";
 
 const EventCard: FC<EventCardProps> = ({
   title,
   slug,
-  startDate,
-  endDate,
-  briefInfo,
-  imageSrc,
+  date,
+  overview,
+  coverImage,
   state,
   getTicketLink,
-  aboutLink,
-  managedBy = "self",
+  manageBy = "self",
   timelinePosition = false,
 }) => {
   const isTimelineLeft = timelinePosition === "left";
   const isContentLeft = isTimelineLeft;
 
-  const dateSpan = `${startDate} to ${endDate}`;
-
   const stateConfig = {
     bgColor: "bg-[#472F00]",
     textColor: "text-gold-500",
-    label: state === "ongoing" ? "Ongoing" : `Ended on ${endDate}`,
+    label: state === "ongoing" ? "Ongoing" : `Ended`,
   };
 
   return (
@@ -48,7 +45,7 @@ const EventCard: FC<EventCardProps> = ({
         <div className="lg:hidden">
           <div className="relative h-48 [mask:linear-gradient(to_top,transparent_0%,black_20%)]">
             <Image
-              src={imageSrc}
+              src={normalizeImagePath(coverImage)}
               alt={title}
               fill
               className="w-full h-full object-cover object-top group-hover:scale-102 transition-transform duration-300"
@@ -66,9 +63,9 @@ const EventCard: FC<EventCardProps> = ({
             <h2 className="text-white text-3xl font-newsreader tracking-tighter font-normal">
               {title}
             </h2>
-            <p className="text-white text-xs font-semibold pb-3">{dateSpan}</p>
+            <p className="text-white text-xs font-semibold pb-3">{date}</p>
             <p className="text-white text-sm font-light tracking-wider pr-4 mb-4 line-clamp-2">
-              {briefInfo}
+              {overview}
             </p>
 
             <div className="flex flex-row items-center gap-3">
@@ -80,7 +77,7 @@ const EventCard: FC<EventCardProps> = ({
                   Get Tickets
                 </Button>
               )}
-              {aboutLink && (
+              {slug && (
                 <Link href={`/events/${slug}`}
                   className="px-4 py-4 rounded-full text-gold-500 text-base font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer"
 
@@ -103,9 +100,9 @@ const EventCard: FC<EventCardProps> = ({
             <h2 className="text-white text-5xl font-newsreader tracking-tighter font-normal">
               {title}
             </h2>
-            <p className="text-white text-base font-semibold pb-4">{dateSpan}</p>
+            <p className="text-white text-base font-semibold pb-4">{date}</p>
             <p className="text-white text-base font-light tracking-wider pr-10 mb-4">
-              {briefInfo}
+              {overview}
             </p>
 
             <div className="flex flex-col sm:flex-row sm:items-center gap-4">
@@ -118,7 +115,7 @@ const EventCard: FC<EventCardProps> = ({
                   Get Tickets
                 </Button>
               )}
-              {aboutLink && (
+              {slug && (
                 <Link href={`/events/${slug}`}
                   className="px-4 py-4 rounded-full text-gold-500 text-base font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer"
 
@@ -139,16 +136,16 @@ const EventCard: FC<EventCardProps> = ({
               }`}
           >
             <Image
-              src={imageSrc}
+              src={normalizeImagePath(coverImage)}
               alt={title}
               fill
               className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300"
             />
-            <div className={`${managedBy === "self" ? "absolute" : "hidden"} bottom-0 ${isContentLeft ? "right-6" : "left-6"}`}>
+            <div className={`${manageBy === "self" ? "absolute" : "hidden"} bottom-0 ${isContentLeft ? "right-6" : "left-6"}`}>
               <div className="bg-[#1E1E1E] rounded-t-2xl px-2.5 py-2.5 text-center">
                 <p className="text-white text-base font-light mb-1">Event by:</p>
                 <div className="border-2 border-yellow-400 rounded p-2">
-                  {managedBy === "self" ? (
+                  {manageBy === "self" ? (
                     <Image
                       width={60}
                       height={50}

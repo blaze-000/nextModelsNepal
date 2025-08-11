@@ -64,8 +64,8 @@ const TestimonialSection: React.FC = () => {
       try {
         const res = await Axios.get('/api/feedback');
         const data = res.data;
-        console.log(data.data[0].item);
-        setData(data.data[0].item);
+        console.log(data.data.item);
+        setData(data.data.item);
       }
       catch (err) {
         // console.log(err);

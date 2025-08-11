@@ -46,7 +46,7 @@ export default function LoginPage() {
       await Axios.post("/api/auth/login", { email, password });
 
       // Check for the new session cookie and update auth state
-      auth?.checkAuth();
+      auth?.refreshAuth();
 
       setEmail("");
       setPassword("");
@@ -65,6 +65,9 @@ export default function LoginPage() {
       } else {
         setError("Login failed");
       }
+    }
+    finally {
+      setIsSubmitting(false);
     }
   };
 
