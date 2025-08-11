@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { HeroModel } from "../models/hero.model";
+import { heroItemSchema } from "../validations/hero.validation";
 import fs from "fs";
 import path from "path";
 
