@@ -3,9 +3,10 @@
 import { Button } from "@/components/ui/button";
 import Axios from "@/lib/axios-instance";
 import { useRouter } from "next/navigation";
-import { useState, FormEvent } from "react";
+import { useState, FormEvent, useEffect } from "react";
 import { Spinner } from "@geist-ui/react";
 import { isAxiosError } from "axios";
+import useAuth from "@/hooks/useAuth";
 
 export default function LoginPage() {
   const [email, setEmail] = useState<string>("");
@@ -14,6 +15,26 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const router = useRouter();
+  const auth = useAuth();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (auth?.user && !auth.loading) {
+      router.push("/admin/dashboard");
+    }
+  }, [auth?.user, auth?.loading, router]);
+
+  // Show loading while checking authentication
+  if (auth?.loading) {
+    return (
+      <main className="min-h-screen w-screen fixed inset-0 flex items-center justify-center">
+        <div className="flex flex-col items-center space-y-4">
+          <Spinner />
+          <p className="text-sm text-gray-500">Checking authentication...</p>
+        </div>
+      </main>
+    );
+  }
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -21,8 +42,12 @@ export default function LoginPage() {
 
     try {
       setIsSubmitting(true);
-      await new Promise(resolve => setTimeout(resolve, 2000));
+
       await Axios.post("/api/auth/login", { email, password });
+
+      // Check for the new session cookie and update auth state
+      auth?.checkAuth();
+
       setEmail("");
       setPassword("");
       router.push("/admin/dashboard");

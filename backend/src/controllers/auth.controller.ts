@@ -37,7 +37,7 @@ export const login = async (req: Request, res: Response) => {
             encodeURIComponent(JSON.stringify(payload)),
             {
                 httpOnly: false,
-                path: '/api/auth',
+                path: '/',
                 secure: process.env.PRODUCTION === "TRUE",
                 sameSite: process.env.PRODUCTION === "TRUE" ? 'none' : 'strict',
                 maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
@@ -90,7 +90,7 @@ export const logout = (req: Request, res: Response) => {
         // Clear session cookie
         res.clearCookie("session", {
             httpOnly: false,
-            path: '/api/auth',
+            path: '/',
             secure: process.env.PRODUCTION === "TRUE",
             sameSite: process.env.PRODUCTION === "TRUE" ? "none" : "strict"
         });
