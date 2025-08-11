@@ -39,8 +39,8 @@ export const menuItems: MenuSection[] = [
         href: "/admin/partners",
       },
       {
-        id: "feedback",
-        label: "Feedback",
+        id: "testimonials",
+        label: "Testimonials",
         icon: "ri-message-2-line",
         href: "/admin/feedback",
       },

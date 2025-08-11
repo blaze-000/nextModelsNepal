@@ -5,8 +5,8 @@ const commentSchema = new mongoose.Schema({
     name: { type: String, required: true },
     message: { type: String, required: true },
     images: {
-        type: [String],
-        default: []
+        type: String,
+        default: ""
     },
 })
 

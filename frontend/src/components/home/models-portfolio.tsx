@@ -16,10 +16,10 @@ const ModelsPortfolioSection = () => {
       try {
         const res = await axios.get('/api/models');
         const data = res.data;
-        console.log(data.data);
+        // console.log(data.data);
         setData(data.data)
       }
-      catch (err) {
+      catch {
         // console.log(err);
       }
     })();
@@ -28,9 +28,9 @@ const ModelsPortfolioSection = () => {
   const femaleModels = data?.filter(x => x.gender === "Female");
   const maleModels = data?.filter(x => x.gender === "Male");
 
-  console.log(femaleModels ?? "No female models")
-  console.log(maleModels ?? "No male models")
-  console.log(data);
+  // console.log(femaleModels ?? "No female models")
+  // console.log(maleModels ?? "No male models")
+  // console.log(data);
 
   return (
     <section className="bg-background2 py-16 lg:py-24">

@@ -7,6 +7,7 @@ export const eventZodSchema = z.object({
   slug: z.string(),
   manageBy: z.enum(["partners", "self"]).default("self"),
   date: z.string().min(1, { message: "Date is required" }),
+  slug: z.string().min(1, { message: "Slug is required" }),
   year: z.string().optional().transform((val) => {
         if (!val || val.trim() === "") return "2025";
         return val;

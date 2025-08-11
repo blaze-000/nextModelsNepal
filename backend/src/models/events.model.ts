@@ -13,38 +13,40 @@ const eventSchema = new mongoose.Schema({
     state: { type: String },
     coverImage: { type: String },
     title: { type: String, required: true },
+
     slug: {type: String, required: true, unique: true},
     manageBy:{type: String,  enum: ["partners", "self"], default: "self"}, 
     titleImage: {type: String, default: ""},
+
     date: { type: String },
-    year: {type: String, default:"2025"},
+    year: { type: String, default: "2025" },
     overview: { type: String, required: true },
-    logo: {type: String, required: true},
-    subImage: {type: String, default: ""},
+    logo: { type: String, required: true },
+    subImage: { type: String, default: "" },
     purpose: { type: String },
     member: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "MemberModel",
     },
-    highlight:{ type: [String], default: []},
+    highlight: { type: [String], default: [] },
 
     // Event Timeline 
-    eventDescription: {type: String},
+    eventDescription: { type: String },
 
-    startingTimelineIcon: {type: String, required: true},
+    startingTimelineIcon: { type: String, required: true },
     startingTimelineDate: { type: String },
-    startingTimelineEvent: {type: String},
+    startingTimelineEvent: { type: String },
 
-    midTimelineIcon: {type: String, required: true},
+    midTimelineIcon: { type: String, required: true },
     midTimelineDate: { type: String },
-    midTimelineEvent: {type: String},
+    midTimelineEvent: { type: String },
 
-    endTimelineIcon: {type: String, required: true},
+    endTimelineIcon: { type: String, required: true },
     endTimelineDate: { type: String },
-    endTimelineEvent: {type: String},
+    endTimelineEvent: { type: String },
 
     // sponsers
-    sponsersImage: {type: [String], required: true, default: []}
+    sponsersImage: { type: [String], required: true, default: [] }
 
 });
 
