@@ -24,7 +24,7 @@ export const createAppForm = async (req: Request, res: Response) => {
 
         const validatedData = appModelSchema.parse({
             ...req.body,
-            event: event.title,
+            event: event.name,
             images: imagePaths,
             weight: Number(req.body.weight),
             languages: Array.isArray(req.body.languages)

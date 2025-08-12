@@ -9,13 +9,6 @@ const hireSchema = new mongoose.Schema({
     date: { type: String, required: true },
 
     createdAt: { type: Date, default: Date.now },
-    updatedAt: { type: Date, default: Date.now }
-});
-
-// Update the updatedAt field on save
-hireSchema.pre('save', function (next) {
-    this.updatedAt = new Date();
-    next();
 });
 
 export const HireModel = mongoose.model("HireModel", hireSchema); 
