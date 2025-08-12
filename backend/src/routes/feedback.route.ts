@@ -1,28 +1,28 @@
 import { Router } from "express";
+import upload from "../middleware/upload";
 import {
-  createFeedbackItem,
-  deleteFeedbackById,
+  createFeedback,
+  getAllFeedbacks,
   getFeedbackById,
-  getFeedbackItems,
   updateFeedbackById,
+  deleteFeedbackById,
 } from "../controllers/feedback.controller";
-import { uploadAnyImages } from "../middleware/multer.middleware";
 
 const router = Router();
 
-// Get all feedback items
-router.route("/").get(getFeedbackItems);
+// Create a new feedback with image upload
+router.post("/", upload.single("image"), createFeedback);
 
-// Create feedback item (admin only)
-router.route("/").post(uploadAnyImages, createFeedbackItem);
+// Get all feedbacks
+router.get("/", getAllFeedbacks);
 
-// Get single feedback item by ID
-router.route("/:id").get(getFeedbackById);
+// Get a single feedback by ID
+router.get("/:id", getFeedbackById);
 
-// Update feedback item by ID (admin only)
-router.route("/:id").patch(uploadAnyImages, updateFeedbackById);
+// Update a feedback by ID with optional image upload
+router.patch("/:id", upload.single("image"), updateFeedbackById);
 
-// Delete feedback item by ID (admin only)
-router.route("/:id").delete(deleteFeedbackById);
+// Delete a feedback by ID
+router.delete("/:id", deleteFeedbackById);
 
 export default router;

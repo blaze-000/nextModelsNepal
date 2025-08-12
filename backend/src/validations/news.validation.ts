@@ -1,24 +1,13 @@
 import { z } from "zod";
 
-export const newsSchema = z.object({
-    title: z.string().min(1, { message: "Title is required" }),
-    description: z.string().min(1, { message: "Description is required" }),
-    content: z.string().optional(),
-    year: z.union([z.string(), z.number()]).optional().transform((val) => {
-        if (val === undefined) return undefined;
-        if (typeof val === 'string') return parseInt(val);
-        return val;
-    }),
+export const createNewsSchema = z.object({
+    title: z.string().min(1, "Title is required"),
+    description: z.string().min(1, "Description is required"),
+    link: z.string().min(1, "Link is required").url("Invalid URL format"),
+    type: z.enum(["Interview", "Feature", "Announcement"]),
+    year: z.number().int().min(2000, "Year must be a valid year"),
+    event: z.string().optional(),
+    // Image is handled manually inside controller
 });
 
-// Schema for updates (all fields optional)
-export const newsUpdateSchema = z.object({
-    title: z.string().min(1, { message: "Title must not be empty" }).optional(),
-    description: z.string().min(1, { message: "Description must not be empty" }).optional(),
-    content: z.string().optional(),
-    year: z.union([z.string(), z.number()]).optional().transform((val) => {
-        if (val === undefined) return undefined;
-        if (typeof val === 'string') return parseInt(val);
-        return val;
-    }),
-});
+export const updateNewsSchema = createNewsSchema.partial();

@@ -1,13 +1,18 @@
-import mongoose, { Document, Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
-export interface IAdmin extends Document {
-  email: string;
-  password: string;
-}
+const AdminSchema = new Schema({
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    lowercase: true, // Store emails in lowercase for consistency
+    trim: true // Remove whitespace
+  },
+  password: {
+    type: String,
+    required: true,
+    select: false // Exclude password by default in queries
+  }
+}, { timestamps: true });
 
-const AdminSchema = new Schema<IAdmin>({
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true }
-});
-
-export const AdminModel = mongoose.model<IAdmin>("Admin", AdminSchema);
+export const AdminModel = mongoose.model("Admin", AdminSchema);

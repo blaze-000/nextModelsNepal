@@ -6,8 +6,7 @@ export const createContestantSchema = z.object({
   intro: z.string().min(1, "Intro is required"),
   gender: z.enum(["Male", "Female", "Other"]),
   address: z.string().min(1, "Address is required"),
-  image: z.string().url("Image must be a valid URL"),
+  // Image will be handled separately as a file upload
 });
 
-
-export const updateContestantSchema = createContestantSchema.partial();
+export const updateContestantSchema = createContestantSchema.partial().omit({ seasonId: true });

@@ -1,29 +1,40 @@
 import { Router } from "express";
-import { 
-    createPartnersItem, 
-    deletePartnersById, 
-    getPartnersById, 
-    getPartnersItems, 
-    updatePartnersById 
+import {
+    createPartner,
+    deletePartnerById,
+    getPartnerById,
+    getPartners,
+    updatePartnerById
 } from "../controllers/partners.controller";
-import { uploadAnyImages } from "../middleware/multer.middleware";
-
+import upload from "../middleware/upload";
+import { verifyAdminToken } from "../middleware/auth.middleware";
 
 const router = Router();
 
-// Get all partners items
-router.route("/").get(getPartnersItems);
+// Get all partners (public route)
+router.get("/", getPartners);
 
-// Create partners item (admin only)
-router.route("/").post(uploadAnyImages, createPartnersItem);
+// Create partner (admin only) with image upload
+router.post("/",
+    verifyAdminToken,
+    upload.single("sponserImage"),
+    createPartner
+);
 
-// Get single partners item by ID
-router.route("/:id").get(getPartnersById);
+// Get single partner by ID (public route)
+router.get("/:id", getPartnerById);
 
-// Update partners item by ID (admin only)
-router.route("/:id").patch(uploadAnyImages, updatePartnersById);
+// Update partner by ID (admin only) with optional image upload
+router.patch("/:id",
+    verifyAdminToken,
+    upload.single("sponserImage"),
+    updatePartnerById
+);
 
-// Delete partners item by ID (admin only)
-router.route("/:id").delete(deletePartnersById);
+// Delete partner by ID (admin only)
+router.delete("/:id",
+    verifyAdminToken,
+    deletePartnerById
+);
 
-export default router; 
+export default router;

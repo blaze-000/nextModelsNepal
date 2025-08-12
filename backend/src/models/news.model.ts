@@ -3,10 +3,11 @@ import mongoose from "mongoose";
 const newsSchema = new mongoose.Schema({
     title: { type: String, required: true },
     description: { type: String, required: true },
-    link: { type: String },
+    link: { type: String, required: true },
     type: {
         type: String,
-        enum: ["Interview", "Feature", "Announcement"], required: true
+        enum: ["Interview", "Feature", "Announcement"], required: true,
+        default: "Feature",
     },
     year: {
         type: Number,
