@@ -1,12 +1,28 @@
 import { Router } from "express";
 import * as contestantController from "../controllers/contestant.controller";
+import upload from "../middleware/upload"; // Import multer middleware
 
 const router = Router();
 
-router.post("/", contestantController.createContestant);
+// Create contestant with image upload
+router.post("/",
+    upload.single('image'), // Handle single file upload for contestant image
+    contestantController.createContestant
+);
+
+// Get contestants by season ID
 router.get("/season/:seasonId", contestantController.getContestantsBySeason);
+
+// Get contestant by ID
 router.get("/:id", contestantController.getContestantById);
-router.put("/:id", contestantController.updateContestant);
+
+// Update contestant with optional image upload
+router.put("/:id",
+    upload.single('image'), // Handle optional image update
+    contestantController.updateContestant
+);
+
+// Delete contestant
 router.delete("/:id", contestantController.deleteContestant);
 
 export default router;
