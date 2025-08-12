@@ -11,7 +11,6 @@ export const createSeasonSchema = z.object({
   endDate: z.coerce.date(),
   slug: z.string().min(1, "Slug is required"),
   pricePerVote: z.number().positive().optional(),
-  gallery: z.array(z.string()).optional(),
   notice: z.array(z.string()).optional(),
   timeline: z.array(z.object({
     label: z.string().min(1, "Label is required"),

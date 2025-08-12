@@ -1,11 +1,8 @@
 import { z } from "zod";
 
-const partnerSchema = z.object({
-    index: z.number().optional(),
-    sponserName: z.string().min(1, "Sponser name is required"),
-    sponserImage: z.string().optional()
+export const createPartnersSchema = z.object({
+    sponserName: z.string().min(1, "Sponsor name is required"),
+    // sponserImage is handled by multer and controller, so not in body validation
 });
 
-export const partnersSchema = z.object({
-    partners: z.array(partnerSchema).min(1, "At least one partner is required")
-});
+export const updatePartnersSchema = createPartnersSchema.partial();

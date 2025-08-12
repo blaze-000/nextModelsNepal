@@ -3,7 +3,7 @@ import nodemailer from "nodemailer";
 import { Request, Response } from "express";
 import { HireModel } from "../models/hireModel.model";
 import { hireFormSchema, replySchema } from "../validations/hire.validation";
-import { COMMODEL } from "../models/model.model";
+import { Model } from "../models/model.model";
 
 export const createHire = async (req: Request, res: Response) => {
     try {
@@ -12,7 +12,7 @@ export const createHire = async (req: Request, res: Response) => {
         const { name, date, email, phone, message } = data;
 
         // Get model details
-        const getModel = await COMMODEL.findById(modelId);
+        const getModel = await Model.findById(modelId);
         if (!getModel) {
             return res.status(404).json({
                 success: false,

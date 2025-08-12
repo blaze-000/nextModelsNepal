@@ -17,25 +17,25 @@ const appModelSchema = new mongoose.Schema({
     gender: { type: String, enum: ["Male", "Female", "Other"] },
     occupation: { type: String, required: true },
 
-    dressSize: { type: String },
-    
-    shoeSize: { type: String },
-    hairColor: { type: String },
-    eyeColor: { type: String },
+    dressSize: { type: String, required: true },
+
+    shoeSize: { type: String, required: true },
+    hairColor: { type: String, required: true },
+    eyeColor: { type: String, required: true },
 
     event: { type: String },
     auditionPlace: { type: String },
 
-    weight: { type: Number },
+    weight: { type: Number, required: true },
 
     parentsName: { type: String, required: true },
     parentsMobile: { type: String, required: true },
     parentsOccupation: { type: String },
 
     permanentAddress: { type: String, required: true },
-    temporaryAddress: { type: String },
+    temporaryAddress: { type: String, required: true },
 
-    hobbies: { type: String },
+    hobbies: { type: String, required: true },
     talents: { type: String },
     heardFrom: { type: String },
     additionalMessage: { type: String },

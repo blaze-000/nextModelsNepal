@@ -1,276 +1,162 @@
 import { Request, Response } from "express";
 import { PartnersModel } from "../models/partners.model";
-import { partnersSchema } from "../validations/partners.validation";
+import { createPartnersSchema, updatePartnersSchema } from "../validations/partners.validation";
+import fs from "fs";
+import path from "path";
+
+// Helper function to delete image files
+const deleteImageFile = (imagePath: string) => {
+  if (imagePath) {
+    const fullPath = path.join(process.cwd(), "uploads", path.basename(imagePath));
+    if (fs.existsSync(fullPath)) {
+      fs.unlinkSync(fullPath);
+    }
+  }
+};
 
 /**
- * Fetch all Partners items
+ * Fetch all Partners
  */
-export const getPartnersItems = async (_req: Request, res: Response) => {
+export const getPartners = async (_req: Request, res: Response) => {
     try {
-        const partnersItems = await PartnersModel.find({});
-        if (!partnersItems || partnersItems.length === 0) {
+        const partners = await PartnersModel.find({});
+        if (!partners || partners.length === 0) {
             return res.status(404).json({
                 success: false,
-                message: "No partners items found.",
+                message: "No partners found.",
             });
         }
-
         return res.status(200).json({
             success: true,
-            message: "Partners items retrieved successfully.",
-            data: partnersItems,
+            message: "Partners retrieved successfully.",
+            data: partners,
         });
     } catch (error: any) {
-        console.error("Error fetching Partners items:", error.message);
+        console.error("Error fetching Partners:", error.message);
         return res.status(500).json({
             success: false,
-            message: "Internal server error while retrieving Partners items.",
+            message: "Internal server error while retrieving Partners.",
         });
     }
 };
 
 /**
- * Get single Partners item by ID
+ * Get single Partner by ID
  */
-export const getPartnersById = async (req: Request, res: Response) => {
+export const getPartnerById = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
-        const partnersItem = await PartnersModel.findById(id);
-
-        if (!partnersItem) {
+        const partner = await PartnersModel.findById(id);
+        if (!partner) {
             return res.status(404).json({
                 success: false,
-                message: `Partners item with ID ${id} not found.`,
+                message: `Partner with ID ${id} not found.`,
             });
         }
-
         return res.status(200).json({
             success: true,
-            message: "Partners item retrieved successfully.",
-            data: partnersItem,
+            message: "Partner retrieved successfully.",
+            data: partner,
         });
     } catch (error: any) {
-        console.error(`Error fetching Partners item with ID ${req.params.id}:`, error.message);
+        console.error(`Error fetching Partner with ID ${req.params.id}:`, error.message);
         return res.status(500).json({
             success: false,
-            message: "Internal server error while retrieving Partners item.",
+            message: "Internal server error while retrieving Partner.",
         });
     }
 };
 
 /**
- * Create Partners item
+ * Create Partner
  */
-export const createPartnersItem = async (req: Request, res: Response) => {
+export const createPartner = async (req: Request, res: Response) => {
     try {
-        const { ...rest } = req.body;
-        let processedPartners: any[] = [];
+        // Validate input data
+        const validation = createPartnersSchema.safeParse(req.body);
+        if (!validation.success) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid input data",
+                errors: validation.error.flatten().fieldErrors
+            });
+        }
 
-        // Parse nested formdata structure (partners[0][sponserName], partners[0][sponserImage], etc.)
-        const partnerKeys = Object.keys(rest).filter(key => key.startsWith('partners['));
+        const { sponserName } = validation.data;
         
-        if (partnerKeys.length > 0) {
-            // Group by partner index
-            const partnerGroups: { [key: string]: any } = {};
-            partnerKeys.forEach(key => {
-                const match = key.match(/partners\[(\d+)\]\[(\w+)\]/);
-                if (match) {
-                    const [, index, field] = match;
-                    if (!partnerGroups[index]) {
-                        partnerGroups[index] = {};
-                    }
-                    partnerGroups[index][field] = rest[key];
-                }
-            });
-            
-            // Convert to array and sort by index
-            processedPartners = Object.values(partnerGroups).sort((a, b) => 
-                parseInt(Object.keys(partnerGroups).find(k => partnerGroups[k] === a) || '0') - 
-                parseInt(Object.keys(partnerGroups).find(k => partnerGroups[k] === b) || '0')
-            );
-        } else {
-            // Try to parse as JSON string if it's a single field
-            const partnerField = rest.partners;
-            if (partnerField) {
-                try {
-                    if (typeof partnerField === 'string') {
-                        processedPartners = JSON.parse(partnerField);
-                    } else if (Array.isArray(partnerField)) {
-                        processedPartners = partnerField;
-                    }
-                } catch (e) {
-                    console.log("Failed to parse partners field as JSON:", e);
-                }
-            }
-        }
-
-        const files = req.files as Express.Multer.File[] | undefined;
-
-        // Handle individual partner images (partners[0][sponserImage], partners[1][sponserImage], etc.)
-        if (files && files.length > 0) {
-            files.forEach(file => {
-                if (file.fieldname.startsWith('partners[') && file.fieldname.endsWith('[sponserImage]')) {
-                    const match = file.fieldname.match(/partners\[(\d+)\]\[sponserImage\]/);
-                    if (match) {
-                        const partnerIndex = parseInt(match[1]);
-                        
-                        if (processedPartners[partnerIndex]) {
-                            processedPartners[partnerIndex].sponserImage = file.path;
-                        }
-                    }
-                }
+        // Check if image was uploaded
+        if (!req.file) {
+            return res.status(400).json({
+                success: false,
+                message: "Sponsor image is required",
             });
         }
-
-        // Ensure all partners have proper structure
-        processedPartners = processedPartners.map((partner, index) => ({
-            index: index + 1, // Auto-increment starting from 1
-            sponserName: partner.sponserName || "Anonymous Partner",
-            sponserImage: partner.sponserImage || ""
-        }));
-
-        // Validate the processed data
-        const validatedData = partnersSchema.parse({ partners: processedPartners });
-
-        const partnersSection = await PartnersModel.create(validatedData);
-
+        
+        // Set image path
+        const sponserImage = `/uploads/${req.file.filename}`;
+        
+        // Create the partner
+        const newPartner = await PartnersModel.create({
+            sponserName,
+            sponserImage
+        });
+        
         res.status(201).json({
             success: true,
-            message: "Partners section item created successfully.",
-            data: partnersSection
+            message: "Partner created successfully.",
+            data: newPartner
         });
     } catch (error: any) {
-        console.error("Error creating Partners item:", error.message);
+        console.error("Error creating Partner:", error.message);
         return res.status(400).json({
             success: false,
             message: "Invalid input data.",
             error: error.message,
         });
-    };
+    }
 };
 
 /**
- * Update a Partners item by ID
+ * Update a Partner by ID
  */
-export const updatePartnersById = async (req: Request, res: Response) => {
+export const updatePartnerById = async (req: Request, res: Response) => {
     try {
+        // Validate input data
+        const validation = updatePartnersSchema.safeParse(req.body);
+        if (!validation.success) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid input data",
+                errors: validation.error.flatten().fieldErrors
+            });
+        }
+
         const { id } = req.params;
+        const { sponserName } = validation.data;
         
-        // Get the existing partners item first
-        const existingPartners = await PartnersModel.findById(id);
-        if (!existingPartners) {
+        // Get the existing partner first
+        const existingPartner = await PartnersModel.findById(id);
+        if (!existingPartner) {
             return res.status(404).json({
                 success: false,
-                message: `Partners item with ID ${id} not found.`,
+                message: `Partner with ID ${id} not found.`,
             });
         }
         
-        // Check if files are present
-        const files = req.files as Express.Multer.File[] | undefined;
-        
-        let updateData: any = {};
-        
-        // Parse formdata for partial updates
-        const { ...rest } = req.body;
-        
-        // Handle partners updates - Express parses nested formdata into objects
-        if (rest.partners && Array.isArray(rest.partners)) {
-            // Get existing partners as plain objects
-            let updatedPartners = existingPartners.partners.map(partner => ({
-                index: partner.index,
-                sponserName: partner.sponserName,
-                sponserImage: partner.sponserImage
-            }));
-            
-            // Apply updates from the partners array
-            rest.partners.forEach((partnerUpdate: any, index: number) => {
-                if (updatedPartners[index]) {
-                    // Update existing partner with provided fields
-                    updatedPartners[index] = {
-                        ...updatedPartners[index],
-                        ...partnerUpdate
-                    };
-                } else {
-                    // Create new partner if it doesn't exist
-                    updatedPartners[index] = {
-                        index: index + 1, // Auto-increment starting from 1
-                        sponserName: partnerUpdate.sponserName || "Anonymous Partner",
-                        sponserImage: partnerUpdate.sponserImage || ""
-                    };
-                }
-            });
-            
-            updateData.partners = updatedPartners;
+        // Handle image update
+        let sponserImage = existingPartner.sponserImage;
+        if (req.file) {
+            // Delete old image if exists
+            if (existingPartner.sponserImage) {
+                deleteImageFile(existingPartner.sponserImage);
+            }
+            sponserImage = `/uploads/${req.file.filename}`;
         }
         
-        // Also check for flat key structure as fallback
-        const partnerKeys = Object.keys(rest).filter(key => key.startsWith('partners['));
-        
-        if (partnerKeys.length > 0) {
-            // Get existing partners as plain objects (if not already set)
-            let updatedPartners = updateData.partners || existingPartners.partners.map(partner => ({
-                index: partner.index,
-                sponserName: partner.sponserName,
-                sponserImage: partner.sponserImage
-            }));
-            
-            // Group updates by partner index
-            const partnerUpdates: { [key: string]: any } = {};
-            partnerKeys.forEach(key => {
-                const match = key.match(/partners\[(\d+)\]\[(\w+)\]/);
-                if (match) {
-                    const [, index, field] = match;
-                    if (!partnerUpdates[index]) {
-                        partnerUpdates[index] = {};
-                    }
-                    partnerUpdates[index][field] = rest[key];
-                }
-            });
-            
-            // Apply updates to existing partners
-            Object.keys(partnerUpdates).forEach(indexStr => {
-                const index = parseInt(indexStr);
-                const updates = partnerUpdates[index];
-                
-                if (updatedPartners[index]) {
-                    // Update existing partner
-                    updatedPartners[index] = {
-                        ...updatedPartners[index],
-                        ...updates
-                    };
-                } else {
-                    // Create new partner if it doesn't exist
-                    updatedPartners[index] = {
-                        index: index + 1, // Auto-increment starting from 1
-                        sponserName: updates.sponserName || "Anonymous Partner",
-                        sponserImage: updates.sponserImage || ""
-                    };
-                }
-            });
-            
-            updateData.partners = updatedPartners;
-        }
-        
-        // Handle file updates
-        if (files && files.length > 0) {
-            // Get current partners (either from updateData or existing)
-            let currentPartners = updateData.partners || existingPartners.partners;
-            
-            files.forEach(file => {
-                if (file.fieldname.startsWith('partners[') && file.fieldname.endsWith('[sponserImage]')) {
-                    const match = file.fieldname.match(/partners\[(\d+)\]\[sponserImage\]/);
-                    if (match) {
-                        const partnerIndex = parseInt(match[1]);
-                        
-                        if (currentPartners[partnerIndex]) {
-                            currentPartners[partnerIndex].sponserImage = file.path;
-                        }
-                    }
-                }
-            });
-            
-            updateData.partners = currentPartners;
-        }
+        // Prepare update data
+        const updateData: any = {};
+        if (sponserName !== undefined) updateData.sponserName = sponserName;
+        if (sponserImage !== existingPartner.sponserImage) updateData.sponserImage = sponserImage;
         
         // If no fields are provided, return error
         if (Object.keys(updateData).length === 0) {
@@ -280,59 +166,65 @@ export const updatePartnersById = async (req: Request, res: Response) => {
             });
         }
         
-        const updatedItem = await PartnersModel.findByIdAndUpdate(id, updateData, {
+        const updatedPartner = await PartnersModel.findByIdAndUpdate(id, updateData, {
             new: true,
-            upsert: false,
         });
         
-        if (!updatedItem) {
+        if (!updatedPartner) {
             return res.status(404).json({
                 success: false,
-                message: `Partners item with ID ${id} not found.`,
+                message: `Partner with ID ${id} not found.`,
             });
         }
         
         return res.status(200).json({
             success: true,
-            message: "Partners item updated successfully.",
-            data: updatedItem,
+            message: "Partner updated successfully.",
+            data: updatedPartner,
         });
     } catch (error: any) {
-        console.error(`Error updating Partners item with ID ${req.params.id}:`, error.message);
+        console.error(`Error updating Partner with ID ${req.params.id}:`, error.message);
         return res.status(500).json({
             success: false,
-            message: "Internal server error while updating Partners item.",
+            message: "Internal server error while updating Partner.",
             error: error.message,
         });
     }
 };
 
 /**
- * Delete a Partners item by ID
+ * Delete a Partner by ID
  */
-export const deletePartnersById = async (req: Request, res: Response) => {
+export const deletePartnerById = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
-        const deletedItem = await PartnersModel.findByIdAndDelete(id);
-
-        if (!deletedItem) {
+        const deletedPartner = await PartnersModel.findById(id);
+        
+        if (!deletedPartner) {
             return res.status(404).json({
                 success: false,
-                message: `Partners item with ID ${id} not found.`,
+                message: `Partner with ID ${id} not found.`,
             });
         }
-
+        
+        // Delete the associated image file
+        if (deletedPartner.sponserImage) {
+            deleteImageFile(deletedPartner.sponserImage);
+        }
+        
+        await PartnersModel.findByIdAndDelete(id);
+        
         return res.status(200).json({
             success: true,
-            message: "Partners item deleted successfully.",
-            data: deletedItem,
+            message: "Partner deleted successfully.",
+            data: deletedPartner,
         });
     } catch (error: any) {
-        console.error(`Error deleting Partners item with ID ${req.params.id}:`, error.message);
+        console.error(`Error deleting Partner with ID ${req.params.id}:`, error.message);
         return res.status(500).json({
             success: false,
-            message: "Internal server error while deleting Partners item.",
+            message: "Internal server error while deleting Partner.",
             error: error.message,
         });
     }
-}; 
+};
