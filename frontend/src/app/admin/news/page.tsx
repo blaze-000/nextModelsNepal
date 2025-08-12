@@ -300,7 +300,7 @@ export default function NewsPage() {
       </div>
 
       {/* News Table */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden transition-colors duration-200">
+      <div className=" rounded-lg overflow-hidden transition-colors duration-200">
         <DataTable
           data={news}
           columns={tableColumns}
