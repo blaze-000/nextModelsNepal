@@ -5,7 +5,6 @@ import multer from 'multer';
 import helmet from 'helmet';
 import cors from 'cors';
 import compression from 'compression';
-import rateLimit from 'express-rate-limit';
 import morgan from 'morgan';
 
 import './config/eventStatusUpdater';
@@ -16,19 +15,24 @@ const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || '').split(',').map(s => 
 
 import navRoute from "./routes/nav.route";
 import heroRoute from "./routes/hero.route";
-// import eventRoutes from "./routes/event.route";
-// import nextEventRoutes from "./routes/next-event.route";
+
 import modelsRoutes from "./routes/companyModels.route";
 import careerRoutes from "./routes/career.route";
 import feedbackRoutes from "./routes/feedback.route";
 import partnersRoutes from "./routes/partners.route";
 import newsRoutes from "./routes/news.route";
 import contactRoutes from "./routes/contact.route";
-// import memberRoutes from "./routes/member.route";
 import hireRoutes from "./routes/hire.route";
 import appRoutes from "./routes/appForm.route"
 import authRoutes from "./routes/auth.route"
-import EventsRoute from "./routes/event.route"
+import eventRoutes from "./routes/event.route"
+import seasonRoutes from "./routes/season.route";
+import winnerRoutes from "./routes/winner.route";
+import juryRoutes from "./routes/jury.route";
+import sponsorsRoutes from "./routes/sponsor.route";
+import auditionsRoutes from "./routes/audition.route";
+import contestantRoutes from "./routes/contestant.route";
+import criteriaRoutes from "./routes/criteria.route";
 const app = express();
 
 // Trust proxy if behind load balancer / reverse proxy (only in production)
@@ -66,14 +70,14 @@ app.use(morgan(NODE_ENV === 'production' ? 'combined' : 'dev'));
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
-// Rate limiting (general)
-const generalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-app.use(generalLimiter);
+// // Rate limiting (general)
+// const generalLimiter = rateLimit({
+//   windowMs: 15 * 60 * 1000,
+//   max: 100,
+//   standardHeaders: true,
+//   legacyHeaders: false,
+// });
+// app.use(generalLimiter);
 
 app.use('/uploads', (req, res, next) => {
   res.header('Cross-Origin-Resource-Policy', 'cross-origin');
@@ -83,14 +87,19 @@ app.use('/uploads', (req, res, next) => {
 app.use("/api/nav", navRoute);
 app.use("/api/hero", heroRoute);
 app.use("/api/events", eventRoutes);
-app.use("/api/next-events", nextEventRoutes);
+app.use("/api/season", seasonRoutes);
+app.use("/api/sponsors", sponsorsRoutes);
+app.use("/api/criteria", criteriaRoutes);
+app.use("/api/auditions", auditionsRoutes);
+app.use("/api/winners", winnerRoutes);
+app.use("/api/jury", juryRoutes);
+app.use("/api/contestants", contestantRoutes);
 app.use("/api/models", modelsRoutes);
 app.use("/api/career", careerRoutes);
 app.use("/api/feedback", feedbackRoutes);
 app.use("/api/partners", partnersRoutes);
 app.use("/api/news", newsRoutes);
 app.use("/api/contact", contactRoutes);
-app.use("/api/member", memberRoutes);
 app.use("/api/hire-model", hireRoutes);
 app.use("/api/app-form", appRoutes);
 app.use("/api/auth", authRoutes);
