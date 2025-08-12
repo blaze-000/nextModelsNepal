@@ -1,503 +1,180 @@
 import { Request, Response } from "express";
 import { FeedBackModel } from "../models/feedback.model";
+import fs from "fs";
+import path from "path";
 
-/**
-
- * Fetch all Feedback items
-
- */
-
-export const getFeedbackItems = async (_req: Request, res: Response) => {
-  try {
-    const feedbackItems = await FeedBackModel.findOne();
-
-    if (!feedbackItems || feedbackItems.item.length === 0) {
-      return res.status(404).json({
-        success: false,
-
-        message: "No feedback items found.",
-      });
+// Helper function to delete image file
+const deleteImage = (imagePath: string) => {
+  if (imagePath) {
+    const fullPath = path.join(process.cwd(), "uploads", path.basename(imagePath));
+    if (fs.existsSync(fullPath)) {
+      fs.unlinkSync(fullPath);
     }
-
-    return res.status(200).json({
-      success: true,
-
-      message: "Feedback items retrieved successfully.",
-
-      data: feedbackItems,
-    });
-  } catch (error: any) {
-    console.error("Error fetching Feedback items:", error.message);
-
-    return res.status(500).json({
-      success: false,
-
-      message: "Internal server error while retrieving Feedback items.",
-    });
   }
 };
 
-/**
+// Create a new feedback
+export const createFeedback = async (req: Request, res: Response) => {
+  const session = await FeedBackModel.startSession();
+  session.startTransaction();
 
- * Get single Feedback item by ID
+  try {
+    const { index, name, message } = req.body;
+    const newIndex = parseInt(index);
+    
+    // Shift existing documents with index >= newIndex
+    await FeedBackModel.updateMany(
+      { index: { $gte: newIndex } },
+      { $inc: { index: 1 } },
+      { session }
+    );
 
- */
+    // Create new feedback
+    const newFeedback = new FeedBackModel({
+      index: newIndex,
+      name,
+      message,
+      image: req.file ? `/uploads/${req.file.filename}` : undefined,
+    });
 
+    await newFeedback.save({ session });
+    await session.commitTransaction();
+    
+    res.status(201).json({ success: true, data: newFeedback });
+  } catch (error) {
+    await session.abortTransaction();
+    res.status(500).json({ success: false, message: "Error creating feedback", error });
+  } finally {
+    session.endSession();
+  }
+};
+
+// Get all feedbacks
+export const getAllFeedbacks = async (_req: Request, res: Response) => {
+  try {
+    const feedbacks = await FeedBackModel.find().sort({ index: 1 });
+    res.status(200).json({ success: true, data: feedbacks });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Error fetching feedbacks", error });
+  }
+};
+
+// Get feedback by ID
 export const getFeedbackById = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
-
-    const feedbackItem = await FeedBackModel.findById(id);
-
-    if (!feedbackItem) {
-      return res.status(404).json({
-        success: false,
-
-        message: `Feedback item with ID ${id} not found.`,
-      });
+    const feedback = await FeedBackModel.findById(req.params.id);
+    if (!feedback) {
+      return res.status(404).json({ success: false, message: "Feedback not found" });
     }
-
-    return res.status(200).json({
-      success: true,
-
-      message: "Feedback item retrieved successfully.",
-
-      data: feedbackItem,
-    });
-  } catch (error: any) {
-    console.error(
-      `Error fetching Feedback item with ID ${req.params.id}:`,
-      error.message
-    );
-
-    return res.status(500).json({
-      success: false,
-
-      message: "Internal server error while retrieving Feedback item.",
-    });
+    res.status(200).json({ success: true, data: feedback });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Error fetching feedback", error });
   }
 };
 
-//  Create Feedback item
-export const createFeedbackItem = async (req: Request, res: Response) => {
-  try {
-    const rest = req.body ?? {};
-    const norm = (p?: string) => (p ? p.replace(/\\/g, "/") : "");
-
-    let processedItems: Array<{
-      name?: string;
-      message?: string;
-      images?: string;
-    }> = [];
-
-    // --- Parse text fields ---
-    const itemKeys = Object.keys(rest).filter((k) => k.startsWith("item["));
-    if (itemKeys.length > 0) {
-      const groups: Record<string, any> = {};
-      for (const key of itemKeys) {
-        const m = key.match(/item\[(\d+)\]\[(\w+)\]/);
-        if (!m) continue;
-        const [, idx, field] = m;
-        if (!groups[idx]) groups[idx] = {};
-        groups[idx][field] = rest[key];
-      }
-      processedItems = Object.values(groups) as any[];
-    } else {
-      const itemField = (rest as any).item;
-      if (itemField) {
-        try {
-          if (typeof itemField === "string") {
-            processedItems = JSON.parse(itemField);
-          } else if (Array.isArray(itemField)) {
-            processedItems = itemField;
-          }
-        } catch {
-          console.log("Invalid JSON in item field");
-        }
-      }
-      if (
-        processedItems.length === 0 &&
-        ("name" in rest || "message" in rest)
-      ) {
-        processedItems = [
-          {
-            name: (rest as any).name || "Anonymous",
-            message: (rest as any).message || "",
-          },
-        ];
-      }
-    }
-
-    // --- Attach images from files ---
-    const collectFiles = (): Express.Multer.File[] => {
-      const f = req.files as any;
-      if (!f) return [];
-      if (Array.isArray(f)) return f as Express.Multer.File[];
-      return Object.values(f).flat() as Express.Multer.File[];
-    };
-
-    const files = collectFiles();
-    if (files.length > 0) {
-      for (const file of files) {
-        const m = file.fieldname.match(/item\[(\d+)\]\[image\]/);
-        if (!m) continue;
-        const idx = parseInt(m[1], 10);
-        if (!processedItems[idx]) processedItems[idx] = {};
-        processedItems[idx].images = norm(file.path); // ✅ string, not array
-      }
-    }
-
-    // --- Find existing doc to get next index ---
-    const existing = await FeedBackModel.findOne().lean();
-    const currentMaxIndex =
-      existing?.item?.reduce((max: number, x: any) => {
-        const n = parseInt(x?.index ?? "0", 10);
-        return Number.isFinite(n) ? Math.max(max, n) : max;
-      }, 0) ?? 0;
-
-    // --- Normalize items and set correct indexes ---
-    const toAppend = processedItems.map((it, i) => ({
-      index: String(currentMaxIndex + i + 1),
-      name: it.name || "Anonymous",
-      message: it.message || "",
-      images: it.images ? norm(it.images) : "", // ✅ always string
-    }));
-
-    // --- Save to DB ---
-    let doc;
-    if (existing) {
-      doc = await FeedBackModel.findByIdAndUpdate(
-        existing._id,
-        { $push: { item: { $each: toAppend } } },
-        { new: true }
-      );
-      return res.status(200).json({
-        success: true,
-        message: "Feedback items appended successfully.",
-        data: doc,
-      });
-    } else {
-      doc = await FeedBackModel.create({ item: toAppend });
-      return res.status(201).json({
-        success: true,
-        message: "Feedback section created successfully.",
-        data: doc,
-      });
-    }
-  } catch (error: any) {
-    console.error("Error creating/appending Feedback item:", error.message);
-    return res.status(400).json({
-      success: false,
-      message: "Invalid input data.",
-      error: error.message,
-    });
-  }
-};
-
-/**
-
- * Update a Feedback item by ID
-
- */
-
+// Update feedback by ID
 export const updateFeedbackById = async (req: Request, res: Response) => {
+  const session = await FeedBackModel.startSession();
+  session.startTransaction();
+
   try {
     const { id } = req.params;
-
-    // Get the existing feedback item first
-
-    const existingFeedback = await FeedBackModel.findById(id);
-
+    const { index, name, message } = req.body;
+    const existingFeedback = await FeedBackModel.findById(id).session(session);
+    
     if (!existingFeedback) {
-      return res.status(404).json({
-        success: false,
-
-        message: `Feedback item with ID ${id} not found.`,
-      });
+      await session.abortTransaction();
+      return res.status(404).json({ success: false, message: "Feedback not found" });
     }
 
-    // Check if files are present
-
-    const files = req.files as Express.Multer.File[] | undefined;
-
-    let updateData: any = {};
-
-    // Parse formdata for partial updates
-
-    const { ...rest } = req.body;
-
-    // Handle item updates - Express parses nested formdata into objects
-
-    if (rest.item && Array.isArray(rest.item)) {
-      // Get existing items as plain objects
-
-      let updatedItems = existingFeedback.item.map((item) => ({
-        index: item.index,
-
-        name: item.name,
-
-        message: item.message,
-
-        images: item.images,
-      }));
-
-      // Apply updates from the item array
-
-      rest.item.forEach((itemUpdate: any, index: number) => {
-        if (updatedItems[index]) {
-          // Update existing item with provided fields
-
-          updatedItems[index] = {
-            ...updatedItems[index],
-
-            ...itemUpdate,
-          };
-        } else {
-          // Create new item if it doesn't exist
-
-          updatedItems[index] = {
-            index: (index + 1).toString(),
-
-            name: itemUpdate.name || "Anonymous",
-
-            message: itemUpdate.message || "",
-
-            images: itemUpdate.images || [],
-          };
-        }
-      });
-
-      updateData.item = updatedItems;
+    // Handle image update
+    let imagePath = existingFeedback.image;
+    if (req.file) {
+      if (existingFeedback.image) {
+        deleteImage(existingFeedback.image);
+      }
+      imagePath = `/uploads/${req.file.filename}`;
     }
 
-    // Also check for flat key structure as fallback
+    // Handle index update
+    if (index !== undefined && index !== existingFeedback.index) {
+      const newIndex = parseInt(index);
+      const oldIndex = existingFeedback.index;
 
-    const itemKeys = Object.keys(rest).filter((key) => key.startsWith("item["));
+      if (newIndex < oldIndex) {
+        // Increment index by 1 for documents where index >= newIndex && index < oldIndex
+        await FeedBackModel.updateMany(
+          { index: { $gte: newIndex, $lt: oldIndex } },
+          { $inc: { index: 1 } },
+          { session }
+        );
+      } else if (newIndex > oldIndex) {
+        // Decrement index by 1 for documents where index <= newIndex && index > oldIndex
+        await FeedBackModel.updateMany(
+          { index: { $lte: newIndex, $gt: oldIndex } },
+          { $inc: { index: -1 } },
+          { session }
+        );
+      }
 
-    if (itemKeys.length > 0) {
-      // Get existing items as plain objects (if not already set)
-
-      let updatedItems =
-        updateData.item ||
-        existingFeedback.item.map((item) => ({
-          index: item.index,
-
-          name: item.name,
-
-          message: item.message,
-
-          images: item.images,
-        }));
-
-      // Group updates by item index
-
-      const itemUpdates: { [key: string]: any } = {};
-
-      itemKeys.forEach((key) => {
-        const match = key.match(/item\[(\d+)\]\[(\w+)\]/);
-
-        if (match) {
-          const [, index, field] = match;
-
-          if (!itemUpdates[index]) {
-            itemUpdates[index] = {};
-          }
-
-          itemUpdates[index][field] = rest[key];
-        }
-      });
-
-      // Apply updates to existing items
-
-      Object.keys(itemUpdates).forEach((indexStr) => {
-        const index = parseInt(indexStr);
-
-        const updates = itemUpdates[index];
-
-        if (updatedItems[index]) {
-          // Update existing item
-
-          updatedItems[index] = {
-            ...updatedItems[index],
-
-            ...updates,
-          };
-        } else {
-          // Create new item if it doesn't exist
-
-          updatedItems[index] = {
-            index: (index + 1).toString(),
-
-            name: updates.name || "Anonymous",
-
-            message: updates.message || "",
-
-            images: updates.images || [],
-          };
-        }
-      });
-
-      updateData.item = updatedItems;
+      existingFeedback.index = newIndex;
     }
 
-    // Handle file updates
+    // Update other fields
+    if (name) existingFeedback.name = name;
+    if (message) existingFeedback.message = message;
+    if (imagePath !== existingFeedback.image) existingFeedback.image = imagePath;
 
-    if (files && files.length > 0) {
-      // Get current items (either from updateData or existing)
-
-      let currentItems = updateData.item || existingFeedback.item;
-
-      files.forEach((file) => {
-        // Check if this is an item image field
-
-        if (
-          file.fieldname.startsWith("item[") &&
-          file.fieldname.endsWith("[image]")
-        ) {
-          const match = file.fieldname.match(/item\[(\d+)\]\[image\]/);
-
-          if (match) {
-            const itemIndex = parseInt(match[1]);
-
-            // Update image for the corresponding item
-
-            if (currentItems[itemIndex]) {
-              currentItems[itemIndex].images = [file.path];
-            }
-          }
-        }
-      });
-
-      updateData.item = currentItems;
-    }
-
-    // If no fields are provided, return error
-
-    if (Object.keys(updateData).length === 0) {
-      return res.status(400).json({
-        success: false,
-
-        message: "At least one field must be provided for update.",
-      });
-    }
-
-    const updatedItem = await FeedBackModel.findByIdAndUpdate(id, updateData, {
-      new: true,
-
-      upsert: false,
-    });
-
-    if (!updatedItem) {
-      return res.status(404).json({
-        success: false,
-
-        message: `Feedback item with ID ${id} not found.`,
-      });
-    }
-
-    return res.status(200).json({
-      success: true,
-
-      message: "Feedback item updated successfully.",
-
-      data: updatedItem,
-    });
-  } catch (error: any) {
-    console.error(
-      `Error updating Feedback item with ID ${req.params.id}:`,
-      error.message
-    );
-
-    return res.status(500).json({
-      success: false,
-
-      message: "Internal server error while updating Feedback item.",
-
-      error: error.message,
-    });
+    await existingFeedback.save({ session });
+    await session.commitTransaction();
+    
+    res.status(200).json({ success: true, data: existingFeedback });
+  } catch (error) {
+    await session.abortTransaction();
+    res.status(500).json({ success: false, message: "Error updating feedback", error });
+  } finally {
+    session.endSession();
   }
 };
 
-/**
- * Delete a Feedback item by ID
- */
+// Delete feedback by ID
 export const deleteFeedbackById = async (req: Request, res: Response) => {
+  const session = await FeedBackModel.startSession();
+  session.startTransaction();
+
   try {
     const { id } = req.params;
-    const { itemIndex } = req.query;
-
-    // If itemIndex is provided, delete specific item from array
-    if (itemIndex) {
-      const feedbackDoc = await FeedBackModel.findById(id);
-
-      if (!feedbackDoc) {
-        return res.status(404).json({
-          success: false,
-          message: `Feedback document with ID ${id} not found.`,
-        });
-      }
-
-      // Find and remove the item by index
-      const itemToDelete = feedbackDoc.item.find(
-        (item) => item.index === itemIndex
-      );
-
-      if (!itemToDelete) {
-        return res.status(404).json({
-          success: false,
-          message: `Feedback item with index ${itemIndex} not found.`,
-        });
-      }
-
-      // Remove the item from the array
-      const updatedItems = feedbackDoc.item.filter(
-        (item) => item.index !== itemIndex
-      );
-
-      // Re-index the remaining items
-      const reIndexedItems = updatedItems.map((item, index) => ({
-        ...item.toObject(),
-        index: (index + 1).toString(),
-      }));
-
-      // Update the document with the new array
-      const updatedDoc = await FeedBackModel.findByIdAndUpdate(
-        id,
-        { item: reIndexedItems },
-        { new: true }
-      );
-
-      return res.status(200).json({
-        success: true,
-        message: "Feedback item deleted successfully.",
-        data: updatedDoc,
-      });
+    const feedback = await FeedBackModel.findById(id).session(session);
+    
+    if (!feedback) {
+      await session.abortTransaction();
+      return res.status(404).json({ success: false, message: "Feedback not found" });
     }
 
-    // If no itemIndex, delete the entire document
-    const deletedItem = await FeedBackModel.findByIdAndDelete(id);
-
-    if (!deletedItem) {
-      return res.status(404).json({
-        success: false,
-        message: `Feedback item with ID ${id} not found.`,
-      });
+    // Delete image if exists
+    if (feedback.image) {
+      deleteImage(feedback.image);
     }
 
-    return res.status(200).json({
-      success: true,
-      message: "Feedback item deleted successfully.",
-      data: deletedItem,
-    });
-  } catch (error: any) {
-    console.error(
-      `Error deleting Feedback item with ID ${req.params.id}:`,
-      error.message
+    // Get the index of the feedback to be deleted
+    const deletedIndex = feedback.index;
+    
+    // Delete the feedback
+    await FeedBackModel.findByIdAndDelete(id, { session });
+    
+    // Decrement index for all feedbacks with index > deletedIndex
+    await FeedBackModel.updateMany(
+      { index: { $gt: deletedIndex } },
+      { $inc: { index: -1 } },
+      { session }
     );
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error while deleting Feedback item.",
-      error: error.message,
-    });
+
+    await session.commitTransaction();
+    res.status(200).json({ success: true, message: "Feedback deleted successfully" });
+  } catch (error) {
+    await session.abortTransaction();
+    res.status(500).json({ success: false, message: "Error deleting feedback", error });
+  } finally {
+    session.endSession();
   }
 };
