@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 
-const COMMODELSchema = new mongoose.Schema({
+const ModelSchema = new mongoose.Schema({
+    index: { type: Number, required: true, unique: true },
     name: { type: String, required: true },
     intro: {type: String, required: true},
     address: { type: String, required: true },
@@ -8,6 +9,9 @@ const COMMODELSchema = new mongoose.Schema({
     images: { type: [String] },
     gender: { type: String, required: true },
     slug: {type: String, required: true},
-});
+}, { timestamps: true });
 
-export const COMMODEL = mongoose.model("COMMODEL", COMMODELSchema);
+// Add indexing for efficient index-based queries
+ModelSchema.index({ index: 1 });
+
+export const Model = mongoose.model("Model", ModelSchema);

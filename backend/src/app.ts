@@ -16,7 +16,7 @@ const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || '').split(',').map(s => 
 import navRoute from "./routes/nav.route";
 import heroRoute from "./routes/hero.route";
 
-import modelsRoutes from "./routes/companyModels.route";
+import modelsRoutes from "./routes/model.route";
 import careerRoutes from "./routes/career.route";
 import feedbackRoutes from "./routes/feedback.route";
 import partnersRoutes from "./routes/partners.route";
