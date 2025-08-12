@@ -6,7 +6,7 @@ type NewsletterSubscriptionProps = {
 interface EventCardProps {
   title: string,
   slug: string,
-  date:string,
+  date: string,
   overview: string,
   coverImage: string,
   state: "ongoing" | "ended",
@@ -111,4 +111,12 @@ type UpcomingEventData = {
 type AdminUser = {
   email: string,
   role: 'admin',
+}
+
+type AuthContextType = {
+  user: AdminUser | null;
+  setUser: React.Dispatch<React.SetStateAction<AdminUser | null>>;
+  loading: boolean;
+  logout: () => void;
+  refreshAuth: () => void;
 }

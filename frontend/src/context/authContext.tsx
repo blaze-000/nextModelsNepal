@@ -2,14 +2,6 @@
 import Cookies from 'js-cookie';
 import { createContext, ReactNode, useEffect, useState } from "react";
 
-interface AuthContextType {
-  user: AdminUser | null;
-  setUser: React.Dispatch<React.SetStateAction<AdminUser | null>>;
-  loading: boolean;
-  logout: () => void;
-  refreshAuth: () => void;
-}
-
 export const authContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {

@@ -8,25 +8,27 @@ import compression from 'compression';
 import rateLimit from 'express-rate-limit';
 import morgan from 'morgan';
 
+import './config/eventStatusUpdater';
+
 // Environment configuration
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || '').split(',').map(s => s.trim()).filter(Boolean);
 
 import navRoute from "./routes/nav.route";
 import heroRoute from "./routes/hero.route";
-import eventRoutes from "./routes/event.route";
-import nextEventRoutes from "./routes/next-event.route";
+// import eventRoutes from "./routes/event.route";
+// import nextEventRoutes from "./routes/next-event.route";
 import modelsRoutes from "./routes/companyModels.route";
 import careerRoutes from "./routes/career.route";
 import feedbackRoutes from "./routes/feedback.route";
 import partnersRoutes from "./routes/partners.route";
 import newsRoutes from "./routes/news.route";
 import contactRoutes from "./routes/contact.route";
-import memberRoutes from "./routes/member.route";
+// import memberRoutes from "./routes/member.route";
 import hireRoutes from "./routes/hire.route";
 import appRoutes from "./routes/appForm.route"
-import authRoutes from "./routes/auth.route";
-
+import authRoutes from "./routes/auth.route"
+import EventsRoute from "./routes/event.route"
 const app = express();
 
 // Trust proxy if behind load balancer / reverse proxy (only in production)

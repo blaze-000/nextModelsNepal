@@ -10,7 +10,10 @@ const appModelSchema = new mongoose.Schema({
     email: { type: String, required: true },
 
     age: { type: String, required: true },
-    languages: [{ type: String, required: true }],
+    languages: {
+        type: [String],
+        required: true
+    },
     gender: { type: String, enum: ["Male", "Female", "Other"] },
     occupation: { type: String, required: true },
 
@@ -20,8 +23,7 @@ const appModelSchema = new mongoose.Schema({
     hairColor: { type: String },
     eyeColor: { type: String },
 
-    selectEvent: { type: mongoose.Schema.ObjectId, ref: "EventModel"},
-    event: {type: String},
+    event: { type: String },
     auditionPlace: { type: String },
 
     weight: { type: Number },
@@ -35,17 +37,9 @@ const appModelSchema = new mongoose.Schema({
 
     hobbies: { type: String },
     talents: { type: String },
-    hearedFrom: { type: String },
+    heardFrom: { type: String },
     additionalMessage: { type: String },
+}, { timestamps: true });
 
-    createdAt: { type: Date, default: Date.now },
-    updatedAt: { type: Date, default: Date.now },
-});
-
-// Update updatedAt before saving
-appModelSchema.pre("save", function (next) {
-    this.updatedAt = new Date();
-    next();
-});
 
 export const AppModel = mongoose.model("AppModel", appModelSchema);
