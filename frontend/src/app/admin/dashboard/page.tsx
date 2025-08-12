@@ -1,4 +1,33 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+
 export default function DashboardPage() {
+  const router = useRouter();
+
+  const quickActions = [
+    { 
+      title: "Add Model", 
+      icon: "ri-user-add-line",
+      href: "/admin/models"
+    },
+    { 
+      title: "Create Event", 
+      icon: "ri-calendar-add-line",
+      href: "/admin/events"
+    },
+    { 
+      title: "New Article", 
+      icon: "ri-article-line",
+      href: "/admin/news"
+    },
+    { 
+      title: "View Feedback", 
+      icon: "ri-message-2-line",
+      href: "/admin/feedback"
+    },
+  ];
+
   return (
     <>
     <div className="space-y-6">

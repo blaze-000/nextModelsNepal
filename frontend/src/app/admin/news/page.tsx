@@ -1,532 +1,324 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { toast } from "sonner";
 import Image from "next/image";
 
 import PageHeader from "@/components/admin/PageHeader";
-import Modal from "@/components/admin/Modal";
+import DataTable from "@/components/admin/DataTable";
 import { AdminButton } from "@/components/admin/AdminButton";
-import Input from "@/components/admin/form/input";
-import Textarea from "@/components/admin/form/textarea";
-import Select from "@/components/admin/form/select";
-import PhotoUpload from "@/components/admin/form/photo-upload";
+import NewsPopup from "./NewsPopup";
 
 import Axios from "@/lib/axios-instance";
-import { News, NewsFormData, Event } from "@/types/admin";
-import { Button } from "@/components/ui/button";
+import { News, Event } from "@/types/admin";
 
-const initialFormData: NewsFormData = {
-  title: "",
-  description: "",
-  content: "",
-  year: new Date().getFullYear().toString(),
-  images: [],
-  event: "",
+// Statistics calculation hook
+const useNewsStatistics = (news: News[]) => {
+  return useMemo(() => {
+    const total = news.length;
+    const currentYear = new Date().getFullYear();
+    const thisYear = news.filter(
+      (article) => parseInt(article.year) === currentYear
+    ).length;
+    const lastYear = news.filter(
+      (article) => parseInt(article.year) === currentYear - 1
+    ).length;
+    const withEvents = news.filter((article) => article.event).length;
+
+    return { total, thisYear, lastYear, withEvents };
+  }, [news]);
 };
 
 export default function NewsPage() {
   const [news, setNews] = useState<News[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [editingNews, setEditingNews] = useState<News | null>(null);
-  const [viewingNews, setViewingNews] = useState<News | null>(null);
-  const [formData, setFormData] = useState<NewsFormData>(initialFormData);
-  const [submitting, setSubmitting] = useState(false);
-  const [isDeleting, setIsDeleting] = useState<string | null>(null);
-  const [errors, setErrors] = useState<Record<string, string>>({});
 
+  const statistics = useNewsStatistics(news);
+
+  // Fetch news function
+  const fetchNews = useCallback(() => {
+    setLoading(true);
+    Axios.get("/api/news")
+      .then((response) => {
+        if (response.data.success && response.data.data) {
+          setNews(response.data.data);
+        } else {
+          toast.error(response.data.message || "Failed to fetch news");
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching news:", error);
+        toast.error("Failed to load news");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
+
+  // Fetch events function
+  const fetchEvents = useCallback(() => {
+    Axios.get("/api/events")
+      .then((response) => {
+        if (response.data.success && response.data.data) {
+          setEvents(response.data.data);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching events:", error);
+      });
+  }, []);
+
+  // Initial data fetch
   useEffect(() => {
     fetchNews();
     fetchEvents();
+  }, [fetchNews, fetchEvents]);
+
+  // Modal handlers
+  const handleCreateNews = useCallback(() => {
+    setEditingNews(null);
+    setIsPopupOpen(true);
   }, []);
 
-  const fetchNews = async () => {
-    try {
-      setLoading(true);
-      const response = await Axios.get("/api/news");
-      const data = response.data;
-      if (data.success && data.data) {
-        setNews(data.data);
-      }
-    } catch (error) {
-      toast.error("Failed to fetch news");
-      console.error("Error fetching news:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchEvents = async () => {
-    try {
-      const response = await Axios.get("/api/events");
-      const data = response.data;
-      if (data.success && data.data) {
-        setEvents(data.data);
-      }
-    } catch (error) {
-      console.error("Error fetching events:", error);
-    }
-  };
-
-  const handleCreate = () => {
-    setEditingNews(null);
-    setFormData(initialFormData);
-    setErrors({});
-    setIsModalOpen(true);
-  };
-
-  const handleEdit = (newsItem: News) => {
+  const handleEditNews = useCallback((newsItem: News) => {
     setEditingNews(newsItem);
-    setFormData({
-      title: newsItem.title,
-      description: newsItem.description,
-      content: newsItem.content,
-      year: newsItem.year,
-      images: [],
-      event: newsItem.event || "",
-    });
-    setErrors({});
-    setIsModalOpen(true);
-  };
+    setIsPopupOpen(true);
+  }, []);
 
-  const handleView = (newsItem: News) => {
-    setViewingNews(newsItem);
-    setIsViewModalOpen(true);
-  };
+  const handleClosePopup = useCallback(() => {
+    setIsPopupOpen(false);
+    setEditingNews(null);
+  }, []);
 
-  const handleDelete = async (newsItem: News) => {
-    if (!confirm("Are you sure you want to delete this news article?")) return;
+  const handleDeleteNews = useCallback(
+    (newsItem: News) => {
+      const confirmMessage = `Are you sure you want to delete "${newsItem.title}"? This action cannot be undone.`;
 
-    setIsDeleting(newsItem._id);
-    try {
-      const response = await Axios.delete(`/api/news/${newsItem._id}`);
-      const data = response.data;
-      if (data.success) {
-        toast.success("News article deleted successfully");
-        fetchNews();
-      } else {
-        toast.error("Failed to delete news article");
-      }
-    } catch (error) {
-      toast.error("Failed to delete news article");
-      console.error("Error deleting news:", error);
-    } finally {
-      setIsDeleting(null);
-    }
-  };
-
-  const handleInputChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev: NewsFormData) => ({ ...prev, [name]: value }));
-    if (errors[name]) {
-      setErrors((prev: Record<string, string>) => ({ ...prev, [name]: "" }));
-    }
-  };
-
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    setFormData((prev: NewsFormData) => ({
-      ...prev,
-      images: [...prev.images, ...files],
-    }));
-    if (errors.images) {
-      setErrors((prev: Record<string, string>) => ({ ...prev, images: "" }));
-    }
-  };
-
-  const handleRemovePhoto = (index: number) => {
-    setFormData((prev: NewsFormData) => ({
-      ...prev,
-      images: prev.images.filter((_: File, i: number) => i !== index),
-    }));
-  };
-
-  const validateForm = (): boolean => {
-    const newErrors: Record<string, string> = {};
-
-    if (!formData.title.trim()) newErrors.title = "Title is required";
-    if (!formData.description.trim())
-      newErrors.description = "Description is required";
-    if (!formData.content.trim()) newErrors.content = "Content is required";
-    if (!formData.year.trim()) newErrors.year = "Year is required";
-
-    if (!editingNews && formData.images.length === 0) {
-      newErrors.images = "At least one image is required";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!validateForm()) return;
-
-    setSubmitting(true);
-    const submitFormData = new FormData();
-
-    submitFormData.append("title", formData.title);
-    submitFormData.append("description", formData.description);
-    submitFormData.append("content", formData.content);
-    submitFormData.append("year", formData.year);
-    if (formData.event) {
-      submitFormData.append("event", formData.event);
-    }
-
-    formData.images.forEach((image: File) => {
-      submitFormData.append("images", image);
-    });
-
-    try {
-      let response;
-      if (editingNews) {
-        // Update existing news
-        response = await Axios.patch(
-          `/api/news/${editingNews._id}`,
-          submitFormData
-        );
-      } else {
-        // Create new news
-        response = await Axios.post("/api/news", submitFormData);
+      if (!window.confirm(confirmMessage)) {
+        return;
       }
 
-      const data = response.data;
-      if (data.success) {
-        toast.success(
-          `News article ${editingNews ? "updated" : "created"} successfully`
-        );
-        setIsModalOpen(false);
-        fetchNews();
-      } else {
-        toast.error(
-          `Failed to ${editingNews ? "update" : "create"} news article`
-        );
-      }
-    } catch (error) {
-      toast.error(
-        `Failed to ${editingNews ? "update" : "create"} news article`
-      );
-      console.error("Error submitting news:", error);
-    } finally {
-      setSubmitting(false);
-    }
-  };
+      Axios.delete(`/api/news/${newsItem._id}`)
+        .then((response) => {
+          if (response.data.success) {
+            toast.success("News article deleted successfully");
+            fetchNews(); // Refresh the list
+          } else {
+            toast.error(response.data.message || "Failed to delete news");
+          }
+        })
+        .catch((error) => {
+          console.error("Error deleting news:", error);
+          toast.error("Failed to delete news article");
+        });
+    },
+    [fetchNews]
+  );
 
-  const eventOptions = events.map((event) => ({
-    value: event._id,
-    label: event.title,
-  }));
+  const handlePopupSuccess = useCallback(() => {
+    fetchNews(); // Refresh the list after successful create/edit
+  }, [fetchNews]);
 
-  if (loading) {
-    return (
-      <div className="space-y-6">
-        <PageHeader
-          title="News"
-          description="Manage news articles and press coverage"
-        />
-        <div className="flex justify-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gold-500"></div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-6">
-      <PageHeader
-        title="News"
-        description="Manage news articles and press coverage"
-      >
-        <Button variant="default" onClick={handleCreate}>
-          Add News Article
-        </Button>
-      </PageHeader>
-
-      {news.length === 0 ? (
-        <div className="text-center py-12 text-gray-400">
-          No news articles found. Create your first news article to get started.
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {news.map((newsItem) => {
-            const linkedEvent = events.find(
-              (event) => event._id === newsItem.event
-            );
-
-            return (
-              <div
-                key={newsItem._id}
-                className="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden hover:border-gold-500/50 transition-all duration-200 group"
-              >
-                {/* Image */}
-                {newsItem.images && newsItem.images.length > 0 && (
-                  <div className="aspect-video relative overflow-hidden">
-                    <Image
-                      src={`http://localhost:8000/${newsItem.images[0]}`}
-                      alt={newsItem.title}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-200"
-                      unoptimized
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-                  </div>
-                )}
-
-                {/* Content */}
-                <div className="p-4 space-y-3">
-                  {/* Title */}
-                  <h3 className="font-semibold text-gray-100 text-lg line-clamp-2 leading-tight group-hover:text-gold-400 transition-colors">
-                    {newsItem.title}
-                  </h3>
-
-                  {/* Description */}
-                  <p className="text-gray-400 text-sm line-clamp-3 leading-relaxed">
-                    {newsItem.description}
-                  </p>
-
-                  {/* Year and Event */}
-                  <div className="flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-1 text-gray-500">
-                      <i className="ri-calendar-line text-xs" />
-                      <span>{newsItem.year}</span>
-                    </div>
-                    {linkedEvent && (
-                      <div className="flex items-center gap-1 bg-gold-500/20 text-gold-400 px-2 py-1 rounded-full">
-                        <i className="ri-external-link-line text-xs" />
-                        <span className="truncate max-w-20">
-                          {linkedEvent.title}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Content Length */}
-                  <div className="flex items-center gap-1 text-xs text-gray-500 pt-1">
-                    <i className="ri-file-text-line text-xs" />
-                    <span>{newsItem.content.length} characters</span>
-                    {newsItem.images && newsItem.images.length > 1 && (
-                      <>
-                        <span>•</span>
-                        <span>{newsItem.images.length} images</span>
-                      </>
-                    )}
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex items-center justify-between pt-3 border-t border-gray-700">
-                    <button
-                      onClick={() => handleView(newsItem)}
-                      className="flex items-center gap-1 text-xs text-gray-400 hover:text-gold-400 transition-colors"
-                    >
-                      <i className="ri-eye-line text-xs" />
-                      <span>View</span>
-                    </button>
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => handleEdit(newsItem)}
-                        className="p-1.5 text-gray-400 hover:text-gold-400 hover:bg-gold-500/10 rounded transition-colors"
-                        title="Edit news"
-                      >
-                        <i className="ri-pencil-line text-sm" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(newsItem)}
-                        disabled={isDeleting === newsItem._id}
-                        className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded transition-colors disabled:opacity-50"
-                        title="Delete news"
-                      >
-                        {isDeleting === newsItem._id ? (
-                          <div className="w-4 h-4 animate-spin rounded-full border-b border-red-400"></div>
-                        ) : (
-                          <i className="ri-delete-bin-line text-sm" />
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Create/Edit Modal */}
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title={editingNews ? "Edit News Article" : "Create News Article"}
-        size="xl"
-      >
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="md:col-span-2">
-              <Input
-                label="Title"
-                name="title"
-                value={formData.title}
-                onChange={handleInputChange}
-                placeholder="Enter article title"
-                error={errors.title}
-                required
+  // Table columns configuration
+  const tableColumns = useMemo(
+    () => [
+      {
+        key: "images",
+        label: "Photo",
+        sortable: false,
+        render: (value: unknown) => (
+          <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 flex-shrink-0">
+            {value && Array.isArray(value) && value.length > 0 ? (
+              <Image
+                src={`http://localhost:8000/${value[0]}`}
+                alt="News image"
+                width={64}
+                height={64}
+                className="w-full h-full object-cover"
+                unoptimized
               />
-            </div>
-            <Input
-              label="Year"
-              name="year"
-              value={formData.year}
-              onChange={handleInputChange}
-              placeholder="Enter year"
-              error={errors.year}
-              required
-            />
-          </div>
-
-          <Textarea
-            label="Description"
-            name="description"
-            value={formData.description}
-            onChange={handleInputChange}
-            placeholder="Enter article description"
-            error={errors.description}
-            required
-            rows={3}
-          />
-
-          <Textarea
-            label="Content"
-            name="content"
-            value={formData.content}
-            onChange={handleInputChange}
-            placeholder="Enter full article content"
-            error={errors.content}
-            required
-            rows={8}
-          />
-
-          <Select
-            label="Related Event (Optional)"
-            name="event"
-            value={formData.event || ""}
-            onChange={handleInputChange}
-            options={eventOptions}
-            placeholder="Select an event..."
-          />
-
-          <PhotoUpload
-            label="Images"
-            name="images"
-            onChange={handlePhotoChange}
-            selectedFiles={formData.images}
-            onRemoveFile={handleRemovePhoto}
-            error={errors.images}
-            required={!editingNews}
-            maxFiles={10}
-          />
-
-          <div className="flex justify-end gap-3 pt-4 border-t border-gray-600">
-            <AdminButton
-              variant="ghost"
-              onClick={() => setIsModalOpen(false)}
-              type="button"
-            >
-              Cancel
-            </AdminButton>
-            <AdminButton type="submit" disabled={submitting}>
-              {submitting ? "Saving..." : editingNews ? "Update" : "Create"}{" "}
-              Article
-            </AdminButton>
-          </div>
-        </form>
-      </Modal>
-
-      {/* View Modal */}
-      <Modal
-        isOpen={isViewModalOpen}
-        onClose={() => setIsViewModalOpen(false)}
-        title="View News Article"
-        size="xl"
-      >
-        {viewingNews && (
-          <div className="p-6 space-y-6">
-            <div className="flex items-start justify-between">
-              <div>
-                <h3 className="text-xl font-semibold text-gray-100 mb-2">
-                  {viewingNews.title}
-                </h3>
-                <div className="flex items-center gap-4 text-sm text-gray-400">
-                  <span>Year: {viewingNews.year}</span>
-                  <span>•</span>
-                  <span>{viewingNews.images?.length || 0} images</span>
-                  {viewingNews.event && (
-                    <>
-                      <span>•</span>
-                      <span className="text-gold-400">
-                        Event:{" "}
-                        {events.find((e) => e._id === viewingNews.event)
-                          ?.title || "Unknown"}
-                      </span>
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h4 className="font-medium text-gray-300 mb-2">Description</h4>
-              <p className="text-gray-400 leading-relaxed">
-                {viewingNews.description}
-              </p>
-            </div>
-
-            <div>
-              <h4 className="font-medium text-gray-300 mb-2">Content</h4>
-              <div className="text-gray-400 leading-relaxed whitespace-pre-wrap max-h-60 overflow-y-auto">
-                {viewingNews.content}
-              </div>
-            </div>
-
-            {viewingNews.images && viewingNews.images.length > 0 && (
-              <div>
-                <h4 className="font-medium text-gray-300 mb-3">Images</h4>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  {viewingNews.images.map((image, index) => (
-                    <div
-                      key={index}
-                      className="aspect-square bg-gray-800 rounded-lg border border-gray-600 overflow-hidden"
-                    >
-                      <Image
-                        src={`http://localhost:8000/${image}`}
-                        alt={`News image ${index + 1}`}
-                        className="w-full h-full object-cover"
-                        width={200}
-                        height={200}
-                        unoptimized
-                      />
-                    </div>
-                  ))}
-                </div>
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500">
+                <i className="ri-image-line text-xl" />
               </div>
             )}
+          </div>
+        ),
+      },
+      {
+        key: "title",
+        label: "Title",
+        sortable: true,
+        render: (value: unknown) => (
+          <div className="font-medium text-sm sm:text-base text-gray-900 dark:text-gray-100">
+            {String(value)}
+          </div>
+        ),
+      },
+      {
+        key: "description",
+        label: "Description",
+        sortable: false,
+        render: (value: unknown) => (
+          <div
+            className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 truncate max-w-40 sm:max-w-xs"
+            title={String(value)}
+          >
+            {String(value)}
+          </div>
+        ),
+      },
+      {
+        key: "year",
+        label: "Year",
+        sortable: true,
+        render: (value: unknown) => (
+          <span className="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 px-2 py-1 rounded font-medium">
+            {String(value)}
+          </span>
+        ),
+      },
+      {
+        key: "event",
+        label: "Event",
+        sortable: false,
+        render: (value: unknown) => {
+          if (!value) {
+            return (
+              <span className="text-xs text-gray-400 dark:text-gray-500">
+                No event
+              </span>
+            );
+          }
+          const linkedEvent = events.find((event) => event._id === value);
+          return linkedEvent ? (
+            <span className="text-xs bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 px-2 py-1 rounded font-medium">
+              {linkedEvent.title}
+            </span>
+          ) : (
+            <span className="text-xs text-gray-400 dark:text-gray-500">
+              Unknown event
+            </span>
+          );
+        },
+      },
+      {
+        key: "images",
+        label: "Gallery",
+        sortable: false,
+        render: (value: unknown) => {
+          const images = value as string[];
+          const count = images?.length || 0;
+          return (
+            <div className="flex items-center">
+              <span className="text-xs bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 px-2 py-1 rounded font-medium">
+                {count} {count === 1 ? "image" : "images"}
+              </span>
+            </div>
+          );
+        },
+      },
+    ],
+    [events]
+  );
 
-            <div className="flex justify-end pt-4 border-t border-gray-600">
-              <AdminButton
-                variant="ghost"
-                onClick={() => setIsViewModalOpen(false)}
+  // Statistics card data
+  const statisticsCards = useMemo(
+    () => [
+      {
+        title: "Total Articles",
+        value: statistics.total,
+        icon: "ri-newspaper-line",
+        bgColor: "bg-blue-100 dark:bg-blue-900/30",
+        textColor: "text-blue-600 dark:text-blue-400",
+      },
+      {
+        title: "This Year",
+        value: statistics.thisYear,
+        icon: "ri-calendar-line",
+        bgColor: "bg-green-100 dark:bg-green-900/30",
+        textColor: "text-green-600 dark:text-green-400",
+      },
+      {
+        title: "Last Year",
+        value: statistics.lastYear,
+        icon: "ri-history-line",
+        bgColor: "bg-yellow-100 dark:bg-yellow-900/30",
+        textColor: "text-yellow-600 dark:text-yellow-400",
+      },
+      {
+        title: "With Events",
+        value: statistics.withEvents,
+        icon: "ri-links-line",
+        bgColor: "bg-purple-100 dark:bg-purple-900/30",
+        textColor: "text-purple-600 dark:text-purple-400",
+      },
+    ],
+    [statistics]
+  );
+
+  return (
+    <div className="space-y-4 sm:space-y-6 p-2 sm:p-6 lg:p-2">
+      <PageHeader
+        title="News Management"
+        description="Manage news articles and press coverage for your website"
+      >
+        <AdminButton onClick={handleCreateNews} className="w-full sm:w-auto">
+          Add News Article
+        </AdminButton>
+      </PageHeader>
+
+      {/* Statistics Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        {statisticsCards.map((card, index) => (
+          <div
+            key={index}
+            className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6 transition-colors duration-200"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                  {card.title}
+                </p>
+                <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
+                  {loading ? "..." : card.value}
+                </p>
+              </div>
+              <div
+                className={`w-10 h-10 sm:w-12 sm:h-12 ${card.bgColor} rounded-lg flex items-center justify-center flex-shrink-0`}
               >
-                Close
-              </AdminButton>
+                <i
+                  className={`${card.icon} ${card.textColor} text-lg sm:text-xl`}
+                />
+              </div>
             </div>
           </div>
-        )}
-      </Modal>
+        ))}
+      </div>
+
+      {/* News Table */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden transition-colors duration-200">
+        <DataTable
+          data={news}
+          columns={tableColumns}
+          onEdit={handleEditNews}
+          onDelete={handleDeleteNews}
+          loading={loading}
+          emptyMessage="No news articles found. Create your first article to get started."
+          searchPlaceholder="Search news by title, description, or year..."
+        />
+      </div>
+
+      {/* News Popup */}
+      <NewsPopup
+        isOpen={isPopupOpen}
+        onClose={handleClosePopup}
+        editingNews={editingNews}
+        onSuccess={handlePopupSuccess}
+      />
     </div>
   );
 }

@@ -1,13 +1,12 @@
 import { Router } from "express";
-import { 
-    createFeedbackItem, 
-    deleteFeedbackById, 
-    getFeedbackById, 
-    getFeedbackItems, 
-    updateFeedbackById 
+import {
+  createFeedbackItem,
+  deleteFeedbackById,
+  getFeedbackById,
+  getFeedbackItems,
+  updateFeedbackById,
 } from "../controllers/feedback.controller";
 import { uploadAnyImages } from "../middleware/multer.middleware";
-
 
 const router = Router();
 
@@ -26,4 +25,4 @@ router.route("/:id").patch(uploadAnyImages, updateFeedbackById);
 // Delete feedback item by ID (admin only)
 router.route("/:id").delete(deleteFeedbackById);
 
-export default router; 
+export default router;

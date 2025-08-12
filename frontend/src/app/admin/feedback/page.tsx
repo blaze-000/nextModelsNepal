@@ -6,30 +6,21 @@ import Image from "next/image";
 
 import PageHeader from "@/components/admin/PageHeader";
 import DataTable from "@/components/admin/DataTable";
-import Modal from "@/components/admin/Modal";
+import FeedbackPopup from "@/app/admin/feedback/FeedbackPopup";
 import { AdminButton } from "@/components/admin/AdminButton";
-import Input from "@/components/admin/form/input";
-import Textarea from "@/components/admin/form/textarea";
-import PhotoUpload from "@/components/admin/form/photo-upload";
 import Axios from "@/lib/axios-instance";
-import { Feedback, FeedbackItem, FeedbackFormData } from "@/types/admin";
-
-const initialFormData: FeedbackFormData = {
-  name: "",
-  message: "",
-  image: null,
-};
+import { FeedbackItem, Feedback } from "@/types/admin";
 
 export default function FeedbackPage() {
   const [feedbackData, setFeedbackData] = useState<Feedback | null>(null);
   const [loading, setLoading] = useState(true);
+  const [statistics, setStatistics] = useState({
+    totalFeedback: 0,
+  });
 
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<FeedbackItem | null>(null);
-  const [formData, setFormData] = useState<FeedbackFormData>(initialFormData);
-  const [submitting, setSubmitting] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Fetch feedback data
   const fetchFeedback = useCallback(async () => {
@@ -37,17 +28,16 @@ export default function FeedbackPage() {
       setLoading(true);
       const response = await Axios.get("/api/feedback");
       const data = response.data;
-      
+
       if (data.success && data.data) {
-
         const feedbackDocuments = data.data as Feedback;
-        
-
-        if (feedbackDocuments) {
-          setFeedbackData(feedbackDocuments);
-        } else {
-          setFeedbackData(null);
-        }
+        setFeedbackData(feedbackDocuments);
+        setStatistics({
+          totalFeedback: feedbackDocuments?.item?.length || 0,
+        });
+      } else {
+        setFeedbackData(null);
+        setStatistics({ totalFeedback: 0 });
       }
     } catch (error) {
       toast.error("Failed to fetch feedback data");
@@ -64,19 +54,11 @@ export default function FeedbackPage() {
   // Modal handlers
   const handleCreate = useCallback(() => {
     setEditingItem(null);
-    setFormData(initialFormData);
-    setErrors({});
     setIsModalOpen(true);
   }, []);
 
   const handleEdit = useCallback((item: FeedbackItem) => {
     setEditingItem(item);
-    setFormData({
-      name: item.name,
-      message: item.message,
-      image: null,
-    });
-    setErrors({});
     setIsModalOpen(true);
   }, []);
 
@@ -92,30 +74,11 @@ export default function FeedbackPage() {
       try {
         if (!feedbackData) return;
 
-        // Remove the item from the feedback data
-        const updatedItems = feedbackData.item.filter(
-          (feedbackItem) => feedbackItem.index !== item.index
+        // Use the existing endpoint with itemIndex query parameter
+        const response = await Axios.delete(
+          `/api/feedback/${feedbackData._id}?itemIndex=${item.index}`
         );
 
-        // Re-index the remaining items
-        const reIndexedItems = updatedItems.map((feedbackItem, index) => ({
-          ...feedbackItem,
-          index: (index + 1).toString(),
-        }));
-
-        const submitData = new FormData();
-        reIndexedItems.forEach((feedbackItem, index) => {
-          submitData.append(`item[${index}][name]`, feedbackItem.name);
-          submitData.append(`item[${index}][message]`, feedbackItem.message);
-          if (feedbackItem.images) {
-            submitData.append(`item[${index}][images]`, feedbackItem.images);
-          }
-        });
-
-        const response = await Axios.patch(
-          `/api/feedback/${feedbackData._id}`,
-          submitData
-        );
         const data = response.data;
         if (data.success) {
           toast.success("Feedback deleted successfully");
@@ -124,8 +87,10 @@ export default function FeedbackPage() {
           toast.error("Failed to delete feedback");
         }
       } catch (error) {
-        toast.error("Failed to delete feedback");
         console.error("Error deleting feedback:", error);
+        const errorMessage =
+          error instanceof Error ? error.message : "Failed to delete feedback";
+        toast.error(errorMessage);
       }
     },
     [feedbackData, fetchFeedback]
@@ -134,157 +99,11 @@ export default function FeedbackPage() {
   const closeModal = useCallback(() => {
     setIsModalOpen(false);
     setEditingItem(null);
-    setFormData(initialFormData);
-    setErrors({});
   }, []);
 
-  // Form handlers
-  const handleInputChange = useCallback(
-    (
-      e: React.ChangeEvent<
-        HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-      >
-    ) => {
-      const { name, value } = e.target;
-      setFormData((prev) => ({ ...prev, [name]: value }));
-      if (errors[name]) {
-        setErrors((prev) => ({ ...prev, [name]: "" }));
-      }
-    },
-    [errors]
-  );
-
-  const handleImageChange = useCallback(
-    (index: number, file: File | null) => {
-      setFormData((prev) => ({ ...prev, image: file }));
-      if (errors.image) {
-        setErrors((prev) => ({ ...prev, image: "" }));
-      }
-    },
-    [errors]
-  );
-
-  // Validation
-  const validateForm = useCallback((): boolean => {
-    const newErrors: Record<string, string> = {};
-
-    if (!formData.name.trim()) newErrors.name = "Name is required";
-    if (!formData.message.trim()) newErrors.message = "Message is required";
-
-    if (!editingItem && !formData.image) {
-      newErrors.image = "Image is required";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  }, [editingItem, formData]);
-
-  const handleSubmit = useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault();
-
-      if (!validateForm()) return;
-
-      setSubmitting(true);
-      const submitFormData = new FormData();
-
-      try {
-        if (editingItem) {
-          // Update existing feedback item
-          if (!feedbackData) return;
-
-          const updatedItems = feedbackData.item.map((item) =>
-            item.index === editingItem.index
-              ? {
-                  ...item,
-                  name: formData.name,
-                  message: formData.message,
-                  // Keep existing image if no new image is uploaded
-                }
-              : item
-          );
-
-          updatedItems.forEach((item, index) => {
-            submitFormData.append(
-              `item[${index}][index]`,
-              (index + 1).toString()
-            );
-            submitFormData.append(`item[${index}][name]`, item.name);
-            submitFormData.append(`item[${index}][message]`, item.message);
-            if (item.index === editingItem.index && formData.image) {
-              // Upload new image for this specific item
-              submitFormData.append(`item[${index}][image]`, formData.image);
-            } else if (item.images) {
-              // Keep existing image path
-              submitFormData.append(`item[${index}][images]`, item.images);
-            }
-          });
-
-          const response = await Axios.patch(
-            `/api/feedback/${feedbackData._id}`,
-            submitFormData,
-            {
-              headers: {
-                "Content-Type": "multipart/form-data",
-              },
-            }
-          );
-          const data = response.data;
-          if (data.success) {
-            toast.success("Feedback updated successfully");
-            closeModal();
-            fetchFeedback();
-          } else {
-            toast.error("Failed to update feedback");
-          }
-        } else {
-          // Always create a new feedback item (individual document)
-          submitFormData.append(`item[0][index]`, "1");
-          submitFormData.append(`item[0][name]`, formData.name);
-          submitFormData.append(`item[0][message]`, formData.message);
-          if (formData.image) {
-            submitFormData.append(`item[0][image]`, formData.image);
-          }
-
-          const response = await Axios.post("/api/feedback", submitFormData, {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          });
-          const data = response.data;
-          if (data.success) {
-            toast.success("Feedback created successfully");
-            closeModal();
-            fetchFeedback();
-          } else {
-            toast.error("Failed to create feedback");
-          }
-        }
-      } catch (error: unknown) {
-        console.error("Error submitting feedback:", error);
-        const isAxiosError =
-          error && typeof error === "object" && "response" in error;
-        const errorMessage = isAxiosError
-          ? (error as { response?: { data?: { message?: string } } }).response
-              ?.data?.message
-          : undefined;
-        toast.error(
-          errorMessage ||
-            `Failed to ${editingItem ? "update" : "create"} feedback`
-        );
-      } finally {
-        setSubmitting(false);
-      }
-    },
-    [
-      editingItem,
-      formData,
-      validateForm,
-      closeModal,
-      fetchFeedback,
-      feedbackData,
-    ]
-  );
+  const handlePopupSuccess = useCallback(() => {
+    fetchFeedback();
+  }, [fetchFeedback]);
 
   // Table columns configuration
   const columns = [
@@ -292,7 +111,7 @@ export default function FeedbackPage() {
       key: "images",
       label: "Photo",
       render: (value: unknown) => (
-        <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-800 rounded-lg overflow-hidden border border-gray-600 flex-shrink-0">
+        <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 flex-shrink-0">
           {value && typeof value === "string" ? (
             <Image
               src={`http://localhost:8000/${String(value)}`}
@@ -303,7 +122,7 @@ export default function FeedbackPage() {
               unoptimized
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-gray-500">
+            <div className="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500">
               <i className="ri-image-line text-xl" />
             </div>
           )}
@@ -315,14 +134,16 @@ export default function FeedbackPage() {
       label: "Name",
       sortable: true,
       render: (value: unknown) => (
-        <div className="font-medium text-sm sm:text-base">{String(value)}</div>
+        <div className="font-medium text-sm sm:text-base text-gray-900 dark:text-gray-100">
+          {String(value)}
+        </div>
       ),
     },
     {
       key: "message",
       label: "Message",
       render: (value: unknown) => (
-        <div className="text-xs sm:text-sm text-gray-300 truncate max-w-40 sm:max-w-xs">
+        <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate max-w-40 sm:max-w-xs">
           {String(value)}
         </div>
       ),
@@ -332,17 +153,21 @@ export default function FeedbackPage() {
       label: "Order",
       sortable: true,
       render: (value: unknown) => (
-        <span className="text-xs bg-gold-500/20 text-gold-400 px-2 py-1 rounded">
+        <span className="text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-2 py-1 rounded">
           #{String(value)}
         </span>
       ),
     },
   ];
 
-  const feedbackItems = feedbackData?.item || [];
+  const feedbackItems =
+    feedbackData?.item.map((item, arrayIndex) => ({
+      ...item,
+      _id: `${feedbackData._id}-${arrayIndex}`, // Create a unique ID for DataTable
+    })) || [];
 
   return (
-    <div className="space-y-4 sm:space-y-6 p-2 sm:p-6 lg:p-2">
+    <div className="space-y-6 sm:space-y-6 p-2 sm:p-6 lg:p-2">
       <PageHeader
         title="Feedback Management"
         description="Manage customer feedback and testimonials for your website"
@@ -352,8 +177,75 @@ export default function FeedbackPage() {
         </AdminButton>
       </PageHeader>
 
+      {/* Statistics Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6 transition-colors duration-200">
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                Total Feedback
+              </p>
+              <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
+                {loading ? "..." : statistics.totalFeedback}
+              </p>
+            </div>
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
+              <i className="ri-chat-quote-line text-blue-600 dark:text-blue-400 text-lg sm:text-xl" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6 transition-colors duration-200">
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                Published
+              </p>
+              <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
+                {loading ? "..." : statistics.totalFeedback}
+              </p>
+            </div>
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
+              <i className="ri-check-line text-green-600 dark:text-green-400 text-lg sm:text-xl" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6 transition-colors duration-200">
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                This Month
+              </p>
+              <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
+                {loading ? "..." : "0"}
+              </p>
+            </div>
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
+              <i className="ri-calendar-line text-indigo-600 dark:text-indigo-400 text-lg sm:text-xl" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6 transition-colors duration-200">
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                Average Rating
+              </p>
+              <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
+                {loading ? "..." : "5.0"}
+              </p>
+            </div>
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
+              <i className="ri-star-line text-yellow-600 dark:text-yellow-400 text-lg sm:text-xl" />
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Feedback Table */}
-      <div className="overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden transition-colors duration-200">
         <DataTable
           data={feedbackItems}
           columns={columns}
@@ -366,99 +258,13 @@ export default function FeedbackPage() {
       </div>
 
       {/* Add/Edit Modal */}
-      <Modal
+      <FeedbackPopup
         isOpen={isModalOpen}
         onClose={closeModal}
-        title={editingItem ? "Edit Feedback" : "Add New Feedback"}
-        size="lg"
-      >
-        <form
-          onSubmit={handleSubmit}
-          className="p-4 sm:p-6 space-y-4 sm:space-y-6"
-        >
-          {/* Basic Information */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gold-400 border-b border-gray-700 pb-2">
-              Feedback Information
-            </h3>
-
-            <Input
-              label="Name"
-              name="name"
-              value={formData.name}
-              onChange={handleInputChange}
-              placeholder="Enter customer name"
-              error={errors.name}
-              required
-            />
-
-            <Textarea
-              label="Message"
-              name="message"
-              value={formData.message}
-              onChange={handleInputChange}
-              placeholder="Enter feedback message..."
-              error={errors.message}
-              required
-              rows={4}
-            />
-
-            {/* Image Upload */}
-            <PhotoUpload
-              label="Feedback Image"
-              name="image"
-              mode="single"
-              selectedFiles={formData.image ? [formData.image] : []}
-              onImageChange={handleImageChange}
-              error={errors.image}
-              required={!editingItem}
-              acceptedTypes={["image/*"]}
-              maxFileSize={5}
-            />
-
-            {editingItem && editingItem.images && !formData.image && (
-              <div className="mt-4 p-3 bg-gray-800/50 rounded-lg border border-gray-600">
-                <p className="text-sm text-gray-400 mb-2">Current Image:</p>
-                <div className="w-20 h-20 bg-gray-800 rounded-lg overflow-hidden border border-gray-600">
-                  <Image
-                    src={`http://localhost:8000/${editingItem.images}`}
-                    alt={editingItem.name}
-                    width={80}
-                    height={80}
-                    className="w-full h-full object-cover"
-                    unoptimized
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Submit Buttons */}
-          <div className="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t border-gray-700">
-            <AdminButton
-              variant="ghost"
-              onClick={closeModal}
-              type="button"
-              className="order-2 sm:order-1"
-            >
-              Cancel
-            </AdminButton>
-            <AdminButton
-              type="submit"
-              disabled={submitting}
-              className="order-1 sm:order-2"
-            >
-              {submitting
-                ? editingItem
-                  ? "Updating..."
-                  : "Adding..."
-                : editingItem
-                ? "Update Feedback"
-                : "Add Feedback"}
-            </AdminButton>
-          </div>
-        </form>
-      </Modal>
+        editingItem={editingItem}
+        feedbackData={feedbackData}
+        onSuccess={handlePopupSuccess}
+      />
     </div>
   );
 }
