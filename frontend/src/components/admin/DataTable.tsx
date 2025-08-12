@@ -83,7 +83,7 @@ export default function DataTable<T extends { _id: string }>({
     <div className="space-y-4">
       {/* Search Bar */}
       <div className="flex justify-between items-center">
-        <div className="relative max-w-md">
+        <div className="relative w-1/3">
           <i className="ri-search-line absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           <input
             type="text"
