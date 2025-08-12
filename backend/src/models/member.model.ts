@@ -21,7 +21,7 @@ const memberSchema = new mongoose.Schema({
         required: true,
     },
     slug: {type: String, required: true, default: ""},
-    year: {type: String, default:"2025"}
+    year: {type: String,  default: () => new Date().getFullYear()}
 });
 
 // 🔧 Pre-save middleware to generate uniqueId dynamically

@@ -72,6 +72,7 @@ export interface CompanyModel {
   intro: string;
   address: string;
   gender: string;
+  slug: string;
   coverImage: string;
   images: string[];
 }
@@ -215,8 +216,9 @@ export interface ModelFormData {
   intro: string;
   address: string;
   gender: string;
-  coverImage: File | null;
-  images: File[];
+  slug: string;
+  coverImage: File[];
+  galleryImages: File[];
 }
 
 export interface NewsFormData {
@@ -258,4 +260,20 @@ export interface EventFormData {
   endTimelineDate?: string;
   endTimelineEvent?: string;
   sponsers?: string;
+}
+
+// Popup Props Types
+export interface ModelsPopupProps {
+  isOpen: boolean;
+  onClose: () => void;
+  model: CompanyModel | null;
+  onSuccess: () => void;
+}
+
+// Statistics Types
+export interface ModelStatistics {
+  total: number;
+  male: number;
+  female: number;
+  other: number;
 }

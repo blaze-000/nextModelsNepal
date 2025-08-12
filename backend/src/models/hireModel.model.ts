@@ -6,7 +6,7 @@ const hireSchema = new mongoose.Schema({
     email: { type: String, required: true },
     phone: { type: String, required: true },
     message: { type: String, required: true },
-    date: { type: Date, required: true },
+    date: { type: String, required: true },
 
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }

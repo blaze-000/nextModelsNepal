@@ -189,10 +189,10 @@ export default function DataTable<T extends { _id: string }>({
                   sortedData.map((item, index) => (
                     <motion.tr
                       key={item._id}
-                      initial={{ opacity: 0, y: 20 }}
+                      initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -20 }}
-                      transition={{ delay: index * 0.05 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ delay: index * 0.01 }}
                       className="hover:bg-background2/50 transition-colors"
                     >
                       {columns.map((column, colIndex) => (

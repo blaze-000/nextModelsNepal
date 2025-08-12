@@ -18,7 +18,10 @@ const eventSchema = new mongoose.Schema({
     manageBy:{type: String,  enum: ["partners", "self"], default: "self"}, 
     titleImage: {type: String, default: ""},
 
-    date: { type: String },
+
+
+    startDate: { type: String},
+    endDate: {type: String},
     year: { type: String, default: "2025" },
     overview: { type: String, required: true },
     logo: { type: String, required: true },

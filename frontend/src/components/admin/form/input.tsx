@@ -11,6 +11,7 @@ interface InputProps {
   required?: boolean;
   disabled?: boolean;
   className?: string;
+  helpText?: string;
 }
 
 const Input = ({
@@ -24,6 +25,7 @@ const Input = ({
   required = false,
   disabled = false,
   className = "",
+  helpText,
 }: InputProps) => {
   return (
     <div className="w-full">
@@ -46,6 +48,12 @@ const Input = ({
           disabled:opacity-50 disabled:cursor-not-allowed
           ${className}`}
       />
+
+      {helpText && (
+        <p className="text-gray-500 dark:text-gray-400 text-xs mt-1">
+          {helpText}
+        </p>
+      )}
 
       {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
     </div>
