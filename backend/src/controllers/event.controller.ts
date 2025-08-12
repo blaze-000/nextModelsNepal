@@ -8,9 +8,34 @@ import mongoose from "mongoose";
  */
 export const createEvent = async (req: Request, res: Response) => {
   try {
+    // Validate text fields
     const validatedData = createEventSchema.parse(req.body);
 
-    const newEvent = await EventModel.create(validatedData);
+    // Check if files were uploaded
+    if (!req.files ||
+      !(req.files as any).titleImage ||
+      !(req.files as any).coverImage ||
+      !(req.files as any).purposeImage) {
+      return res.status(400).json({
+        success: false,
+        message: "All image files are required"
+      });
+    }
+
+    // Get file paths
+    const titleImage = (req.files as any).titleImage[0].path;
+    const coverImage = (req.files as any).coverImage[0].path;
+    const purposeImage = (req.files as any).purposeImage[0].path;
+
+    // Create event with file paths
+    const eventData = {
+      ...validatedData,
+      titleImage,
+      coverImage,
+      purposeImage,
+    };
+
+    const newEvent = await EventModel.create(eventData);
     res.status(201).json({ success: true, data: newEvent });
   } catch (error) {
     if (error instanceof mongoose.Error.ValidationError) {
@@ -24,6 +49,7 @@ export const createEvent = async (req: Request, res: Response) => {
   }
 };
 
+// ... other controller methods remain the same
 /**
  * Get All Events
  */
