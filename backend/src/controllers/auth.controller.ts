@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { AdminModel } from "../models/admin.model";
 import { signupSchema } from "../validations/auth.validations";
+import { changePasswordSchema } from "../validations/auth.validations";
 
 export const login = async (req: Request, res: Response) => {
 
@@ -71,29 +72,48 @@ export const login = async (req: Request, res: Response) => {
 
 export const changePassword = async (req: Request, res: Response) => {
     try {
-        const { oldPassword, newPassword } = req.body;
-        const { email } = (req as any).user;
-
-        // New password should be different from old password
-        if (oldPassword === newPassword) {
-            return res.status(400).json({ message: "New password must be different from old password" });
+        // 1. Validate input
+        const result = changePasswordSchema.safeParse(req.body);
+        if (!result.success) {
+            return res.status(400).json({
+                message: "Invalid input",
+                errors: result.error.flatten().fieldErrors,
+            });
         }
 
+        const { oldPassword, newPassword } = result.data;
+        const { email } = (req as any).user;
+
+        // 2. Ensure new password is different
+        if (oldPassword === newPassword) {
+            return res.status(400).json({
+                message: "New password must be different from old password",
+            });
+        }
+
+        // 3. Find admin
         const admin = await AdminModel.findOne({ email });
-        if (!admin) return res.status(404).json({ message: "Admin not found" });
+        if (!admin) {
+            return res.status(404).json({ message: "Admin not found" });
+        }
 
+        // 4. Verify old password
         const valid = await bcrypt.compare(oldPassword, admin.password);
-        if (!valid) return res.status(400).json({ message: "Old password is wrong" });
+        if (!valid) {
+            return res.status(400).json({ message: "Old password is incorrect" });
+        }
 
-        const hashedPassword = await bcrypt.hash(newPassword, 10);
-        admin.password = hashedPassword;
+        // 5. Hash & save new password
+        admin.password = await bcrypt.hash(newPassword, 10);
         await admin.save();
 
-        res.json({ message: "Password changed successfully" });
+        return res.json({ message: "Password changed successfully" });
     } catch (err) {
-        res.status(500).json({ message: "Server error" });
+        console.error(err); // Optional: log error for debugging
+        return res.status(500).json({ message: "Server error" });
     }
 };
+
 
 
 export const logout = (req: Request, res: Response) => {
