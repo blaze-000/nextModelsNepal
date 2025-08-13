@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 
 import Modal from "@/components/admin/Modal";
@@ -9,19 +9,13 @@ import Input from "@/components/admin/form/input";
 import Textarea from "@/components/admin/form/textarea";
 import PhotoUpload from "@/components/admin/form/photo-upload";
 import Axios from "@/lib/axios-instance";
-import { FeedbackItem, Feedback } from "@/types/admin";
-
-interface FeedbackFormData {
-  name: string;
-  message: string;
-  image: File[];
-}
+import { normalizeImagePath } from "@/lib/utils";
+import { FeedbackItem, FeedbackFormData } from "@/types/admin";
 
 interface FeedbackPopupProps {
   isOpen: boolean;
   onClose: () => void;
   editingItem: FeedbackItem | null;
-  feedbackData: Feedback | null;
   onSuccess: () => void;
 }
 
@@ -35,7 +29,6 @@ export default function FeedbackPopup({
   isOpen,
   onClose,
   editingItem,
-  feedbackData,
   onSuccess,
 }: FeedbackPopupProps) {
   const [formData, setFormData] = useState<FeedbackFormData>(initialFormData);
@@ -58,148 +51,107 @@ export default function FeedbackPopup({
     }
   }, [isOpen, editingItem]);
 
-  const handleClose = useCallback(() => {
+  const handleClose = () => {
     setFormData(initialFormData);
     setErrors({});
     onClose();
-  }, [onClose]);
+  };
 
   // Form handlers
-  const handleInputChange = useCallback(
-    (
-      e: React.ChangeEvent<
-        HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-      >
-    ) => {
-      const { name, value } = e.target;
-      setFormData((prev) => ({ ...prev, [name]: value }));
-      if (errors[name]) {
-        setErrors((prev) => ({ ...prev, [name]: "" }));
-      }
-    },
-    [errors]
-  );
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+  };
 
-  const handleImageChange = useCallback(
-    (files: File[]) => {
-      setFormData((prev) => ({ ...prev, image: files }));
-      if (errors.image) {
-        setErrors((prev) => ({ ...prev, image: "" }));
-      }
-    },
-    [errors]
-  );
+  const handleImageChange = (files: File[]) => {
+    setFormData((prev) => ({ ...prev, image: files }));
+    if (errors.image) {
+      setErrors((prev) => ({ ...prev, image: "" }));
+    }
+  };
 
   // Validation
-  const validateForm = useCallback((): boolean => {
+  const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
     if (!formData.name.trim()) newErrors.name = "Name is required";
     if (!formData.message.trim()) newErrors.message = "Message is required";
 
+    // Image is required for new feedback, optional for existing (unless they want to change it)
     if (!editingItem && formData.image.length === 0) {
       newErrors.image = "Image is required";
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  }, [editingItem, formData]);
+  };
 
-  const handleSubmit = useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
 
-      if (!validateForm()) return;
+    if (!validateForm()) return;
 
-      setSubmitting(true);
-      const submitFormData = new FormData();
+    setSubmitting(true);
+    const submitFormData = new FormData();
 
-      try {
-        if (editingItem && feedbackData) {
-          // Update existing feedback item
-          const updatedItems = feedbackData.item.map((item) =>
-            item.index === editingItem.index
-              ? {
-                  ...item,
-                  name: formData.name,
-                  message: formData.message,
-                }
-              : item
-          );
+    // Add basic form data
+    submitFormData.append("name", formData.name);
+    submitFormData.append("message", formData.message);
 
-          updatedItems.forEach((item, index) => {
-            submitFormData.append(
-              `item[${index}][index]`,
-              (index + 1).toString()
-            );
-            submitFormData.append(`item[${index}][name]`, item.name);
-            submitFormData.append(`item[${index}][message]`, item.message);
-            if (item.index === editingItem.index && formData.image.length > 0) {
-              // Upload new image for this specific item
-              submitFormData.append(`item[${index}][image]`, formData.image[0]);
-            } else if (item.images) {
-              // Keep existing image path
-              submitFormData.append(`item[${index}][images]`, item.images);
-            }
-          });
+    // Add image if provided
+    if (formData.image.length > 0) {
+      submitFormData.append("image", formData.image[0]);
+    }
 
-          const response = await Axios.patch(
-            `/api/feedback/${feedbackData._id}`,
-            submitFormData,
-            {
-              headers: {
-                "Content-Type": "multipart/form-data",
-              },
-            }
-          );
-          const data = response.data;
-          if (data.success) {
-            toast.success("Feedback updated successfully");
-          } else {
-            toast.error("Failed to update feedback");
-          }
-        } else {
-          // Create new feedback item
-          submitFormData.append(`item[0][index]`, "1");
-          submitFormData.append(`item[0][name]`, formData.name);
-          submitFormData.append(`item[0][message]`, formData.message);
-          if (formData.image.length > 0) {
-            submitFormData.append(`item[0][image]`, formData.image[0]);
-          }
+    try {
+      let response;
+      if (editingItem) {
+        // Add index for updating
+        submitFormData.append("index", editingItem.index.toString());
+        response = await Axios.patch(
+          `/api/feedback/${editingItem._id}`,
+          submitFormData
+        );
+      } else {
+        // For new feedback, use next available index
+        submitFormData.append("index", "1"); // Backend will handle proper indexing
+        response = await Axios.post("/api/feedback", submitFormData);
+      }
 
-          const response = await Axios.post("/api/feedback", submitFormData, {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          });
-          const data = response.data;
-          if (data.success) {
-            toast.success("Feedback created successfully");
-          } else {
-            toast.error("Failed to create feedback");
-          }
-        }
-
+      const data = response.data;
+      if (data.success) {
+        toast.success(
+          `Feedback ${editingItem ? "updated" : "created"} successfully`
+        );
         handleClose();
         onSuccess();
-      } catch (error: unknown) {
-        console.error("Error submitting feedback:", error);
-        const isAxiosError =
-          error && typeof error === "object" && "response" in error;
-        const errorMessage = isAxiosError
-          ? (error as { response?: { data?: { message?: string } } }).response
-              ?.data?.message
-          : undefined;
-        toast.error(
-          errorMessage ||
-            `Failed to ${editingItem ? "update" : "create"} feedback`
-        );
-      } finally {
-        setSubmitting(false);
+      } else {
+        toast.error(`Failed to ${editingItem ? "update" : "create"} feedback`);
       }
-    },
-    [editingItem, feedbackData, formData, validateForm, handleClose, onSuccess]
-  );
+    } catch (error: unknown) {
+      console.error("Error submitting feedback:", error);
+      const isAxiosError =
+        error && typeof error === "object" && "response" in error;
+      const errorMessage = isAxiosError
+        ? (error as { response?: { data?: { message?: string } } }).response
+            ?.data?.message
+        : undefined;
+      toast.error(
+        errorMessage ||
+          `Failed to ${editingItem ? "update" : "create"} feedback`
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <Modal
@@ -219,7 +171,7 @@ export default function FeedbackPopup({
           </h3>
 
           <Input
-            label="Name"
+            label="Customer Name"
             name="name"
             value={formData.name}
             onChange={handleInputChange}
@@ -229,7 +181,7 @@ export default function FeedbackPopup({
           />
 
           <Textarea
-            label="Message"
+            label="Feedback Message"
             name="message"
             value={formData.message}
             onChange={handleInputChange}
@@ -241,7 +193,7 @@ export default function FeedbackPopup({
 
           {/* Image Upload */}
           <PhotoUpload
-            label="Feedback Image"
+            label="Customer Photo"
             name="image"
             mode="single"
             selectedFiles={formData.image}
@@ -251,8 +203,8 @@ export default function FeedbackPopup({
             acceptedTypes={["image/*"]}
             maxFileSize={5}
             existingImages={
-              editingItem && editingItem.images && formData.image.length === 0
-                ? [`http://localhost:8000/${editingItem.images}`]
+              editingItem && editingItem.image && formData.image.length === 0
+                ? [normalizeImagePath(editingItem.image)]
                 : []
             }
           />

@@ -1,43 +1,47 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import Image from "next/image";
 
 import PageHeader from "@/components/admin/PageHeader";
 import DataTable from "@/components/admin/DataTable";
 import FeedbackPopup from "@/app/admin/feedback/FeedbackPopup";
+import DeleteConfirmModal from "@/components/admin/DeleteConfirmModal";
 import { AdminButton } from "@/components/admin/AdminButton";
 import Axios from "@/lib/axios-instance";
-import { FeedbackItem, Feedback } from "@/types/admin";
+import { normalizeImagePath } from "@/lib/utils";
+import { FeedbackItem } from "@/types/admin";
 
 export default function FeedbackPage() {
-  const [feedbackData, setFeedbackData] = useState<Feedback | null>(null);
+  const [feedbackItems, setFeedbackItems] = useState<FeedbackItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [statistics, setStatistics] = useState({
-    totalFeedback: 0,
-  });
+  const [submitting, setSubmitting] = useState(false);
 
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<FeedbackItem | null>(null);
 
-  // Fetch feedback data
-  const fetchFeedback = useCallback(async () => {
+  // Delete modal states
+  const [deleteModal, setDeleteModal] = useState({
+    isOpen: false,
+    item: null as FeedbackItem | null,
+  });
+
+  useEffect(() => {
+    fetchFeedback();
+  }, []);
+
+  const fetchFeedback = async () => {
     try {
       setLoading(true);
       const response = await Axios.get("/api/feedback");
       const data = response.data;
 
       if (data.success && data.data) {
-        const feedbackDocuments = data.data as Feedback;
-        setFeedbackData(feedbackDocuments);
-        setStatistics({
-          totalFeedback: feedbackDocuments?.item?.length || 0,
-        });
+        setFeedbackItems(data.data);
       } else {
-        setFeedbackData(null);
-        setStatistics({ totalFeedback: 0 });
+        setFeedbackItems([]);
       }
     } catch (error) {
       toast.error("Failed to fetch feedback data");
@@ -45,76 +49,86 @@ export default function FeedbackPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
-
-  useEffect(() => {
-    fetchFeedback();
-  }, [fetchFeedback]);
+  };
 
   // Modal handlers
-  const handleCreate = useCallback(() => {
+  const handleCreate = () => {
     setEditingItem(null);
     setIsModalOpen(true);
-  }, []);
+  };
 
-  const handleEdit = useCallback((item: FeedbackItem) => {
+  const handleEdit = (item: FeedbackItem) => {
     setEditingItem(item);
     setIsModalOpen(true);
-  }, []);
+  };
 
-  const handleDelete = useCallback(
-    async (item: FeedbackItem) => {
-      if (
-        !confirm(
-          `Are you sure you want to delete feedback from "${item.name}"?`
-        )
-      )
-        return;
+  const handleDelete = (item: FeedbackItem) => {
+    setDeleteModal({
+      isOpen: true,
+      item,
+    });
+  };
 
-      try {
-        if (!feedbackData) return;
+  const handleDeleteConfirm = async () => {
+    if (!deleteModal.item) return;
 
-        // Use the existing endpoint with itemIndex query parameter
-        const response = await Axios.delete(
-          `/api/feedback/${feedbackData._id}?itemIndex=${item.index}`
-        );
+    try {
+      setSubmitting(true);
+      const response = await Axios.delete(
+        `/api/feedback/${deleteModal.item._id}`
+      );
+      const data = response.data;
 
-        const data = response.data;
-        if (data.success) {
-          toast.success("Feedback deleted successfully");
-          fetchFeedback();
-        } else {
-          toast.error("Failed to delete feedback");
-        }
-      } catch (error) {
-        console.error("Error deleting feedback:", error);
-        const errorMessage =
-          error instanceof Error ? error.message : "Failed to delete feedback";
-        toast.error(errorMessage);
+      if (data.success) {
+        toast.success("Feedback deleted successfully");
+        setDeleteModal({ isOpen: false, item: null });
+        fetchFeedback();
+      } else {
+        toast.error("Failed to delete feedback");
       }
-    },
-    [feedbackData, fetchFeedback]
-  );
+    } catch (error) {
+      console.error("Error deleting feedback:", error);
+      toast.error("Failed to delete feedback");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
-  const closeModal = useCallback(() => {
+  const handleDeleteCancel = () => {
+    setDeleteModal({ isOpen: false, item: null });
+  };
+
+  const closeModal = () => {
     setIsModalOpen(false);
     setEditingItem(null);
-  }, []);
+  };
 
-  const handlePopupSuccess = useCallback(() => {
+  const handlePopupSuccess = () => {
     fetchFeedback();
-  }, [fetchFeedback]);
+  };
+
+  // Statistics calculations
+  const totalFeedback = feedbackItems.length;
+  const thisMonthFeedback = feedbackItems.filter((item) => {
+    if (!item.createdAt) return false;
+    const itemDate = new Date(item.createdAt);
+    const currentDate = new Date();
+    return (
+      itemDate.getMonth() === currentDate.getMonth() &&
+      itemDate.getFullYear() === currentDate.getFullYear()
+    );
+  }).length;
 
   // Table columns configuration
   const columns = [
     {
-      key: "images",
+      key: "image",
       label: "Photo",
       render: (value: unknown) => (
         <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 flex-shrink-0">
           {value && typeof value === "string" ? (
             <Image
-              src={`http://localhost:8000/${String(value)}`}
+              src={normalizeImagePath(value)}
               alt="Feedback"
               width={64}
               height={64}
@@ -160,12 +174,6 @@ export default function FeedbackPage() {
     },
   ];
 
-  const feedbackItems =
-    feedbackData?.item.map((item, arrayIndex) => ({
-      ...item,
-      _id: `${feedbackData._id}-${arrayIndex}`, // Create a unique ID for DataTable
-    })) || [];
-
   return (
     <div className="space-y-6 sm:space-y-6 p-2 sm:p-6 lg:p-2">
       <PageHeader
@@ -186,7 +194,7 @@ export default function FeedbackPage() {
                 Total Feedback
               </p>
               <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
-                {loading ? "..." : statistics.totalFeedback}
+                {loading ? "..." : totalFeedback}
               </p>
             </div>
             <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -202,7 +210,7 @@ export default function FeedbackPage() {
                 Published
               </p>
               <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
-                {loading ? "..." : statistics.totalFeedback}
+                {loading ? "..." : totalFeedback}
               </p>
             </div>
             <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -218,7 +226,7 @@ export default function FeedbackPage() {
                 This Month
               </p>
               <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
-                {loading ? "..." : "0"}
+                {loading ? "..." : thisMonthFeedback}
               </p>
             </div>
             <div className="w-10 h-10 sm:w-12 sm:h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -262,8 +270,18 @@ export default function FeedbackPage() {
         isOpen={isModalOpen}
         onClose={closeModal}
         editingItem={editingItem}
-        feedbackData={feedbackData}
         onSuccess={handlePopupSuccess}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={deleteModal.isOpen}
+        onClose={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Feedback"
+        message={`Are you sure you want to delete feedback from "${deleteModal.item?.name}"? This action cannot be undone.`}
+        confirmText="Delete Feedback"
+        isDeleting={submitting}
       />
     </div>
   );

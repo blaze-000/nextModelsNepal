@@ -100,24 +100,20 @@ export interface Career {
 
 // Feedback Types
 export interface FeedbackItem {
-  _id: string; // Added for compatibility with DataTable
-  index: string;
+  _id: string;
+  index: number;
   name: string;
   message: string;
-  images: string;
-  documentId?: string; // ID of parent document
-}
-
-export interface Feedback {
-  _id: string;
-  item: FeedbackItem[];
+  image: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 // Feedback Form Data Types
 export interface FeedbackFormData {
   name: string;
   message: string;
-  image: File | null;
+  image: File[];
 }
 
 // Partners Types
