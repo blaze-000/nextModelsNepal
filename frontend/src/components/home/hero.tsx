@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "../ui/button";
-import { motion } from 'framer-motion';
+import { motion } from "framer-motion";
 import Axios from "@/lib/axios-instance";
+import { normalizeImagePath } from "@/lib/utils";
 
 const HeroSection = () => {
   const [data, setData] = useState<HeroData | null>(null);
@@ -11,12 +12,11 @@ const HeroSection = () => {
   useEffect(() => {
     (async () => {
       try {
-        const res = await Axios.get('/api/hero');
+        const res = await Axios.get("/api/hero");
         const data = res.data;
-        // console.log(data.data[0]);
-        setData(data.data[0])
-      }
-      catch (err) {
+        console.log(data.data[0]);
+        setData(data.data[0]);
+      } catch (err) {
         console.log(err);
       }
     })();
@@ -56,7 +56,7 @@ const HeroSection = () => {
                 {/* Badge image with soft layered shadow */}
                 <div className="w-40 h-16 relative">
                   <Image
-                    src="/span-image.jpg"
+                    src={normalizeImagePath(data?.titleImage || "")}
                     alt=""
                     fill
                     className="rounded-full object-cover border border-stone-300 shadow-[-10px_8px_20px_10px_rgba(179,131,0,0.19)]"
@@ -85,13 +85,17 @@ const HeroSection = () => {
             <div className="flex flex-col items-start gap-4 lg:flex-row lg:gap-10 lg:items-center pt-4">
               <Link href="/models">
                 <Button variant="default" className="px-9 py-4 group">
-                  Hire a model <i className="group-hover:scale-1.2 ri-arrow-right-up-line" />
+                  Hire a model{" "}
+                  <i className="group-hover:scale-1.2 ri-arrow-right-up-line" />
                 </Button>
               </Link>
               <Link
                 href="/events/upcoming-events"
-                className="px-4 py-4 rounded-full text-gold-500 text-base -tracking-tight font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer">
-                <span className="underline underline-offset-4">Upcoming Events</span>
+                className="px-4 py-4 rounded-full text-gold-500 text-base -tracking-tight font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer"
+              >
+                <span className="underline underline-offset-4">
+                  Upcoming Events
+                </span>
                 <i className="ri-arrow-right-up-line group-hover:scale-130 transition-transform duration-400 text-xl font-extralight" />
               </Link>
             </div>
@@ -104,20 +108,31 @@ const HeroSection = () => {
             transition={{ duration: 0.6 }}
             className="w-full relative overflow-x-hidden overflow-y-hidden py-32 md:py-0"
           >
-
             {/* 2x2 image grid */}
             <div className="top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 grid grid-cols-2 grid-rows-2 gap-6 w-[80%] max-w-[390px] aspect-square z-10 relative">
-            
-              {data?.images.map((x, index) => (
-                <div key={index} className="relative overflow-hidden rounded-xl">
-                  <Image
-                    src={`${process.env.NEXT_PUBLIC_API_URL}/${x}`}
-                    alt="Featured Images"
-                    fill
-                    className="object-cover transition-transform duration-500 hover:scale-110"
-                  />
-                </div>
-              ))}
+              {[data?.image_1, data?.image_2, data?.image_3, data?.image_4].map(
+                (imageSource, index) =>
+                  imageSource ? (
+                    <div
+                      key={index}
+                      className="relative overflow-hidden rounded-xl"
+                    >
+                      <Image
+                        src={normalizeImagePath(imageSource)}
+                        alt="Featured Images"
+                        fill
+                        className="object-cover transition-transform duration-500 hover:scale-110"
+                      />
+                    </div>
+                  ) : (
+                    <div
+                      key={index}
+                      className="relative overflow-hidden rounded-xl bg-gray-700 flex items-center justify-center"
+                    >
+                      <i className="ri-image-line text-gray-500 text-lg"></i>
+                    </div>
+                  )
+              )}
 
               {/* Background grid lines */}
               <div className="absolute -left-[50%] -top-5 w-[200%] h-[1px] bg-gradient-to-r from-transparent via-gray-700 to-transparent" />
@@ -141,8 +156,8 @@ const HeroSection = () => {
             </div>
           </motion.div>
         </div>
-      </div >
-    </section >
+      </div>
+    </section>
   );
 };
 
