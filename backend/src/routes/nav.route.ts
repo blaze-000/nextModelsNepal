@@ -1,22 +1,23 @@
-import { Router } from "express";
-import { createNavItem, deleteNavById, getNavItem, getNavItemById, updateNavById } from "../controllers/nav.controller";
+import express from "express";
+import { 
+  showVoting, 
+  createShowVoting, 
+  updateShowVoting, 
+  getAllNavInfo
+} from "../controllers/nav.controller";
 
+const router = express.Router();
 
-const router = Router();
+// GET /nav - Get navigation settings
+router.get("/", showVoting);
 
-// Get all navigation items
-router.route("/").get(getNavItem);
+// POST /nav - Create navigation settings
+router.post("/", createShowVoting);
 
-// Get single navigation item by ID
-router.route("/:id").get(getNavItemById);
+// PATCH /nav - Update navigation settings
+router.patch("/", updateShowVoting);
 
-// Create navigation item (admin only)
-router.route("/").post(createNavItem);
-
-// Update navigation item by ID (admin only)
-router.route("/:id").patch(updateNavById);
-
-// Delete navigation item by ID (admin only)
-router.route("/:id").delete(deleteNavById);
+// GET /nav/items - Get navigation items
+router.get("/items", getAllNavInfo);
 
 export default router;

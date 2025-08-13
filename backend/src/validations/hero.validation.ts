@@ -1,13 +1,15 @@
-import { array, z } from "zod";
+import { z } from 'zod';
 
-// Parent hero item schema
-export const heroItemSchema = z.object({
-    _id: z.string().optional(),
-    maintitle: z.string().optional(),
-    subtitle: z.string().optional(),
-    description: z.string().optional(),
-    images: z
-        .array(z.string().min(1, 'Image path is required.'))
-        .default([]).optional(),
-    titleImage: z.string().optional() // Made optional since it's handled as file upload
+// Validation for creating a hero item
+export const createHeroValidation = z.object({
+  maintitle: z.string(),
+  subtitle: z.string(),
+  description: z.string(),
+  // Images will be handled manually in controller, so we don't validate them here
+  // titleImage is required but will be handled as file upload in controller
+});
+
+// Validation for updating a hero item
+export const updateHeroValidation = createHeroValidation.partial().extend({
+  id: z.string()
 });

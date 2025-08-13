@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import upload from "src/middleware/upload";
+import upload from "../middleware/upload";
 import { createAppForm, deleteAppFormById, getAppForm, getAppFormById } from "../controllers/appForm.controller";
 import { appFormLimiter } from "../middleware/rateLimiters";
 

@@ -1,179 +1,161 @@
 import { Request, Response } from "express";
 import { NavModel } from "../models/nav.model";
-import { navItemsSchema, navItemUpdateSchema } from "../validations/nav.validation";
-import _ from "lodash"; // to help restructure nested fields
+import { EventModel } from "../models/events.model";
+import { navSchema } from "../validations/nav.validation";
 
-//  Fetch all navigation items
-export const getNavItem = async (_req: Request, res: Response) => {
+// GET /nav - Get navigation settings
+export const showVoting = async (req: Request, res: Response) => {
     try {
-        const navItems = await NavModel.find({});
-        if (!navItems || navItems.length === 0) {
+        const nav = await NavModel.findOne();
+
+        if (!nav) {
             return res.status(404).json({
                 success: false,
-                message: "No navigation items found.",
+                message: "Navigation settings not found"
             });
         }
 
-        return res.status(200).json({
+        res.json({
             success: true,
-            message: "Navigation items retrieved successfully.",
-            data: navItems,
+            data: nav
         });
-    } catch (error: any) {
-        console.error("Error fetching navigation items:", error.message);
-        return res.status(500).json({
+    } catch (error) {
+        res.status(500).json({
             success: false,
-            message: "Internal server error while retrieving nav items.",
+            message: "Failed to fetch navigation settings",
+            error: error instanceof Error ? error.message : "Unknown error"
         });
     }
 };
 
-//  Get single nav item by ID
-export const getNavItemById = async (req: Request, res: Response) => {
+// POST /nav - Create navigation settings
+export const createShowVoting = async (req: Request, res: Response) => {
     try {
-        const { id } = req.params;
-        const eventItem = await NavModel.findById(id);
+        const validation = navSchema.safeParse(req.body);
 
-        if (!eventItem) {
-            return res.status(404).json({
+        if (!validation.success) {
+            return res.status(400).json({
                 success: false,
-                message: `Nav item with ID ${id} not found.`,
+                message: "Validation failed",
+                errors: validation.error.issues
             });
         }
 
-        return res.status(200).json({
+        // Check if nav settings already exist
+        const existingNav = await NavModel.findOne();
+        if (existingNav) {
+            return res.status(409).json({
+                success: false,
+                message: "Navigation settings already exist. Use PATCH to update."
+            });
+        }
+
+        const nav = new NavModel(validation.data);
+        await nav.save();
+
+        res.status(201).json({
             success: true,
-            message: "Nav item retrieved successfully.",
-            data: eventItem,
+            data: nav,
+            message: "Navigation settings created successfully"
         });
-    } catch (error: any) {
-        console.error(`Error fetching Nav item with ID ${req.params.id}:`, error.message);
-        return res.status(500).json({
+    } catch (error) {
+        res.status(500).json({
             success: false,
-            message: "Internal server error while retrieving Nav item.",
+            message: "Failed to create navigation settings",
+            error: error instanceof Error ? error.message : "Unknown error"
         });
     }
 };
 
-//  Create multiple navigation items
-export const createNavItem = async (req: Request, res: Response) => {
+// PATCH /nav - Update navigation settings
+export const updateShowVoting = async (req: Request, res: Response) => {
     try {
-        const navItems = navItemsSchema.parse(req.body);
-        for (const item of navItems) {
-            const existItem = await NavModel.findOne({ label: item.label });
-            if (existItem) {
-                return res.status(403).send(`Navigation item with label "${item.label}" already exists.`);
-            }
+        const validation = navSchema.safeParse(req.body);
+
+        if (!validation.success) {
+            return res.status(400).json({
+                success: false,
+                message: "Validation failed",
+                errors: validation.error.issues
+            });
         }
 
-        const createdItems = await Promise.all(
-            navItems.map(async (item) => {
-                return NavModel.create({
-                    label: item.label,
-                    path: item.path,
-                    type: item.type,
-                    children: item.children,
-                    visible: item.visible,
-                    order: item.order,
-                })
-            }
-            )
+        const nav = await NavModel.findOneAndUpdate(
+            {},
+            validation.data,
+            { new: true, upsert: true, runValidators: true }
         );
 
-        if(!createdItems) return res.status(401).send("Failed to send nav response.");
-
-        return res.status(201).json({
+        res.json({
             success: true,
-            message: "Navigation items created successfully.",
-            data: createdItems,
+            data: nav,
+            message: "Navigation settings updated successfully"
         });
-    } catch (error: any) {
-        console.error("Error creating navigation items:", error.message);
-        return res.status(400).json({
+    } catch (error) {
+        res.status(500).json({
             success: false,
-            message: "Invalid input data.",
-            error: error.message,
+            message: "Failed to update navigation settings",
+            error: error instanceof Error ? error.message : "Unknown error"
         });
     }
 };
 
-//  Update a navigation item by ID
-export const updateNavById = async (req: Request, res: Response) => {
+// GET /nav/items - Get all navigation info
+export const getAllNavInfo = async (req: Request, res: Response) => {
     try {
-        const { id } = req.params;
+        const nav = await NavModel.findOne().select("showVoting");
 
-        // Check if event exists
-        const existingEvent = await NavModel.findById({_id: id}).lean();
-        if (!existingEvent) {
+        if (!nav) {
             return res.status(404).json({
                 success: false,
-                message: "Nav item not found"
-            });
-        }       
-        
-        const body = req.body;
-        let mergedData: any = _.cloneDeep(existingEvent);
-
-        if (body.label !== undefined) mergedData.label = body.label;
-        if (body.path !== undefined) mergedData.path = body.path;
-        if (body.type !== undefined) mergedData.type = body.type;
-        if (body.children !== undefined) {
-            // Deep merge card array if provided
-            mergedData.children = _.mergeWith(
-                _.cloneDeep(existingEvent.children),
-                body.children,
-                (objValue, srcValue) => Array.isArray(objValue) && Array.isArray(srcValue) ? srcValue : undefined
-            );
-        }
-
-         const validData = navItemUpdateSchema.parse(mergedData);
-
-        // Update the event in DB
-        const updatedNav = await NavModel.findByIdAndUpdate(
-            id,
-            validData,
-            { new: true, runValidators: true }
-        );         
-
-        return res.status(200).json({
-            success: true,
-            message: "Navigation item updated successfully.",
-            data: updatedNav,
-        });
-    } catch (error: any) {
-        console.error(`Error updating navigation item with ID ${req.params.id}:`, error.message);
-        return res.status(500).json({
-            success: false,
-            message: "Internal server error while updating navigation item.",
-            error: error.message,
-        });
-    }
-};
-
-//  Delete a navigation item by ID
-export const deleteNavById = async (req: Request, res: Response) => {
-    try {
-        const { id } = req.params;
-        const deletedItem = await NavModel.findByIdAndDelete(id);
-
-        if (!deletedItem) {
-            return res.status(404).json({
-                success: false,
-                message: `Navigation item with ID ${id} not found.`,
+                message: "Navigation settings not found"
             });
         }
 
-        return res.status(200).json({
+        // Get all events with their seasons populated
+        const events = await EventModel.find().populate('seasons');
+
+        // Process events into self and partner categories
+        const selfEvents = [];
+        const partnerEvents = [];
+
+        for (const event of events) {
+            if (event.seasons && event.seasons.length > 0) {
+                // Cast seasons to any to access properties
+                const seasons = event.seasons as any[];
+                
+                // Sort seasons by year descending and get the latest one
+                const sortedSeasons = seasons.sort((a: any, b: any) => b.year - a.year);
+                const latestSeason = sortedSeasons[0];
+                
+                const eventItem = {
+                    label: event.name,
+                    slug: latestSeason.slug
+                };
+
+                if (event.managedBy === 'self') {
+                    selfEvents.push(eventItem);
+                } else if (event.managedBy === 'partner') {
+                    partnerEvents.push(eventItem);
+                }
+            }
+        }
+
+        const navItems = {
+            showVoting: nav.showVoting,
+            selfEvents,
+            partnerEvents
+        };
+
+        res.json({
             success: true,
-            message: "Navigation item deleted successfully.",
-            data: deletedItem,
+            data: navItems
         });
-    } catch (error: any) {
-        console.error(`Error deleting navigation item with ID ${req.params.id}:`, error.message);
-        return res.status(500).json({
+    } catch (error) {
+        res.status(500).json({
             success: false,
-            message: "Internal server error while deleting navigation item.",
-            error: error.message,
+            message: "Failed to fetch navigation items",
+            error: error instanceof Error ? error.message : "Unknown error"
         });
     }
 };

@@ -6,7 +6,7 @@ import {
   getHeroItemById,
   updateheroById,
 } from "../controllers/hero.controller";
-import { uploadAnyImages } from "../middleware/multer.middleware";
+import upload from "../middleware/upload";
 
 const router = Router();
 
@@ -17,10 +17,16 @@ router.route("/").get(getHeroItem);
 router.route("/:id").get(getHeroItemById);
 
 // Create hero item (admin only)
-router.route("/").post(uploadAnyImages, createHeroItem);
+router.route("/").post(upload.fields([
+  { name: 'titleImage', maxCount: 1 },
+  { name: 'images', maxCount: 4 }
+]), createHeroItem);
 
 // Update hero item by ID (admin only)
-router.route("/:id").patch(uploadAnyImages, updateheroById);
+router.route("/:id").patch(upload.fields([
+  { name: 'titleImage', maxCount: 1 },
+  { name: 'images', maxCount: 4 }
+]), updateheroById);
 
 // Delete hero item by ID (admin only)
 router.route("/:id").delete(deleteheroById);
