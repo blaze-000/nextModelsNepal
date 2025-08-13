@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { HeroModel } from "../models/hero.model";
-import { heroItemSchema } from "../validations/hero.validation";
+import { createHeroValidation, updateHeroValidation } from "../validations/hero.validation";
 import fs from "fs";
 import path from "path";
 
@@ -81,157 +81,80 @@ export const getHeroItemById = async (req: Request, res: Response) => {
  * Create hero item
  */
 export const createHeroItem = async (req: Request, res: Response) => {
-
   try {
+    // Check if hero item already exists (only one allowed)
+    const existingHero = await HeroModel.findOne();
+    if (existingHero) {
+      return res.status(400).json({
+        success: false,
+        message: "Hero item already exists. Only one hero item is allowed.",
+      });
+    }
 
     const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 
-    if (!files || Object.keys(files).length === 0) {
-
-      return res.status(400).json({ error: "At least one image file is required." });
-
-    }
-
-    // Handle req.body properly for file uploads
-
-    const bodyData = req.body || {};
-
-    // Only validate text fields if they exist and are not empty
-
-    let maintitle, subtitle, description;
-
-    if (Object.keys(bodyData).length > 0) {
-
-      try {
-
-        const textFields = heroItemSchema.pick({ maintitle: true, subtitle: true, description: true }).parse(bodyData);
-
-        ({ maintitle, subtitle, description } = textFields);
-
-      } catch (validationError: any) {
-
-        // If validation fails, set fields to undefined (they're optional anyway)
-
-        maintitle = subtitle = description = undefined;
-
-      }
-
-    }
-
-    // Initialize images array with 4 slots
-
-    const imagePaths: string[] = new Array(4).fill("");
-
-    let titleImagePath: string | undefined;
-
-    // Handle position-specific image uploads
-
-   
-
-    const filesArray = files as unknown as Express.Multer.File[];
-
-    if (filesArray && Array.isArray(filesArray)) {
-
-      filesArray.forEach((file) => {
-
-        const fieldName = file.fieldname;
-
-        if (fieldName.startsWith("image_")) {
-
-          const position = parseInt(fieldName.split("_")[1]);
-
-          if (!isNaN(position) && position >= 0 && position < 4) {
-
-            const newImagePath = file.path.replace(/\\/g, "/");
-
-            imagePaths[position] = newImagePath;
-
-          }
-
-        } else if (fieldName === "titleImage") {
-
-          titleImagePath = file.path.replace(/\\/g, "/");
-
-        }
-
+    if (!files || !files.titleImage || files.titleImage.length === 0) {
+      return res.status(400).json({ 
+        success: false,
+        message: "titleImage is required." 
       });
-
     }
 
-    // If no titleImage was uploaded, use the first non-empty image as titleImage
-
-    if (!titleImagePath) {
-
-      const firstImage = imagePaths.find((img) => img && img.length > 0);
-
-      if (firstImage) {
-
-        titleImagePath = firstImage;
-
+    // Validate text fields using Zod
+    let maintitle, subtitle, description;
+    try {
+      const validatedData = createHeroValidation.parse(req.body);
+      ({ maintitle, subtitle, description } = validatedData);
+    } catch (validationError: any) {
+      // Clean up uploaded files if validation fails
+      if (files.titleImage) {
+        files.titleImage.forEach(file => deleteFile(file.path));
       }
-
+      if (files.images) {
+        files.images.forEach(file => deleteFile(file.path));
+      }
+      
+      return res.status(400).json({
+        success: false,
+        message: "Validation error",
+        errors: validationError.errors
+      });
     }
 
-    // Ensure we have at least one image
+    // Process titleImage
+    const titleImagePath = files.titleImage[0].path.replace(/\\/g, "/");
 
-    const hasImage =
-
-      imagePaths.some((img) => img && img.length > 0) || titleImagePath;
-
-    if (!hasImage) {
-
-      return res
-
-        .status(400)
-
-        .json({ error: "At least one image file is required." });
-
+    // Process images array (up to 4 images)
+    const imagePaths: string[] = [];
+    if (files.images && files.images.length > 0) {
+      files.images.slice(0, 4).forEach(file => {
+        imagePaths.push(file.path.replace(/\\/g, "/"));
+      });
     }
 
     const heroSection = await HeroModel.create({
-
       maintitle,
-
       subtitle,
-
       description,
-
       images: imagePaths,
-
-      titleImage:
-
-        titleImagePath || imagePaths.find((img) => img && img.length > 0) || "",
-
+      titleImage: titleImagePath,
     });
 
     res.status(201).json({
-
       success: true,
-
       message: "Hero section item created successfully.",
-
       data: heroSection,
-
     });
 
   } catch (error: any) {
-
     console.error("Error creating Hero items:", error.message);
-
-    return res.status(400).json({
-
+    return res.status(500).json({
       success: false,
-
-      message: "Invalid input data.",
-
+      message: "Internal server error while creating Hero item.",
       error: error.message,
-
     });
-
   }
-
 };
-
 
 /**
  * Update hero by ID
@@ -239,82 +162,85 @@ export const createHeroItem = async (req: Request, res: Response) => {
 export const updateheroById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const files = req.files as Express.Multer.File[];
+    const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+
+    // Validate input data using Zod
+    try {
+      updateHeroValidation.parse({ ...req.body, id });
+    } catch (validationError: any) {
+      // Clean up uploaded files if validation fails
+      if (files?.titleImage) {
+        files.titleImage.forEach(file => deleteFile(file.path));
+      }
+      if (files?.images) {
+        files.images.forEach(file => deleteFile(file.path));
+      }
+      
+      return res.status(400).json({
+        success: false,
+        message: "Validation error",
+        errors: validationError.errors
+      });
+    }
 
     const existingHero = await HeroModel.findById(id);
     if (!existingHero) {
+      // Clean up uploaded files if hero not found
+      if (files?.titleImage) {
+        files.titleImage.forEach(file => deleteFile(file.path));
+      }
+      if (files?.images) {
+        files.images.forEach(file => deleteFile(file.path));
+      }
+      
       return res.status(404).json({
         success: false,
         message: `Hero item with ID ${id} not found.`,
       });
     }
 
-    // Start with existing images, ensure we have 4 slots
-    const updatedImages = [...(existingHero.images || [])];
-    while (updatedImages.length < 4) {
-      updatedImages.push("");
-    }
+    // Prepare update data with text fields
+    const updateData: any = {};
+    if (req.body.maintitle !== undefined) updateData.maintitle = req.body.maintitle;
+    if (req.body.subtitle !== undefined) updateData.subtitle = req.body.subtitle;
+    if (req.body.description !== undefined) updateData.description = req.body.description;
 
-    // Handle removed existing images first
-    let removedExistingIndices: number[] = [];
-    try {
-      if (req.body.removedExistingIndices) {
-        removedExistingIndices = JSON.parse(req.body.removedExistingIndices);
-      }
-    } catch (e) {
-      console.log("Could not parse removedExistingIndices:", e);
-    }
-
-    // Track files to delete when they are being replaced or removed
+    // Track old files to delete
     const filesToDelete: string[] = [];
 
-    // Clear removed positions and mark files for deletion
-    removedExistingIndices.forEach((index: number) => {
-      if (
-        index >= 0 &&
-        index < 4 &&
-        updatedImages[index] &&
-        updatedImages[index].trim() !== ""
-      ) {
-        filesToDelete.push(updatedImages[index]);
-        updatedImages[index] = "";
+    // Handle titleImage update
+    if (files?.titleImage && files.titleImage.length > 0) {
+      // Mark old titleImage for deletion
+      if (existingHero.titleImage && existingHero.titleImage.trim() !== "") {
+        filesToDelete.push(existingHero.titleImage);
       }
-    });
-
-    // Process new uploaded files
-    if (files && files.length > 0) {
-      files.forEach((file) => {
-        if (file.fieldname.startsWith("image_")) {
-          const position = parseInt(file.fieldname.split("_")[1]);
-          if (position >= 0 && position < 4) {
-            // If there was an existing image at this position, mark it for deletion (replacement)
-            if (
-              updatedImages[position] &&
-              updatedImages[position].trim() !== ""
-            ) {
-              filesToDelete.push(updatedImages[position]);
-            }
-            // Set new image path - multer already generates consistent naming
-            updatedImages[position] = file.path.replace(/\\/g, "/");
-          }
-        }
-      });
+      // Set new titleImage
+      updateData.titleImage = files.titleImage[0].path.replace(/\\/g, "/");
     }
 
-    // Update titleImage to first non-empty image
-    const titleImage = updatedImages.find((img) => img !== "") || "";
+    // Handle images array update
+    if (files?.images && files.images.length > 0) {
+      // Mark all old images for deletion
+      if (existingHero.images && existingHero.images.length > 0) {
+        existingHero.images.forEach(imagePath => {
+          if (imagePath && imagePath.trim() !== "") {
+            filesToDelete.push(imagePath);
+          }
+        });
+      }
+      
+      // Set new images (up to 4)
+      const newImagePaths: string[] = [];
+      files.images.slice(0, 4).forEach(file => {
+        newImagePaths.push(file.path.replace(/\\/g, "/"));
+      });
+      updateData.images = newImagePaths;
+    }
 
     // Update the database
-    const updatedItem = await HeroModel.findByIdAndUpdate(
-      id,
-      {
-        images: updatedImages,
-        titleImage,
-      },
-      { new: true }
-    );
+    const updatedItem = await HeroModel.findByIdAndUpdate(id, updateData, { new: true });
 
-    // Delete old files after successful database update (this handles both replacement and removal)
+    // Delete old files after successful database update
     filesToDelete.forEach(deleteFile);
 
     return res.status(200).json({
@@ -323,10 +249,7 @@ export const updateheroById = async (req: Request, res: Response) => {
       data: updatedItem,
     });
   } catch (error: any) {
-    console.error(
-      `Error updating Hero item with ID ${req.params.id}:`,
-      error.message
-    );
+    console.error(`Error updating Hero item with ID ${req.params.id}:`, error.message);
     return res.status(500).json({
       success: false,
       message: "Internal server error while updating Hero item.",
@@ -352,6 +275,13 @@ export const deleteheroById = async (req: Request, res: Response) => {
 
     // Collect all image files to delete
     const filesToDelete: string[] = [];
+    
+    // Add titleImage to deletion list
+    if (heroToDelete.titleImage && heroToDelete.titleImage.trim() !== "") {
+      filesToDelete.push(heroToDelete.titleImage);
+    }
+    
+    // Add all images to deletion list
     if (heroToDelete.images && heroToDelete.images.length > 0) {
       heroToDelete.images.forEach((imagePath) => {
         if (imagePath && imagePath.trim() !== "") {
@@ -372,10 +302,7 @@ export const deleteheroById = async (req: Request, res: Response) => {
       data: deletedItem,
     });
   } catch (error: any) {
-    console.error(
-      `Error deleting Hero item with ID ${req.params.id}:`,
-      error.message
-    );
+    console.error(`Error deleting Hero item with ID ${req.params.id}:`, error.message);
     return res.status(500).json({
       success: false,
       message: "Internal server error while deleting Hero item.",

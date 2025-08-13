@@ -11,7 +11,7 @@ const AdminSchema = new Schema({
   password: {
     type: String,
     required: true,
-    select: false // Exclude password by default in queries
+    // select: false // Exclude password by default in queries
   }
 }, { timestamps: true });
 

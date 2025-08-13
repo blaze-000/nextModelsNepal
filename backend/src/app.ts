@@ -17,7 +17,6 @@ import navRoute from "./routes/nav.route";
 import heroRoute from "./routes/hero.route";
 
 import modelsRoutes from "./routes/model.route";
-import careerRoutes from "./routes/career.route";
 import feedbackRoutes from "./routes/feedback.route";
 import partnersRoutes from "./routes/partners.route";
 import newsRoutes from "./routes/news.route";
@@ -95,7 +94,6 @@ app.use("/api/winners", winnerRoutes);
 app.use("/api/jury", juryRoutes);
 app.use("/api/contestants", contestantRoutes);
 app.use("/api/models", modelsRoutes);
-app.use("/api/career", careerRoutes);
 app.use("/api/feedback", feedbackRoutes);
 app.use("/api/partners", partnersRoutes);
 app.use("/api/news", newsRoutes);
