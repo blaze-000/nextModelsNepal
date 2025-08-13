@@ -86,10 +86,12 @@ interface TimelineProps {
 }
 
 type HeroData = {
-  maintitle: string,
-  subtitle: string,
-  description: string,
-  images: string[],
+  titleImage: string,
+  image_1: string,
+  image_2: string,
+  image_3: string,
+  image_4: string,
+ 
 }
 
 type UpcomingEventData = {

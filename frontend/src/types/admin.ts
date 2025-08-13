@@ -1,10 +1,10 @@
 // Hero Section Types
 export interface Hero {
   _id: string;
-  maintitle: string;
-  subtitle: string;
-  description: string;
-  images: string[];
+  image_1: string;
+  image_2: string;
+  image_3: string;
+  image_4: string;
   titleImage: string;
 }
 
@@ -199,10 +199,8 @@ export interface Application {
 
 // Form Data Types for Creating/Updating
 export interface HeroFormData {
-  maintitle: string;
-  subtitle: string;
-  description: string;
   images: File[];
+  titleImage: File | null;
 }
 
 export interface NavigationFormData {

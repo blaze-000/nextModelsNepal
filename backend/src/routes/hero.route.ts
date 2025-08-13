@@ -17,16 +17,28 @@ router.route("/").get(getHeroItem);
 router.route("/:id").get(getHeroItemById);
 
 // Create hero item (admin only)
-router.route("/").post(upload.fields([
-  { name: 'titleImage', maxCount: 1 },
-  { name: 'images', maxCount: 4 }
-]), createHeroItem);
+router.route("/").post(
+  upload.fields([
+    { name: "titleImage", maxCount: 1 },
+    { name: "image_1", maxCount: 1 },
+    { name: "image_2", maxCount: 1 },
+    { name: "image_3", maxCount: 1 },
+    { name: "image_4", maxCount: 1 },
+  ]),
+  createHeroItem
+);
 
 // Update hero item by ID (admin only)
-router.route("/:id").patch(upload.fields([
-  { name: 'titleImage', maxCount: 1 },
-  { name: 'images', maxCount: 4 }
-]), updateheroById);
+router.route("/:id").patch(
+  upload.fields([
+    { name: "titleImage", maxCount: 1 },
+    { name: "image_1", maxCount: 1 },
+    { name: "image_2", maxCount: 1 },
+    { name: "image_3", maxCount: 1 },
+    { name: "image_4", maxCount: 1 },
+  ]),
+  updateheroById
+);
 
 // Delete hero item by ID (admin only)
 router.route("/:id").delete(deleteheroById);

@@ -14,13 +14,17 @@ import { normalizeImagePath } from "@/lib/utils";
 import { Hero } from "@/types/admin";
 
 interface HeroFormData {
+  titleImage: File[];
   images: (File | null)[];
   removedExistingIndices: Set<number>;
+  removedTitleImage: boolean;
 }
 
 const initialFormData: HeroFormData = {
+  titleImage: [],
   images: [null, null, null, null],
   removedExistingIndices: new Set<number>(),
+  removedTitleImage: false,
 };
 
 export default function HeroAdminPage() {
@@ -40,11 +44,14 @@ export default function HeroAdminPage() {
       const response = await Axios.get("/api/hero");
       const data = response.data;
       if (data.success && data.data?.length > 0) {
-        setHero(data.data[0]);
+        const heroData = data.data[0];
+        setHero(heroData);
         // Reset form data when loading new hero data
         setFormData({
+          titleImage: [],
           images: [null, null, null, null],
           removedExistingIndices: new Set<number>(),
+          removedTitleImage: false,
         });
       }
     } catch {
@@ -55,26 +62,26 @@ export default function HeroAdminPage() {
   };
 
   const handleImageChange = (index: number, file: File | null) => {
-    setFormData((prev: HeroFormData) => {
+    setFormData((prev) => {
       const newImages = [...prev.images];
       const newRemovedIndices = new Set(prev.removedExistingIndices);
 
       // Cleanup old URL if replacing a file
-      if (newImages[index] && newImages[index] instanceof File) {
+      if (newImages[index] instanceof File) {
         URL.revokeObjectURL(URL.createObjectURL(newImages[index] as File));
       }
 
       if (file === null) {
-        // User is removing an image
+        // Removing image - mark for removal if it exists in database
         newImages[index] = null;
-        // If there was an existing image at this position, mark it for removal
-        if (hero?.images?.[index] && hero.images[index].trim() !== "") {
+        const existingImageField = `image_${index + 1}` as keyof Hero;
+        const existingImage = hero?.[existingImageField] as string;
+        if (existingImage?.trim()) {
           newRemovedIndices.add(index);
         }
       } else {
-        // User is adding a new image
+        // Adding new image - unmark for removal
         newImages[index] = file;
-        // If we had marked this position for removal, unmark it
         newRemovedIndices.delete(index);
       }
 
@@ -85,21 +92,59 @@ export default function HeroAdminPage() {
       };
     });
 
-    // Clear any errors for this specific image
+    // Clear validation errors
     if (errors[`image_${index}`]) {
       setErrors((prev) => ({ ...prev, [`image_${index}`]: "" }));
+    }
+  };
+
+  const handleTitleImageChange = (files: File[]) => {
+    setFormData((prev) => ({
+      ...prev,
+      titleImage: files,
+      removedTitleImage: files.length === 0 && !!hero?.titleImage,
+    }));
+    if (errors.titleImage) {
+      setErrors((prev) => ({ ...prev, titleImage: "" }));
+    }
+  };
+
+  const handleRemoveTitleImage = () => {
+    setFormData((prev) => ({
+      ...prev,
+      titleImage: [],
+      removedTitleImage: true,
+    }));
+    if (errors.titleImage) {
+      setErrors((prev) => ({ ...prev, titleImage: "" }));
     }
   };
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    // Check if at least one image exists (new or existing, not removed)
-    const hasImages =
-      formData.images.some((img: File | null) => img !== null) ||
-      (hero?.images?.length ?? 0) > 0;
+    // Check if titleImage exists (new file uploaded or existing not removed)
+    const hasTitleImage =
+      formData.titleImage.length > 0 ||
+      (hero?.titleImage && !formData.removedTitleImage);
+    if (!hasTitleImage) {
+      newErrors.titleImage = "Title image is required";
+    }
 
-    if (!hasImages) {
+    // Check if at least one image exists (new files or existing not all removed)
+    const hasNewImages = formData.images.some((img) => img !== null);
+    const existingImages = [
+      hero?.image_1,
+      hero?.image_2,
+      hero?.image_3,
+      hero?.image_4,
+    ];
+    const hasExistingImages = existingImages.some(
+      (img, idx) =>
+        img && img.trim() !== "" && !formData.removedExistingIndices.has(idx)
+    );
+
+    if (!hasNewImages && !hasExistingImages) {
       newErrors.images = "At least one image is required";
     }
 
@@ -114,22 +159,23 @@ export default function HeroAdminPage() {
     if (!validateForm()) return;
 
     setSubmitting(true);
+
+    // Build form data for submission
     const submitFormData = new FormData();
 
-    // Send each image with its position index
-    formData.images.forEach((image: File | null, index: number) => {
+    // Add title image if uploaded
+    if (formData.titleImage.length > 0) {
+      submitFormData.append("titleImage", formData.titleImage[0]);
+    }
+
+    // Add images with specific field names (image_1, image_2, etc.)
+    formData.images.forEach((image, index) => {
       if (image) {
-        submitFormData.append(`image_${index}`, image);
+        submitFormData.append(`image_${index + 1}`, image);
       }
     });
 
-    // Send position tracking data
-    const updatedPositions = formData.images
-      .map((img, idx) => (img !== null ? idx : null))
-      .filter((pos) => pos !== null);
-
-    submitFormData.append("updatedPositions", JSON.stringify(updatedPositions));
-
+    // Add removal tracking data
     if (formData.removedExistingIndices.size > 0) {
       submitFormData.append(
         "removedExistingIndices",
@@ -137,39 +183,28 @@ export default function HeroAdminPage() {
       );
     }
 
-    const imageState = formData.images.map((img) => {
-      if (img instanceof File) return "new_file";
-      if (img === null) return "removed";
-      return "existing";
-    });
-    submitFormData.append("imageState", JSON.stringify(imageState));
+    if (formData.removedTitleImage) {
+      submitFormData.append("removedTitleImage", "true");
+    }
 
     try {
-      let response;
-      if (hero) {
-        response = await Axios.patch(`/api/hero/${hero._id}`, submitFormData);
-      } else {
-        response = await Axios.post("/api/hero", submitFormData);
-      }
+      const endpoint = hero ? `/api/hero/${hero._id}` : "/api/hero";
+      const method = hero ? "patch" : "post";
+      const response = await Axios[method](endpoint, submitFormData);
 
-      const data = response.data;
-      if (data.success) {
+      if (response.data.success) {
         toast.success(
           `Hero section ${hero ? "updated" : "created"} successfully`
         );
-        setFormData({
-          images: [null, null, null, null],
-          removedExistingIndices: new Set<number>(),
-        });
-        if (hero && data.data) {
-          setHero(data.data);
-        } else if (!hero && data.data) {
-          setHero(data.data);
-        }
+
+        // Reset form and refetch data
+        setFormData(initialFormData);
+        setHero(response.data.data);
       } else {
         toast.error(`Failed to ${hero ? "update" : "create"} hero section`);
       }
-    } catch {
+    } catch (error) {
+      console.error("Submit error:", error);
       toast.error(`Failed to ${hero ? "update" : "create"} hero section`);
     } finally {
       setSubmitting(false);
@@ -191,30 +226,51 @@ export default function HeroAdminPage() {
     <div className="space-y-6">
       <PageHeader title="Home page - Hero Section" />
 
-      {/* Image Upload Section */}
+      {/* Hero Content Form */}
       <div className="bg-muted-background rounded-lg border border-gray-600 p-6">
         <h3 className="text-lg font-semibold text-gray-100 mb-6">
-          Upload Hero Section Images
+          Hero Section Content
         </h3>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Title Image Upload */}
+          <PhotoUpload
+            label="Title Image"
+            name="titleImage"
+            mode="single"
+            onImageChange={handleTitleImageChange}
+            error={errors.titleImage}
+            selectedFiles={formData.titleImage}
+            existingImages={
+              hero?.titleImage && !formData.removedTitleImage
+                ? [normalizeImagePath(hero.titleImage)]
+                : []
+            }
+            onRemoveExisting={handleRemoveTitleImage}
+            required={true}
+            acceptedTypes={["image/*"]}
+            maxFileSize={5}
+          />
+
+          {/* Hero Images Grid */}
           <PhotoUpload
             label="Hero Section Images"
             name="heroImages"
             mode="fixed"
             fixedSlots={4}
             selectedFiles={formData.images}
-            existingImages={
-              hero?.images.map((img, idx) => {
-                const isRemoved = formData.removedExistingIndices.has(idx);
-                return isRemoved || !img || img.trim() === ""
-                  ? ""
-                  : normalizeImagePath(img);
-              }) || []
-            }
+            existingImages={[
+              hero?.image_1,
+              hero?.image_2,
+              hero?.image_3,
+              hero?.image_4,
+            ].map((img, idx) => {
+              const isRemoved = formData.removedExistingIndices.has(idx);
+              return isRemoved || !img?.trim() ? "" : normalizeImagePath(img);
+            })}
             onImageChange={handleImageChange}
-            error={Object.values(errors).find((err) => err) || ""}
-            required={true}
+            error={errors.images}
+            required={false}
             acceptedTypes={["image/*"]}
             maxFileSize={5}
           />
@@ -224,8 +280,8 @@ export default function HeroAdminPage() {
               {submitting
                 ? "Saving..."
                 : hero
-                ? "Update Images"
-                : "Upload Images"}
+                ? "Update Hero Section"
+                : "Create Hero Section"}
             </AdminButton>
           </div>
         </form>
@@ -267,12 +323,25 @@ export default function HeroAdminPage() {
                   </div>
                   <div className="flex items-baseline gap-2">
                     <div className="w-40 h-16 relative">
-                      <Image
-                        src="/span-image.jpg"
-                        alt=""
-                        fill
-                        className="rounded-full object-cover border border-stone-300 shadow-[-10px_8px_20px_10px_rgba(179,131,0,0.19)]"
-                      />
+                      {/* Title Image Preview */}
+                      {formData.titleImage.length > 0 ||
+                      (hero?.titleImage && !formData.removedTitleImage) ? (
+                        <Image
+                          src={
+                            formData.titleImage.length > 0
+                              ? URL.createObjectURL(formData.titleImage[0])
+                              : normalizeImagePath(hero?.titleImage || "")
+                          }
+                          alt="Title image"
+                          fill
+                          className="rounded-full object-cover border border-stone-300 shadow-[-10px_8px_20px_10px_rgba(179,131,0,0.19)]"
+                          unoptimized
+                        />
+                      ) : (
+                        <div className="w-full h-full rounded-full border border-stone-300 bg-gray-700 flex items-center justify-center">
+                          <i className="ri-image-line text-gray-500 text-sm"></i>
+                        </div>
+                      )}
                     </div>
                     <span className="text-white font-extralight font-newsreader tracking-tighter leading-px">
                       Modeling
@@ -287,10 +356,8 @@ export default function HeroAdminPage() {
                 </div>
                 <p className="text-white text-base leading-relaxed font-light pt-6">
                   Next Models Nepal is a team of seasoned professionals
-                  dedicated to
-                  <br />
-                  talent management, elite training, and launching aspiring
-                  models.
+                  dedicated to talent management, elite training, and launching
+                  aspiring models.
                 </p>
                 <div className="flex flex-col items-start gap-4 lg:flex-row lg:gap-10 lg:items-center pt-4">
                   <button className="px-9 py-4 bg-primary text-primary-foreground hover:bg-white font-bold rounded-full text-base tracking-[0.02em] overflow-hidden relative gap-1.5 group cursor-pointer inline-flex items-center justify-center transition-colors">
@@ -326,21 +393,23 @@ export default function HeroAdminPage() {
               >
                 <div className="top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 grid grid-cols-2 grid-rows-2 gap-6 w-[80%] max-w-[390px] aspect-square z-10 relative">
                   {[0, 1, 2, 3].map((index) => {
-                    // Show new file if exists, otherwise show existing image (if not removed)
-                    const hasNewFile = formData.images[index];
-                    const hasExistingImage = hero?.images?.[index];
+                    const newFile = formData.images[index];
+                    const existingImages = [
+                      hero?.image_1,
+                      hero?.image_2,
+                      hero?.image_3,
+                      hero?.image_4,
+                    ];
+                    const existingImage = existingImages[index];
                     const isRemoved =
                       formData.removedExistingIndices.has(index);
 
+                    // Determine image source: new file > existing (if not removed) > null
                     let imageSrc: string | null = null;
-                    if (hasNewFile) {
-                      imageSrc = URL.createObjectURL(hasNewFile);
-                    } else if (
-                      hasExistingImage &&
-                      hasExistingImage.trim() !== "" &&
-                      !isRemoved
-                    ) {
-                      imageSrc = normalizeImagePath(hasExistingImage);
+                    if (newFile) {
+                      imageSrc = URL.createObjectURL(newFile);
+                    } else if (existingImage?.trim() && !isRemoved) {
+                      imageSrc = normalizeImagePath(existingImage);
                     }
 
                     return (
