@@ -39,18 +39,11 @@ export default function RootLayout({
       className={`${urbanist.variable} ${newsreader.variable} scroll-smooth`}
     >
       <body className="bg-background text-foreground antialiased font-urbanist">
-        <TopLoader showSpinner={false} color="#a06d06" height={1} />
+        <TopLoader showSpinner={false} color="#a06d06" height={1.2} />
 
         <Toaster
           position="top-right"
           offset="80px"
-          toastOptions={{
-            style: {
-              background: "var(--background2)",
-              border: "1px solid var(--border)",
-              color: "var(--foreground)",
-            },
-          }}
           richColors
         />
         <AuthProvider>{children}</AuthProvider>
