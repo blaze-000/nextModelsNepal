@@ -1,75 +1,3 @@
-// import mongoose from "mongoose";
-
-// const eventSchema = new mongoose.Schema({
-//     name: { type: String, required: true },
-//     overview: { type: String, required: true },
-//     titleImage: { type: String, required: true },
-//     coverImage: { type: String, required: true },
-//     subtitle: { type: String, required: true },
-//     quote: { type: String, required: true },
-//     purpose: { type: String, required: true },
-//     purposeImg: { type: String, required: true },
-//     timelineDescription: { type: String, required: true },
-//     // slug: { type: String, required: true },
-//     seasons: [
-//         {
-//             year: { type: Number, required: true },
-//             image: { type: String, required: true },
-//             timeline: [{
-//                 label: { type: String, required: true },
-//                 datespan: { type: String, required: true },
-//                 icon: { type: String, required: true },
-//             }],
-//             contestants: [{
-//                 name: { type: String, required: true },
-//                 id: { type: String, required: true },
-//                 intro: { type: String, required: true },
-//                 gender: { type: String, required: true, enum: ["Male", "Female", "Other"] },
-//                 address: { type: String, required: true },
-//                 image: { type: String, required: true },
-//             }],
-//             winners: [{
-//                 rank: { type: String, required: true },
-//                 name: { type: String, required: true },
-//                 image: { type: String, required: true },
-//                 description: { type: String, required: true },
-//                 slug: { type: String, required: true }
-//             }],
-//             jury: [{
-//                 name: { type: String, required: true },
-//                 designation: { type: String },
-//                 image: { type: String, required: true },
-//             }],
-//             gallery: { type: [String] },
-//             sponsors: [{ name: { type: String, required: true }, image: { type: String, required: true } }],
-//             status: { type: String, required: true, enum: ["upcoming", "ongoing", "ended"] },
-//             startDate: { type: String, required: true },
-//             endDate: { type: String, required: true },
-//             slug: { type: String, required: true },
-//             pricePerVote: { type: Number, required: true },
-//             // Following things only apply if status is "upcoming"
-//             titleImage: { type: String, required: true },
-//             posterImage: { type: String, required: true },
-//             criteria: [
-//                 {
-//                     label: { type: String, required: true },
-//                     value: { type: String, required: true },
-//                     icon: { type: String, required: true }
-//                 }
-//             ],
-//             auditions: [
-//                 {
-//                     place: { type: String, required: true },
-//                     date: { type: Date, required: true }
-//                 }
-//             ],
-//             notice: { type: [String] }
-//         }
-//     ]
-
-// }, { timestamps: true });
-
-// export const EventModel = mongoose.model("EventModel", eventSchema);
 import mongoose from "mongoose";
 const { Schema } = mongoose;
 
@@ -99,7 +27,7 @@ const seasonSchema = new Schema({
     votingOpened: { type: Boolean },
     votingEndDate: { type: Date }, // date and time.
     endDate: { type: Date, required: true },
-    slug: { type: String, required: true },
+    slug: { type: String, required: true, unique: true },
     pricePerVote: { type: Number, required: true },
     titleImage: { type: String },
     posterImage: { type: String },

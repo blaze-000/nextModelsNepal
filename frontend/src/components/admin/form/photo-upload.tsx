@@ -469,9 +469,7 @@ const PhotoUpload = ({
                       onClick={() => handleRemove(index)}
                       size="small"
                     />
-                    <p className="text-[9px] text-gray-400 text-center mt-1 truncate">
-                      New
-                    </p>
+                   
                   </div>
                 ) : null
               )}
