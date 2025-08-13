@@ -100,36 +100,27 @@ export interface Career {
 
 // Feedback Types
 export interface FeedbackItem {
-  _id: string; // Added for compatibility with DataTable
-  index: string;
+  _id: string;
+  index: number;
   name: string;
   message: string;
-  images: string;
-  documentId?: string; // ID of parent document
-}
-
-export interface Feedback {
-  _id: string;
-  item: FeedbackItem[];
+  image: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 // Feedback Form Data Types
 export interface FeedbackFormData {
   name: string;
   message: string;
-  image: File | null;
+  image: File[];
 }
 
 // Partners Types
-export interface PartnerItem {
-  index: number;
-  sponserName: string;
-  sponserImage: string;
-}
-
 export interface Partner {
   _id: string;
-  partners: PartnerItem[];
+  sponserName: string;
+  sponserImage: string;
 }
 
 // News Types
@@ -229,10 +220,8 @@ export interface NewsFormData {
 }
 
 export interface PartnerFormData {
-  partners: {
-    sponserName: string;
-    sponserImage: File | null;
-  }[];
+  sponserName: string;
+  sponserImage: File | null;
 }
 
 export interface EventFormData {
