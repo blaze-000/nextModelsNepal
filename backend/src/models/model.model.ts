@@ -8,7 +8,7 @@ const ModelSchema = new mongoose.Schema({
     coverImage: {type: String, required: true},
     images: { type: [String] },
     gender: { type: String, required: true },
-    slug: {type: String, required: true},
+    slug: {type: String, required: true, unique: true},
 }, { timestamps: true });
 
 export const Model = mongoose.model("Model", ModelSchema);
