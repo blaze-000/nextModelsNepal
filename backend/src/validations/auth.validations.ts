@@ -6,3 +6,10 @@ export const signupSchema = z.object({
         .min(6, "Password must be at least 6 characters")
         .max(25, "Password can be at most 25 characters."),
 });
+
+export const changePasswordSchema = z.object({
+    oldPassword: z.string(),
+    newPassword: z.string()
+        .min(6, "Password must be at least 6 characters")
+        .max(25, "Password can be at most 25 characters."),
+});
