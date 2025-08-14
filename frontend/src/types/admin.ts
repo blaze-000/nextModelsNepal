@@ -117,15 +117,10 @@ export interface FeedbackFormData {
 }
 
 // Partners Types
-export interface PartnerItem {
-  index: number;
-  sponserName: string;
-  sponserImage: string;
-}
-
 export interface Partner {
   _id: string;
-  partners: PartnerItem[];
+  sponserName: string;
+  sponserImage: string;
 }
 
 // News Types
@@ -225,10 +220,8 @@ export interface NewsFormData {
 }
 
 export interface PartnerFormData {
-  partners: {
     sponserName: string;
     sponserImage: File | null;
-  }[];
 }
 
 export interface EventFormData {
