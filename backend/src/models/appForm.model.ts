@@ -14,7 +14,7 @@ const appModelSchema = new mongoose.Schema({
         type: [String],
         required: true
     },
-    gender: { type: String, enum: ["Male", "Female", "Other"] },
+    gender: { type: String, enum: ["Male", "Female"] },
     occupation: { type: String, required: true },
 
     dressSize: { type: String, required: true },

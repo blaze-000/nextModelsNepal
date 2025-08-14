@@ -6,7 +6,7 @@ import { Spinner } from "@geist-ui/react";
 import { motion } from "framer-motion";
 import PhotoUpload from "./ui/photo-upload";
 import { validateEmail } from "@/lib/utils";
-
+import Axios from "@/lib/axios-instance";
 
 // Reusable Input Component
 const InputField = ({
@@ -74,7 +74,7 @@ const SelectField = ({
       onChange={onChange}
       className="w-full bg-muted-background text-gray-100 px-6 md:px-6 py-4 md:py-6 outline-none rounded"
     >
-      <option value="">{placeholder || "Select an option"}</option>
+      <option value="" disabled>{placeholder || "Select an option"}</option>
       {options.map((option) => (
         <option key={option.value} value={option.value}>
           {option.label}
@@ -128,20 +128,17 @@ const BecomeModelForm = () => {
     ethnicity: "",
     email: "",
     age: "",
-    language: "",
+    languages: "", // Changed from language to languages (array)
     gender: "",
     occupation: "",
-
     // Physical Attributes
     dressSize: "",
     shoeSize: "",
     hairColor: "",
     eyeColor: "",
-
     // Event Information
     event: "",
-    auditionLocation: "",
-
+    auditionPlace: "", // Changed from auditionLocation to auditionPlace
     // Additional Information
     weight: "",
     parentsName: "",
@@ -151,10 +148,10 @@ const BecomeModelForm = () => {
     temporaryAddress: "",
     hobbies: "",
     talents: "",
-    howDoYouKnow: "",
-    somethingElse: "",
+    heardFrom: "", // Changed from howDoYouKnow to heardFrom
+    additionalMessage: "", // Changed from somethingElse to additionalMessage
   });
-
+  
   const [errors, setErrors] = useState<
     Partial<typeof formData & { photos: string }>
   >({});
@@ -173,18 +170,17 @@ const BecomeModelForm = () => {
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
-
+    
     // Filter valid files (max 5MB each, only images)
     const validFiles = files.filter((file) => {
       const isValidType = file.type.startsWith("image/");
       const isValidSize = file.size <= 5 * 1024 * 1024; // 5MB
       return isValidType && isValidSize;
     });
-
+    
     // Limit to maximum 10 photos total
     const remainingSlots = 10 - selectedPhotos.length;
     const filesToAdd = validFiles.slice(0, remainingSlots);
-
     setSelectedPhotos((prev) => [...prev, ...filesToAdd]);
     setErrors((prev) => ({ ...prev, photos: undefined }));
   };
@@ -193,15 +189,15 @@ const BecomeModelForm = () => {
     setSelectedPhotos((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: Partial<typeof formData & { photos: string }> = {};
-
+    
     // Photo validation - at least 1 photo required
     if (selectedPhotos.length === 0) {
       newErrors.photos = "At least 1 photo is required";
     }
-
+    
     // Required fields validation
     if (!formData.name.trim()) newErrors.name = "Name is required";
     if (!formData.email.trim()) newErrors.email = "Email is required";
@@ -213,7 +209,7 @@ const BecomeModelForm = () => {
     if (!formData.ethnicity.trim())
       newErrors.ethnicity = "Ethnicity is required";
     if (!formData.age) newErrors.age = "Age is required";
-    if (!formData.language) newErrors.language = "Language is required";
+    if (!formData.languages) newErrors.languages = "Language is required";
     if (!formData.gender) newErrors.gender = "Gender is required";
     if (!formData.occupation.trim())
       newErrors.occupation = "Occupation is required";
@@ -223,9 +219,7 @@ const BecomeModelForm = () => {
     if (!formData.hairColor.trim())
       newErrors.hairColor = "Hair color is required";
     if (!formData.eyeColor.trim()) newErrors.eyeColor = "Eye color is required";
-    if (!formData.event) newErrors.event = "Event selection is required";
-    if (!formData.auditionLocation)
-      newErrors.auditionLocation = "Audition location is required";
+    // Event and auditionPlace are optional - removed validation
     if (!formData.weight.trim()) newErrors.weight = "Weight is required";
     if (!formData.parentsName.trim())
       newErrors.parentsName = "Parent's name is required";
@@ -235,108 +229,135 @@ const BecomeModelForm = () => {
       newErrors.permanentAddress = "Permanent address is required";
     if (!formData.temporaryAddress.trim())
       newErrors.temporaryAddress = "Temporary address is required";
-
-    // Note: The following fields are NOT required as per the requirement:
-    // - parentsOccupation
-    // - hobbies
-    // - talents
-    // - howDoYouKnow
-    // - somethingElse
-
+    
     if (Object.keys(newErrors).length) {
       setErrors(newErrors);
       return;
     }
-
+    
     setIsSending(true);
     try {
       // Create FormData to handle file uploads
       const formDataToSend = new FormData();
-
+      
       // Add all form fields
       Object.entries(formData).forEach(([key, value]) => {
-        formDataToSend.append(key, value);
+        // Handle languages field (convert to array)
+        if (key === 'languages') {
+          formDataToSend.append('languages', value);
+        } else {
+          formDataToSend.append(key, value);
+        }
       });
-
-      // Add photos
-      selectedPhotos.forEach((photo, index) => {
-        formDataToSend.append(`photo_${index}`, photo);
+      
+      // Add photos with correct field name
+      selectedPhotos.forEach((photo) => {
+        formDataToSend.append('images', photo);
       });
-
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        body: formDataToSend,
+      
+      const res = await Axios.post("/api/app-form", formDataToSend, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       });
-      const data = await res.json();
-      if (!res.ok || !data.success) throw new Error();
+      
       toast.success("Application submitted successfully!");
-
+      
       // Reset form
-      setFormData({
-        name: "",
-        phone: "",
-        country: "",
-        city: "",
-        ethnicity: "",
-        email: "",
-        age: "",
-        language: "",
-        gender: "",
-        occupation: "",
-        dressSize: "",
-        shoeSize: "",
-        hairColor: "",
-        eyeColor: "",
-        event: "",
-        auditionLocation: "",
-        weight: "",
-        parentsName: "",
-        parentsMobile: "",
-        parentsOccupation: "",
-        permanentAddress: "",
-        temporaryAddress: "",
-        hobbies: "",
-        talents: "",
-        howDoYouKnow: "",
-        somethingElse: "",
-      });
+      // setFormData({
+      //   name: "",
+      //   phone: "",
+      //   country: "",
+      //   city: "",
+      //   ethnicity: "",
+      //   email: "",
+      //   age: "",
+      //   languages: "",
+      //   gender: "",
+      //   occupation: "",
+      //   dressSize: "",
+      //   shoeSize: "",
+      //   hairColor: "",
+      //   eyeColor: "",
+      //   event: "",
+      //   auditionPlace: "",
+      //   weight: "",
+      //   parentsName: "",
+      //   parentsMobile: "",
+      //   parentsOccupation: "",
+      //   permanentAddress: "",
+      //   temporaryAddress: "",
+      //   hobbies: "",
+      //   talents: "",
+      //   heardFrom: "",
+      //   additionalMessage: "",
+      // });
+      
       setSelectedPhotos([]);
-    } catch {
-      toast.error("Failed to submit. Try again later.");
+      setErrors({}); // Reset errors
+    } catch (error: any) {
+      console.error("Submission error:", error);
+      
+      // Extract error message from the response
+      let errorMessage = "Failed to submit. Try again later.";
+      
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        if (error.response.data && error.response.data.message) {
+          errorMessage = error.response.data.message;
+        } else if (error.response.data && error.response.data.error) {
+          // Handle ZodError or other structured errors
+          if (typeof error.response.data.error === 'string') {
+            errorMessage = error.response.data.error;
+          } else if (error.response.data.error.message) {
+            errorMessage = error.response.data.error.message;
+          } else if (error.response.data.error.errors && error.response.data.error.errors.length > 0) {
+            // Handle ZodError structure
+            const firstError = error.response.data.error.errors[0];
+            errorMessage = firstError.message || "Invalid form data";
+          }
+        }
+      } else if (error.request) {
+        // The request was made but no response was received
+        errorMessage = "No response from server. Please check your connection.";
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        errorMessage = error.message || "Failed to submit. Try again later.";
+      }
+      
+      toast.error(errorMessage);
     } finally {
       setIsSending(false);
     }
   };
-
   // Dropdown options
   const ageOptions = Array.from({ length: 50 }, (_, i) => ({
     value: (i + 18).toString(),
     label: (i + 18).toString(),
   }));
-
+  
   const languageOptions = [
-    { value: "english", label: "English" },
-    { value: "spanish", label: "Spanish" },
-    { value: "french", label: "French" },
-    { value: "german", label: "German" },
-    { value: "mandarin", label: "Mandarin" },
-    { value: "japanese", label: "Japanese" },
-    { value: "other", label: "Other" },
+    { value: "English", label: "English" },
+    { value: "Spanish", label: "Spanish" },
+    { value: "French", label: "French" },
+    { value: "German", label: "German" },
+    { value: "Mandarin", label: "Mandarin" },
+    { value: "Japanese", label: "Japanese" },
+    { value: "Other", label: "Other" },
   ];
-
+  
   const genderOptions = [
-    { value: "male", label: "Male" },
-    { value: "female", label: "Female" },
-    { value: "non-binary", label: "Non-binary" },
-    { value: "other", label: "Other" },
-    { value: "prefer-not-to-say", label: "Prefer not to say" },
+    { value: "Male", label: "Male" },
+    { value: "Female", label: "Female" },
+    { value: "Other", label: "Other" }, // Added Other option
   ];
-
+  
   const shoeSizeOptions = Array.from({ length: 20 }, (_, i) => ({
     value: (i + 35).toString(),
     label: (i + 35).toString(),
   }));
-
+  
   const activityOptions = [
     { value: "fashion-show", label: "Fashion Show" },
     { value: "photoshoot", label: "Photoshoot" },
@@ -345,7 +366,7 @@ const BecomeModelForm = () => {
     { value: "print", label: "Print" },
     { value: "tv-film", label: "TV/Film" },
   ];
-
+  
   const locationOptions = [
     { value: "new-york", label: "New York" },
     { value: "los-angeles", label: "Los Angeles" },
@@ -381,7 +402,7 @@ const BecomeModelForm = () => {
             model begins here.
           </p>
         </motion.div>
-
+        
         {/* Form */}
         <motion.form
           onSubmit={handleSubmit}
@@ -410,7 +431,7 @@ const BecomeModelForm = () => {
               acceptedTypes={["image/*"]}
             />
           </motion.div>
-
+          
           {/* Row 1: Name, Phone */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -437,7 +458,7 @@ const BecomeModelForm = () => {
               error={errors.phone}
             />
           </motion.div>
-
+          
           {/* Row 2: Country, City */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
@@ -463,7 +484,7 @@ const BecomeModelForm = () => {
               error={errors.city}
             />
           </motion.div>
-
+          
           {/* Row 3: Ethnicity, Email */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -490,8 +511,8 @@ const BecomeModelForm = () => {
               error={errors.email}
             />
           </motion.div>
-
-          {/* Row 4: Age, Language, Gender, Occupation */}
+          
+          {/* Row 4: Age, Languages, Gender, Occupation */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -499,23 +520,23 @@ const BecomeModelForm = () => {
             viewport={{ once: true }}
             className="flex flex-col md:flex-row gap-6"
           >
-            <SelectField
+            <InputField
+              type="number"
               label="Age"
               name="age"
               value={formData.age}
               onChange={handleChange}
-              options={ageOptions}
               placeholder="Select your age"
               error={errors.age}
             />
             <SelectField
-              label="Language"
-              name="language"
-              value={formData.language}
+              label="Languages"
+              name="languages"
+              value={formData.languages}
               onChange={handleChange}
               options={languageOptions}
               placeholder="Select language"
-              error={errors.language}
+              error={errors.languages}
             />
             <SelectField
               label="Gender"
@@ -535,7 +556,7 @@ const BecomeModelForm = () => {
               error={errors.occupation}
             />
           </motion.div>
-
+          
           {/* Row 6: Dress Size, Shoe Size, Hair Color, Eye Color */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
@@ -578,8 +599,8 @@ const BecomeModelForm = () => {
               error={errors.eyeColor}
             />
           </motion.div>
-
-          {/* Row 8: Select Event, Audition Location */}
+          
+          {/* Row 8: Select Event, Audition Place */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -588,25 +609,25 @@ const BecomeModelForm = () => {
             className="flex flex-col md:flex-row gap-6"
           >
             <SelectField
-              label="Select Event (only if you are applying for an event)"
+              label="Select Event (optional)"
               name="event"
               value={formData.event}
               onChange={handleChange}
               options={activityOptions}
               placeholder="Select an event"
-              error={errors.event}
+              required={false} // Made optional
             />
             <SelectField
-              label="Where do you want to give your audition?"
-              name="auditionLocation"
-              value={formData.auditionLocation}
+              label="Where do you want to give your audition? (optional)"
+              name="auditionPlace"
+              value={formData.auditionPlace}
               onChange={handleChange}
               options={locationOptions}
               placeholder="Select location"
-              error={errors.auditionLocation}
+              required={false} // Made optional
             />
           </motion.div>
-
+          
           {/* Row 9: Weight in KG's, Parent's Name */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -632,7 +653,7 @@ const BecomeModelForm = () => {
               error={errors.parentsName}
             />
           </motion.div>
-
+          
           {/* Row 10: Parent's Mobile, Parent's Occupation */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
@@ -659,7 +680,7 @@ const BecomeModelForm = () => {
               required={false} // Not required
             />
           </motion.div>
-
+          
           {/* Row 11: Permanent Address, Temporary Address */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -685,7 +706,7 @@ const BecomeModelForm = () => {
               error={errors.temporaryAddress}
             />
           </motion.div>
-
+          
           {/* Row 13: Your Hobbies */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -702,7 +723,7 @@ const BecomeModelForm = () => {
               required={false} // Not required
             />
           </motion.div>
-
+          
           {/* Row 14: Your Talents */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -719,8 +740,8 @@ const BecomeModelForm = () => {
               required={false} // Not required
             />
           </motion.div>
-
-          {/* Row 15: How Do You Know About Us/The Event */}
+          
+          {/* Row 15: How did you hear about us? */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -728,16 +749,16 @@ const BecomeModelForm = () => {
             viewport={{ once: true }}
           >
             <TextareaField
-              label="How did you know about us/the Event?"
-              name="howDoYouKnow"
-              value={formData.howDoYouKnow}
+              label="How did you hear about us?"
+              name="heardFrom"
+              value={formData.heardFrom}
               onChange={handleChange}
               placeholder="Enter your message"
               required={false} // Not required
             />
           </motion.div>
-
-          {/* Row 16: Want to say something else? */}
+          
+          {/* Row 16: Additional Message */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -745,15 +766,15 @@ const BecomeModelForm = () => {
             viewport={{ once: true }}
           >
             <TextareaField
-              label="Want to say something else?"
-              name="somethingElse"
-              value={formData.somethingElse}
+              label="Additional Message"
+              name="additionalMessage"
+              value={formData.additionalMessage}
               onChange={handleChange}
               placeholder="Enter your message"
               required={false} // Not required
             />
           </motion.div>
-
+          
           {/* Submit Button */}
           <motion.div
             initial={{ opacity: 0 }}

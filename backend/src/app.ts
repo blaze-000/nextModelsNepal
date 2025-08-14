@@ -6,6 +6,7 @@ import helmet from 'helmet';
 import cors from 'cors';
 import compression from 'compression';
 import morgan from 'morgan';
+import cookieParser from 'cookie-parser';
 
 import './config/eventStatusUpdater';
 
@@ -33,6 +34,12 @@ import auditionsRoutes from "./routes/audition.route";
 import contestantRoutes from "./routes/contestant.route";
 import criteriaRoutes from "./routes/criteria.route";
 const app = express();
+
+app.use(cookieParser());
+app.use((req, res, next) => {
+  console.log(req.method, req.url);
+  next();
+});
 
 // Trust proxy if behind load balancer / reverse proxy (only in production)
 if (NODE_ENV === 'production') {
@@ -114,7 +121,7 @@ app.use((error: any, req: Request, res: Response, next: NextFunction) => {
       field: error.field
     });
   }
-  
+
   // Handle other file-related errors
   if (error.message && error.message.includes('Only image files are allowed')) {
     console.error('File type error:', error.message);
@@ -124,7 +131,7 @@ app.use((error: any, req: Request, res: Response, next: NextFunction) => {
       error: error.message
     });
   }
-  
+
   next(error);
 });
 

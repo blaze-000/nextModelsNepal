@@ -1,9 +1,12 @@
 import { z } from "zod";
 
 export const appModelSchema = z.object({
-    images: z.array(z.string()).nonempty({ message: "At least one image is required" }),
     name: z.string().min(1, { message: "Name is required" }),
-    phone: z.string().min(1, { message: "Mobile number is required" }),
+    phone: z
+        .string()
+        .regex(/^(\+?[0-9]{1,4}\s?)?[0-9]{7,15}$/, {
+            message: "Invalid mobile number"
+        }),
     country: z.string().min(1, { message: "Country is required" }),
     city: z.string().min(1, { message: "City is required" }),
     ethnicity: z.string().min(1, { message: "Ethnicity is required" }),
@@ -35,4 +38,6 @@ export const appModelSchema = z.object({
     talents: z.string().optional(),
     heardFrom: z.string().optional(),
     additionalMessage: z.string().optional(),
+
+    // Images will validated inside controller manually
 });

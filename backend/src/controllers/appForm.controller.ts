@@ -9,6 +9,10 @@ import { EventModel } from "../models/events.model";
 // createApplication Form
 export const createAppForm = async (req: Request, res: Response) => {
     try {
+        // Debug: Log request details
+        console.log("Request body keys:", Object.keys(req.body));
+        console.log("Request files:", req.files);
+        
         // Ensure Multer files exist
         if (!req.files || !(req.files as Express.Multer.File[]).length) {
             return res.status(400).json({
@@ -16,143 +20,391 @@ export const createAppForm = async (req: Request, res: Response) => {
                 message: "At least one image is required.",
             });
         }
-
+        
         // Convert uploaded files to relative paths
-        const imagePaths = (req.files as Express.Multer.File[]).map(file => file.path);
-
-        const { id } = req.params;
-
-        const event = await EventModel.findById({ _id: id });
-        if (!event) {
-            return res.status(404).json({
-                success: false,
-                message: "Event not found with the provided ID.",
-            });
+        const files = req.files as Express.Multer.File[];
+        const imagePaths = files.map(file => file.path);
+        console.log("Image paths extracted:", imagePaths);
+        
+        // Get event ID from request body (optional)
+        const { eventId } = req.body;
+        let eventName = "";
+        
+        // Only fetch event if eventId is provided
+        if (eventId) {
+            const event = await EventModel.findById(eventId);
+            if (!event) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Event not found with the provided ID.",
+                });
+            }
+            eventName = event.name;
         }
-
-        // Parse and validate incoming data
-        const validatedData = appModelSchema.parse({
+        
+        // Prepare data for validation (without images)
+        const dataToValidate = {
             ...req.body,
-            event: event.name,
-            images: imagePaths,
+            event: eventName,
             weight: Number(req.body.weight),
             languages: Array.isArray(req.body.languages)
                 ? req.body.languages
                 : req.body.languages?.split(",").map((lang: string) => lang.trim()),
-        });
-
-        // Create PDF
-        const doc = new PDFDocument({ margin: 30, size: "A4" });
-        const profilePic = imagePaths[0];
-
-        doc.rect(0, 0, doc.page.width, 140).fill("#F3F4F6");
-        doc.fillColor("black");
-
-        try {
-            doc.image(profilePic, 250, 20, { width: 100, height: 100 });
-        } catch (err: any) {
-            console.warn("Profile image failed to load:", err.message);
-        }
-
-        doc.moveDown(5);
-        doc.font("Helvetica-Bold").fontSize(26).fillColor("#1D4ED8");
-        doc.moveDown(2)
-            .font("Helvetica")
-            .fontSize(12)
-            .fillColor("#6B7280")
-            .text("Model Application Form: Submitted via Online Application Portal", {
-                align: "center",
-            });
-
-        doc.moveDown(1);
-        doc.strokeColor("#D1D5DB").lineWidth(1).moveTo(30, doc.y).lineTo(565, doc.y).stroke();
-        doc.moveDown(2);
-
-        // Personal Info
-        doc.fontSize(14).fillColor("#374151");
-        doc.text(`Name: ${validatedData.name}`);
-        doc.text(`Mobile Number: ${validatedData.phone}`);
-        doc.text(`Email: ${validatedData.email}`);
-        doc.text(`Country: ${validatedData.country}, City: ${validatedData.city}`);
-        doc.text(`Ethnicity: ${validatedData.ethnicity}`);
-        doc.text(`Age: ${validatedData.age}`);
-        doc.text(`Gender: ${validatedData.gender || "N/A"}`);
-        doc.text(`Occupation: ${validatedData.occupation}`);
-        doc.moveDown(1);
-
-        // Appearance
-        doc.text(`Dress Size: ${validatedData.dressSize}`);
-        doc.text(`Shoe Size: ${validatedData.shoeSize}`);
-        doc.text(`Hair Color: ${validatedData.hairColor}`);
-        doc.text(`Eye Color: ${validatedData.eyeColor}`);
-        doc.moveDown(1);
-
-        // Event Info
-        if (validatedData.event) doc.text(`Event: ${validatedData.event}`);
-        if (validatedData.auditionPlace) doc.text(`Audition Place: ${validatedData.auditionPlace}`);
-        doc.text(`Weight (kg): ${validatedData.weight}`);
-        doc.moveDown(1);
-
-        // Parents Info
-        doc.text(`Parents Name: ${validatedData.parentsName}`);
-        doc.text(`Parents Mobile: ${validatedData.parentsMobile}`);
-        doc.text(`Parents Occupation: ${validatedData.parentsOccupation || "N/A"}`);
-        doc.moveDown(1);
-
-        // Address
-        doc.text(`Permanent Address: ${validatedData.permanentAddress}`);
-        doc.text(`Temporary Address: ${validatedData.temporaryAddress}`);
-        doc.moveDown(1);
-
-        // Extras
-        doc.text(`Talents: ${validatedData.talents || "N/A"}`);
-        doc.text(`Hobbies: ${validatedData.hobbies}`);
-        doc.text(`How did you hear about us: ${validatedData.heardFrom || "N/A"}`);
-        doc.text(`Additional Message: ${validatedData.additionalMessage || "N/A"}`);
-
-        doc.end();
-
-        const pdfBuffer = await new Promise<Buffer>((resolve, reject) => {
-            const chunks: Buffer[] = [];
-            doc.on("data", chunk => chunks.push(chunk));
-            doc.on("end", () => resolve(Buffer.concat(chunks)));
-            doc.on("error", reject);
-        });
-
-        // Email with PDF
-        const transporter = nodemailer.createTransport({
-            host: "smtp.gmail.com",
-            port: 465,
-            secure: true,
-            auth: {
-                user: process.env.COMPANY_EMAIL,
-                pass: process.env.COMPANY_PASSWORD,
-            },
-        });
-
-        await transporter.sendMail({
-            from: `"${validatedData.name}" <${validatedData.email}>`,
-            to: process.env.COMPANY_EMAIL,
-            subject: "New Model Application Form",
-            html: `<h2>New Application from ${validatedData.name}</h2><p>See attached PDF for details.</p>`,
-            attachments: [
-                {
-                    filename: `ModelApplication-${Date.now()}.pdf`,
-                    content: pdfBuffer,
-                    contentType: "application/pdf",
-                },
-            ],
-            replyTo: validatedData.email,
-        });
-
+        };
+        
+        // Parse and validate incoming data (without images)
+        const validatedData = appModelSchema.parse(dataToValidate);
+        
+        // Debug: Log validated data before saving
+        console.log("Validated data before saving:", JSON.stringify(validatedData, null, 2));
+        
+        // Add images to the validated data
+        const dataToSave = {
+            ...validatedData,
+            images: imagePaths,
+        };
+        
+        // Debug: Log data to save
+        console.log("Data to save (with images):", JSON.stringify(dataToSave, null, 2));
+        
         // Save to DB
-        const savedApplication = await AppModel.create(validatedData);
-
-        res.status(201).json({
-            success: true,
-            message: "Application form submitted successfully.",
-            data: savedApplication,
-        });
+        const savedApplication = await AppModel.create(dataToSave);
+        
+        // Debug: Log saved application
+        console.log("Saved application:", JSON.stringify(savedApplication, null, 2));
+        
+        // Verify images were saved
+        if (!savedApplication.images || savedApplication.images.length === 0) {
+            console.error("Images were not saved to the database!");
+            // We'll still continue but log the error
+        }
+        
+        try {
+            // Create HTML email template (without photos section)
+            const emailHtml = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Model Application Form</title>
+                    <style>
+                        body {
+                            font-family: 'Urbanist', sans-serif;
+                            background-color: #12110d;
+                            color: #ffffff;
+                            margin: 0;
+                            padding: 0;
+                            line-height: 1.6;
+                        }
+                        .container {
+                            max-width: 800px;
+                            margin: 0 auto;
+                            padding: 20px;
+                        }
+                        .header {
+                            text-align: center;
+                            margin-bottom: 0;
+                            padding: 20px;
+                            background-color: #080808;
+                            border-radius: 10px 10px 0 0;
+                        }
+                        .header h1 {
+                            color: #ffaa00;
+                            font-size: 28px;
+                            margin: 0;
+                            font-weight: 300;
+                        }
+                        .header p {
+                            color: #ffffff70;
+                            margin: 10px 0 0 0;
+                            font-size: 16px;
+                        }
+                        .content {
+                            background-color: #080808;
+                            border-radius: 0 0 10px 10px;
+                            padding: 30px;
+                            margin-top: 0;
+                        }
+                        .section {
+                            margin-bottom: 30px;
+                        }
+                        .section-title {
+                            color: #ffaa00;
+                            font-size: 20px;
+                            margin-bottom: 15px;
+                            border-bottom: 1px solid #1e1e1e;
+                            padding-bottom: 10px;
+                        }
+                        .info-grid {
+                            display: grid;
+                            grid-template-columns: 1fr 1fr;
+                            gap: 15px;
+                        }
+                        .info-item {
+                            margin-bottom: 15px;
+                        }
+                        .info-label {
+                            color: #ffffff50;
+                            font-size: 14px;
+                            margin-bottom: 5px;
+                        }
+                        .info-value {
+                            color: #ffffff;
+                            font-size: 16px;
+                        }
+                        .full-width {
+                            grid-column: span 2;
+                        }
+                        .photo-notice {
+                            background-color: #1e1e1e;
+                            border-radius: 8px;
+                            padding: 15px;
+                            margin-top: 15px;
+                            text-align: center;
+                            color: #ffffff80;
+                        }
+                        .footer {
+                            text-align: center;
+                            color: #ffffff50;
+                            font-size: 14px;
+                            margin-top: 30px;
+                        }
+                        @media (max-width: 600px) {
+                            .info-grid {
+                                grid-template-columns: 1fr;
+                            }
+                            .full-width {
+                                grid-column: span 1;
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <div class="header">
+                            <h1>Model Application Form</h1>
+                            <p>Submitted via Online Application Portal</p>
+                        </div>
+                        
+                        <div class="content">
+                            <div class="section">
+                                <h2 class="section-title">Personal Information</h2>
+                                <div class="info-grid">
+                                    <div class="info-item">
+                                        <div class="info-label">Full Name</div>
+                                        <div class="info-value">${validatedData.name}</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Email</div>
+                                        <div class="info-value">${validatedData.email}</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Phone</div>
+                                        <div class="info-value">${validatedData.phone}</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Age</div>
+                                        <div class="info-value">${validatedData.age}</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Gender</div>
+                                        <div class="info-value">${validatedData.gender || "Not specified"}</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Ethnicity</div>
+                                        <div class="info-value">${validatedData.ethnicity}</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Occupation</div>
+                                        <div class="info-value">${validatedData.occupation}</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Languages</div>
+                                        <div class="info-value">${validatedData.languages.join(", ")}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="section">
+                                <h2 class="section-title">Physical Attributes</h2>
+                                <div class="info-grid">
+                                    <div class="info-item">
+                                        <div class="info-label">Dress Size</div>
+                                        <div class="info-value">${validatedData.dressSize}</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Shoe Size</div>
+                                        <div class="info-value">${validatedData.shoeSize}</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Hair Color</div>
+                                        <div class="info-value">${validatedData.hairColor}</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Eye Color</div>
+                                        <div class="info-value">${validatedData.eyeColor}</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Weight</div>
+                                        <div class="info-value">${validatedData.weight} kg</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="section">
+                                <h2 class="section-title">Event Information</h2>
+                                <div class="info-grid">
+                                    <div class="info-item">
+                                        <div class="info-label">Event</div>
+                                        <div class="info-value">${validatedData.event || "Not specified"}</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Audition Place</div>
+                                        <div class="info-value">${validatedData.auditionPlace || "Not specified"}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="section">
+                                <h2 class="section-title">Parents Information</h2>
+                                <div class="info-grid">
+                                    <div class="info-item">
+                                        <div class="info-label">Parent's Name</div>
+                                        <div class="info-value">${validatedData.parentsName}</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Parent's Mobile</div>
+                                        <div class="info-value">${validatedData.parentsMobile}</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Parent's Occupation</div>
+                                        <div class="info-value">${validatedData.parentsOccupation || "Not specified"}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="section">
+                                <h2 class="section-title">Address Information</h2>
+                                <div class="info-grid">
+                                    <div class="info-item">
+                                        <div class="info-label">Country</div>
+                                        <div class="info-value">${validatedData.country}</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">City</div>
+                                        <div class="info-value">${validatedData.city}</div>
+                                    </div>
+                                    <div class="info-item full-width">
+                                        <div class="info-label">Permanent Address</div>
+                                        <div class="info-value">${validatedData.permanentAddress}</div>
+                                    </div>
+                                    <div class="info-item full-width">
+                                        <div class="info-label">Temporary Address</div>
+                                        <div class="info-value">${validatedData.temporaryAddress}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="section">
+                                <h2 class="section-title">Additional Information</h2>
+                                <div class="info-grid">
+                                    <div class="info-item full-width">
+                                        <div class="info-label">Hobbies</div>
+                                        <div class="info-value">${validatedData.hobbies}</div>
+                                    </div>
+                                    <div class="info-item full-width">
+                                        <div class="info-label">Talents</div>
+                                        <div class="info-value">${validatedData.talents || "Not specified"}</div>
+                                    </div>
+                                    <div class="info-item full-width">
+                                        <div class="info-label">How did you hear about us?</div>
+                                        <div class="info-value">${validatedData.heardFrom || "Not specified"}</div>
+                                    </div>
+                                    <div class="info-item full-width">
+                                        <div class="info-label">Additional Message</div>
+                                        <div class="info-value">${validatedData.additionalMessage || "Not specified"}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="section">
+                                <h2 class="section-title">Photos</h2>
+                                <div class="photo-notice">
+                                    <p>Photos are attached to this email for your review.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="footer">
+                            This email was sent from the Model Application Portal.
+                        </div>
+                    </div>
+                </body>
+                </html>
+            `;
+            
+            // Prepare attachments
+            const attachments = await Promise.all(
+                files.map(async (file, index) => {
+                    try {
+                        // Read the file as a buffer
+                        const fs = require('fs').promises;
+                        const path = require('path');
+                        const filePath = path.resolve(file.path);
+                        const fileBuffer = await fs.readFile(filePath);
+                        
+                        return {
+                            filename: `photo_${index + 1}_${file.originalname}`,
+                            content: fileBuffer,
+                            contentType: file.mimetype,
+                        };
+                    } catch (err) {
+                        console.error(`Error reading file ${file.path}:`, err);
+                        return null;
+                    }
+                })
+            );
+            
+            // Filter out any null attachments (files that couldn't be read)
+            const validAttachments = attachments.filter(attachment => attachment !== null);
+            
+            // Email with HTML content and attachments
+            const transporter = nodemailer.createTransport({
+                host: "smtp.gmail.com",
+                port: 465,
+                secure: true,
+                auth: {
+                    user: process.env.COMPANY_EMAIL,
+                    pass: process.env.COMPANY_PASSWORD,
+                },
+            });
+            
+            await transporter.sendMail({
+                from: `"${validatedData.name}" <${validatedData.email}>`,
+                to: process.env.COMPANY_EMAIL,
+                subject: "New Model Application Form",
+                html: emailHtml,
+                attachments: validAttachments,
+                replyTo: validatedData.email,
+            });
+            
+            // Return success response
+            res.status(201).json({
+                success: true,
+                message: "Application form submitted successfully.",
+                data: savedApplication,
+            });
+            
+        } catch (emailError: any) {
+            console.error("Error sending email:", emailError);
+            // Still return success but note the email issue
+            res.status(201).json({
+                success: true,
+                message: "Application submitted successfully, but email notification failed.",
+                data: savedApplication,
+            });
+        }
     } catch (error: any) {
         console.error("Error submitting application form:", error);
         res.status(500).json({
@@ -162,15 +414,14 @@ export const createAppForm = async (req: Request, res: Response) => {
         });
     }
 };
-
 // Get Application Form
-export const getAppForm = async (_req: Request, res: Response) => {
+export const getAllForms = async (_req: Request, res: Response) => {
     try {
         const appForm = await AppModel.find();
         if (!appForm || appForm.length === 0) {
-            return res.status(404).json({
+            return res.status(200).json({
                 success: false,
-                message: "List of Application Form  not found.",
+                message: "List of Application Form is empty.",
             });
         }
 
