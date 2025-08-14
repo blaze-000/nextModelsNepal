@@ -117,7 +117,7 @@ export default function ModelsPage() {
         render: (value: unknown) => (
           <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 flex-shrink-0">
             <Image
-              src={`http://localhost:8000/${String(value)}`}
+              src={`http://localhost:8000${String(value)}`}
               alt="Model photo"
               width={64}
               height={64}

@@ -17,6 +17,7 @@ const INITIAL_FORM_DATA: ModelFormData = {
   intro: "",
   address: "",
   gender: "",
+  index: "",
   slug: "",
   coverImage: [],
   galleryImages: [],
@@ -66,6 +67,7 @@ const ModelsPopup = ({
           address: model.address || "",
           gender: model.gender || "",
           slug: model.slug || "",
+          index: model.index || "",
           coverImage: [],
           galleryImages: [],
         });
@@ -209,6 +211,7 @@ const ModelsPopup = ({
         submitFormData.append("address", formData.address.trim());
         submitFormData.append("gender", formData.gender);
         submitFormData.append("slug", formData.slug.trim());
+        submitFormData.append("index", formData.index.toString());
 
         // Add cover image if new one is selected
         if (formData.coverImage[0]) {
@@ -240,10 +243,141 @@ const ModelsPopup = ({
         }
       } catch (error: unknown) {
         console.error("Error submitting model:", error);
-        const errorMessage =
-          error instanceof Error
-            ? error.message
-            : `Failed to ${isEditing ? "update" : "create"} model`;
+
+        let errorMessage = `Failed to ${isEditing ? "update" : "create"} model`;
+
+        // Handle Axios errors with response data
+        if (error && typeof error === "object" && "response" in error) {
+          const axiosError = error as {
+            response?: {
+              data?: {
+                message?: string;
+                error?:
+                  | string
+                  | {
+                      message?: string;
+                      issues?: Array<{ message?: string }>;
+                      code?: number;
+                      keyPattern?: { [key: string]: number };
+                      keyValue?: { [key: string]: string };
+                    };
+                code?: string;
+                field?: string;
+              };
+              status?: number;
+            };
+            request?: unknown;
+          };
+
+          if (axiosError.response?.data) {
+            const responseData = axiosError.response.data;
+
+            // Handle MongoDB duplicate key errors (code 11000)
+            if (
+              responseData.error &&
+              typeof responseData.error === "object" &&
+              "code" in responseData.error &&
+              responseData.error.code === 11000
+            ) {
+              const duplicateError = responseData.error as {
+                keyPattern?: { [key: string]: number };
+                keyValue?: { [key: string]: string };
+              };
+
+              if (duplicateError.keyPattern && duplicateError.keyValue) {
+                const field = Object.keys(duplicateError.keyPattern)[0];
+                const value = duplicateError.keyValue[field];
+
+                if (field === "slug") {
+                  errorMessage = `A model with the slug "${value}" already exists. Please use a different name or modify the slug.`;
+                } else if (field === "name") {
+                  errorMessage = `A model with the name "${value}" already exists. Please use a different name.`;
+                } else {
+                  errorMessage = `A model with this ${field} already exists. Please use a different value.`;
+                }
+              } else {
+                errorMessage =
+                  "This model already exists. Please check for duplicate values.";
+              }
+            }
+            // Handle backend validation errors
+            else if (responseData.message) {
+              errorMessage = responseData.message;
+            }
+            // Handle Zod validation errors
+            else if (responseData.error) {
+              if (typeof responseData.error === "string") {
+                errorMessage = responseData.error;
+              }
+              // Handle Zod error structure
+              else if (
+                responseData.error.issues &&
+                Array.isArray(responseData.error.issues)
+              ) {
+                const firstError = responseData.error.issues[0];
+                errorMessage = firstError.message || "Validation failed";
+              }
+              // Handle other error structures
+              else if (responseData.error.message) {
+                errorMessage = responseData.error.message;
+              }
+            }
+            // Handle file upload errors (Multer errors)
+            else if (responseData.code && responseData.field) {
+              if (responseData.code === "LIMIT_FILE_SIZE") {
+                errorMessage = `File size too large for ${responseData.field}`;
+              } else if (responseData.code === "LIMIT_FILE_COUNT") {
+                errorMessage = `Too many files for ${responseData.field}`;
+              } else if (responseData.code === "LIMIT_UNEXPECTED_FILE") {
+                errorMessage = `Unexpected file field: ${responseData.field}`;
+              } else {
+                errorMessage = `File upload error: ${
+                  responseData.message || responseData.code
+                }`;
+              }
+            }
+          }
+          // Handle specific HTTP status codes
+          else if (axiosError.response?.status) {
+            switch (axiosError.response.status) {
+              case 400:
+                errorMessage =
+                  "Invalid data provided. Please check your inputs.";
+                break;
+              case 404:
+                errorMessage = isEditing
+                  ? "Model not found"
+                  : "Resource not found";
+                break;
+              case 409:
+                errorMessage = "A model with this name or slug already exists";
+                break;
+              case 413:
+                errorMessage =
+                  "File size too large. Please upload smaller images.";
+                break;
+              case 415:
+                errorMessage =
+                  "Invalid file type. Please upload image files only.";
+                break;
+              case 500:
+                errorMessage = "Server error. Please try again later.";
+                break;
+              default:
+                errorMessage = `Server error (${axiosError.response.status})`;
+            }
+          }
+        }
+        // Handle network errors
+        else if (error && typeof error === "object" && "request" in error) {
+          errorMessage =
+            "Network error. Please check your connection and try again.";
+        }
+        // Handle JavaScript errors
+        else if (error instanceof Error) {
+          errorMessage = error.message;
+        }
+
         toast.error(errorMessage);
       } finally {
         setIsSubmitting(false);
@@ -288,7 +422,19 @@ const ModelsPopup = ({
               required
               disabled={isSubmitting}
             />
-
+            <Input
+              label="Slug"
+              name="slug"
+              value={formData.slug}
+              onChange={handleInputChange}
+              placeholder="url-friendly-name"
+              error={errors.slug}
+              required
+              disabled={isSubmitting}
+              helpText="This will be used in the URL. Auto-generated from name, but you can customize it."
+            />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Select
               label="Gender"
               name="gender"
@@ -300,19 +446,18 @@ const ModelsPopup = ({
               required
               disabled={isSubmitting}
             />
-          </div>
 
-          <Input
-            label="Slug"
-            name="slug"
-            value={formData.slug}
-            onChange={handleInputChange}
-            placeholder="url-friendly-name"
-            error={errors.slug}
-            required
-            disabled={isSubmitting}
-            helpText="This will be used in the URL. Auto-generated from name, but you can customize it."
-          />
+            <Input
+              label="Display Order"
+              name="index"
+              value={formData.index}
+              onChange={handleInputChange}
+              placeholder="Enter Display Order"
+              error={errors.index}
+              required
+              disabled={isSubmitting}
+            />
+          </div>
 
           <Input
             label="Address"

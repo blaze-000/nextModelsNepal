@@ -71,6 +71,7 @@ export interface CompanyModel {
   name: string;
   intro: string;
   address: string;
+  index: string;
   gender: string;
   slug: string;
   coverImage: string;
@@ -206,6 +207,7 @@ export interface ModelFormData {
   address: string;
   gender: string;
   slug: string;
+  index: string;
   coverImage: File[];
   galleryImages: File[];
 }

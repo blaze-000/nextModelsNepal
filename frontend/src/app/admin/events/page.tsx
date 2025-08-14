@@ -4,11 +4,12 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import PageHeader from "@/components/admin/PageHeader";
 import { AdminButton } from "@/components/admin/AdminButton";
-import Modal from "@/components/admin/Modal";
+import DeleteConfirmModal from "@/components/admin/DeleteConfirmModal";
+import EventPopup, { BackendEvent } from "./EventPopup";
 
 import Axios from "@/lib/axios-instance";
 import { normalizeImagePath } from "@/lib/utils";
@@ -38,8 +39,11 @@ interface PaginationInfo {
 }
 
 export default function EventsAdminPage() {
+  const router = useRouter();
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [editingEvent, setEditingEvent] = useState<BackendEvent | null>(null);
   const [deleteModal, setDeleteModal] = useState<{
     isOpen: boolean;
     event: Event | null;
@@ -79,6 +83,46 @@ export default function EventsAdminPage() {
     fetchEvents();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pagination.page]);
+
+  const handleAddEvent = () => {
+    setEditingEvent(null);
+    setIsPopupOpen(true);
+  };
+
+  const handleEditEvent = (event: Event) => {
+    // Convert Event to BackendEvent format for the popup
+    const backendEvent: BackendEvent = {
+      _id: event._id,
+      name: event.name,
+      overview: event.overview,
+      titleImage: event.titleImage,
+      coverImage: event.coverImage,
+      subtitle: event.subtitle,
+      quote: event.quote,
+      purpose: event.purpose,
+      purposeImage: event.purposeImage,
+      timelineSubtitle: event.timelineSubtitle,
+      managedBy: event.managedBy,
+      seasons: event.seasons,
+      createdAt: event.createdAt,
+      updatedAt: event.updatedAt,
+    };
+    setEditingEvent(backendEvent);
+    setIsPopupOpen(true);
+  };
+
+  const handleViewEvent = (event: Event) => {
+    router.push(`/admin/events/${event._id}`);
+  };
+
+  const handleClosePopup = () => {
+    setIsPopupOpen(false);
+    setEditingEvent(null);
+  };
+
+  const handlePopupSuccess = () => {
+    fetchEvents(); // Refresh the list after successful create/edit
+  };
 
   const handleDelete = async () => {
     if (!deleteModal.event) return;
@@ -131,12 +175,10 @@ export default function EventsAdminPage() {
         title="Events Management"
         description="Manage your events and seasons"
       >
-        <Link href="/admin/events/create-events">
-          <AdminButton>
-            <i className="ri-add-line mr-2"></i>
-            Create Event
-          </AdminButton>
-        </Link>
+        <AdminButton onClick={handleAddEvent}>
+          <i className="ri-add-line mr-2"></i>
+          Add Event
+        </AdminButton>
       </PageHeader>
 
       {events.length === 0 ? (
@@ -152,12 +194,10 @@ export default function EventsAdminPage() {
               You haven&apos;t created any events yet. Create your first event
               to get started.
             </p>
-            <Link href="/admin/events/create-events">
-              <AdminButton>
-                <i className="ri-add-line mr-2"></i>
-                Create Your First Event
-              </AdminButton>
-            </Link>
+            <AdminButton onClick={handleAddEvent}>
+              <i className="ri-add-line mr-2"></i>
+              Create Your First Event
+            </AdminButton>
           </div>
         </div>
       ) : (
@@ -233,19 +273,25 @@ export default function EventsAdminPage() {
 
                   {/* Actions */}
                   <div className="flex gap-2">
-                    <Link
-                      href={`/admin/events/edit/${event._id}`}
-                      className="flex-1"
+                    <AdminButton
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleViewEvent(event)}
+                      className="flex-1 text-xs lg:text-sm"
                     >
-                      <AdminButton
-                        variant="outline"
-                        size="sm"
-                        className="w-full text-xs lg:text-sm"
-                      >
-                        <i className="ri-edit-line mr-1 lg:mr-2"></i>
-                        Edit
-                      </AdminButton>
-                    </Link>
+                      <i className="ri-eye-line mr-1 lg:mr-2"></i>
+                      View
+                    </AdminButton>
+
+                    <AdminButton
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleEditEvent(event)}
+                      className="flex-1 text-xs lg:text-sm"
+                    >
+                      <i className="ri-edit-line mr-1 lg:mr-2"></i>
+                      Edit
+                    </AdminButton>
 
                     <AdminButton
                       variant="destructive"
@@ -314,47 +360,23 @@ export default function EventsAdminPage() {
         </>
       )}
 
+      {/* Event Popup */}
+      <EventPopup
+        isOpen={isPopupOpen}
+        onClose={handleClosePopup}
+        event={editingEvent}
+        onSuccess={handlePopupSuccess}
+      />
+
       {/* Delete Confirmation Modal */}
-      <Modal
+      <DeleteConfirmModal
         isOpen={deleteModal.isOpen}
         onClose={closeDeleteModal}
+        onConfirm={handleDelete}
         title="Delete Event"
-      >
-        <div className="p-6">
-          <p className="text-gray-400 mb-4">
-            Are you sure you want to delete this event? This action cannot be
-            undone and will also delete all associated seasons.
-          </p>
-
-          {deleteModal.event && (
-            <div className="bg-gray-800 rounded-lg p-4 mb-6">
-              <h4 className="text-lg font-medium text-gray-100 mb-2">
-                {deleteModal.event.name}
-              </h4>
-              <p className="text-sm text-gray-400">
-                {deleteModal.event.overview}
-              </p>
-            </div>
-          )}
-
-          <div className="flex gap-3 justify-end">
-            <AdminButton
-              variant="outline"
-              onClick={closeDeleteModal}
-              disabled={deleting}
-            >
-              Cancel
-            </AdminButton>
-            <AdminButton
-              variant="destructive"
-              onClick={handleDelete}
-              disabled={deleting}
-            >
-              {deleting ? "Deleting..." : "Delete Event"}
-            </AdminButton>
-          </div>
-        </div>
-      </Modal>
+        message="Are you sure you want to delete this event? This action cannot be undone and will also delete all associated seasons."
+        isDeleting={deleting}
+      />
     </div>
   );
 }
