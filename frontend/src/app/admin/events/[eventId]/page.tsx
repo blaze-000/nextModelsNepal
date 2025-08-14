@@ -1,13 +1,17 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams, useSearchParams, useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { motion } from "framer-motion";
+import Image from "next/image";
 import PageHeader from "@/components/admin/PageHeader";
 import { AdminButton } from "@/components/admin/AdminButton";
-import DataTable from "@/components/admin/DataTable";
 import DeleteConfirmModal from "@/components/admin/DeleteConfirmModal";
 import EventPopup, { BackendEvent } from "../EventPopup";
+import SeasonPopup, { BackendSeason } from "./SeasonPopup";
 import Axios from "@/lib/axios-instance";
+import { normalizeImagePath } from "@/lib/utils";
 
 // Types
 interface Event {
@@ -39,98 +43,48 @@ interface Season {
   images: string[];
   createdAt: string;
   updatedAt: string;
-}
-
-interface Contestant {
-  _id: string;
-  seasonId: string;
-  name: string;
-  age: number;
-  bio: string;
-  hometown: string;
-  profession: string;
-  socialMedia: {
-    instagram?: string;
-    facebook?: string;
-    twitter?: string;
-  };
-  images: string[];
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-  season?: {
-    _id: string;
-    name: string;
-    year: number;
-  };
-}
-
-interface Winner {
-  _id: string;
-  eventId: string;
-  contestantId: string;
-  position: number;
-  prize: string;
-  year: number;
-  createdAt: string;
-  updatedAt: string;
-  contestant?: {
-    _id: string;
-    name: string;
-    images: string[];
-  };
-  event?: {
-    _id: string;
-    name: string;
-  };
-}
-
-interface Jury {
-  _id: string;
-  eventId: string;
-  name: string;
-  title: string;
-  bio: string;
-  expertise: string[];
-  images: string[];
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-  event?: {
-    _id: string;
-    name: string;
-  };
-}
-
-type TabKey = "overview" | "seasons" | "winners" | "contestants" | "jury";
-
-interface TabConfig {
-  key: TabKey;
-  label: string;
-  count?: number;
+  // Additional fields for BackendSeason compatibility
+  image?: string;
+  slug?: string;
+  pricePerVote?: number;
+  auditionFormDeadline?: string;
+  votingOpened?: boolean;
+  votingEndDate?: string;
+  titleImage?: string;
+  posterImage?: string;
+  gallery?: string[];
+  notice?: string[];
+  timeline?: Array<{
+    label: string;
+    datespan: string;
+    icon: string;
+  }>;
 }
 
 export default function EventDetailPage() {
   const params = useParams();
-  const searchParams = useSearchParams();
   const router = useRouter();
   const eventId = params.eventId as string;
-  const activeTab = (searchParams.get("tab") as TabKey) || "overview";
 
   // State
   const [event, setEvent] = useState<Event | null>(null);
   const [seasons, setSeasons] = useState<Season[]>([]);
-  const [winners, setWinners] = useState<Winner[]>([]);
-  const [contestants, setContestants] = useState<Contestant[]>([]);
-  const [jury, setJury] = useState<Jury[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // Modal states
   const [editEventModal, setEditEventModal] = useState(false);
+  const [addSeasonModal, setAddSeasonModal] = useState(false);
+  const [editSeasonModal, setEditSeasonModal] = useState<{
+    isOpen: boolean;
+    season: BackendSeason | null;
+  }>({
+    isOpen: false,
+    season: null,
+  });
   const [deleteModal, setDeleteModal] = useState<{
     isOpen: boolean;
-    type: "season" | "winner" | "contestant" | "jury" | null;
+    type: "season" | null;
     id: string | null;
     name: string;
   }>({
@@ -139,395 +93,144 @@ export default function EventDetailPage() {
     id: null,
     name: "",
   });
+  const [deleting, setDeleting] = useState(false);
 
-  // Tab configuration
-  const tabs: TabConfig[] = [
-    { key: "overview", label: "Overview" },
-    { key: "seasons", label: "Seasons", count: seasons.length },
-    { key: "winners", label: "Winners", count: winners.length },
-    { key: "contestants", label: "Contestants", count: contestants.length },
-    { key: "jury", label: "Jury", count: jury.length },
-  ];
-
-  // API functions and data loading
+  // Fetch event data
   useEffect(() => {
-    (async () => {
+    const fetchEvent = async () => {
       try {
+        setLoading(true);
         const res = await Axios.get(`/api/events/${eventId}`);
         setEvent(res.data.data);
       } catch (err) {
         console.error("Failed to fetch event:", err);
         setError(err instanceof Error ? err.message : "Failed to fetch event");
       }
-    })();
+    };
+
+    fetchEvent();
   }, [eventId]);
 
+  // Fetch seasons data
   useEffect(() => {
-    (async () => {
+    const fetchSeasons = async () => {
       try {
         const res = await Axios.get(`/api/season/event/${eventId}`);
         setSeasons(res.data.data || []);
       } catch (err) {
         console.error("Failed to fetch seasons:", err);
+      } finally {
+        setLoading(false);
       }
-    })();
+    };
+
+    fetchSeasons();
   }, [eventId]);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await Axios.get(`/api/winners?eventId=${eventId}`);
-        setWinners(res.data.data || []);
-      } catch (err) {
-        console.error("Failed to fetch winners:", err);
-      }
-    })();
-  }, [eventId]);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await Axios.get(`/api/contestants?eventId=${eventId}`);
-        setContestants(res.data.data || []);
-      } catch (err) {
-        console.error("Failed to fetch contestants:", err);
-      }
-    })();
-  }, [eventId]);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await Axios.get(`/api/jury?eventId=${eventId}`);
-        setJury(res.data.data || []);
-      } catch (err) {
-        console.error("Failed to fetch jury:", err);
-      }
-    })();
-  }, [eventId]);
-
-  // Loading state
-  useEffect(() => {
-    setLoading(false);
-  }, [event, seasons, winners, contestants, jury]);
-
-  // Tab navigation
-  const handleTabChange = (tab: TabKey) => {
-    const newSearchParams = new URLSearchParams(searchParams.toString());
-    newSearchParams.set("tab", tab);
-    router.push(`/admin/events/${eventId}?${newSearchParams.toString()}`);
+  // Handlers
+  const handleViewSeason = (season: Season) => {
+    router.push(`/admin/events/${eventId}/seasons/${season._id}`);
   };
 
-  // Delete handlers
-  const handleDelete = async () => {
-    if (!deleteModal.id || !deleteModal.type) return;
+  const handleEditSeason = (season: Season) => {
+    setEditSeasonModal({
+      isOpen: true,
+      season: season as BackendSeason,
+    });
+  };
+
+  const handleAddSeason = () => {
+    setAddSeasonModal(true);
+  };
+
+  const handleDeleteSeason = async () => {
+    if (!deleteModal.id) return;
 
     try {
-      const endpoints = {
-        season: `/api/season/${deleteModal.id}`,
-        winner: `/api/winners/${deleteModal.id}`,
-        contestant: `/api/contestants/${deleteModal.id}`,
-        jury: `/api/jury/${deleteModal.id}`,
-      };
+      setDeleting(true);
+      const response = await Axios.delete(`/api/season/${deleteModal.id}`);
 
-      await Axios.delete(endpoints[deleteModal.type]);
-
-      // Refresh data based on type
-      switch (deleteModal.type) {
-        case "season":
-          const seasonRes = await Axios.get(`/api/season/event/${eventId}`);
-          setSeasons(seasonRes.data.data || []);
-          break;
-        case "winner":
-          const winnerRes = await Axios.get(`/api/winners?eventId=${eventId}`);
-          setWinners(winnerRes.data.data || []);
-          break;
-        case "contestant":
-          const contestantRes = await Axios.get(
-            `/api/contestants?eventId=${eventId}`
-          );
-          setContestants(contestantRes.data.data || []);
-          break;
-        case "jury":
-          const juryRes = await Axios.get(`/api/jury?eventId=${eventId}`);
-          setJury(juryRes.data.data || []);
-          break;
+      if (response.data.success) {
+        toast.success("Season deleted successfully");
+        setDeleteModal({ isOpen: false, type: null, id: null, name: "" });
+        // Refresh seasons
+        const res = await Axios.get(`/api/season/event/${eventId}`);
+        setSeasons(res.data.data || []);
       }
-
-      setDeleteModal({ isOpen: false, type: null, id: null, name: "" });
-    } catch (err) {
-      console.error("Delete failed:", err);
+    } catch (error) {
+      console.error("Failed to delete season:", error);
+      toast.error("Failed to delete season");
+    } finally {
+      setDeleting(false);
     }
   };
 
-  const openDeleteModal = (
-    type: "season" | "winner" | "contestant" | "jury",
-    id: string,
-    name: string
-  ) => {
-    setDeleteModal({ isOpen: true, type, id, name });
+  const openDeleteModal = (season: Season) => {
+    setDeleteModal({
+      isOpen: true,
+      type: "season",
+      id: season._id,
+      name: season.name,
+    });
   };
 
-  // Table columns
-  const seasonColumns = [
-    {
-      key: "name" as const,
-      label: "Name",
-      render: (value: unknown) => String(value),
-    },
-    {
-      key: "year" as const,
-      label: "Year",
-      render: (value: unknown) => String(value),
-    },
-    {
-      key: "status" as const,
-      label: "Status",
-      render: (value: unknown) => (
-        <span
-          className={`px-2 py-1 rounded text-xs ${
-            value === "completed"
-              ? "bg-green-100 text-green-800"
-              : value === "ongoing"
-              ? "bg-blue-100 text-blue-800"
-              : "bg-yellow-100 text-yellow-800"
-          }`}
-        >
-          {String(value)}
-        </span>
-      ),
-    },
-    {
-      key: "_id" as const,
-      label: "Actions",
-      render: (value: unknown, row: unknown) => {
-        const season = row as Season;
-        return (
-          <div className="flex gap-2">
-            <AdminButton
-              variant="secondary"
-              size="sm"
-              onClick={() => {
-                /* TODO: Edit season */
-              }}
-            >
-              Edit
-            </AdminButton>
-            <AdminButton
-              variant="destructive"
-              size="sm"
-              onClick={() => openDeleteModal("season", season._id, season.name)}
-            >
-              Delete
-            </AdminButton>
-          </div>
-        );
-      },
-    },
-  ];
+  const handleSeasonSuccess = async () => {
+    try {
+      // Refresh seasons after successful create/edit
+      const res = await Axios.get(`/api/season/event/${eventId}`);
+      setSeasons(res.data.data || []);
+      setAddSeasonModal(false);
+      setEditSeasonModal({ isOpen: false, season: null });
+    } catch (err) {
+      console.error("Failed to refresh seasons:", err);
+    }
+  };
 
-  const winnerColumns = [
-    {
-      key: "position" as const,
-      label: "Position",
-      render: (value: unknown) => String(value),
-    },
-    {
-      key: "contestant" as const,
-      label: "Contestant",
-      render: (value: unknown) => {
-        const contestant = value as Winner["contestant"];
-        return contestant?.name || "Unknown";
-      },
-    },
-    {
-      key: "prize" as const,
-      label: "Prize",
-      render: (value: unknown) => String(value),
-    },
-    {
-      key: "year" as const,
-      label: "Year",
-      render: (value: unknown) => String(value),
-    },
-    {
-      key: "_id" as const,
-      label: "Actions",
-      render: (value: unknown, row: unknown) => {
-        const winner = row as Winner;
-        return (
-          <div className="flex gap-2">
-            <AdminButton
-              variant="secondary"
-              size="sm"
-              onClick={() => {
-                /* TODO: Edit winner */
-              }}
-            >
-              Edit
-            </AdminButton>
-            <AdminButton
-              variant="destructive"
-              size="sm"
-              onClick={() =>
-                openDeleteModal(
-                  "winner",
-                  winner._id,
-                  `Position ${winner.position}`
-                )
-              }
-            >
-              Delete
-            </AdminButton>
-          </div>
-        );
-      },
-    },
-  ];
+  const closeEditSeasonModal = () => {
+    setEditSeasonModal({ isOpen: false, season: null });
+  };
 
-  const contestantColumns = [
-    {
-      key: "name" as const,
-      label: "Name",
-      render: (value: unknown) => String(value),
-    },
-    {
-      key: "age" as const,
-      label: "Age",
-      render: (value: unknown) => String(value),
-    },
-    {
-      key: "hometown" as const,
-      label: "Hometown",
-      render: (value: unknown) => String(value),
-    },
-    {
-      key: "season" as const,
-      label: "Season",
-      render: (value: unknown) => {
-        const season = value as Contestant["season"];
-        return season ? `${season.name} (${season.year})` : "No season";
-      },
-    },
-    {
-      key: "isActive" as const,
-      label: "Status",
-      render: (value: unknown) => (
-        <span
-          className={`px-2 py-1 rounded text-xs ${
-            value ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"
-          }`}
-        >
-          {value ? "Active" : "Inactive"}
-        </span>
-      ),
-    },
-    {
-      key: "_id" as const,
-      label: "Actions",
-      render: (value: unknown, row: unknown) => {
-        const contestant = row as Contestant;
-        return (
-          <div className="flex gap-2">
-            <AdminButton
-              variant="secondary"
-              size="sm"
-              onClick={() => {
-                /* TODO: Edit contestant */
-              }}
-            >
-              Edit
-            </AdminButton>
-            <AdminButton
-              variant="destructive"
-              size="sm"
-              onClick={() =>
-                openDeleteModal("contestant", contestant._id, contestant.name)
-              }
-            >
-              Delete
-            </AdminButton>
-          </div>
-        );
-      },
-    },
-  ];
+  const closeDeleteModal = () => {
+    setDeleteModal({ isOpen: false, type: null, id: null, name: "" });
+  };
 
-  const juryColumns = [
-    {
-      key: "name" as const,
-      label: "Name",
-      render: (value: unknown) => String(value),
-    },
-    {
-      key: "title" as const,
-      label: "Title",
-      render: (value: unknown) => String(value),
-    },
-    {
-      key: "expertise" as const,
-      label: "Expertise",
-      render: (value: unknown) => {
-        const expertise = value as string[];
-        return Array.isArray(expertise) ? expertise.join(", ") : String(value);
-      },
-    },
-    {
-      key: "isActive" as const,
-      label: "Status",
-      render: (value: unknown) => (
-        <span
-          className={`px-2 py-1 rounded text-xs ${
-            value ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"
-          }`}
-        >
-          {value ? "Active" : "Inactive"}
-        </span>
-      ),
-    },
-    {
-      key: "_id" as const,
-      label: "Actions",
-      render: (value: unknown, row: unknown) => {
-        const juryMember = row as Jury;
-        return (
-          <div className="flex gap-2">
-            <AdminButton
-              variant="secondary"
-              size="sm"
-              onClick={() => {
-                /* TODO: Edit jury */
-              }}
-            >
-              Edit
-            </AdminButton>
-            <AdminButton
-              variant="destructive"
-              size="sm"
-              onClick={() =>
-                openDeleteModal("jury", juryMember._id, juryMember.name)
-              }
-            >
-              Delete
-            </AdminButton>
-          </div>
-        );
-      },
-    },
-  ];
+  const handleEventEditSuccess = async () => {
+    try {
+      const res = await Axios.get(`/api/events/${eventId}`);
+      setEvent(res.data.data);
+      setEditEventModal(false);
+    } catch (err) {
+      console.error("Failed to refresh event:", err);
+    }
+  };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg">Loading...</div>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold-500 mx-auto mb-4"></div>
+          <p className="text-gray-400">Loading event...</p>
+        </div>
       </div>
     );
   }
 
   if (error || !event) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg text-red-600">{error || "Event not found"}</div>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i className="ri-error-warning-line text-2xl text-red-400"></i>
+          </div>
+          <h3 className="text-lg font-semibold text-gray-200 mb-2">
+            Event Not Found
+          </h3>
+          <p className="text-gray-400 mb-6">{error || "Event not found"}</p>
+          <AdminButton onClick={() => router.push("/admin/events")}>
+            <i className="ri-arrow-left-line mr-2"></i>
+            Back to Events
+          </AdminButton>
+        </div>
       </div>
     );
   }
@@ -536,216 +239,301 @@ export default function EventDetailPage() {
     <div className="space-y-6">
       <PageHeader title={event.name} description={event.overview}>
         <AdminButton onClick={() => setEditEventModal(true)}>
+          <i className="ri-edit-line mr-2"></i>
           Edit Event
         </AdminButton>
       </PageHeader>
 
-      {/* Tab Navigation */}
-      <div className="border-b border-gray-200">
-        <nav className="-mb-px flex space-x-8">
-          {tabs.map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => handleTabChange(tab.key)}
-              className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                activeTab === tab.key
-                  ? "border-blue-500 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              }`}
-            >
-              {tab.label}
-              {tab.count !== undefined && (
-                <span className="ml-2 bg-gray-100 text-gray-900 py-0.5 px-2 rounded-full text-xs">
-                  {tab.count}
-                </span>
-              )}
-            </button>
-          ))}
-        </nav>
-      </div>
+      {/* Event Overview */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="bg-muted-background rounded-lg border border-gray-600 overflow-hidden"
+      >
+        {/* Event Cover Image */}
+        {event.coverImage && (
+          <div className="relative h-64 bg-gray-800">
+            <Image
+              src={normalizeImagePath(event.coverImage)}
+              alt={event.name}
+              fill
+              className="object-cover"
+              unoptimized
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+            <div className="absolute bottom-4 left-6">
+              <span
+                className={`px-3 py-1 rounded-full text-sm font-medium ${
+                  event.managedBy === "self"
+                    ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                    : "bg-blue-500/20 text-blue-400 border border-blue-500/30"
+                }`}
+              >
+                {event.managedBy === "self"
+                  ? "Self Managed"
+                  : "Partner Managed"}
+              </span>
+            </div>
+          </div>
+        )}
 
-      {/* Tab Content */}
-      <div className="mt-6">
-        {activeTab === "overview" && (
+        <div className="p-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white p-6 rounded-lg shadow">
-              <h3 className="text-lg font-medium mb-4">Event Details</h3>
-              <dl className="space-y-3">
+            {/* Event Details */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-100 mb-4">
+                Event Details
+              </h3>
+              <div className="space-y-3">
                 <div>
-                  <dt className="text-sm font-medium text-gray-500">
+                  <dt className="text-sm font-medium text-gray-400 mb-1">
                     Subtitle
                   </dt>
-                  <dd className="text-sm text-gray-900">{event.subtitle}</dd>
+                  <dd className="text-sm text-gray-200">{event.subtitle}</dd>
                 </div>
+                {event.quote && (
+                  <div>
+                    <dt className="text-sm font-medium text-gray-400 mb-1">
+                      Quote
+                    </dt>
+                    <dd className="text-sm text-gray-200 italic">
+                      &quot;{event.quote}&quot;
+                    </dd>
+                  </div>
+                )}
                 <div>
-                  <dt className="text-sm font-medium text-gray-500">Quote</dt>
-                  <dd className="text-sm text-gray-900">{event.quote}</dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-medium text-gray-500">Purpose</dt>
-                  <dd className="text-sm text-gray-900">{event.purpose}</dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-medium text-gray-500">
-                    Managed By
+                  <dt className="text-sm font-medium text-gray-400 mb-1">
+                    Purpose
                   </dt>
-                  <dd>
+                  <dd className="text-sm text-gray-200">{event.purpose}</dd>
+                </div>
+                {event.timelineSubtitle && (
+                  <div>
+                    <dt className="text-sm font-medium text-gray-400 mb-1">
+                      Timeline
+                    </dt>
+                    <dd className="text-sm text-gray-200">
+                      {event.timelineSubtitle}
+                    </dd>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Statistics */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-100 mb-4">
+                Statistics
+              </h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-gray-800/50 rounded-lg p-4 text-center">
+                  <div className="text-2xl font-bold text-gold-400 mb-1">
+                    {seasons.length}
+                  </div>
+                  <div className="text-sm text-gray-400">Total Seasons</div>
+                </div>
+                <div className="bg-gray-800/50 rounded-lg p-4 text-center">
+                  <div className="text-2xl font-bold text-gold-400 mb-1">
+                    {new Date(event.createdAt).getFullYear()}
+                  </div>
+                  <div className="text-sm text-gray-400">Founded</div>
+                </div>
+              </div>
+              <div className="text-xs text-gray-500">
+                Created {new Date(event.createdAt).toLocaleDateString()}
+              </div>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Seasons Section */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-semibold text-gray-100">Seasons</h2>
+            <p className="text-sm text-gray-400">
+              Manage seasons for this event
+            </p>
+          </div>
+          <AdminButton onClick={handleAddSeason}>
+            <i className="ri-add-line mr-2"></i>
+            Add Season
+          </AdminButton>
+        </div>
+
+        {seasons.length === 0 ? (
+          <div className="bg-muted-background rounded-lg border border-gray-600 p-12 text-center">
+            <div className="max-w-sm mx-auto">
+              <div className="w-16 h-16 bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i className="ri-calendar-2-line text-2xl text-gray-400"></i>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-200 mb-2">
+                No Seasons Found
+              </h3>
+              <p className="text-gray-400 mb-6">
+                This event doesn&apos;t have any seasons yet. Create your first
+                season to get started.
+              </p>
+              <AdminButton onClick={handleAddSeason}>
+                <i className="ri-add-line mr-2"></i>
+                Create First Season
+              </AdminButton>
+            </div>
+          </div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6"
+          >
+            {seasons.map((season, index) => (
+              <motion.div
+                key={season._id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="bg-muted-background rounded-lg border border-gray-600 overflow-hidden hover:border-gray-500 transition-colors group"
+              >
+                {/* Season Image */}
+                <div className="relative h-48 bg-gray-800">
+                  {season.images && season.images.length > 0 ? (
+                    <Image
+                      src={normalizeImagePath(season.images[0])}
+                      alt={season.name}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      unoptimized
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <i className="ri-calendar-2-line text-4xl text-gray-600"></i>
+                    </div>
+                  )}
+
+                  {/* Status Badge */}
+                  <div className="absolute top-3 right-3">
                     <span
-                      className={`px-2 py-1 rounded text-xs ${
-                        event.managedBy === "self"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-blue-100 text-blue-800"
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        season.status === "completed"
+                          ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                          : season.status === "ongoing"
+                          ? "bg-blue-500/20 text-blue-400 border border-blue-500/30"
+                          : "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
                       }`}
                     >
-                      {event.managedBy === "self"
-                        ? "Self Managed"
-                        : "Partner Managed"}
+                      {season.status.charAt(0).toUpperCase() +
+                        season.status.slice(1)}
                     </span>
-                  </dd>
+                  </div>
                 </div>
-              </dl>
-            </div>
 
-            <div className="bg-white p-6 rounded-lg shadow">
-              <h3 className="text-lg font-medium mb-4">Statistics</h3>
-              <dl className="grid grid-cols-2 gap-4">
-                <div>
-                  <dt className="text-sm font-medium text-gray-500">
-                    Total Seasons
-                  </dt>
-                  <dd className="text-2xl font-bold text-gray-900">
-                    {seasons.length}
-                  </dd>
+                {/* Season Content */}
+                <div className="p-4 lg:p-6">
+                  <div className="flex items-start justify-between mb-3">
+                    <h3 className="text-base lg:text-lg font-semibold text-gray-100 line-clamp-1 flex-1">
+                      {season.name}
+                    </h3>
+                    <span className="text-sm text-gold-400 font-medium ml-2">
+                      {season.year}
+                    </span>
+                  </div>
+
+                  <p className="text-xs lg:text-sm text-gray-400 mb-4 line-clamp-2">
+                    {season.description}
+                  </p>
+
+                  {/* Date Range */}
+                  <div className="flex items-center text-xs lg:text-sm text-gray-400 mb-4">
+                    <i className="ri-calendar-line mr-2"></i>
+                    <span>
+                      {new Date(season.startDate).toLocaleDateString()} -{" "}
+                      {new Date(season.endDate).toLocaleDateString()}
+                    </span>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex gap-2">
+                    <AdminButton
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleViewSeason(season)}
+                      className="flex-1 text-xs lg:text-sm"
+                    >
+                      <i className="ri-eye-line mr-1 lg:mr-2"></i>
+                      View
+                    </AdminButton>
+
+                    <AdminButton
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleEditSeason(season)}
+                      className="flex-1 text-xs lg:text-sm"
+                    >
+                      <i className="ri-edit-line mr-1 lg:mr-2"></i>
+                      Edit
+                    </AdminButton>
+
+                    <AdminButton
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => openDeleteModal(season)}
+                      className="px-2 lg:px-3"
+                    >
+                      <i className="ri-delete-bin-line text-sm"></i>
+                    </AdminButton>
+                  </div>
                 </div>
-                <div>
-                  <dt className="text-sm font-medium text-gray-500">
-                    Total Winners
-                  </dt>
-                  <dd className="text-2xl font-bold text-gray-900">
-                    {winners.length}
-                  </dd>
+
+                {/* Footer with timestamp */}
+                <div className="px-4 lg:px-6 py-3 bg-gray-800/50 border-t border-gray-700">
+                  <p className="text-xs text-gray-500">
+                    Created {new Date(season.createdAt).toLocaleDateString()}
+                  </p>
                 </div>
-                <div>
-                  <dt className="text-sm font-medium text-gray-500">
-                    Total Contestants
-                  </dt>
-                  <dd className="text-2xl font-bold text-gray-900">
-                    {contestants.length}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-medium text-gray-500">
-                    Jury Members
-                  </dt>
-                  <dd className="text-2xl font-bold text-gray-900">
-                    {jury.length}
-                  </dd>
-                </div>
-              </dl>
-            </div>
-          </div>
-        )}
-
-        {activeTab === "seasons" && (
-          <div className="bg-white rounded-lg shadow">
-            <div className="p-6 border-b border-gray-200">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-medium">Seasons</h3>
-                <AdminButton
-                  onClick={() => {
-                    /* TODO: Add season */
-                  }}
-                >
-                  Add Season
-                </AdminButton>
-              </div>
-            </div>
-            <DataTable data={seasons} columns={seasonColumns} />
-          </div>
-        )}
-
-        {activeTab === "winners" && (
-          <div className="bg-white rounded-lg shadow">
-            <div className="p-6 border-b border-gray-200">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-medium">Winners</h3>
-                <AdminButton
-                  onClick={() => {
-                    /* TODO: Add winner */
-                  }}
-                >
-                  Add Winner
-                </AdminButton>
-              </div>
-            </div>
-            <DataTable data={winners} columns={winnerColumns} />
-          </div>
-        )}
-
-        {activeTab === "contestants" && (
-          <div className="bg-white rounded-lg shadow">
-            <div className="p-6 border-b border-gray-200">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-medium">Contestants</h3>
-                <AdminButton
-                  onClick={() => {
-                    /* TODO: Add contestant */
-                  }}
-                >
-                  Add Contestant
-                </AdminButton>
-              </div>
-            </div>
-            <DataTable data={contestants} columns={contestantColumns} />
-          </div>
-        )}
-
-        {activeTab === "jury" && (
-          <div className="bg-white rounded-lg shadow">
-            <div className="p-6 border-b border-gray-200">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-medium">Jury Members</h3>
-                <AdminButton
-                  onClick={() => {
-                    /* TODO: Add jury */
-                  }}
-                >
-                  Add Jury Member
-                </AdminButton>
-              </div>
-            </div>
-            <DataTable data={jury} columns={juryColumns} />
-          </div>
+              </motion.div>
+            ))}
+          </motion.div>
         )}
       </div>
 
-      {/* Modals */}
+      {/* Event Edit Modal */}
       <EventPopup
         isOpen={editEventModal}
         event={event as BackendEvent}
         onClose={() => setEditEventModal(false)}
-        onSuccess={async () => {
-          try {
-            const res = await Axios.get(`/api/events/${eventId}`);
-            setEvent(res.data.data);
-            setEditEventModal(false);
-          } catch (err) {
-            console.error("Failed to refresh event:", err);
-          }
-        }}
+        onSuccess={handleEventEditSuccess}
       />
 
-      {deleteModal.isOpen && (
-        <DeleteConfirmModal
-          isOpen={deleteModal.isOpen}
-          onClose={() =>
-            setDeleteModal({ isOpen: false, type: null, id: null, name: "" })
-          }
-          onConfirm={handleDelete}
-          title={`Delete ${deleteModal.type}`}
-          message={`Are you sure you want to delete "${deleteModal.name}"? This action cannot be undone.`}
-        />
-      )}
+      {/* Add Season Modal */}
+      <SeasonPopup
+        isOpen={addSeasonModal}
+        season={null}
+        eventId={eventId}
+        onClose={() => setAddSeasonModal(false)}
+        onSuccess={handleSeasonSuccess}
+      />
+
+      {/* Edit Season Modal */}
+      <SeasonPopup
+        isOpen={editSeasonModal.isOpen}
+        season={editSeasonModal.season}
+        eventId={eventId}
+        onClose={closeEditSeasonModal}
+        onSuccess={handleSeasonSuccess}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={deleteModal.isOpen}
+        onClose={closeDeleteModal}
+        onConfirm={handleDeleteSeason}
+        title="Delete Season"
+        message={`Are you sure you want to delete "${deleteModal.name}"? This action cannot be undone and will also delete all associated contestants, jury members, and winners.`}
+        isDeleting={deleting}
+      />
     </div>
   );
 }
