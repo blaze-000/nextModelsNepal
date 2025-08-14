@@ -264,34 +264,34 @@ const handleSubmit = async (e: React.FormEvent) => {
       toast.success("Application submitted successfully!");
       
       // Reset form
-      // setFormData({
-      //   name: "",
-      //   phone: "",
-      //   country: "",
-      //   city: "",
-      //   ethnicity: "",
-      //   email: "",
-      //   age: "",
-      //   languages: "",
-      //   gender: "",
-      //   occupation: "",
-      //   dressSize: "",
-      //   shoeSize: "",
-      //   hairColor: "",
-      //   eyeColor: "",
-      //   event: "",
-      //   auditionPlace: "",
-      //   weight: "",
-      //   parentsName: "",
-      //   parentsMobile: "",
-      //   parentsOccupation: "",
-      //   permanentAddress: "",
-      //   temporaryAddress: "",
-      //   hobbies: "",
-      //   talents: "",
-      //   heardFrom: "",
-      //   additionalMessage: "",
-      // });
+      setFormData({
+        name: "",
+        phone: "",
+        country: "",
+        city: "",
+        ethnicity: "",
+        email: "",
+        age: "",
+        languages: "",
+        gender: "",
+        occupation: "",
+        dressSize: "",
+        shoeSize: "",
+        hairColor: "",
+        eyeColor: "",
+        event: "",
+        auditionPlace: "",
+        weight: "",
+        parentsName: "",
+        parentsMobile: "",
+        parentsOccupation: "",
+        permanentAddress: "",
+        temporaryAddress: "",
+        hobbies: "",
+        talents: "",
+        heardFrom: "",
+        additionalMessage: "",
+      });
       
       setSelectedPhotos([]);
       setErrors({}); // Reset errors
@@ -336,21 +336,11 @@ const handleSubmit = async (e: React.FormEvent) => {
     value: (i + 18).toString(),
     label: (i + 18).toString(),
   }));
-  
-  const languageOptions = [
-    { value: "English", label: "English" },
-    { value: "Spanish", label: "Spanish" },
-    { value: "French", label: "French" },
-    { value: "German", label: "German" },
-    { value: "Mandarin", label: "Mandarin" },
-    { value: "Japanese", label: "Japanese" },
-    { value: "Other", label: "Other" },
-  ];
+
   
   const genderOptions = [
     { value: "Male", label: "Male" },
     { value: "Female", label: "Female" },
-    { value: "Other", label: "Other" }, // Added Other option
   ];
   
   const shoeSizeOptions = Array.from({ length: 20 }, (_, i) => ({
@@ -358,24 +348,6 @@ const handleSubmit = async (e: React.FormEvent) => {
     label: (i + 35).toString(),
   }));
   
-  const activityOptions = [
-    { value: "fashion-show", label: "Fashion Show" },
-    { value: "photoshoot", label: "Photoshoot" },
-    { value: "commercial", label: "Commercial" },
-    { value: "runway", label: "Runway" },
-    { value: "print", label: "Print" },
-    { value: "tv-film", label: "TV/Film" },
-  ];
-  
-  const locationOptions = [
-    { value: "new-york", label: "New York" },
-    { value: "los-angeles", label: "Los Angeles" },
-    { value: "london", label: "London" },
-    { value: "paris", label: "Paris" },
-    { value: "milan", label: "Milan" },
-    { value: "tokyo", label: "Tokyo" },
-    { value: "online", label: "Online" },
-  ];
 
   return (
     <section className="w-full py-16 md:py-16 flex flex-col items-center text-white font-urbanist">
