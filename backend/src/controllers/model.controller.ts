@@ -2,12 +2,17 @@ import { Request, Response } from "express";
 import { Model } from "../models/model.model";
 import fs from "fs";
 import path from "path";
+import { createModelSchema } from "../validations/model.validation";
 
 // Helper function to delete image files
 const deleteImageFiles = (imagePaths: string[]) => {
-  imagePaths.forEach(imagePath => {
+  imagePaths.forEach((imagePath) => {
     if (imagePath) {
-      const fullPath = path.join(process.cwd(), "uploads", path.basename(imagePath));
+      const fullPath = path.join(
+        process.cwd(),
+        "uploads",
+        path.basename(imagePath)
+      );
       if (fs.existsSync(fullPath)) {
         fs.unlinkSync(fullPath);
       }
@@ -21,7 +26,8 @@ export const createModel = async (req: Request, res: Response) => {
   session.startTransaction();
 
   try {
-    const { index, name, intro, address, gender, slug } = req.body;
+    const { index, name, intro, address, gender, slug } =
+      createModelSchema.parse(req.body);
     const newIndex = parseInt(index);
 
     // Shift existing documents with index >= newIndex
@@ -33,8 +39,12 @@ export const createModel = async (req: Request, res: Response) => {
 
     // Process uploaded files
     const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-    const coverImage = files.coverImage ? `/uploads/${files.coverImage[0].filename}` : "";
-    const images = files.images ? files.images.map(file => `/uploads/${file.filename}`) : [];
+    const coverImage = files.coverImage
+      ? `/uploads/${files.coverImage[0].filename}`
+      : "";
+    const images = files.images
+      ? files.images.map((file) => `/uploads/${file.filename}`)
+      : [];
 
     // Create new company
     const newCompany = new Model({
@@ -45,16 +55,36 @@ export const createModel = async (req: Request, res: Response) => {
       gender,
       slug,
       coverImage,
-      images
+      images,
     });
 
     await newCompany.save({ session });
     await session.commitTransaction();
 
     res.status(201).json({ success: true, data: newCompany });
-  } catch (error) {
+  } catch (error: any) {
     await session.abortTransaction();
-    res.status(500).json({ success: false, message: "Error creating company", error });
+
+    // Handle MongoDB duplicate key error
+    if (error.code === 11000) {
+      const field = Object.keys(error.keyPattern)[0];
+      const value = error.keyValue[field];
+
+      let message = "Duplicate entry found";
+      if (field === "slug") {
+        message = `A model with the slug "${value}" already exists. Please use a different name or modify the slug.`;
+      } else if (field === "name") {
+        message = `A model with the name "${value}" already exists. Please use a different name.`;
+      } else {
+        message = `A model with this ${field} already exists. Please use a different value.`;
+      }
+
+      return res.status(409).json({ success: false, message, error });
+    }
+
+    res
+      .status(500)
+      .json({ success: false, message: "Error creating company", error });
   } finally {
     session.endSession();
   }
@@ -66,7 +96,9 @@ export const getAllModels = async (_req: Request, res: Response) => {
     const companies = await Model.find().sort({ index: 1 });
     res.status(200).json({ success: true, data: companies });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Error fetching companies", error });
+    res
+      .status(500)
+      .json({ success: false, message: "Error fetching companies", error });
   }
 };
 
@@ -75,11 +107,15 @@ export const getModelById = async (req: Request, res: Response) => {
   try {
     const company = await Model.findById(req.params.id);
     if (!company) {
-      return res.status(404).json({ success: false, message: "Company not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Company not found" });
     }
     res.status(200).json({ success: true, data: company });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Error fetching company", error });
+    res
+      .status(500)
+      .json({ success: false, message: "Error fetching company", error });
   }
 };
 
@@ -95,7 +131,9 @@ export const updateModelById = async (req: Request, res: Response) => {
 
     if (!existingCompany) {
       await session.abortTransaction();
-      return res.status(404).json({ success: false, message: "Company not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Company not found" });
     }
 
     // Process uploaded files
@@ -118,7 +156,7 @@ export const updateModelById = async (req: Request, res: Response) => {
         deleteImageFiles(existingCompany.images);
       }
       // Set new images
-      images = files.images.map(file => `/uploads/${file.filename}`);
+      images = files.images.map((file) => `/uploads/${file.filename}`);
     }
 
     // Handle index update
@@ -151,16 +189,37 @@ export const updateModelById = async (req: Request, res: Response) => {
     if (address) existingCompany.address = address;
     if (gender) existingCompany.gender = gender;
     if (slug) existingCompany.slug = slug;
-    if (coverImage !== existingCompany.coverImage) existingCompany.coverImage = coverImage;
+    if (coverImage !== existingCompany.coverImage)
+      existingCompany.coverImage = coverImage;
     if (images !== existingCompany.images) existingCompany.images = images;
 
     await existingCompany.save({ session });
     await session.commitTransaction();
 
     res.status(200).json({ success: true, data: existingCompany });
-  } catch (error) {
+  } catch (error: any) {
     await session.abortTransaction();
-    res.status(500).json({ success: false, message: "Error updating company", error });
+
+    // Handle MongoDB duplicate key error
+    if (error.code === 11000) {
+      const field = Object.keys(error.keyPattern)[0];
+      const value = error.keyValue[field];
+
+      let message = "Duplicate entry found";
+      if (field === "slug") {
+        message = `A model with the slug "${value}" already exists. Please use a different name or modify the slug.`;
+      } else if (field === "name") {
+        message = `A model with the name "${value}" already exists. Please use a different name.`;
+      } else {
+        message = `A model with this ${field} already exists. Please use a different value.`;
+      }
+
+      return res.status(409).json({ success: false, message, error });
+    }
+
+    res
+      .status(500)
+      .json({ success: false, message: "Error updating company", error });
   } finally {
     session.endSession();
   }
@@ -177,7 +236,9 @@ export const deleteModelById = async (req: Request, res: Response) => {
 
     if (!company) {
       await session.abortTransaction();
-      return res.status(404).json({ success: false, message: "Company not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Company not found" });
     }
 
     // Delete all image files
@@ -198,10 +259,14 @@ export const deleteModelById = async (req: Request, res: Response) => {
     );
 
     await session.commitTransaction();
-    res.status(200).json({ success: true, message: "Company deleted successfully" });
+    res
+      .status(200)
+      .json({ success: true, message: "Company deleted successfully" });
   } catch (error) {
     await session.abortTransaction();
-    res.status(500).json({ success: false, message: "Error deleting company", error });
+    res
+      .status(500)
+      .json({ success: false, message: "Error deleting company", error });
   } finally {
     session.endSession();
   }
