@@ -6,56 +6,52 @@ import Axios from "@/lib/axios-instance";
 import Link from "next/link";
 import DataTable from "@/components/admin/DataTable";
 
-interface Application {
+interface Contact {
   _id: string;
   name: string;
-  age: string;
-  phone: string;
   email: string;
-  gender?: string;
+  phone: string;
+  subject: string;
+  message: string;
   createdAt: string;
 }
 
-const AdminDashboard = () => {
-  const [applications, setApplications] = useState<Application[]>([]);
+const ContactPage = () => {
+  const [contacts, setContacts] = useState<Contact[]>([]);
   const [loading, setLoading] = useState(true);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  // Fetch all applications
-  const fetchApplications = async () => {
+  // Fetch all contacts
+  const fetchContacts = async () => {
     try {
       setLoading(true);
-      const response = await Axios.get("/api/app-form");
-      setApplications(response.data.data || []);
+      const response = await Axios.get("/api/contact");
+      setContacts(response.data.data || []);
     } catch (error: any) {
-      console.error("Error fetching applications:", error);
-      toast.error("Failed to load applications");
+      console.error("Error fetching contacts:", error);
+      toast.error("Failed to load contacts");
     } finally {
       setLoading(false);
     }
   };
 
-  // Delete an application
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this application?")) {
+  // Delete a contact
+  const handleDelete = async (contact: Contact) => {
+    if (!confirm("Are you sure you want to delete this contact?")) {
       return;
     }
     try {
-      setDeletingId(id);
-      await Axios.delete(`/api/app-form/${id}`);
-      setApplications(applications.filter(app => app._id !== id));
-      toast.success("Application deleted successfully");
+      await Axios.delete(`/api/contact/${contact._id}`);
+      setContacts(contacts.filter(c => c._id !== contact._id));
+      toast.success("Contact deleted successfully");
     } catch (error: any) {
-      console.error("Error deleting application:", error);
-      toast.error("Failed to delete application");
-    } finally {
-      setDeletingId(null);
+      console.error("Error deleting contact:", error);
+      toast.error("Failed to delete contact");
     }
   };
 
-  // Load applications on component mount
+  // Load contacts on component mount
   useEffect(() => {
-    fetchApplications();
+    fetchContacts();
   }, []);
 
   // Format date for display
@@ -68,14 +64,14 @@ const AdminDashboard = () => {
     });
   };
 
-  // Define table columns for DataTable
+  // Define table columns
   const columns = [
     {
       key: "name",
       label: "Name",
-      render: (value: unknown, item: Application) => (
+      render: (value: unknown, contact: Contact) => (
         <Link
-          href={`/admin/applications/${item._id}`}
+          href={`/admin/contacts/${contact._id}`}
           className="text-gold-500 hover:text-gold-400 hover:underline font-medium"
         >
           {String(value)}
@@ -83,10 +79,21 @@ const AdminDashboard = () => {
       ),
       sortable: true,
     },
-    { key: "age", label: "Age", sortable: true },
-    { key: "phone", label: "Mobile", sortable: true },
-    { key: "email", label: "Email", sortable: true },
-    { key: "gender", label: "Gender", sortable: true },
+    {
+      key: "email",
+      label: "Email",
+      sortable: true,
+    },
+    {
+      key: "phone",
+      label: "Phone",
+      sortable: true,
+    },
+    {
+      key: "subject",
+      label: "Subject",
+      sortable: true,
+    },
     {
       key: "createdAt",
       label: "Date",
@@ -99,10 +106,11 @@ const AdminDashboard = () => {
     <div className="mx-auto px-4 py-8">
       <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold font-newsreader text-primary">Applicants</h1>
+          <h1 className="text-3xl font-bold font-newsreader text-primary">Contact Messages</h1>
+          <p className="text-foreground/70 mt-2">Manage contact form submissions</p>
         </div>
         <Button
-          onClick={fetchApplications}
+          onClick={fetchContacts}
           variant="outline"
           className="mt-4 md:mt-0 border-gold-500 text-gold-500 hover:bg-gold-500 hover:text-primary-foreground"
         >
@@ -110,22 +118,23 @@ const AdminDashboard = () => {
           Refresh
         </Button>
       </div>
+
       <DataTable
-        data={applications}
+        data={contacts}
         columns={columns}
-        onDelete={(item: Application) => handleDelete(item._id)}
+        onDelete={handleDelete}
         loading={loading}
-        emptyMessage="No applications found"
-        searchPlaceholder="Search applicants..."
+        emptyMessage="No contact messages found"
+        searchPlaceholder="Search contacts..."
       />
 
       <div className="mt-6 flex justify-between items-center">
         <p className="text-sm text-foreground/50">
-          Showing {applications.length} application{applications.length !== 1 ? "s" : ""}
+          Showing {contacts.length} contact message{contacts.length !== 1 ? "s" : ""}
         </p>
       </div>
     </div>
   );
 };
 
-export default AdminDashboard;
+export default ContactPage;

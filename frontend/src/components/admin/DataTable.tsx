@@ -111,11 +111,10 @@ export default function DataTable<T extends { _id: string }>({
                 {columns.map((column, index) => (
                   <th
                     key={index}
-                    className={`px-4 py-3 text-left text-sm font-medium text-gray-300 ${
-                      column.sortable
+                    className={`px-4 py-3 text-left text-sm font-medium text-gray-300 ${column.sortable
                         ? "cursor-pointer hover:text-gold-400"
                         : ""
-                    }`}
+                      }`}
                     style={{ width: column.width }}
                     onClick={() =>
                       column.sortable && handleSort(String(column.key))
@@ -126,20 +125,18 @@ export default function DataTable<T extends { _id: string }>({
                       {column.sortable && (
                         <div className="flex flex-col">
                           <i
-                            className={`ri-arrow-up-s-line text-xs ${
-                              sortColumn === column.key &&
-                              sortDirection === "asc"
+                            className={`ri-arrow-up-s-line text-xs ${sortColumn === column.key &&
+                                sortDirection === "asc"
                                 ? "text-gold-400"
                                 : "text-gray-500"
-                            }`}
+                              }`}
                           />
                           <i
-                            className={`ri-arrow-down-s-line text-xs -mt-1 ${
-                              sortColumn === column.key &&
-                              sortDirection === "desc"
+                            className={`ri-arrow-down-s-line text-xs -mt-1 ${sortColumn === column.key &&
+                                sortDirection === "desc"
                                 ? "text-gold-400"
                                 : "text-gray-500"
-                            }`}
+                              }`}
                           />
                         </div>
                       )}
@@ -202,9 +199,9 @@ export default function DataTable<T extends { _id: string }>({
                         >
                           {column.render
                             ? column.render(
-                                getValue(item, String(column.key)),
-                                item
-                              )
+                              getValue(item, String(column.key)),
+                              item
+                            )
                             : String(getValue(item, String(column.key)) || "")}
                         </td>
                       ))}
@@ -235,7 +232,7 @@ export default function DataTable<T extends { _id: string }>({
                             {onDelete && (
                               <button
                                 onClick={() => onDelete(item)}
-                                className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-red-400/10 
+                                className="cursor-pointer p-1.5 text-gray-400 hover:text-red-400 hover:bg-red-400/10 
                                          rounded transition-colors"
                                 title="Delete"
                               >

@@ -60,9 +60,10 @@ export const getContact = async (_req: Request, res: Response) => {
     try {
         const contactItems = await ContactModel.find({}).sort({ createdAt: -1 });
         if (!contactItems || contactItems.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "Contact not found.",
+            return res.status(200).json({
+                success: true,
+                message: "No contact items found.",
+                data: [],
             });
         }
 
@@ -134,5 +135,3 @@ export const deleteContactById = async (req: Request, res: Response) => {
         });
     }
 };
-
-

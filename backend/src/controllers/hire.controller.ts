@@ -86,9 +86,10 @@ export const getAllHires = async (req: Request, res: Response) => {
     try {
         const hiredModel = await HireModel.find();
         if (!hiredModel || hiredModel.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "Model not found.",
+            return res.status(200).json({
+                success: true,
+                message: "No hire requests found.",
+                data: [],
             });
         }
 
