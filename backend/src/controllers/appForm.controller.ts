@@ -1,36 +1,24 @@
-import PDFDocument from "pdfkit";
-import nodemailer from "nodemailer";
-
 import { Request, Response } from "express";
 import { AppModel } from "../models/appForm.model";
 import { appModelSchema } from "../validations/appForm.validation";
 import { EventModel } from "../models/events.model";
+import { transporter } from "../config/mail";
+import { buildApplicationPdf } from "../utils/pdf";
 
 // createApplication Form
 export const createAppForm = async (req: Request, res: Response) => {
     try {
-        // Ensure Multer files exist
         if (!req.files || !(req.files as Express.Multer.File[]).length) {
-            return res.status(400).json({
-                success: false,
-                message: "At least one image is required.",
-            });
+            return res.status(400).json({ success: false, message: "At least one image is required." });
         }
 
-        // Convert uploaded files to relative paths
-        const imagePaths = (req.files as Express.Multer.File[]).map(file => file.path);
-
+        const imagePaths = (req.files as Express.Multer.File[]).map((f) => f.path);
         const { id } = req.params;
-
-        const event = await EventModel.findById({ _id: id });
+        const event = await EventModel.findById(id);
         if (!event) {
-            return res.status(404).json({
-                success: false,
-                message: "Event not found with the provided ID.",
-            });
+            return res.status(404).json({ success: false, message: "Event not found with the provided ID." });
         }
 
-        // Parse and validate incoming data
         const validatedData = appModelSchema.parse({
             ...req.body,
             event: event.name,
@@ -41,100 +29,30 @@ export const createAppForm = async (req: Request, res: Response) => {
                 : req.body.languages?.split(",").map((lang: string) => lang.trim()),
         });
 
-        // Create PDF
-        const doc = new PDFDocument({ margin: 30, size: "A4" });
-        const profilePic = imagePaths[0];
-
-        doc.rect(0, 0, doc.page.width, 140).fill("#F3F4F6");
-        doc.fillColor("black");
-
-        try {
-            doc.image(profilePic, 250, 20, { width: 100, height: 100 });
-        } catch (err: any) {
-            console.warn("Profile image failed to load:", err.message);
-        }
-
-        doc.moveDown(5);
-        doc.font("Helvetica-Bold").fontSize(26).fillColor("#1D4ED8");
-        doc.moveDown(2)
-            .font("Helvetica")
-            .fontSize(12)
-            .fillColor("#6B7280")
-            .text("Model Application Form: Submitted via Online Application Portal", {
-                align: "center",
-            });
-
-        doc.moveDown(1);
-        doc.strokeColor("#D1D5DB").lineWidth(1).moveTo(30, doc.y).lineTo(565, doc.y).stroke();
-        doc.moveDown(2);
-
-        // Personal Info
-        doc.fontSize(14).fillColor("#374151");
-        doc.text(`Name: ${validatedData.name}`);
-        doc.text(`Mobile Number: ${validatedData.phone}`);
-        doc.text(`Email: ${validatedData.email}`);
-        doc.text(`Country: ${validatedData.country}, City: ${validatedData.city}`);
-        doc.text(`Ethnicity: ${validatedData.ethnicity}`);
-        doc.text(`Age: ${validatedData.age}`);
-        doc.text(`Gender: ${validatedData.gender || "N/A"}`);
-        doc.text(`Occupation: ${validatedData.occupation}`);
-        doc.moveDown(1);
-
-        // Appearance
-        doc.text(`Dress Size: ${validatedData.dressSize}`);
-        doc.text(`Shoe Size: ${validatedData.shoeSize}`);
-        doc.text(`Hair Color: ${validatedData.hairColor}`);
-        doc.text(`Eye Color: ${validatedData.eyeColor}`);
-        doc.moveDown(1);
-
-        // Event Info
-        if (validatedData.event) doc.text(`Event: ${validatedData.event}`);
-        if (validatedData.auditionPlace) doc.text(`Audition Place: ${validatedData.auditionPlace}`);
-        doc.text(`Weight (kg): ${validatedData.weight}`);
-        doc.moveDown(1);
-
-        // Parents Info
-        doc.text(`Parents Name: ${validatedData.parentsName}`);
-        doc.text(`Parents Mobile: ${validatedData.parentsMobile}`);
-        doc.text(`Parents Occupation: ${validatedData.parentsOccupation || "N/A"}`);
-        doc.moveDown(1);
-
-        // Address
-        doc.text(`Permanent Address: ${validatedData.permanentAddress}`);
-        doc.text(`Temporary Address: ${validatedData.temporaryAddress}`);
-        doc.moveDown(1);
-
-        // Extras
-        doc.text(`Talents: ${validatedData.talents || "N/A"}`);
-        doc.text(`Hobbies: ${validatedData.hobbies}`);
-        doc.text(`How did you hear about us: ${validatedData.heardFrom || "N/A"}`);
-        doc.text(`Additional Message: ${validatedData.additionalMessage || "N/A"}`);
-
-        doc.end();
-
-        const pdfBuffer = await new Promise<Buffer>((resolve, reject) => {
-            const chunks: Buffer[] = [];
-            doc.on("data", chunk => chunks.push(chunk));
-            doc.on("end", () => resolve(Buffer.concat(chunks)));
-            doc.on("error", reject);
-        });
-
-        // Email with PDF
-        const transporter = nodemailer.createTransport({
-            host: "smtp.gmail.com",
-            port: 465,
-            secure: true,
-            auth: {
-                user: process.env.COMPANY_EMAIL,
-                pass: process.env.COMPANY_PASSWORD,
-            },
-        });
+        // Build PDF here (now it actually generates)
+        const pdfBuffer = await buildApplicationPdf(validatedData, imagePaths);
 
         await transporter.sendMail({
             from: `"${validatedData.name}" <${validatedData.email}>`,
             to: process.env.COMPANY_EMAIL,
             subject: "New Model Application Form",
-            html: `<h2>New Application from ${validatedData.name}</h2><p>See attached PDF for details.</p>`,
+            html: `
+                  <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border-radius: 0.3rem; background-color: black; padding-top: 1rem;">
+                    <h2 style="color: #fa0; text-align: center;">You have received a new application form<strong> from ${validatedData.name}</strong></h2>
+                    <div style="background: #F3F4F6; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                     <div>
+                       <p><strong>Applicant:</strong> ${validatedData.name}</p>
+                       <p><strong>Phone:</strong> ${validatedData.phone}</p>
+                       <p><strong>Gender:</strong> ${validatedData.gender}</p>
+                       <p><strong>Location:</strong> ${validatedData.permanentAddress}</p>
+                       <p><strong>Event:</strong> ${validatedData.event}</p>
+                       <p><strong>Submitted:</strong> ${new Date().toLocaleString()}</p>
+                       <p style="text-align: center;">© Next Peace Nepal</p>
+                     </div>
+                    </div>
+                   </div>
+                   <p>Please find the detailed application attached as a PDF.</p>
+            `,
             attachments: [
                 {
                     filename: `ModelApplication-${Date.now()}.pdf`,
@@ -145,7 +63,6 @@ export const createAppForm = async (req: Request, res: Response) => {
             replyTo: validatedData.email,
         });
 
-        // Save to DB
         const savedApplication = await AppModel.create(validatedData);
 
         res.status(201).json({
@@ -162,6 +79,7 @@ export const createAppForm = async (req: Request, res: Response) => {
         });
     }
 };
+
 
 // Get Application Form
 export const getAppForm = async (_req: Request, res: Response) => {
