@@ -11,20 +11,20 @@ import ModelsPopup from "./model-popup";
 
 import Axios from "@/lib/axios-instance";
 import { CompanyModel } from "@/types/admin";
+import Link from "next/link";
 
 // Statistics calculation hooks
 const useModelStatistics = (models: CompanyModel[]) => {
   return useMemo(() => {
     const total = models.length;
     const male = models.filter(
-      (model) => model.gender?.toLowerCase() === "male"
+      (model) => model.gender === "Male"
     ).length;
     const female = models.filter(
-      (model) => model.gender?.toLowerCase() === "female"
+      (model) => model.gender === "Female"
     ).length;
-    const other = total - male - female;
 
-    return { total, male, female, other };
+    return { total, male, female };
   }, [models]);
 };
 
@@ -131,8 +131,21 @@ export default function ModelsPage() {
         key: "name",
         label: "Name",
         sortable: true,
+        render: (value: unknown, item: CompanyModel) => (
+          <Link
+            href={`/models/${item.slug}`}
+            className="font-medium text-sm sm:text-base text-gold-500 hover:text-gold-400 hover:underline"
+          >
+            {String(value)}
+          </Link>
+        ),
+      },
+      {
+        key: "order",
+        label: "Order",
+        sortable: true,
         render: (value: unknown) => (
-          <div className="font-medium text-sm sm:text-base text-gray-900 dark:text-gray-100">
+          <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
             {String(value)}
           </div>
         ),
@@ -152,18 +165,16 @@ export default function ModelsPage() {
         label: "Gender",
         sortable: true,
         render: (value: unknown) => {
-          const gender = String(value).toLowerCase();
+          const gender = String(value);
           const colorClasses = {
-            male: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
-            female:
+            Male: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
+            Female:
               "bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-400",
-            other:
-              "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400",
           };
 
           const className =
             colorClasses[gender as keyof typeof colorClasses] ||
-            colorClasses.other;
+            "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400";
 
           return (
             <span
@@ -174,29 +185,7 @@ export default function ModelsPage() {
           );
         },
       },
-      {
-        key: "address",
-        label: "Address",
-        sortable: true,
-        render: (value: unknown) => (
-          <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 truncate max-w-32 sm:max-w-none">
-            {String(value)}
-          </div>
-        ),
-      },
-      {
-        key: "intro",
-        label: "Introduction",
-        sortable: false,
-        render: (value: unknown) => (
-          <div
-            className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 truncate max-w-40 sm:max-w-xs"
-            title={String(value)}
-          >
-            {String(value)}
-          </div>
-        ),
-      },
+
       {
         key: "images",
         label: "Gallery",
@@ -283,27 +272,7 @@ export default function ModelsPage() {
         bgColor: "bg-pink-100 dark:bg-pink-900/30",
         textColor: "text-pink-600 dark:text-pink-400",
       },
-      {
-        title: "Other",
-        value: statistics.other,
-        icon: (
-          <svg
-            className="w-5 h-5 sm:w-6 sm:h-6 text-purple-500"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-            />
-          </svg>
-        ),
-        bgColor: "bg-purple-100 dark:bg-purple-900/30",
-        textColor: "text-purple-600 dark:text-purple-400",
-      },
+
     ],
     [statistics]
   );
@@ -338,7 +307,7 @@ export default function ModelsPage() {
       </PageHeader>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {statisticsCards.map((card, index) => (
           <div
             key={index}

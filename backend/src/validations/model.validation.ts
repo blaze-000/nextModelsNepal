@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const createModelSchema = z.object({
-  index: z.string().min(1, "Index must be a positive integer"),
+  order: z.string().optional(),
   name: z.string().min(1, "Name is required"),
   intro: z.string().min(1, "Introduction is required"),
   address: z.string().min(1, "Address is required"),

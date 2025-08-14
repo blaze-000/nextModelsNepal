@@ -38,11 +38,7 @@ export default function FeedbackPage() {
       const response = await Axios.get("/api/feedback");
       const data = response.data;
 
-      if (data.success && data.data) {
-        setFeedbackItems(data.data);
-      } else {
-        setFeedbackItems([]);
-      }
+      setFeedbackItems(data.success && data.data ? data.data : []);
     } catch (error) {
       toast.error("Failed to fetch feedback data");
       console.error("Error fetching feedback:", error);
@@ -63,10 +59,7 @@ export default function FeedbackPage() {
   };
 
   const handleDelete = (item: FeedbackItem) => {
-    setDeleteModal({
-      isOpen: true,
-      item,
-    });
+    setDeleteModal({ isOpen: true, item });
   };
 
   const handleDeleteConfirm = async () => {
@@ -74,12 +67,8 @@ export default function FeedbackPage() {
 
     try {
       setSubmitting(true);
-      const response = await Axios.delete(
-        `/api/feedback/${deleteModal.item._id}`
-      );
-      const data = response.data;
-
-      if (data.success) {
+      const response = await Axios.delete(`/api/feedback/${deleteModal.item._id}`);
+      if (response.data.success) {
         toast.success("Feedback deleted successfully");
         setDeleteModal({ isOpen: false, item: null });
         fetchFeedback();
@@ -107,19 +96,16 @@ export default function FeedbackPage() {
     fetchFeedback();
   };
 
-  // Statistics calculations
+  // Statistics
   const totalFeedback = feedbackItems.length;
-  const thisMonthFeedback = feedbackItems.filter((item) => {
+  const thisMonthFeedback = feedbackItems.filter(item => {
     if (!item.createdAt) return false;
-    const itemDate = new Date(item.createdAt);
-    const currentDate = new Date();
-    return (
-      itemDate.getMonth() === currentDate.getMonth() &&
-      itemDate.getFullYear() === currentDate.getFullYear()
-    );
+    const d = new Date(item.createdAt);
+    const now = new Date();
+    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
   }).length;
 
-  // Table columns configuration
+  // Table columns
   const columns = [
     {
       key: "image",
@@ -147,11 +133,7 @@ export default function FeedbackPage() {
       key: "name",
       label: "Name",
       sortable: true,
-      render: (value: unknown) => (
-        <div className="font-medium text-sm sm:text-base text-gray-900 dark:text-gray-100">
-          {String(value)}
-        </div>
-      ),
+      render: (value: unknown) => <div className="font-medium text-sm sm:text-base">{String(value)}</div>,
     },
     {
       key: "message",
@@ -163,12 +145,12 @@ export default function FeedbackPage() {
       ),
     },
     {
-      key: "index",
+      key: "order",
       label: "Order",
       sortable: true,
       render: (value: unknown) => (
         <span className="text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-2 py-1 rounded">
-          #{String(value)}
+          #{value ?? ""}
         </span>
       ),
     },
@@ -185,75 +167,41 @@ export default function FeedbackPage() {
         </AdminButton>
       </PageHeader>
 
-      {/* Statistics Cards */}
+      {/* Statistics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6 transition-colors duration-200">
+        {/* Total Feedback */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
           <div className="flex items-center justify-between">
             <div className="flex-1">
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                Total Feedback
-              </p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Feedback</p>
               <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
                 {loading ? "..." : totalFeedback}
               </p>
             </div>
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
               <i className="ri-chat-quote-line text-blue-600 dark:text-blue-400 text-lg sm:text-xl" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6 transition-colors duration-200">
+        {/* This Month */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
           <div className="flex items-center justify-between">
             <div className="flex-1">
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                Published
-              </p>
-              <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
-                {loading ? "..." : totalFeedback}
-              </p>
-            </div>
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
-              <i className="ri-check-line text-green-600 dark:text-green-400 text-lg sm:text-xl" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6 transition-colors duration-200">
-          <div className="flex items-center justify-between">
-            <div className="flex-1">
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                This Month
-              </p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">This Month</p>
               <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
                 {loading ? "..." : thisMonthFeedback}
               </p>
             </div>
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center">
               <i className="ri-calendar-line text-indigo-600 dark:text-indigo-400 text-lg sm:text-xl" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6 transition-colors duration-200">
-          <div className="flex items-center justify-between">
-            <div className="flex-1">
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                Average Rating
-              </p>
-              <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
-                {loading ? "..." : "5.0"}
-              </p>
-            </div>
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
-              <i className="ri-star-line text-yellow-600 dark:text-yellow-400 text-lg sm:text-xl" />
             </div>
           </div>
         </div>
       </div>
 
       {/* Feedback Table */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden transition-colors duration-200">
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
         <DataTable
           data={feedbackItems}
           columns={columns}

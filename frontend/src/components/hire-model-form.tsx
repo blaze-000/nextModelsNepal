@@ -1,84 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { toast } from "sonner";
 import { Spinner } from "@geist-ui/react";
 import { motion } from "framer-motion";
 import ModelDropdown from "./ui/modelDropdown";
 import { validateEmail } from "@/lib/utils";
+import Axios from "@/lib/axios-instance";
 
-// Model data - can be moved to a separate data file later
-const femaleModels = [
-  {
-    name: "Monika Adhikary",
-    location: "Kathmandu, Nepal",
-    image: "/bro_1.png",
-    link: "https://nextmodelnepal.com/models/monika",
-  },
-  {
-    name: "Pratista",
-    location: "Kathmandu, Nepal",
-    image: "/bro_1.png",
-    link: "https://nextmodelnepal.com/models/pratista",
-  },
-  {
-    name: "Aayushma Poudel",
-    location: "Kathmandu, Nepal",
-    image: "/bro_1.png",
-  },
-  {
-    name: "Kristina",
-    location: "Kathmandu, Nepal",
-    image: "/bro_1.png",
-  },
-  {
-    name: "Sarah Johnson",
-    location: "Kathmandu, Nepal",
-    image: "/bro_1.png",
-  },
-  {
-    name: "Emma Wilson",
-    location: "Kathmandu, Nepal",
-    image: "/bro_1.png",
-  },
-];
-
-const maleModels = [
-  {
-    name: "Monika Adhikary",
-    location: "Kathmandu, Nepal",
-    image: "/bro_1.png",
-    link: "https://nextmodelnepal.com/models/monika",
-  },
-  {
-    name: "Pratista",
-    location: "Kathmandu, Nepal",
-    image: "/bro_1.png",
-    link: "https://nextmodelnepal.com/models/pratista",
-  },
-  {
-    name: "Aayushma Poudel",
-    location: "Kathmandu, Nepal",
-    image: "/bro_1.png",
-  },
-  {
-    name: "Alex Thompson",
-    location: "Kathmandu, Nepal",
-    image: "/bro_1.png",
-  },
-  {
-    name: "David Martinez",
-    location: "Kathmandu, Nepal",
-    image: "/bro_1.png",
-  },
-  {
-    name: "James Wilson",
-    location: "Kathmandu, Nepal",
-    image: "/bro_1.png",
-  },
-];
-
+interface Model {
+  _id: string;
+  name: string;
+  intro: string;
+  address: string;
+  gender: string;
+  slug: string;
+  coverImage: string;
+  images: string[];
+  index: number;
+}
 
 // Reusable Input Component
 const InputField = ({
@@ -146,9 +87,11 @@ const TextareaField = ({
 );
 
 const HireModelForm = () => {
+  const [models, setModels] = useState<Model[]>([]);
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
-    name: "",
-    subject: "",
+    selectedModelId: "",
+    selectedModelName: "",
     email: "",
     phone: "",
     date: "",
@@ -157,6 +100,24 @@ const HireModelForm = () => {
 
   const [errors, setErrors] = useState<Partial<typeof formData>>({});
   const [isSending, setIsSending] = useState(false);
+
+  // Fetch models from API
+  useEffect(() => {
+    const fetchModels = async () => {
+      try {
+        setLoading(true);
+        const response = await Axios.get("/api/models");
+        setModels(response.data.data || []);
+      } catch (error) {
+        console.error("Error fetching models:", error);
+        toast.error("Failed to load models");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchModels();
+  }, []);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -167,15 +128,19 @@ const HireModelForm = () => {
 
   const handleModelChange = (modelName: string) => {
     setErrors({});
-    setFormData((prev) => ({ ...prev, name: modelName }));
+    const selectedModel = models.find(model => model.name === modelName);
+    setFormData((prev) => ({
+      ...prev,
+      selectedModelName: modelName,
+      selectedModelId: selectedModel?._id || ""
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const newErrors: Partial<typeof formData> = {};
-    if (!formData.name.trim()) newErrors.name = "Model selection is required";
-    if (!formData.subject.trim()) newErrors.subject = "Subject is required";
+    if (!formData.selectedModelId) newErrors.selectedModelName = "Model selection is required";
     if (!formData.email.trim()) newErrors.email = "Email is required";
     if (formData.email && !validateEmail(formData.email))
       newErrors.email = "Invalid email";
@@ -190,28 +155,61 @@ const HireModelForm = () => {
 
     setIsSending(true);
     try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-      const data = await res.json();
-      if (!res.ok || !data.success) throw new Error();
-      toast.success("Message sent!");
-      setFormData({
-        name: "",
-        subject: "",
-        email: "",
-        phone: "",
-        date: "",
-        message: "",
-      });
-    } catch {
-      toast.error("Failed to send. Try again later.");
+      const hireData = {
+        email: formData.email,
+        phone: formData.phone,
+        date: formData.date,
+        message: formData.message,
+      };
+
+      const response = await Axios.post(`/api/hire-model/${formData.selectedModelId}`, hireData);
+
+      if (response.data.success) {
+        toast.success("Hire request submitted successfully!");
+        setFormData({
+          selectedModelId: "",
+          selectedModelName: "",
+          email: "",
+          phone: "",
+          date: "",
+          message: "",
+        });
+      } else {
+        throw new Error(response.data.message || "Failed to submit request");
+      }
+    } catch (error: any) {
+      console.error("Error submitting hire request:", error);
+      toast.error(error.response?.data?.message || "Failed to submit request. Please try again.");
     } finally {
       setIsSending(false);
     }
   };
+
+  // Separate models by gender
+  const femaleModels = models.filter(model => model.gender === 'Female');
+  const maleModels = models.filter(model => model.gender === 'Male');
+
+  // Transform models for dropdown component
+  const transformModelsForDropdown = (modelList: Model[]) => {
+    return modelList.map(model => ({
+      name: model.name,
+      location: model.address,
+      image: model.coverImage || "/bro_1.png", // fallback image
+      link: `/models/${model.slug}`,
+    }));
+  };
+
+  if (loading) {
+    return (
+      <section className="w-full bg-background2 py-16 md:py-16 flex flex-col items-center text-white font-urbanist">
+        <div className="max-w-7xl px-8 md:px-6">
+          <div className="flex justify-center items-center h-64">
+            <Spinner />
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="w-full bg-background2 py-16 md:py-16 flex flex-col items-center text-white font-urbanist">
@@ -259,20 +257,21 @@ const HireModelForm = () => {
           >
             <ModelDropdown
               label="Model"
-              value={formData.name}
+              value={formData.selectedModelName}
               onChange={handleModelChange}
-              error={errors.name}
+              error={errors.selectedModelName}
               placeholder="Select a model"
-              femaleModels={femaleModels}
-              maleModels={maleModels}
+              femaleModels={transformModelsForDropdown(femaleModels)}
+              maleModels={transformModelsForDropdown(maleModels)}
             />
             <InputField
-              label="Subject"
-              name="subject"
-              value={formData.subject}
+              label="Email"
+              name="email"
+              type="email"
+              value={formData.email}
               onChange={handleChange}
-              placeholder="e.g. I want model for our brand photoshoot"
-              error={errors.subject}
+              placeholder="e.g. johndoe@example.com"
+              error={errors.email}
             />
           </motion.div>
 
@@ -285,15 +284,6 @@ const HireModelForm = () => {
             className="flex flex-col md:flex-row gap-6"
           >
             <InputField
-              label="Email"
-              name="email"
-              type="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="e.g. johndoe@example.com"
-              error={errors.email}
-            />
-            <InputField
               label="Phone"
               name="phone"
               type="tel"
@@ -302,16 +292,6 @@ const HireModelForm = () => {
               placeholder="e.g. 9XXXXXXXXX"
               error={errors.phone}
             />
-          </motion.div>
-
-          {/* Row 3 */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5 }}
-            viewport={{ once: true }}
-            className="flex flex-col md:flex-row gap-6"
-          >
             <InputField
               label="When do you need this model?"
               name="date"
@@ -321,11 +301,9 @@ const HireModelForm = () => {
               placeholder=""
               error={errors.date}
             />
-            <div className="w-full"></div>{" "}
-            {/* Empty space to balance the row */}
           </motion.div>
 
-          {/* Row 4 */}
+          {/* Row 3 */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -337,12 +315,12 @@ const HireModelForm = () => {
               name="message"
               value={formData.message}
               onChange={handleChange}
-              placeholder="Enter your message"
+              placeholder="Tell us about your project, requirements, and any specific details..."
               error={errors.message}
             />
           </motion.div>
 
-          {/* Submit Button + Inquiries-Text_link */}
+          {/* Submit Button */}
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
@@ -363,7 +341,7 @@ const HireModelForm = () => {
                 </>
               ) : (
                 <>
-                  Submit
+                  Submit Request
                   <i className="group-hover:scale-1.2 ri-arrow-right-up-line ml-2" />
                 </>
               )}

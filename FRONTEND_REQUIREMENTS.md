@@ -232,7 +232,7 @@ This document outlines all the required fields, field types, and validation rule
 | `email`             | string   | ✅       | Email address           | Valid email format           |
 | `age`               | string   | ✅       | Age                     | Min 1 character              |
 | `languages`         | string[] | ✅       | Languages               | At least 1 language required |
-| `gender`            | string   | ❌       | Gender                  | "Male", "Female", or "Other" |
+| `gender`            | string   | ❌       | Gender                  | "Male" or "Female" |
 | `occupation`        | string   | ✅       | Occupation              | Min 1 character              |
 | `dressSize`         | string   | ❌       | Dress size              | Optional                     |
 | `shoeSize`          | string   | ❌       | Shoe size               | Optional                     |

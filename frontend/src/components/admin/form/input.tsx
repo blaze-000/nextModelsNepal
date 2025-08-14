@@ -44,6 +44,7 @@ const Input = ({
         onChange={onChange}
         placeholder={placeholder}
         disabled={disabled}
+        onWheel={(e) => e.currentTarget.blur()}
         className={`w-full bg-muted-background text-gray-100 px-6 md:px-6 py-4 md:py-6 outline-none rounded
           disabled:opacity-50 disabled:cursor-not-allowed
           ${className}`}

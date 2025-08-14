@@ -35,7 +35,7 @@ export const createContestant = async (req: Request, res: Response) => {
     if (!seasonExists) {
       return res.status(404).json({ success: false, message: "Season not found" });
     }
-    
+
     // Check if image was uploaded
     if (!req.file) {
       return res.status(400).json({
@@ -43,16 +43,16 @@ export const createContestant = async (req: Request, res: Response) => {
         message: "Contestant image is required"
       });
     }
-    
+
     // Get file path
     const image = req.file.path;
-    
+
     // Create contestant with image path
     const contestant = await ContestantModel.create({
       ...validatedData,
       image
     });
-    
+
     res.status(201).json({ success: true, data: contestant });
   } catch (error) {
     if (error instanceof mongoose.Error.ValidationError) {
@@ -73,27 +73,27 @@ export const getContestantsBySeason = async (req: Request, res: Response) => {
   try {
     const { seasonId } = req.params;
     const { page = 1, limit = 10, gender, sort = "name", order = "asc" } = req.query;
-    
+
     if (!mongoose.Types.ObjectId.isValid(seasonId)) {
       return res.status(400).json({ success: false, message: "Invalid season ID format" });
     }
-    
+
     const skip = (Number(page) - 1) * Number(limit);
     const sortOrder = order === "desc" ? -1 : 1;
-    
+
     // Build filter object
     const filter: any = { seasonId };
-    if (gender && ["Male", "Female", "Other"].includes(String(gender))) {
+    if (gender && ["Male", "Female"].includes(String(gender))) {
       filter.gender = gender;
     }
-    
+
     const contestants = await ContestantModel.find(filter)
       .sort({ [String(sort)]: sortOrder })
       .limit(Number(limit))
       .skip(skip);
-    
+
     const total = await ContestantModel.countDocuments(filter);
-    
+
     res.json({
       success: true,
       data: contestants,
@@ -116,27 +116,27 @@ export const getContestantsBySeason = async (req: Request, res: Response) => {
 export const getAllContestants = async (req: Request, res: Response) => {
   try {
     const { page = 1, limit = 10, gender, seasonId, sort = "createdAt", order = "desc" } = req.query;
-    
+
     const skip = (Number(page) - 1) * Number(limit);
     const sortOrder = order === "desc" ? -1 : 1;
-    
+
     // Build filter object
     const filter: any = {};
-    if (gender && ["Male", "Female", "Other"].includes(String(gender))) {
+    if (gender && ["Male", "Female"].includes(String(gender))) {
       filter.gender = gender;
     }
     if (seasonId && mongoose.Types.ObjectId.isValid(String(seasonId))) {
       filter.seasonId = seasonId;
     }
-    
+
     const contestants = await ContestantModel.find(filter)
       .populate("seasonId", "year slug")
       .sort({ [String(sort)]: sortOrder })
       .limit(Number(limit))
       .skip(skip);
-    
+
     const total = await ContestantModel.countDocuments(filter);
-    
+
     res.json({
       success: true,
       data: contestants,
@@ -159,16 +159,16 @@ export const getAllContestants = async (req: Request, res: Response) => {
 export const getContestantById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    
+
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ success: false, message: "Invalid contestant ID format" });
     }
-    
+
     const contestant = await ContestantModel.findById(id).populate("seasonId", "year slug");
     if (!contestant) {
       return res.status(404).json({ success: false, message: "Contestant not found" });
     }
-    
+
     res.json({ success: true, data: contestant });
   } catch (error) {
     console.error("Get contestant by ID error:", error);
@@ -183,20 +183,20 @@ export const updateContestant = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const validatedData = updateContestantSchema.parse(req.body);
-    
+
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ success: false, message: "Invalid contestant ID format" });
     }
-    
+
     // Get existing contestant to check for old image
     const existingContestant = await ContestantModel.findById(id);
     if (!existingContestant) {
       return res.status(404).json({ success: false, message: "Contestant not found" });
     }
-    
+
     // Handle image update if a new file was uploaded
     const updateData: any = { ...validatedData };
-    
+
     if (req.file) {
       // Delete old image if it exists
       if (existingContestant.image) {
@@ -205,16 +205,16 @@ export const updateContestant = async (req: Request, res: Response) => {
       // Set new image path
       updateData.image = req.file.path;
     }
-    
+
     const contestant = await ContestantModel.findByIdAndUpdate(id, updateData, {
       new: true,
       runValidators: true,
     });
-    
+
     if (!contestant) {
       return res.status(404).json({ success: false, message: "Contestant not found" });
     }
-    
+
     res.json({ success: true, data: contestant });
   } catch (error) {
     if (error instanceof mongoose.Error.ValidationError) {
@@ -234,26 +234,26 @@ export const updateContestant = async (req: Request, res: Response) => {
 export const deleteContestant = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    
+
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ success: false, message: "Invalid contestant ID format" });
     }
-    
+
     const contestant = await ContestantModel.findById(id);
     if (!contestant) {
       return res.status(404).json({ success: false, message: "Contestant not found" });
     }
-    
+
     // Delete associated image file
     if (contestant.image) {
       deleteFile(contestant.image);
     }
-    
+
     const deleted = await ContestantModel.findByIdAndDelete(id);
     if (!deleted) {
       return res.status(404).json({ success: false, message: "Contestant not found" });
     }
-    
+
     res.json({ success: true, message: "Contestant deleted successfully" });
   } catch (error) {
     console.error("Delete contestant error:", error);

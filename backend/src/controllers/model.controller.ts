@@ -20,22 +20,43 @@ const deleteImageFiles = (imagePaths: string[]) => {
   });
 };
 
-// Create a new company
+// Create a new model
 export const createModel = async (req: Request, res: Response) => {
   const session = await Model.startSession();
   session.startTransaction();
 
   try {
-    const { index, name, intro, address, gender, slug } =
+    const { order, name, intro, address, gender, slug } =
       createModelSchema.parse(req.body);
-    const newIndex = parseInt(index);
 
-    // Shift existing documents with index >= newIndex
-    await Model.updateMany(
-      { index: { $gte: newIndex } },
-      { $inc: { index: 1 } },
-      { session }
-    );
+    // Determine max order
+    const maxOrderDoc = await Model.findOne().sort({ order: -1 }).session(session);
+    const maxOrder = maxOrderDoc ? maxOrderDoc.order : 0;
+
+    let newOrder;
+    const parsedOrder = order !== undefined && order !== null && order !== '' ? parseInt(order) : undefined;
+
+    if (parsedOrder === undefined || parsedOrder > maxOrder) {
+      // If order is undefined, null, empty string, or greater than max existing order → assign maxOrder + 1
+      newOrder = maxOrder + 1;
+    } else {
+      // If order <= maxOrder → increment order of all models where order >= newOrder
+      newOrder = parsedOrder;
+
+      // Get all models that need to be shifted, sorted by order descending to avoid conflicts
+      const modelsToShift = await Model.find({ order: { $gte: newOrder } })
+        .sort({ order: -1 })
+        .session(session);
+
+      // Update each model's order one by one, starting from the highest order
+      for (const model of modelsToShift) {
+        await Model.updateOne(
+          { _id: model._id },
+          { order: model.order + 1 },
+          { session }
+        );
+      }
+    }
 
     // Process uploaded files
     const files = req.files as { [fieldname: string]: Express.Multer.File[] };
@@ -46,9 +67,9 @@ export const createModel = async (req: Request, res: Response) => {
       ? files.images.map((file) => `/uploads/${file.filename}`)
       : [];
 
-    // Create new company
-    const newCompany = new Model({
-      index: newIndex,
+    // Create new model
+    const newModel = new Model({
+      order: newOrder,
       name,
       intro,
       address,
@@ -58,10 +79,10 @@ export const createModel = async (req: Request, res: Response) => {
       images,
     });
 
-    await newCompany.save({ session });
+    await newModel.save({ session });
     await session.commitTransaction();
 
-    res.status(201).json({ success: true, data: newCompany });
+    res.status(201).json({ success: true, data: newModel });
   } catch (error: any) {
     await session.abortTransaction();
 
@@ -84,67 +105,67 @@ export const createModel = async (req: Request, res: Response) => {
 
     res
       .status(500)
-      .json({ success: false, message: "Error creating company", error });
+      .json({ success: false, message: "Error creating model", error });
   } finally {
     session.endSession();
   }
 };
 
-// Get all companies
+// Get all models
 export const getAllModels = async (_req: Request, res: Response) => {
   try {
-    const companies = await Model.find().sort({ index: 1 });
-    res.status(200).json({ success: true, data: companies });
+    const models = await Model.find().sort({ order: 1 });
+    res.status(200).json({ success: true, data: models });
   } catch (error) {
     res
       .status(500)
-      .json({ success: false, message: "Error fetching companies", error });
+      .json({ success: false, message: "Error fetching models", error });
   }
 };
 
-// Get company by ID
+// Get model by ID
 export const getModelById = async (req: Request, res: Response) => {
   try {
-    const company = await Model.findById(req.params.id);
-    if (!company) {
+    const model = await Model.findById(req.params.id);
+    if (!model) {
       return res
         .status(404)
-        .json({ success: false, message: "Company not found" });
+        .json({ success: false, message: "Model not found" });
     }
-    res.status(200).json({ success: true, data: company });
+    res.status(200).json({ success: true, data: model });
   } catch (error) {
     res
       .status(500)
-      .json({ success: false, message: "Error fetching company", error });
+      .json({ success: false, message: "Error fetching model", error });
   }
 };
 
-// Update company by ID
+// Update model by ID
 export const updateModelById = async (req: Request, res: Response) => {
   const session = await Model.startSession();
   session.startTransaction();
 
   try {
     const { id } = req.params;
-    const { index, name, intro, address, gender, slug } = req.body;
-    const existingCompany = await Model.findById(id).session(session);
+    const { order, name, intro, address, gender, slug } = req.body;
+    const existingModel = await Model.findById(id).session(session);
 
-    if (!existingCompany) {
+    if (!existingModel) {
       await session.abortTransaction();
       return res
         .status(404)
-        .json({ success: false, message: "Company not found" });
+        .json({ success: false, message: "Model not found" });
     }
 
     // Process uploaded files
     const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-    let coverImage = existingCompany.coverImage;
-    let images = [...existingCompany.images];
+    let coverImage = existingModel.coverImage;
+    let images = [...existingModel.images];
 
     // Handle cover image update
     if (files.coverImage && files.coverImage.length > 0) {
-      if (existingCompany.coverImage) {
-        deleteImageFiles([existingCompany.coverImage]);
+      if (existingModel.coverImage) {
+        deleteImageFiles([existingModel.coverImage]);
       }
       coverImage = `/uploads/${files.coverImage[0].filename}`;
     }
@@ -152,51 +173,95 @@ export const updateModelById = async (req: Request, res: Response) => {
     // Handle images update
     if (files.images && files.images.length > 0) {
       // Delete old images
-      if (existingCompany.images.length > 0) {
-        deleteImageFiles(existingCompany.images);
+      if (existingModel.images.length > 0) {
+        deleteImageFiles(existingModel.images);
       }
       // Set new images
       images = files.images.map((file) => `/uploads/${file.filename}`);
     }
 
-    // Handle index update
-    if (index !== undefined && index !== existingCompany.index) {
-      const newIndex = parseInt(index);
-      const oldIndex = existingCompany.index;
+    // Handle order update
+    if (order !== undefined) {
+      const parsedOrder = order !== undefined && order !== null && order !== '' ? parseInt(order) : undefined;
+      const currentOrder = existingModel.order;
+      const maxOrderDoc = await Model.findOne().sort({ order: -1 }).session(session);
+      const maxOrder = maxOrderDoc ? maxOrderDoc.order : 0;
 
-      if (newIndex < oldIndex) {
-        // Increment index by 1 for documents where index >= newIndex && index < oldIndex
-        await Model.updateMany(
-          { index: { $gte: newIndex, $lt: oldIndex } },
-          { $inc: { index: 1 } },
-          { session }
-        );
-      } else if (newIndex > oldIndex) {
-        // Decrement index by 1 for documents where index <= newIndex && index > oldIndex
-        await Model.updateMany(
-          { index: { $lte: newIndex, $gt: oldIndex } },
-          { $inc: { index: -1 } },
-          { session }
-        );
+      let finalOrder;
+      if (parsedOrder === undefined || parsedOrder > maxOrder) {
+        // If order is undefined, null, empty string, or greater than maxOrder → assign maxOrder + 1
+        finalOrder = maxOrder + 1;
+      } else {
+        // If order <= maxOrder → increment order of all models where order >= newOrder
+        finalOrder = parsedOrder;
+
+        // Only shift if the order is actually changing and it's a valid order
+        if (parsedOrder !== currentOrder && parsedOrder >= 1) {
+          // Determine the range of models that need to be shifted
+          let startOrder, endOrder;
+
+          if (parsedOrder < currentOrder) {
+            // Moving up: shift models from parsedOrder to currentOrder-1
+            startOrder = parsedOrder;
+            endOrder = currentOrder - 1;
+          } else {
+            // Moving down: shift models from currentOrder+1 to parsedOrder
+            startOrder = currentOrder + 1;
+            endOrder = parsedOrder;
+          }
+
+          // First, temporarily move the current model to a safe position
+          const tempOrder = maxOrder + 2;
+          await Model.updateOne(
+            { _id: id },
+            { order: tempOrder },
+            { session }
+          );
+
+          // Get models in the range that need to be shifted
+          const modelsToShift = await Model.find({
+            order: { $gte: startOrder, $lte: endOrder },
+            _id: { $ne: id }
+          })
+            .sort({ order: -1 })
+            .session(session);
+
+          // Update each model's order one by one, starting from the highest order
+          for (const modelToShift of modelsToShift) {
+            const newOrder = parsedOrder < currentOrder ? modelToShift.order + 1 : modelToShift.order - 1;
+            await Model.updateOne(
+              { _id: modelToShift._id },
+              { order: newOrder },
+              { session }
+            );
+          }
+
+          // Now move the current model to its final position
+          await Model.updateOne(
+            { _id: id },
+            { order: parsedOrder },
+            { session }
+          );
+        }
       }
 
-      existingCompany.index = newIndex;
+      existingModel.order = finalOrder;
     }
 
     // Update other fields
-    if (name) existingCompany.name = name;
-    if (intro) existingCompany.intro = intro;
-    if (address) existingCompany.address = address;
-    if (gender) existingCompany.gender = gender;
-    if (slug) existingCompany.slug = slug;
-    if (coverImage !== existingCompany.coverImage)
-      existingCompany.coverImage = coverImage;
-    if (images !== existingCompany.images) existingCompany.images = images;
+    if (name) existingModel.name = name;
+    if (intro) existingModel.intro = intro;
+    if (address) existingModel.address = address;
+    if (gender) existingModel.gender = gender;
+    if (slug) existingModel.slug = slug;
+    if (coverImage !== existingModel.coverImage)
+      existingModel.coverImage = coverImage;
+    if (images !== existingModel.images) existingModel.images = images;
 
-    await existingCompany.save({ session });
+    await existingModel.save({ session });
     await session.commitTransaction();
 
-    res.status(200).json({ success: true, data: existingCompany });
+    res.status(200).json({ success: true, data: existingModel });
   } catch (error: any) {
     await session.abortTransaction();
 
@@ -219,54 +284,54 @@ export const updateModelById = async (req: Request, res: Response) => {
 
     res
       .status(500)
-      .json({ success: false, message: "Error updating company", error });
+      .json({ success: false, message: "Error updating model", error });
   } finally {
     session.endSession();
   }
 };
 
-// Delete company by ID
+// Delete model by ID
 export const deleteModelById = async (req: Request, res: Response) => {
   const session = await Model.startSession();
   session.startTransaction();
 
   try {
     const { id } = req.params;
-    const company = await Model.findById(id).session(session);
+    const model = await Model.findById(id).session(session);
 
-    if (!company) {
+    if (!model) {
       await session.abortTransaction();
       return res
         .status(404)
-        .json({ success: false, message: "Company not found" });
+        .json({ success: false, message: "Model not found" });
     }
 
     // Delete all image files
-    const imagesToDelete = [company.coverImage, ...company.images];
+    const imagesToDelete = [model.coverImage, ...model.images];
     deleteImageFiles(imagesToDelete);
 
-    // Get the index of the company to be deleted
-    const deletedIndex = company.index;
+    // Get the order of the model to be deleted
+    const deletedOrder = model.order;
 
-    // Delete the company
+    // Delete the model
     await Model.findByIdAndDelete(id, { session });
 
-    // Decrement index for all companies with index > deletedIndex
+    // Decrement order for all models with order > deletedOrder
     await Model.updateMany(
-      { index: { $gt: deletedIndex } },
-      { $inc: { index: -1 } },
+      { order: { $gt: deletedOrder } },
+      { $inc: { order: -1 } },
       { session }
     );
 
     await session.commitTransaction();
     res
       .status(200)
-      .json({ success: true, message: "Company deleted successfully" });
+      .json({ success: true, message: "Model deleted successfully" });
   } catch (error) {
     await session.abortTransaction();
     res
       .status(500)
-      .json({ success: false, message: "Error deleting company", error });
+      .json({ success: false, message: "Error deleting model", error });
   } finally {
     session.endSession();
   }

@@ -22,14 +22,13 @@ export const useModels = (): UseModelsReturn => {
   const statistics = useMemo((): ModelStatistics => {
     const total = models.length;
     const male = models.filter(
-      (model) => model.gender?.toLowerCase() === "male"
+      (model) => model.gender === "Male"
     ).length;
     const female = models.filter(
-      (model) => model.gender?.toLowerCase() === "female"
+      (model) => model.gender === "Female"
     ).length;
-    const other = total - male - female;
 
-    return { total, male, female, other };
+    return { total, male, female };
   }, [models]);
 
   // Fetch models from API

@@ -66,7 +66,7 @@ interface Model {
   name: string,
   coverImage: string,
   images: string[],
-  gender: 'Male' | 'Female' | 'Other',
+  gender: 'Male' | 'Female',
   address?: string,
   slug?: string,
   intro: string,
@@ -91,7 +91,7 @@ type HeroData = {
   image_2: string,
   image_3: string,
   image_4: string,
- 
+
 }
 
 type UpcomingEventData = {

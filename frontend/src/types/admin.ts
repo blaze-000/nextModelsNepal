@@ -71,7 +71,7 @@ export interface CompanyModel {
   name: string;
   intro: string;
   address: string;
-  index: string;
+  order: string;
   gender: string;
   slug: string;
   coverImage: string;
@@ -102,7 +102,7 @@ export interface Career {
 // Feedback Types
 export interface FeedbackItem {
   _id: string;
-  index: number;
+  order: number;
   name: string;
   message: string;
   image: string;
@@ -112,6 +112,7 @@ export interface FeedbackItem {
 
 // Feedback Form Data Types
 export interface FeedbackFormData {
+  order?: number;
   name: string;
   message: string;
   image: File[];
@@ -169,7 +170,7 @@ export interface Application {
   email: string;
   age: string;
   languages: string[];
-  gender: "Male" | "Female" | "Other";
+  gender: "Male" | "Female";
   occupation: string;
   parentsName: string;
   parentsMobile: string;
@@ -207,7 +208,7 @@ export interface ModelFormData {
   address: string;
   gender: string;
   slug: string;
-  index: string;
+  order: string;
   coverImage: File[];
   galleryImages: File[];
 }
@@ -222,8 +223,8 @@ export interface NewsFormData {
 }
 
 export interface PartnerFormData {
-    sponserName: string;
-    sponserImage: File | null;
+  sponserName: string;
+  sponserImage: File | null;
 }
 
 export interface EventFormData {
@@ -264,5 +265,4 @@ export interface ModelStatistics {
   total: number;
   male: number;
   female: number;
-  other: number;
 }

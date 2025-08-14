@@ -23,6 +23,7 @@ const initialFormData: FeedbackFormData = {
   name: "",
   message: "",
   image: [],
+  order: undefined,
 };
 
 export default function FeedbackPopup({
@@ -35,7 +36,6 @@ export default function FeedbackPopup({
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Reset form when modal opens/closes or editing item changes
   useEffect(() => {
     if (isOpen) {
       if (editingItem) {
@@ -43,6 +43,7 @@ export default function FeedbackPopup({
           name: editingItem.name,
           message: editingItem.message,
           image: [],
+          order: editingItem.order,
         });
       } else {
         setFormData(initialFormData);
@@ -57,7 +58,6 @@ export default function FeedbackPopup({
     onClose();
   };
 
-  // Form handlers
   const handleInputChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -72,23 +72,17 @@ export default function FeedbackPopup({
 
   const handleImageChange = (files: File[]) => {
     setFormData((prev) => ({ ...prev, image: files }));
-    if (errors.image) {
-      setErrors((prev) => ({ ...prev, image: "" }));
-    }
+    if (errors.image) setErrors((prev) => ({ ...prev, image: "" }));
   };
 
-  // Validation
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
-
     if (!formData.name.trim()) newErrors.name = "Name is required";
     if (!formData.message.trim()) newErrors.message = "Message is required";
 
-    // Image is required for new feedback, optional for existing (unless they want to change it)
     if (!editingItem && formData.image.length === 0) {
       newErrors.image = "Image is required";
     }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -98,36 +92,34 @@ export default function FeedbackPopup({
     e.stopPropagation();
 
     if (!validateForm()) return;
-
     setSubmitting(true);
-    const submitFormData = new FormData();
 
-    // Add basic form data
+    const submitFormData = new FormData();
     submitFormData.append("name", formData.name);
     submitFormData.append("message", formData.message);
 
-    // Add image if provided
     if (formData.image.length > 0) {
       submitFormData.append("image", formData.image[0]);
+    }
+
+    // Append order only if provided
+    if (formData.order !== undefined) {
+      submitFormData.append("order", String(formData.order));
     }
 
     try {
       let response;
       if (editingItem) {
-        // Add index for updating
-        submitFormData.append("index", editingItem.index.toString());
         response = await Axios.patch(
           `/api/feedback/${editingItem._id}`,
           submitFormData
         );
       } else {
-        // For new feedback, use next available index
-        submitFormData.append("index", "1"); // Backend will handle proper indexing
+        // New feedback; backend handles order if not provided
         response = await Axios.post("/api/feedback", submitFormData);
       }
 
-      const data = response.data;
-      if (data.success) {
+      if (response.data.success) {
         toast.success(
           `Feedback ${editingItem ? "updated" : "created"} successfully`
         );
@@ -164,7 +156,6 @@ export default function FeedbackPopup({
         onSubmit={handleSubmit}
         className="p-4 sm:p-6 space-y-4 sm:space-y-6"
       >
-        {/* Basic Information */}
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-gold-400 border-b border-gray-700 pb-2">
             Feedback Information
@@ -191,7 +182,16 @@ export default function FeedbackPopup({
             rows={4}
           />
 
-          {/* Image Upload */}
+          <Input
+            label="Order (optional)"
+            name="order"
+            value={String(formData.order)}
+            onChange={handleInputChange}
+            type="number"
+            placeholder="Enter display order (optional)"
+            error={errors.order}
+          />
+
           <PhotoUpload
             label="Customer Photo"
             name="image"
@@ -210,7 +210,6 @@ export default function FeedbackPopup({
           />
         </div>
 
-        {/* Submit Buttons */}
         <div className="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t border-gray-700">
           <AdminButton
             variant="ghost"
