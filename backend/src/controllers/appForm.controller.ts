@@ -1,10 +1,12 @@
-import PDFDocument from "pdfkit";
 import nodemailer from "nodemailer";
 
 import { Request, Response } from "express";
 import { AppModel } from "../models/appForm.model";
 import { appModelSchema } from "../validations/appForm.validation";
 import { EventModel } from "../models/events.model";
+import fs from 'fs/promises';
+import path from 'path';
+
 
 // createApplication Form
 export const createAppForm = async (req: Request, res: Response) => {
@@ -466,24 +468,54 @@ export const getAppFormById = async (req: Request, res: Response) => {
     }
 };
 
-// Delete Application Form by Id 
+// Delete Application Form by Id (Also deletes associated images) 
 export const deleteAppFormById = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
+        
+        // Find the application to get image paths
         const applyForm = await AppModel.findById({ _id: id });
-
+        
         if (!applyForm) {
             return res.status(404).json({
                 success: false,
                 message: `Application form with ID ${id} not found.`,
             });
         }
-
+        
+        // Delete associated images if they exist
+        if (applyForm.images && applyForm.images.length > 0) {
+            try {
+                // Create an array of promises for deleting images
+                const deletePromises = applyForm.images.map(async (imagePath) => {
+                    try {
+                        // Resolve the absolute path
+                        const absolutePath = path.resolve(imagePath);
+                        // Check if the file exists before deleting
+                        await fs.access(absolutePath);
+                        // Delete the file
+                        await fs.unlink(absolutePath);
+                        console.log(`Deleted image: ${absolutePath}`);
+                    } catch (fileError) {
+                        // If file doesn't exist or can't be accessed, just log the error
+                        console.warn(`Failed to delete image ${imagePath}:`, fileError);
+                    }
+                });
+                
+                // Wait for all image deletions to complete
+                await Promise.all(deletePromises);
+            } catch (error) {
+                console.error('Error deleting images:', error);
+                // Continue with deleting the application even if image deletion fails
+            }
+        }
+        
+        // Delete the application from the database
         const deleteAppForm = await AppModel.findByIdAndDelete({ _id: id });
-
+        
         return res.status(200).json({
             success: true,
-            message: "Application form deleted successfully.",
+            message: "Application form and associated images deleted successfully.",
             data: deleteAppForm,
         });
     } catch (error: any) {

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@geist-ui/react";
 import Axios from "@/lib/axios-instance";
 import { normalizeImagePath } from "@/lib/utils";
+import Link from "next/link";
 
 interface Application {
   _id: string;
@@ -87,7 +88,7 @@ const ApplicationDetail = () => {
       fetchApplication();
     }
   }, [id]);
-      console.log(application?.images)
+  console.log(application?.images)
 
   // Format date for display
   const formatDate = (dateString: string) => {
@@ -114,8 +115,8 @@ const ApplicationDetail = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="text-center py-12">
           <p className="text-foreground/50">Application not found</p>
-          <Button 
-            onClick={() => router.push("/admin")} 
+          <Button
+            onClick={() => router.push("/admin")}
             variant="outline"
             className="mt-4 border-gold-500 text-gold-500 hover:bg-gold-500 hover:text-primary-foreground"
           >
@@ -137,16 +138,18 @@ const ApplicationDetail = () => {
           </p>
         </div>
         <div className="flex space-x-3 mt-4 md:mt-0">
-          <Button 
-            onClick={() => router.push("/admin")} 
-            variant="outline"
-            className="border-gold-500 text-gold-500 hover:bg-gold-500 hover:text-primary-foreground"
-          >
-            <i className="ri-arrow-left-line mr-2" />
-            Back to Dashboard
-          </Button>
-          <Button 
-            onClick={handleDelete} 
+          <Link href="/admin/applications">
+            <Button
+              variant="outline"
+              className="border-gold-500 text-gold-500 hover:bg-gold-500 hover:text-primary-foreground"
+            >
+              <i className="ri-arrow-left-line mr-2" />
+              Back to Applicants List
+            </Button>
+          </Link>
+
+          <Button
+            onClick={handleDelete}
             variant="destructive"
             disabled={deleting}
             className="bg-gold-600 hover:bg-gold-900 text-primary-foreground"
@@ -171,8 +174,8 @@ const ApplicationDetail = () => {
             <div className="grid grid-cols-2 gap-4">
               {application?.images.map((image, index) => (
                 <div key={index} className=" overflow-hidden bg-muted-background">
-                  <img 
-                    src={normalizeImagePath(image)} 
+                  <img
+                    src={normalizeImagePath(image)}
                     alt={`Application photo ${index + 1}`}
                     className="w-full h-full object-cover"
                   />

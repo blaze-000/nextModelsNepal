@@ -72,81 +72,80 @@ const AdminDashboard = () => {
     <div className="mx-auto px-4 py-8">
       <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-[var(--color-foreground)]">Admin Dashboard</h1>
-          <p className="text-[var(--color-foreground)]/70 mt-2">Manage model applications</p>
+          <h1 className="text-3xl font-bold font-newsreader text-primary">Applicants</h1>
         </div>
         <Button 
           onClick={fetchApplications} 
           variant="outline"
-          className="mt-4 md:mt-0 border-[var(--color-gold-500)] text-[var(--color-gold-500)] hover:bg-[var(--color-gold-500)] hover:text-[var(--color-primary-foreground)]"
+          className="mt-4 md:mt-0 border-gold-500 text-gold-500 hover:bg-gold-500 hover:text-primary-foreground"
         >
           <i className="ri-refresh-line mr-2" />
           Refresh
         </Button>
       </div>
 
-      <div className="bg-[var(--color-background2)] rounded-lg shadow overflow-hidden">
+      <div className="bg-background2 rounded-lg shadow overflow-hidden">
         {loading ? (
           <div className="flex justify-center items-center h-64">
             <Spinner />
           </div>
         ) : applications.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-[var(--color-foreground)]/50">No applications found</p>
+            <p className="text-foreground/50">No applications found</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-[var(--color-muted-background)]">
-              <thead className="bg-[var(--color-muted-background)]">
+            <table className="min-w-full divide-y divide-muted-background">
+              <thead className="bg-muted-background">
                 <tr>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-[var(--color-foreground)]/70 uppercase tracking-wider">
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-foreground/70 uppercase tracking-wider">
                     Name
                   </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-[var(--color-foreground)]/70 uppercase tracking-wider">
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-foreground/70 uppercase tracking-wider">
                     Age
                   </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-[var(--color-foreground)]/70 uppercase tracking-wider">
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-foreground/70 uppercase tracking-wider">
                     Mobile
                   </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-[var(--color-foreground)]/70 uppercase tracking-wider">
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-foreground/70 uppercase tracking-wider">
                     Email
                   </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-[var(--color-foreground)]/70 uppercase tracking-wider">
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-foreground/70 uppercase tracking-wider">
                     Gender
                   </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-[var(--color-foreground)]/70 uppercase tracking-wider">
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-foreground/70 uppercase tracking-wider">
                     Date
                   </th>
-                  <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-[var(--color-foreground)]/70 uppercase tracking-wider">
+                  <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-foreground/70 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[var(--color-muted-background)]">
+              <tbody className="divide-y divide-muted-background">
                 {applications.map((application) => (
-                  <tr key={application._id} className="hover:bg-[var(--color-muted-background)]/50">
+                  <tr key={application._id} className="hover:bg-muted-background/50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <Link 
                         href={`/admin/applications/${application._id}`}
-                        className="text-sm font-medium text-[var(--color-gold-500)] hover:text-[var(--color-gold-400)] hover:underline"
+                        className="text-sm font-medium text-gold-500 hover:text-gold-400 hover:underline"
                       >
                         {application.name}
                       </Link>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-[var(--color-foreground)]/80">{application.age}</div>
+                      <div className="text-sm text-foreground/80">{application.age}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-[var(--color-foreground)]/80">{application.phone}</div>
+                      <div className="text-sm text-foreground/80">{application.phone}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-[var(--color-foreground)]/80">{application.email}</div>
+                      <div className="text-sm text-foreground/80">{application.email}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-[var(--color-foreground)]/80">{application.gender || "N/A"}</div>
+                      <div className="text-sm text-foreground/80">{application.gender || "N/A"}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-[var(--color-foreground)]/80">{formatDate(application.createdAt)}</div>
+                      <div className="text-sm text-foreground/80">{formatDate(application.createdAt)}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <Button
@@ -154,7 +153,7 @@ const AdminDashboard = () => {
                         size="sm"
                         onClick={() => handleDelete(application._id)}
                         disabled={deletingId === application._id}
-                        className="bg-[var(--color-gold-600)] hover:bg-[var(--color-gold-900)] text-[var(--color-primary-foreground)]"
+                        className="bg-gold-600 hover:bg-gold-900 text-primary-foreground"
                       >
                         {deletingId === application._id ? (
                           <Spinner />
@@ -172,7 +171,7 @@ const AdminDashboard = () => {
       </div>
 
       <div className="mt-6 flex justify-between items-center">
-        <p className="text-sm text-[var(--color-foreground)]/50">
+        <p className="text-sm text-foreground/50">
           Showing {applications.length} application{applications.length !== 1 ? "s" : ""}
         </p>
       </div>
