@@ -6,12 +6,13 @@ import Image from "next/image";
 
 import PageHeader from "@/components/admin/PageHeader";
 import DataTable from "@/components/admin/DataTable";
-import { AdminButton } from "@/components/admin/AdminButton";
+
 import ModelsPopup from "./model-popup";
 
 import Axios from "@/lib/axios-instance";
 import { CompanyModel } from "@/types/admin";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 // Statistics calculation hooks
 const useModelStatistics = (models: CompanyModel[]) => {
@@ -284,7 +285,8 @@ export default function ModelsPage() {
         title="Models Management"
         description="Manage your model portfolio with comprehensive tools for adding, editing, and organizing model profiles."
       >
-        <AdminButton
+        <Button
+        variant="default"
           onClick={handleCreateModel}
           className="w-full sm:w-auto"
           disabled={loading}
@@ -303,7 +305,7 @@ export default function ModelsPage() {
             />
           </svg>
           Add New Model
-        </AdminButton>
+        </Button>
       </PageHeader>
 
       {/* Statistics Cards */}

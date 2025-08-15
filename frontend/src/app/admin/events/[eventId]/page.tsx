@@ -12,6 +12,7 @@ import EventPopup, { BackendEvent } from "../EventPopup";
 import SeasonPopup, { BackendSeason } from "./SeasonPopup";
 import Axios from "@/lib/axios-instance";
 import { normalizeImagePath } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 // Types
 interface Event {
@@ -238,10 +239,10 @@ export default function EventDetailPage() {
   return (
     <div className="space-y-6">
       <PageHeader title={event.name} description={event.overview}>
-        <AdminButton onClick={() => setEditEventModal(true)}>
+        <Button variant="default" onClick={() => setEditEventModal(true)}>
           <i className="ri-edit-line mr-2"></i>
           Edit Event
-        </AdminButton>
+        </Button>
       </PageHeader>
 
       {/* Event Overview */}
@@ -357,10 +358,10 @@ export default function EventDetailPage() {
               Manage seasons for this event
             </p>
           </div>
-          <AdminButton onClick={handleAddSeason}>
+          <Button variant="default" onClick={handleAddSeason}>
             <i className="ri-add-line mr-2"></i>
             Add Season
-          </AdminButton>
+          </Button>
         </div>
 
         {seasons.length === 0 ? (

@@ -13,6 +13,7 @@ import SeasonPopup, { BackendSeason } from "../SeasonPopup";
 
 import Axios from "@/lib/axios-instance";
 import { normalizeImagePath } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 interface Event {
   _id: string;
@@ -219,10 +220,10 @@ export default function SeasonsPage() {
             <i className="ri-arrow-left-line mr-2"></i>
             Back to Event
           </AdminButton>
-          <AdminButton onClick={handleAddSeason}>
+          <Button variant="default" onClick={handleAddSeason}>
             <i className="ri-add-line mr-2"></i>
             Add Season
-          </AdminButton>
+          </Button>
         </div>
       </PageHeader>
 

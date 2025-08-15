@@ -13,6 +13,7 @@ import EventPopup, { BackendEvent } from "./EventPopup";
 
 import Axios from "@/lib/axios-instance";
 import { normalizeImagePath } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 interface Event {
   _id: string;
@@ -175,10 +176,10 @@ export default function EventsAdminPage() {
         title="Events Management"
         description="Manage your events and seasons"
       >
-        <AdminButton onClick={handleAddEvent}>
+        <Button variant="default" onClick={handleAddEvent}>
           <i className="ri-add-line mr-2"></i>
           Add Event
-        </AdminButton>
+        </Button>
       </PageHeader>
 
       {events.length === 0 ? (
@@ -194,10 +195,10 @@ export default function EventsAdminPage() {
               You haven&apos;t created any events yet. Create your first event
               to get started.
             </p>
-            <AdminButton onClick={handleAddEvent}>
+            <Button variant="default" onClick={handleAddEvent}>
               <i className="ri-add-line mr-2"></i>
               Create Your First Event
-            </AdminButton>
+            </Button>
           </div>
         </div>
       ) : (
