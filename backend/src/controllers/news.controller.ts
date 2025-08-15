@@ -6,12 +6,12 @@ import path from "path";
 
 // Helper function to delete image files
 const deleteImageFile = (imagePath: string) => {
-  if (imagePath) {
-    const fullPath = path.join(process.cwd(), "uploads", path.basename(imagePath));
-    if (fs.existsSync(fullPath)) {
-      fs.unlinkSync(fullPath);
+    if (imagePath) {
+        const fullPath = path.join(process.cwd(), "uploads", path.basename(imagePath));
+        if (fs.existsSync(fullPath)) {
+            fs.unlinkSync(fullPath);
+        }
     }
-  }
 };
 
 /**
@@ -21,9 +21,10 @@ export const getAllNews = async (_req: Request, res: Response) => {
     try {
         const newsItems = await NewsModel.find({}).populate('event');
         if (!newsItems || newsItems.length === 0) {
-            return res.status(404).json({
-                success: false,
+            return res.status(200).json({
+                success: true,
                 message: "No news items found.",
+                data: [],
             });
         }
         return res.status(200).json({
@@ -83,13 +84,13 @@ export const createNews = async (req: Request, res: Response) => {
         }
 
         const { title, description, link, type, year, event } = validation.data;
-        
+
         // Handle uploaded image
         let image = "";
         if (req.file) {
             image = `/uploads/${req.file.filename}`;
         }
-        
+
         // Prepare the news item data
         const newsData = {
             title,
@@ -100,9 +101,9 @@ export const createNews = async (req: Request, res: Response) => {
             image,
             event: event || null
         };
-        
+
         const newNews = await NewsModel.create(newsData);
-        
+
         res.status(201).json({
             success: true,
             message: "News item created successfully.",
@@ -135,7 +136,7 @@ export const updateNewsById = async (req: Request, res: Response) => {
 
         const { id } = req.params;
         const { title, description, link, type, year, event } = validation.data;
-        
+
         // Get the existing news item first
         const existingNews = await NewsModel.findById(id);
         if (!existingNews) {
@@ -144,7 +145,7 @@ export const updateNewsById = async (req: Request, res: Response) => {
                 message: `News item with ID ${id} not found.`,
             });
         }
-        
+
         // Handle image update
         let image = existingNews.image;
         if (req.file) {
@@ -154,7 +155,7 @@ export const updateNewsById = async (req: Request, res: Response) => {
             }
             image = `/uploads/${req.file.filename}`;
         }
-        
+
         // Prepare update data
         const updateData: any = {};
         if (title !== undefined) updateData.title = title;
@@ -164,7 +165,7 @@ export const updateNewsById = async (req: Request, res: Response) => {
         if (year !== undefined) updateData.year = year;
         if (event !== undefined) updateData.event = event;
         if (image !== existingNews.image) updateData.image = image;
-        
+
         // If no fields are provided, return error
         if (Object.keys(updateData).length === 0) {
             return res.status(400).json({
@@ -172,18 +173,18 @@ export const updateNewsById = async (req: Request, res: Response) => {
                 message: "At least one field must be provided for update.",
             });
         }
-        
+
         const updatedNews = await NewsModel.findByIdAndUpdate(id, updateData, {
             new: true,
         }).populate('event');
-        
+
         if (!updatedNews) {
             return res.status(404).json({
                 success: false,
                 message: `News item with ID ${id} not found.`,
             });
         }
-        
+
         return res.status(200).json({
             success: true,
             message: "News item updated successfully.",
@@ -206,21 +207,21 @@ export const deleteNewsById = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
         const deletedNews = await NewsModel.findById(id);
-        
+
         if (!deletedNews) {
             return res.status(404).json({
                 success: false,
                 message: `News item with ID ${id} not found.`,
             });
         }
-        
+
         // Delete the associated image file
         if (deletedNews.image) {
             deleteImageFile(deletedNews.image);
         }
-        
+
         await NewsModel.findByIdAndDelete(id);
-        
+
         return res.status(200).json({
             success: true,
             message: "News item deleted successfully.",

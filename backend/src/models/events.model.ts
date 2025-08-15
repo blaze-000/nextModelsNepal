@@ -89,7 +89,7 @@ const contestantSchema = new Schema({
     seasonId: { type: Schema.Types.ObjectId, ref: "Season", required: true },
     name: { type: String, required: true },
     intro: { type: String, required: true },
-    gender: { type: String, required: true, enum: ["Male", "Female", "Other"] },
+    gender: { type: String, required: true, enum: ["Male", "Female"] },
     address: { type: String, required: true },
     image: { type: String, required: true }
 });

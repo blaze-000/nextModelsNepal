@@ -4,7 +4,7 @@ import { EventModel } from "../models/events.model";
 import { navSchema } from "../validations/nav.validation";
 
 // GET /nav - Get navigation settings
-export const showVoting = async (req: Request, res: Response) => {
+export const getVotingState = async (req: Request, res: Response) => {
     try {
         const nav = await NavModel.findOne();
 
@@ -29,7 +29,7 @@ export const showVoting = async (req: Request, res: Response) => {
 };
 
 // POST /nav - Create navigation settings
-export const createShowVoting = async (req: Request, res: Response) => {
+export const createVotingState = async (req: Request, res: Response) => {
     try {
         const validation = navSchema.safeParse(req.body);
 
@@ -41,15 +41,10 @@ export const createShowVoting = async (req: Request, res: Response) => {
             });
         }
 
-        // Check if nav settings already exist
-        const existingNav = await NavModel.findOne();
-        if (existingNav) {
-            return res.status(409).json({
-                success: false,
-                message: "Navigation settings already exist. Use PATCH to update."
-            });
-        }
+        // Always delete existing nav settings
+        await NavModel.deleteMany({});
 
+        // Create new nav settings
         const nav = new NavModel(validation.data);
         await nav.save();
 
@@ -62,39 +57,6 @@ export const createShowVoting = async (req: Request, res: Response) => {
         res.status(500).json({
             success: false,
             message: "Failed to create navigation settings",
-            error: error instanceof Error ? error.message : "Unknown error"
-        });
-    }
-};
-
-// PATCH /nav - Update navigation settings
-export const updateShowVoting = async (req: Request, res: Response) => {
-    try {
-        const validation = navSchema.safeParse(req.body);
-
-        if (!validation.success) {
-            return res.status(400).json({
-                success: false,
-                message: "Validation failed",
-                errors: validation.error.issues
-            });
-        }
-
-        const nav = await NavModel.findOneAndUpdate(
-            {},
-            validation.data,
-            { new: true, upsert: true, runValidators: true }
-        );
-
-        res.json({
-            success: true,
-            data: nav,
-            message: "Navigation settings updated successfully"
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: "Failed to update navigation settings",
             error: error instanceof Error ? error.message : "Unknown error"
         });
     }
@@ -123,11 +85,11 @@ export const getAllNavInfo = async (req: Request, res: Response) => {
             if (event.seasons && event.seasons.length > 0) {
                 // Cast seasons to any to access properties
                 const seasons = event.seasons as any[];
-                
+
                 // Sort seasons by year descending and get the latest one
                 const sortedSeasons = seasons.sort((a: any, b: any) => b.year - a.year);
                 const latestSeason = sortedSeasons[0];
-                
+
                 const eventItem = {
                     label: event.name,
                     slug: latestSeason.slug

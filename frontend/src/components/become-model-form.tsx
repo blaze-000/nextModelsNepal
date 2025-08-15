@@ -8,6 +8,35 @@ import PhotoUpload from "./ui/photo-upload";
 import { validateEmail } from "@/lib/utils";
 import Axios from "@/lib/axios-instance";
 
+const activityOptions = [
+  { value: "fashion-show", label: "Fashion Show" },
+  { value: "photoshoot", label: "Photoshoot" },
+  { value: "commercial", label: "Commercial" },
+  { value: "runway", label: "Runway" },
+  { value: "print", label: "Print" },
+  { value: "tv-film", label: "TV/Film" },
+];
+
+const locationOptions = [
+  { value: "new-york", label: "New York" },
+  { value: "los-angeles", label: "Los Angeles" },
+  { value: "london", label: "London" },
+  { value: "paris", label: "Paris" },
+  { value: "milan", label: "Milan" },
+  { value: "tokyo", label: "Tokyo" },
+  { value: "online", label: "Online" },
+];
+
+const languageOptions = [
+  { value: "English", label: "English" },
+  { value: "Spanish", label: "Spanish" },
+  { value: "French", label: "French" },
+  { value: "German", label: "German" },
+  { value: "Mandarin", label: "Mandarin" },
+  { value: "Japanese", label: "Japanese" },
+
+];
+
 // Reusable Input Component
 const InputField = ({
   label,
@@ -38,6 +67,7 @@ const InputField = ({
       onChange={onChange}
       type={type}
       placeholder={placeholder}
+      onWheel={(e) => e.currentTarget.blur()}
       className="w-full bg-muted-background text-gray-100 px-6 md:px-6 py-4 md:py-6 outline-none rounded"
     />
     {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
@@ -151,7 +181,7 @@ const BecomeModelForm = () => {
     heardFrom: "", // Changed from howDoYouKnow to heardFrom
     additionalMessage: "", // Changed from somethingElse to additionalMessage
   });
-  
+
   const [errors, setErrors] = useState<
     Partial<typeof formData & { photos: string }>
   >({});
@@ -170,14 +200,14 @@ const BecomeModelForm = () => {
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
-    
+
     // Filter valid files (max 5MB each, only images)
     const validFiles = files.filter((file) => {
       const isValidType = file.type.startsWith("image/");
       const isValidSize = file.size <= 5 * 1024 * 1024; // 5MB
       return isValidType && isValidSize;
     });
-    
+
     // Limit to maximum 10 photos total
     const remainingSlots = 10 - selectedPhotos.length;
     const filesToAdd = validFiles.slice(0, remainingSlots);
@@ -189,15 +219,15 @@ const BecomeModelForm = () => {
     setSelectedPhotos((prev) => prev.filter((_, i) => i !== index));
   };
 
-const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: Partial<typeof formData & { photos: string }> = {};
-    
+
     // Photo validation - at least 1 photo required
     if (selectedPhotos.length === 0) {
       newErrors.photos = "At least 1 photo is required";
     }
-    
+
     // Required fields validation
     if (!formData.name.trim()) newErrors.name = "Name is required";
     if (!formData.email.trim()) newErrors.email = "Email is required";
@@ -229,17 +259,17 @@ const handleSubmit = async (e: React.FormEvent) => {
       newErrors.permanentAddress = "Permanent address is required";
     if (!formData.temporaryAddress.trim())
       newErrors.temporaryAddress = "Temporary address is required";
-    
+
     if (Object.keys(newErrors).length) {
       setErrors(newErrors);
       return;
     }
-    
+
     setIsSending(true);
     try {
       // Create FormData to handle file uploads
       const formDataToSend = new FormData();
-      
+
       // Add all form fields
       Object.entries(formData).forEach(([key, value]) => {
         // Handle languages field (convert to array)
@@ -249,20 +279,20 @@ const handleSubmit = async (e: React.FormEvent) => {
           formDataToSend.append(key, value);
         }
       });
-      
+
       // Add photos with correct field name
       selectedPhotos.forEach((photo) => {
         formDataToSend.append('images', photo);
       });
-      
+
       const res = await Axios.post("/api/app-form", formDataToSend, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
-      
+
       toast.success("Application submitted successfully!");
-      
+
       // Reset form
       setFormData({
         name: "",
@@ -292,15 +322,15 @@ const handleSubmit = async (e: React.FormEvent) => {
         heardFrom: "",
         additionalMessage: "",
       });
-      
+
       setSelectedPhotos([]);
       setErrors({}); // Reset errors
     } catch (error: any) {
       console.error("Submission error:", error);
-      
+
       // Extract error message from the response
       let errorMessage = "Failed to submit. Try again later.";
-      
+
       if (error.response) {
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
@@ -325,7 +355,7 @@ const handleSubmit = async (e: React.FormEvent) => {
         // Something happened in setting up the request that triggered an Error
         errorMessage = error.message || "Failed to submit. Try again later.";
       }
-      
+
       toast.error(errorMessage);
     } finally {
       setIsSending(false);
@@ -337,17 +367,17 @@ const handleSubmit = async (e: React.FormEvent) => {
     label: (i + 18).toString(),
   }));
 
-  
+
   const genderOptions = [
     { value: "Male", label: "Male" },
     { value: "Female", label: "Female" },
   ];
-  
+
   const shoeSizeOptions = Array.from({ length: 20 }, (_, i) => ({
     value: (i + 35).toString(),
     label: (i + 35).toString(),
   }));
-  
+
 
   return (
     <section className="w-full py-16 md:py-16 flex flex-col items-center text-white font-urbanist">
@@ -374,7 +404,7 @@ const handleSubmit = async (e: React.FormEvent) => {
             model begins here.
           </p>
         </motion.div>
-        
+
         {/* Form */}
         <motion.form
           onSubmit={handleSubmit}
@@ -403,7 +433,7 @@ const handleSubmit = async (e: React.FormEvent) => {
               acceptedTypes={["image/*"]}
             />
           </motion.div>
-          
+
           {/* Row 1: Name, Phone */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -430,7 +460,7 @@ const handleSubmit = async (e: React.FormEvent) => {
               error={errors.phone}
             />
           </motion.div>
-          
+
           {/* Row 2: Country, City */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
@@ -456,7 +486,7 @@ const handleSubmit = async (e: React.FormEvent) => {
               error={errors.city}
             />
           </motion.div>
-          
+
           {/* Row 3: Ethnicity, Email */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -483,7 +513,7 @@ const handleSubmit = async (e: React.FormEvent) => {
               error={errors.email}
             />
           </motion.div>
-          
+
           {/* Row 4: Age, Languages, Gender, Occupation */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
@@ -528,7 +558,7 @@ const handleSubmit = async (e: React.FormEvent) => {
               error={errors.occupation}
             />
           </motion.div>
-          
+
           {/* Row 6: Dress Size, Shoe Size, Hair Color, Eye Color */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
@@ -571,7 +601,7 @@ const handleSubmit = async (e: React.FormEvent) => {
               error={errors.eyeColor}
             />
           </motion.div>
-          
+
           {/* Row 8: Select Event, Audition Place */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
@@ -599,7 +629,7 @@ const handleSubmit = async (e: React.FormEvent) => {
               required={false} // Made optional
             />
           </motion.div>
-          
+
           {/* Row 9: Weight in KG's, Parent's Name */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -625,7 +655,7 @@ const handleSubmit = async (e: React.FormEvent) => {
               error={errors.parentsName}
             />
           </motion.div>
-          
+
           {/* Row 10: Parent's Mobile, Parent's Occupation */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
@@ -652,7 +682,7 @@ const handleSubmit = async (e: React.FormEvent) => {
               required={false} // Not required
             />
           </motion.div>
-          
+
           {/* Row 11: Permanent Address, Temporary Address */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -678,7 +708,7 @@ const handleSubmit = async (e: React.FormEvent) => {
               error={errors.temporaryAddress}
             />
           </motion.div>
-          
+
           {/* Row 13: Your Hobbies */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -695,7 +725,7 @@ const handleSubmit = async (e: React.FormEvent) => {
               required={false} // Not required
             />
           </motion.div>
-          
+
           {/* Row 14: Your Talents */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -712,7 +742,7 @@ const handleSubmit = async (e: React.FormEvent) => {
               required={false} // Not required
             />
           </motion.div>
-          
+
           {/* Row 15: How did you hear about us? */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -729,7 +759,7 @@ const handleSubmit = async (e: React.FormEvent) => {
               required={false} // Not required
             />
           </motion.div>
-          
+
           {/* Row 16: Additional Message */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -746,7 +776,7 @@ const handleSubmit = async (e: React.FormEvent) => {
               required={false} // Not required
             />
           </motion.div>
-          
+
           {/* Submit Button */}
           <motion.div
             initial={{ opacity: 0 }}

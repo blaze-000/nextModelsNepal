@@ -14,7 +14,7 @@ export const appModelSchema = z.object({
 
     age: z.string().min(1, { message: "Age is required" }),
     languages: z.array(z.string()).nonempty({ message: "At least one language is required" }),
-    gender: z.enum(["Male", "Female", "Other"]).optional(),
+    gender: z.enum(["Male", "Female"]).optional(),
     occupation: z.string().min(1, { message: "Occupation is required" }),
 
     dressSize: z.string().min(1, { message: "Dress size is required" }),

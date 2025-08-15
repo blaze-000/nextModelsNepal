@@ -6,12 +6,12 @@ import path from "path";
 
 // Helper function to delete image files
 const deleteImageFile = (imagePath: string) => {
-  if (imagePath) {
-    const fullPath = path.join(process.cwd(), "uploads", path.basename(imagePath));
-    if (fs.existsSync(fullPath)) {
-      fs.unlinkSync(fullPath);
+    if (imagePath) {
+        const fullPath = path.join(process.cwd(), "uploads", path.basename(imagePath));
+        if (fs.existsSync(fullPath)) {
+            fs.unlinkSync(fullPath);
+        }
     }
-  }
 };
 
 /**
@@ -21,9 +21,10 @@ export const getPartners = async (_req: Request, res: Response) => {
     try {
         const partners = await PartnersModel.find({});
         if (!partners || partners.length === 0) {
-            return res.status(404).json({
-                success: false,
+            return res.status(200).json({
+                success: true,
                 message: "No partners found.",
+                data: [],
             });
         }
         return res.status(200).json({
@@ -83,7 +84,7 @@ export const createPartner = async (req: Request, res: Response) => {
         }
 
         const { sponserName } = validation.data;
-        
+
         // Check if image was uploaded
         if (!req.file) {
             return res.status(400).json({
@@ -91,16 +92,16 @@ export const createPartner = async (req: Request, res: Response) => {
                 message: "Sponsor image is required",
             });
         }
-        
+
         // Set image path
         const sponserImage = `/uploads/${req.file.filename}`;
-        
+
         // Create the partner
         const newPartner = await PartnersModel.create({
             sponserName,
             sponserImage
         });
-        
+
         res.status(201).json({
             success: true,
             message: "Partner created successfully.",
@@ -133,7 +134,7 @@ export const updatePartnerById = async (req: Request, res: Response) => {
 
         const { id } = req.params;
         const { sponserName } = validation.data;
-        
+
         // Get the existing partner first
         const existingPartner = await PartnersModel.findById(id);
         if (!existingPartner) {
@@ -142,7 +143,7 @@ export const updatePartnerById = async (req: Request, res: Response) => {
                 message: `Partner with ID ${id} not found.`,
             });
         }
-        
+
         // Handle image update
         let sponserImage = existingPartner.sponserImage;
         if (req.file) {
@@ -152,12 +153,12 @@ export const updatePartnerById = async (req: Request, res: Response) => {
             }
             sponserImage = `/uploads/${req.file.filename}`;
         }
-        
+
         // Prepare update data
         const updateData: any = {};
         if (sponserName !== undefined) updateData.sponserName = sponserName;
         if (sponserImage !== existingPartner.sponserImage) updateData.sponserImage = sponserImage;
-        
+
         // If no fields are provided, return error
         if (Object.keys(updateData).length === 0) {
             return res.status(400).json({
@@ -165,18 +166,18 @@ export const updatePartnerById = async (req: Request, res: Response) => {
                 message: "At least one field must be provided for update.",
             });
         }
-        
+
         const updatedPartner = await PartnersModel.findByIdAndUpdate(id, updateData, {
             new: true,
         });
-        
+
         if (!updatedPartner) {
             return res.status(404).json({
                 success: false,
                 message: `Partner with ID ${id} not found.`,
             });
         }
-        
+
         return res.status(200).json({
             success: true,
             message: "Partner updated successfully.",
@@ -199,21 +200,21 @@ export const deletePartnerById = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
         const deletedPartner = await PartnersModel.findById(id);
-        
+
         if (!deletedPartner) {
             return res.status(404).json({
                 success: false,
                 message: `Partner with ID ${id} not found.`,
             });
         }
-        
+
         // Delete the associated image file
         if (deletedPartner.sponserImage) {
             deleteImageFile(deletedPartner.sponserImage);
         }
-        
+
         await PartnersModel.findByIdAndDelete(id);
-        
+
         return res.status(200).json({
             success: true,
             message: "Partner deleted successfully.",

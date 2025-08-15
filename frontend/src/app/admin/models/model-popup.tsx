@@ -17,7 +17,7 @@ const INITIAL_FORM_DATA: ModelFormData = {
   intro: "",
   address: "",
   gender: "",
-  index: "",
+  order: "",
   slug: "",
   coverImage: [],
   galleryImages: [],
@@ -26,7 +26,6 @@ const INITIAL_FORM_DATA: ModelFormData = {
 const GENDER_OPTIONS = [
   { value: "Male", label: "Male" },
   { value: "Female", label: "Female" },
-  { value: "Other", label: "Other" },
 ];
 
 // Utility function to generate URL-friendly slug
@@ -67,7 +66,7 @@ const ModelsPopup = ({
           address: model.address || "",
           gender: model.gender || "",
           slug: model.slug || "",
-          index: model.index || "",
+          order: model.order || "",
           coverImage: [],
           galleryImages: [],
         });
@@ -211,7 +210,7 @@ const ModelsPopup = ({
         submitFormData.append("address", formData.address.trim());
         submitFormData.append("gender", formData.gender);
         submitFormData.append("slug", formData.slug.trim());
-        submitFormData.append("index", formData.index.toString());
+        submitFormData.append("order", formData.order.toString());
 
         // Add cover image if new one is selected
         if (formData.coverImage[0]) {
@@ -253,14 +252,14 @@ const ModelsPopup = ({
               data?: {
                 message?: string;
                 error?:
-                  | string
-                  | {
-                      message?: string;
-                      issues?: Array<{ message?: string }>;
-                      code?: number;
-                      keyPattern?: { [key: string]: number };
-                      keyValue?: { [key: string]: string };
-                    };
+                | string
+                | {
+                  message?: string;
+                  issues?: Array<{ message?: string }>;
+                  code?: number;
+                  keyPattern?: { [key: string]: number };
+                  keyValue?: { [key: string]: string };
+                };
                 code?: string;
                 field?: string;
               };
@@ -331,9 +330,8 @@ const ModelsPopup = ({
               } else if (responseData.code === "LIMIT_UNEXPECTED_FILE") {
                 errorMessage = `Unexpected file field: ${responseData.field}`;
               } else {
-                errorMessage = `File upload error: ${
-                  responseData.message || responseData.code
-                }`;
+                errorMessage = `File upload error: ${responseData.message || responseData.code
+                  }`;
               }
             }
           }
@@ -449,11 +447,11 @@ const ModelsPopup = ({
 
             <Input
               label="Display Order"
-              name="index"
-              value={formData.index}
+              name="order"
+              value={formData.order}
               onChange={handleInputChange}
               placeholder="Enter Display Order"
-              error={errors.index}
+              error={errors.order}
               required
               disabled={isSubmitting}
             />

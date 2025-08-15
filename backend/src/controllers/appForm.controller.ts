@@ -14,7 +14,7 @@ export const createAppForm = async (req: Request, res: Response) => {
         // Debug: Log request details
         console.log("Request body keys:", Object.keys(req.body));
         console.log("Request files:", req.files);
-        
+
         // Ensure Multer files exist
         if (!req.files || !(req.files as Express.Multer.File[]).length) {
             return res.status(400).json({
@@ -22,16 +22,16 @@ export const createAppForm = async (req: Request, res: Response) => {
                 message: "At least one image is required.",
             });
         }
-        
+
         // Convert uploaded files to relative paths
         const files = req.files as Express.Multer.File[];
         const imagePaths = files.map(file => file.path);
         console.log("Image paths extracted:", imagePaths);
-        
+
         // Get event ID from request body (optional)
         const { eventId } = req.body;
         let eventName = "";
-        
+
         // Only fetch event if eventId is provided
         if (eventId) {
             const event = await EventModel.findById(eventId);
@@ -43,7 +43,7 @@ export const createAppForm = async (req: Request, res: Response) => {
             }
             eventName = event.name;
         }
-        
+
         // Prepare data for validation (without images)
         const dataToValidate = {
             ...req.body,
@@ -53,34 +53,34 @@ export const createAppForm = async (req: Request, res: Response) => {
                 ? req.body.languages
                 : req.body.languages?.split(",").map((lang: string) => lang.trim()),
         };
-        
+
         // Parse and validate incoming data (without images)
         const validatedData = appModelSchema.parse(dataToValidate);
-        
+
         // Debug: Log validated data before saving
         console.log("Validated data before saving:", JSON.stringify(validatedData, null, 2));
-        
+
         // Add images to the validated data
         const dataToSave = {
             ...validatedData,
             images: imagePaths,
         };
-        
+
         // Debug: Log data to save
         console.log("Data to save (with images):", JSON.stringify(dataToSave, null, 2));
-        
+
         // Save to DB
         const savedApplication = await AppModel.create(dataToSave);
-        
+
         // Debug: Log saved application
         console.log("Saved application:", JSON.stringify(savedApplication, null, 2));
-        
+
         // Verify images were saved
         if (!savedApplication.images || savedApplication.images.length === 0) {
             console.error("Images were not saved to the database!");
             // We'll still continue but log the error
         }
-        
+
         try {
             // Create HTML email template (without photos section)
             const emailHtml = `
@@ -345,7 +345,7 @@ export const createAppForm = async (req: Request, res: Response) => {
                 </body>
                 </html>
             `;
-            
+
             // Prepare attachments
             const attachments = await Promise.all(
                 files.map(async (file, index) => {
@@ -355,7 +355,7 @@ export const createAppForm = async (req: Request, res: Response) => {
                         const path = require('path');
                         const filePath = path.resolve(file.path);
                         const fileBuffer = await fs.readFile(filePath);
-                        
+
                         return {
                             filename: `photo_${index + 1}_${file.originalname}`,
                             content: fileBuffer,
@@ -367,10 +367,10 @@ export const createAppForm = async (req: Request, res: Response) => {
                     }
                 })
             );
-            
+
             // Filter out any null attachments (files that couldn't be read)
             const validAttachments = attachments.filter(attachment => attachment !== null);
-            
+
             // Email with HTML content and attachments
             const transporter = nodemailer.createTransport({
                 host: "smtp.gmail.com",
@@ -381,7 +381,7 @@ export const createAppForm = async (req: Request, res: Response) => {
                     pass: process.env.COMPANY_PASSWORD,
                 },
             });
-            
+
             await transporter.sendMail({
                 from: `"${validatedData.name}" <${validatedData.email}>`,
                 to: process.env.COMPANY_EMAIL,
@@ -390,14 +390,14 @@ export const createAppForm = async (req: Request, res: Response) => {
                 attachments: validAttachments,
                 replyTo: validatedData.email,
             });
-            
+
             // Return success response
             res.status(201).json({
                 success: true,
                 message: "Application form submitted successfully.",
                 data: savedApplication,
             });
-            
+
         } catch (emailError: any) {
             console.error("Error sending email:", emailError);
             // Still return success but note the email issue
@@ -422,8 +422,9 @@ export const getAllForms = async (_req: Request, res: Response) => {
         const appForm = await AppModel.find();
         if (!appForm || appForm.length === 0) {
             return res.status(200).json({
-                success: false,
+                success: true,
                 message: "List of Application Form is empty.",
+                data: [],
             });
         }
 
@@ -472,17 +473,17 @@ export const getAppFormById = async (req: Request, res: Response) => {
 export const deleteAppFormById = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
-        
+
         // Find the application to get image paths
         const applyForm = await AppModel.findById({ _id: id });
-        
+
         if (!applyForm) {
             return res.status(404).json({
                 success: false,
                 message: `Application form with ID ${id} not found.`,
             });
         }
-        
+
         // Delete associated images if they exist
         if (applyForm.images && applyForm.images.length > 0) {
             try {
@@ -501,7 +502,7 @@ export const deleteAppFormById = async (req: Request, res: Response) => {
                         console.warn(`Failed to delete image ${imagePath}:`, fileError);
                     }
                 });
-                
+
                 // Wait for all image deletions to complete
                 await Promise.all(deletePromises);
             } catch (error) {
@@ -509,10 +510,10 @@ export const deleteAppFormById = async (req: Request, res: Response) => {
                 // Continue with deleting the application even if image deletion fails
             }
         }
-        
+
         // Delete the application from the database
         const deleteAppForm = await AppModel.findByIdAndDelete({ _id: id });
-        
+
         return res.status(200).json({
             success: true,
             message: "Application form and associated images deleted successfully.",
