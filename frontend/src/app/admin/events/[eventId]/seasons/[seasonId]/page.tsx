@@ -15,6 +15,7 @@ import ContestantPopup, {
 } from "./contestants/contestantsPopup";
 import JuryPopup, { BackendJury } from "./jury/JuryPopup";
 import WinnerPopup, { BackendWinner } from "./winners/WinnerPopup";
+import SeasonPopup, { BackendSeason } from "../SeasonPopup";
 
 import Axios from "@/lib/axios-instance";
 import { normalizeImagePath } from "@/lib/utils";
@@ -40,6 +41,22 @@ interface Season {
   notes?: string;
   createdAt: string;
   updatedAt: string;
+  // Additional fields from BackendSeason
+  image?: string;
+  slug?: string;
+  pricePerVote?: number;
+  auditionFormDeadline?: string;
+  votingOpened?: boolean;
+  votingEndDate?: string;
+  titleImage?: string;
+  posterImage?: string;
+  gallery?: string[];
+  notice?: string[];
+  timeline?: Array<{
+    label: string;
+    datespan: string;
+    icon: string;
+  }>;
 }
 
 type TabKey = "overview" | "contestants" | "jury" | "winners";
@@ -80,6 +97,9 @@ export default function SeasonDetailPage() {
     name: "",
   });
   const [deleting, setDeleting] = useState(false);
+
+  // Edit season modal state
+  const [editSeasonModal, setEditSeasonModal] = useState(false);
 
   // Popup states
   const [contestantPopup, setContestantPopup] = useState<{
@@ -194,8 +214,7 @@ export default function SeasonDetailPage() {
   };
 
   const handleEditSeason = () => {
-    // TODO: Implement season edit modal
-    console.log("Edit season:", season);
+    setEditSeasonModal(true);
   };
 
   const handleAddContestant = () => {
@@ -311,6 +330,17 @@ export default function SeasonDetailPage() {
 
   const closeDeleteModal = () => {
     setDeleteModal({ isOpen: false, type: null, id: null, name: "" });
+  };
+
+  const handleSeasonEditSuccess = async () => {
+    try {
+      // Refresh season data after successful edit
+      const res = await Axios.get(`/api/season/${seasonId}`);
+      setSeason(res.data.data);
+      setEditSeasonModal(false);
+    } catch (err) {
+      console.error("Failed to refresh season:", err);
+    }
   };
 
   // Table columns
@@ -459,8 +489,8 @@ export default function SeasonDetailPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title={`${season.name} (${season.year})`}
-        description={`${event.name} - Season Management`}
+        title={`${event.name} - ${season.year}`}
+        description={`Season Details`}
       >
         <div className="flex gap-3">
           <AdminButton
@@ -477,25 +507,236 @@ export default function SeasonDetailPage() {
         </div>
       </PageHeader>
 
-      {/* Tab Navigation */}
-      <div className="border-b border-gray-600">
+      {/* Season Hero Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="space-y-6"
+      >
+        {/* Hero Section with Cover Image */}
+        {(() => {
+          const heroImage =
+            season.images && season.images.length > 0
+              ? season.images[0]
+              : season.titleImage
+              ? season.titleImage
+              : season.posterImage
+              ? season.posterImage
+              : season.image
+              ? season.image
+              : season.gallery && season.gallery.length > 0
+              ? season.gallery[0]
+              : null;
+
+          return heroImage ? (
+            <div className="relative h-80 lg:h-96 bg-gray-800 rounded-xl overflow-hidden">
+              <Image
+                src={normalizeImagePath(heroImage)}
+                alt={`Season ${season.year}`}
+                fill
+                className="object-cover"
+                unoptimized
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+
+              {/* Hero Content */}
+              <div className="absolute inset-0 flex flex-col justify-end p-6 lg:p-8">
+                <div className="space-y-4">
+                  {/* Status Badge */}
+                  <div className="flex items-center gap-3">
+                    <span
+                      className={`px-4 py-2 rounded-full text-sm font-medium backdrop-blur-sm ${
+                        season.status === "completed"
+                          ? "bg-green-500/20 text-green-300 border border-green-500/40"
+                          : season.status === "ongoing"
+                          ? "bg-gold-500/20 text-gold-300 border border-gold-500/40"
+                          : "bg-blue-500/20 text-blue-300 border border-blue-500/40"
+                      }`}
+                    >
+                      <i
+                        className={`mr-2 ${
+                          season.status === "completed"
+                            ? "ri-check-line"
+                            : season.status === "ongoing"
+                            ? "ri-play-line"
+                            : "ri-time-line"
+                        }`}
+                      ></i>
+                      {season.status.charAt(0).toUpperCase() +
+                        season.status.slice(1)}
+                    </span>
+                    <span className="px-4 py-2 rounded-full text-sm font-medium backdrop-blur-sm bg-gray-500/20 text-gray-300 border border-gray-500/40">
+                      <i className="ri-calendar-line mr-2"></i>
+                      Season {season.year}
+                    </span>
+                  </div>
+
+                  {/* Season Title */}
+                  <div className="space-y-2">
+                    <h1 className="text-3xl lg:text-4xl font-bold text-white">
+                      {event.name} {season.year}
+                    </h1>
+                    {season.description && (
+                      <p className="text-lg lg:text-xl text-gray-200 max-w-2xl">
+                        {season.description}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="relative h-64 bg-gradient-to-r from-gold-900/20 to-gold-800/20 rounded-xl border border-gold-900/20 flex items-center justify-center">
+              <div className="text-center space-y-4">
+                <div className="w-16 h-16 bg-gold-500/20 rounded-full flex items-center justify-center mx-auto">
+                  <i className="ri-calendar-2-line text-2xl text-gold-500"></i>
+                </div>
+                <div className="space-y-2">
+                  <h1 className="text-3xl lg:text-4xl font-bold text-white">
+                    {event.name} {season.year}
+                  </h1>
+                  {season.description && (
+                    <p className="text-lg text-gray-200 max-w-2xl">
+                      {season.description}
+                    </p>
+                  )}
+                </div>
+                <div className="flex items-center justify-center gap-4">
+                  <span
+                    className={`px-4 py-2 rounded-full text-sm font-medium ${
+                      season.status === "completed"
+                        ? "bg-green-500/20 text-green-300 border border-green-500/40"
+                        : season.status === "ongoing"
+                        ? "bg-gold-500/20 text-gold-300 border border-gold-500/40"
+                        : "bg-blue-500/20 text-blue-300 border border-blue-500/40"
+                    }`}
+                  >
+                    <i
+                      className={`mr-2 ${
+                        season.status === "completed"
+                          ? "ri-check-line"
+                          : season.status === "ongoing"
+                          ? "ri-play-line"
+                          : "ri-time-line"
+                      }`}
+                    ></i>
+                    {season.status.charAt(0).toUpperCase() +
+                      season.status.slice(1)}
+                  </span>
+                  <span className="px-4 py-2 rounded-full text-sm font-medium bg-gray-500/20 text-gray-300 border border-gray-500/40">
+                    <i className="ri-calendar-line mr-2"></i>
+                    Season {season.year}
+                  </span>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* Statistics */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-background2 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                  Contestants
+                </p>
+                <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
+                  {contestants.length}
+                </p>
+              </div>
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                <i className="ri-user-3-line text-blue-600 dark:text-blue-400 text-lg sm:text-xl" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-background2 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                  Jury Members
+                </p>
+                <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
+                  {jury.length}
+                </p>
+              </div>
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center">
+                <i className="ri-judge-line text-indigo-600 dark:text-indigo-400 text-lg sm:text-xl" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-background2 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                  Winners
+                </p>
+                <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
+                  {winners.length}
+                </p>
+              </div>
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gold-100 dark:bg-gold-900/30 rounded-lg flex items-center justify-center">
+                <i className="ri-trophy-line text-gold-600 dark:text-gold-400 text-lg sm:text-xl" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-background2 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                  Duration
+                </p>
+                <p className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100 mt-1">
+                  {(() => {
+                    const start = new Date(season.startDate);
+                    const end = new Date(season.endDate);
+                    const diffTime = Math.abs(end.getTime() - start.getTime());
+                    const diffDays = Math.ceil(
+                      diffTime / (1000 * 60 * 60 * 24)
+                    );
+                    return `${diffDays} days`;
+                  })()}
+                </p>
+              </div>
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
+                <i className="ri-time-line text-green-600 dark:text-green-400 text-lg sm:text-xl" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Enhanced Tab Navigation */}
+      <div className="border-b border-gray-200 dark:border-gray-700">
         <nav className="-mb-px flex space-x-8">
           {tabs.map((tab) => (
             <button
               key={tab.key}
               onClick={() => handleTabChange(tab.key)}
-              className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+              className={`py-4 px-1 border-b-2 font-semibold text-sm transition-all duration-200 ${
                 activeTab === tab.key
                   ? "border-gold-500 text-gold-400"
-                  : "border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-500"
+                  : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600"
               }`}
             >
-              {tab.label}
-              {tab.count !== undefined && (
-                <span className="ml-2 bg-gray-700 text-gray-300 py-0.5 px-2 rounded-full text-xs">
-                  {tab.count}
-                </span>
-              )}
+              <div className="flex items-center space-x-2">
+                <span>{tab.label}</span>
+                {tab.count !== undefined && (
+                  <span
+                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      activeTab === tab.key
+                        ? "bg-gold-100 text-gold-800 dark:bg-gold-900/50 dark:text-gold-300"
+                        : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300"
+                    }`}
+                  >
+                    {tab.count}
+                  </span>
+                )}
+              </div>
             </button>
           ))}
         </nav>
@@ -510,110 +751,187 @@ export default function SeasonDetailPage() {
             transition={{ duration: 0.5 }}
             className="space-y-6"
           >
-            {/* Season Cover Image */}
-            {season.images && season.images.length > 0 && (
-              <div className="relative h-64 bg-gray-800 rounded-lg overflow-hidden">
-                <Image
-                  src={normalizeImagePath(season.images[0])}
-                  alt={season.name}
-                  fill
-                  className="object-cover"
-                  unoptimized
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                <div className="absolute bottom-4 left-6">
-                  <span
-                    className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      season.status === "completed"
-                        ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                        : season.status === "ongoing"
-                        ? "bg-blue-500/20 text-blue-400 border border-blue-500/30"
-                        : "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
-                    }`}
-                  >
-                    {season.status.charAt(0).toUpperCase() +
-                      season.status.slice(1)}
-                  </span>
-                </div>
-              </div>
-            )}
-
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Season Details */}
-              <div className="bg-muted-background rounded-lg border border-gray-600 p-6">
-                <h3 className="text-lg font-semibold text-gray-100 mb-4">
-                  Season Details
+              {/* Season Information */}
+              <div className="bg-background2 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+                <h3 className="text-lg font-semibold text-foreground flex items-center mb-4">
+                  <i className="ri-information-line mr-2 text-gold-500"></i>
+                  Season Information
                 </h3>
-                <dl className="space-y-3">
+                <dl className="space-y-4">
                   <div>
-                    <dt className="text-sm font-medium text-gray-400 mb-1">
+                    <dt className="text-sm font-medium text-foreground/60 mb-1">
                       Description
                     </dt>
-                    <dd className="text-sm text-gray-200">
-                      {season.description}
+                    <dd className="text-sm text-foreground">
+                      {season.description || "No description available"}
                     </dd>
                   </div>
-                  <div>
-                    <dt className="text-sm font-medium text-gray-400 mb-1">
-                      Start Date
-                    </dt>
-                    <dd className="text-sm text-gray-200">
-                      {new Date(season.startDate).toLocaleDateString()}
-                    </dd>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <dt className="text-sm font-medium text-foreground/60 mb-1">
+                        Start Date
+                      </dt>
+                      <dd className="text-sm text-foreground">
+                        {new Date(season.startDate).toLocaleDateString(
+                          "en-US",
+                          {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          }
+                        )}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-sm font-medium text-foreground/60 mb-1">
+                        End Date
+                      </dt>
+                      <dd className="text-sm text-foreground">
+                        {new Date(season.endDate).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })}
+                      </dd>
+                    </div>
                   </div>
-                  <div>
-                    <dt className="text-sm font-medium text-gray-400 mb-1">
-                      End Date
-                    </dt>
-                    <dd className="text-sm text-gray-200">
-                      {new Date(season.endDate).toLocaleDateString()}
-                    </dd>
-                  </div>
+                  {season.auditionFormDeadline && (
+                    <div>
+                      <dt className="text-sm font-medium text-foreground/60 mb-1">
+                        Audition Deadline
+                      </dt>
+                      <dd className="text-sm text-foreground">
+                        {new Date(
+                          season.auditionFormDeadline
+                        ).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })}
+                      </dd>
+                    </div>
+                  )}
+                  {season.votingEndDate && (
+                    <div>
+                      <dt className="text-sm font-medium text-foreground/60 mb-1">
+                        Voting End Date
+                      </dt>
+                      <dd className="text-sm text-foreground">
+                        {new Date(season.votingEndDate).toLocaleDateString(
+                          "en-US",
+                          {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          }
+                        )}
+                      </dd>
+                    </div>
+                  )}
+                  {season.pricePerVote !== undefined &&
+                    season.pricePerVote > 0 && (
+                      <div>
+                        <dt className="text-sm font-medium text-foreground/60 mb-1">
+                          Price Per Vote
+                        </dt>
+                        <dd className="text-sm text-foreground">
+                          Rs. {season.pricePerVote}
+                        </dd>
+                      </div>
+                    )}
+                  {season.votingOpened !== undefined && (
+                    <div>
+                      <dt className="text-sm font-medium text-foreground/60 mb-1">
+                        Voting Status
+                      </dt>
+                      <dd className="text-sm">
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            season.votingOpened
+                              ? "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300"
+                              : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300"
+                          }`}
+                        >
+                          <i
+                            className={`mr-1.5 ${
+                              season.votingOpened
+                                ? "ri-play-circle-line"
+                                : "ri-pause-circle-line"
+                            }`}
+                          ></i>
+                          {season.votingOpened ? "Open" : "Closed"}
+                        </span>
+                      </dd>
+                    </div>
+                  )}
                   {season.notes && (
                     <div>
-                      <dt className="text-sm font-medium text-gray-400 mb-1">
+                      <dt className="text-sm font-medium text-foreground/60 mb-1">
                         Notes
                       </dt>
-                      <dd className="text-sm text-gray-200">{season.notes}</dd>
+                      <dd className="text-sm text-foreground">
+                        {season.notes}
+                      </dd>
                     </div>
                   )}
                 </dl>
               </div>
 
-              {/* Statistics */}
-              <div className="bg-muted-background rounded-lg border border-gray-600 p-6">
-                <h3 className="text-lg font-semibold text-gray-100 mb-4">
-                  Statistics
-                </h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-gray-800/50 rounded-lg p-4 text-center">
-                    <div className="text-2xl font-bold text-gold-400 mb-1">
-                      {contestants.length}
+              {/* Timeline or Additional Info */}
+              <div className="space-y-6">
+                {season.timeline && season.timeline.length > 0 && (
+                  <div className="bg-background2 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+                    <h3 className="text-lg font-semibold text-foreground flex items-center mb-4">
+                      <i className="ri-time-line mr-2 text-gold-500"></i>
+                      Timeline
+                    </h3>
+                    <div className="space-y-4">
+                      {season.timeline.map((item, index) => (
+                        <div key={index} className="flex items-start space-x-3">
+                          <div className="w-8 h-8 bg-gold-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <i
+                              className={`${
+                                item.icon || "ri-calendar-line"
+                              } text-gold-500 text-sm`}
+                            ></i>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-foreground">
+                              {item.label}
+                            </p>
+                            <p className="text-xs text-foreground/60">
+                              {item.datespan}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                    <div className="text-sm text-gray-400">Contestants</div>
                   </div>
-                  <div className="bg-gray-800/50 rounded-lg p-4 text-center">
-                    <div className="text-2xl font-bold text-gold-400 mb-1">
-                      {jury.length}
+                )}
+
+                {season.notice && season.notice.length > 0 && (
+                  <div className="bg-background2 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+                    <h3 className="text-lg font-semibold text-foreground flex items-center mb-4">
+                      <i className="ri-notification-line mr-2 text-gold-500"></i>
+                      Notices
+                    </h3>
+                    <div className="space-y-3">
+                      {season.notice.map((notice, index) => (
+                        <div
+                          key={index}
+                          className="flex items-start space-x-3 p-3 bg-gold-500/10 rounded-lg border border-gold-500/20"
+                        >
+                          <div className="w-5 h-5 bg-gold-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <i className="ri-information-line text-gold-500 text-xs"></i>
+                          </div>
+                          <p className="text-sm text-foreground">{notice}</p>
+                        </div>
+                      ))}
                     </div>
-                    <div className="text-sm text-gray-400">Jury Members</div>
                   </div>
-                  <div className="bg-gray-800/50 rounded-lg p-4 text-center">
-                    <div className="text-2xl font-bold text-gold-400 mb-1">
-                      {winners.length}
-                    </div>
-                    <div className="text-sm text-gray-400">Winners</div>
-                  </div>
-                  <div className="bg-gray-800/50 rounded-lg p-4 text-center">
-                    <div className="text-2xl font-bold text-gold-400 mb-1">
-                      {season.year}
-                    </div>
-                    <div className="text-sm text-gray-400">Year</div>
-                  </div>
-                </div>
-                <div className="text-xs text-gray-500 mt-4">
-                  Created {new Date(season.createdAt).toLocaleDateString()}
-                </div>
+                )}
+                
               </div>
             </div>
           </motion.div>
@@ -624,13 +942,19 @@ export default function SeasonDetailPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="bg-muted-background rounded-lg border border-gray-600 overflow-hidden"
+            className="bg-background2 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden"
           >
-            <div className="p-6 border-b border-gray-600">
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
               <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-gray-100">
-                  Contestants
-                </h3>
+                <div>
+                  <h3 className="text-lg font-semibold text-foreground flex items-center">
+                    <i className="ri-user-3-line mr-2 text-gold-500"></i>
+                    Contestants
+                  </h3>
+                  <p className="text-sm text-foreground/60 mt-1">
+                    Manage contestants for this season
+                  </p>
+                </div>
                 <Button variant="default" onClick={handleAddContestant}>
                   <i className="ri-add-line mr-2"></i>
                   Add Contestant
@@ -660,13 +984,19 @@ export default function SeasonDetailPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="bg-muted-background rounded-lg border border-gray-600 overflow-hidden"
+            className="bg-background2 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden"
           >
-            <div className="p-6 border-b border-gray-600">
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
               <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-gray-100">
-                  Jury Members
-                </h3>
+                <div>
+                  <h3 className="text-lg font-semibold text-foreground flex items-center">
+                    <i className="ri-judge-line mr-2 text-gold-500"></i>
+                    Jury Members
+                  </h3>
+                  <p className="text-sm text-foreground/60 mt-1">
+                    Manage jury members for this season
+                  </p>
+                </div>
                 <Button variant="default" onClick={handleAddJury}>
                   <i className="ri-add-line mr-2"></i>
                   Add Jury Member
@@ -696,11 +1026,19 @@ export default function SeasonDetailPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="bg-muted-background rounded-lg border border-gray-600 overflow-hidden"
+            className="bg-background2 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden"
           >
-            <div className="p-6 border-b border-gray-600">
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
               <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-gray-100">Winners</h3>
+                <div>
+                  <h3 className="text-lg font-semibold text-foreground flex items-center">
+                    <i className="ri-trophy-line mr-2 text-gold-500"></i>
+                    Winners
+                  </h3>
+                  <p className="text-sm text-foreground/60 mt-1">
+                    Manage winners for this season
+                  </p>
+                </div>
                 <Button variant="default" onClick={handleAddWinner}>
                   <i className="ri-add-line mr-2"></i>
                   Add Winner
@@ -732,6 +1070,16 @@ export default function SeasonDetailPage() {
         title={`Delete ${deleteModal.type}`}
         message={`Are you sure you want to delete "${deleteModal.name}"? This action cannot be undone.`}
         isDeleting={deleting}
+      />
+
+      {/* Edit Season Modal */}
+      <SeasonPopup
+        isOpen={editSeasonModal}
+        season={season as BackendSeason}
+        eventId={eventId}
+        eventName={event.name}
+        onClose={() => setEditSeasonModal(false)}
+        onSuccess={handleSeasonEditSuccess}
       />
 
       {/* Popup Modals */}
