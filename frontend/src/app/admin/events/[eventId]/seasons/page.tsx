@@ -367,6 +367,7 @@ export default function SeasonsPage() {
         isOpen={addSeasonModal}
         season={null}
         eventId={eventId}
+        eventName={event?.name || ""}
         onClose={() => setAddSeasonModal(false)}
         onSuccess={handleSeasonSuccess}
       />
@@ -376,6 +377,7 @@ export default function SeasonsPage() {
         isOpen={editSeasonModal.isOpen}
         season={editSeasonModal.season}
         eventId={eventId}
+        eventName={event?.name || ""}
         onClose={closeEditSeasonModal}
         onSuccess={handleSeasonSuccess}
       />

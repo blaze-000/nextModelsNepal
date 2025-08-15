@@ -8,15 +8,21 @@ import Modal from "@/components/admin/Modal";
 import { AdminButton } from "@/components/admin/AdminButton";
 import Input from "@/components/admin/form/input";
 import Textarea from "@/components/admin/form/textarea";
-import Select from "@/components/admin/form/select";
 import PhotoUpload from "@/components/admin/form/photo-upload";
 
 import Axios from "@/lib/axios-instance";
 import { normalizeImagePath } from "@/lib/utils";
 
+// Types
+interface Event {
+  _id: string;
+  name: string;
+  overview: string;
+}
+
 export interface BackendSeason {
   _id: string;
-  eventId: string;
+  eventId: string | Event; // Can be string when creating/editing, or Event object when populated
   year: number;
   image: string;
   status: "upcoming" | "ongoing" | "ended";
@@ -41,6 +47,7 @@ export interface BackendSeason {
 }
 
 interface SeasonFormData {
+  eventId: string;
   year: number;
   status: "upcoming" | "ongoing" | "ended";
   startDate: string;
@@ -62,16 +69,16 @@ interface SeasonFormData {
   }>;
 }
 
-interface SeasonPopupProps {
+interface AllSeasonsPopupProps {
   isOpen: boolean;
   onClose: () => void;
   season: BackendSeason | null;
-  eventId: string;
-  eventName: string;
+  events: Event[];
   onSuccess: () => void;
 }
 
 const initialFormData: SeasonFormData = {
+  eventId: "",
   year: new Date().getFullYear(),
   status: "upcoming",
   startDate: "",
@@ -95,14 +102,13 @@ const statusOptions = [
   { value: "ended", label: "Ended" },
 ];
 
-export default function SeasonPopup({
+export default function AllSeasonsPopup({
   isOpen,
   onClose,
   season,
-  eventId,
-  eventName,
+  events,
   onSuccess,
-}: SeasonPopupProps) {
+}: AllSeasonsPopupProps) {
   const [formData, setFormData] = useState<SeasonFormData>(initialFormData);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -110,34 +116,18 @@ export default function SeasonPopup({
     []
   );
   const [currentStep, setCurrentStep] = useState(1);
-  const [localEventName, setLocalEventName] = useState<string>(eventName || "");
 
   const isEditing = Boolean(season);
-
-  // Fetch event name if not provided
-  useEffect(() => {
-    if ((!eventName || eventName.trim() === "") && eventId) {
-      const fetchEventName = async () => {
-        try {
-          const response = await Axios.get(`/api/events/${eventId}`);
-          if (response.data.success && response.data.data?.name) {
-            setLocalEventName(response.data.data.name);
-          }
-        } catch (error) {
-          console.error("Failed to fetch event name:", error);
-        }
-      };
-      fetchEventName();
-    } else {
-      setLocalEventName(eventName || "");
-    }
-  }, [eventName, eventId]);
 
   // Reset form when modal opens/closes or season changes
   useEffect(() => {
     if (isOpen) {
       if (season) {
         setFormData({
+          eventId:
+            typeof season.eventId === "string"
+              ? season.eventId
+              : season.eventId._id,
           year: season.year,
           status: season.status,
           startDate: season.startDate ? season.startDate.split("T")[0] : "",
@@ -151,7 +141,7 @@ export default function SeasonPopup({
           endDate: season.endDate ? season.endDate.split("T")[0] : "",
           slug: season.slug,
           pricePerVote: season.pricePerVote,
-          notice: season.notice ? season.notice.join("\n") : "",
+          notice: season.notice ? season.notice.join("\\n") : "",
           image: [],
           titleImage: [],
           posterImage: [],
@@ -163,23 +153,16 @@ export default function SeasonPopup({
             ? season.gallery.map((img) => normalizeImagePath(img))
             : []
         );
+        // For editing, skip to step 3 since event and status are pre-selected
+        setCurrentStep(3);
       } else {
-        const newFormData = { ...initialFormData };
-        // Auto-generate slug for new seasons (only if localEventName is available)
-        if (localEventName && localEventName.trim() !== "") {
-          newFormData.slug = `${localEventName
-            .toLowerCase()
-            .replace(/[^a-z0-9\s-]/g, "")
-            .replace(/\s+/g, "-")
-            .replace(/-+/g, "-")
-            .trim()}-${newFormData.year}`;
-        }
-        setFormData(newFormData);
+        setFormData(initialFormData);
         setExistingGalleryImages([]);
+        setCurrentStep(1);
       }
       setErrors({});
     }
-  }, [isOpen, season, localEventName]);
+  }, [isOpen, season]);
 
   const handleClose = () => {
     setFormData(initialFormData);
@@ -191,17 +174,26 @@ export default function SeasonPopup({
 
   const handleStepNext = () => {
     if (currentStep === 1) {
-      // Validate step 1 (status selection)
+      // Validate step 1 (event selection)
+      if (!formData.eventId) {
+        setErrors({ eventId: "Please select an event" });
+        return;
+      }
+      setCurrentStep(2);
+    } else if (currentStep === 2) {
+      // Validate step 2 (status selection)
       if (!formData.status) {
         setErrors({ status: "Please select a status" });
         return;
       }
-      setCurrentStep(2);
+      setCurrentStep(3);
     }
   };
 
   const handleStepBack = () => {
-    if (currentStep === 2) {
+    if (currentStep === 3) {
+      setCurrentStep(isEditing ? 3 : 2);
+    } else if (currentStep === 2) {
       setCurrentStep(1);
     }
   };
@@ -233,15 +225,6 @@ export default function SeasonPopup({
     }));
   };
 
-  // For editing, skip step 1 since status can't be changed
-  useEffect(() => {
-    if (isEditing) {
-      setCurrentStep(2);
-    } else {
-      setCurrentStep(1);
-    }
-  }, [isEditing]);
-
   const handleInputChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -259,25 +242,29 @@ export default function SeasonPopup({
     setFormData((prev) => {
       const newData = { ...prev, [name]: parsedValue };
 
-      // Reset pricePerVote when status is changed to "ended"
+      // Reset pricePerVote and notice when status is changed to "ended"
       if (name === "status" && parsedValue === "ended") {
         newData.pricePerVote = 0;
+        newData.notice = "";
       }
 
-      // Auto-generate slug when year changes (only for non-editing mode)
-      if (
-        !isEditing &&
-        name === "year" &&
-        parsedValue &&
-        localEventName &&
-        localEventName.trim() !== ""
-      ) {
-        newData.slug = `${localEventName
-          .toLowerCase()
-          .replace(/[^a-z0-9\s-]/g, "")
-          .replace(/\s+/g, "-")
-          .replace(/-+/g, "-")
-          .trim()}-${parsedValue}`;
+      // Auto-generate slug when eventId or year changes (only for non-editing mode)
+      if (!isEditing && (name === "eventId" || name === "year")) {
+        const eventId =
+          name === "eventId" ? (parsedValue as string) : prev.eventId;
+        const year = name === "year" ? (parsedValue as number) : prev.year;
+
+        if (eventId && year) {
+          const selectedEvent = events.find((e) => e._id === eventId);
+          if (selectedEvent) {
+            newData.slug = `${selectedEvent.name
+              .toLowerCase()
+              .replace(/[^a-z0-9\s-]/g, "")
+              .replace(/\s+/g, "-")
+              .replace(/-+/g, "-")
+              .trim()}-${year}`;
+          }
+        }
       }
 
       return newData;
@@ -301,6 +288,9 @@ export default function SeasonPopup({
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
+    if (!formData.eventId) {
+      newErrors.eventId = "Event selection is required";
+    }
     if (formData.year < 1900 || formData.year > 2100) {
       newErrors.year = "Year must be between 1900 and 2100";
     }
@@ -383,7 +373,7 @@ export default function SeasonPopup({
     try {
       // Create FormData to send files
       const formDataToSend = new FormData();
-      formDataToSend.append("eventId", eventId);
+      formDataToSend.append("eventId", formData.eventId);
       formDataToSend.append("year", formData.year.toString());
       formDataToSend.append("status", formData.status);
       formDataToSend.append("endDate", formData.endDate);
@@ -407,9 +397,11 @@ export default function SeasonPopup({
         formDataToSend.append("votingEndDate", formData.votingEndDate);
       }
 
-      // Parse notice into array
-      if (formData.notice.trim()) {
-        const noticeArray = formData.notice.split("\n").filter((n) => n.trim());
+      // Parse notice into array - only for non-ended seasons
+      if (formData.status !== "ended" && formData.notice.trim()) {
+        const noticeArray = formData.notice
+          .split("\\n")
+          .filter((n) => n.trim());
         formDataToSend.append("notice", JSON.stringify(noticeArray));
       }
 
@@ -512,7 +504,7 @@ export default function SeasonPopup({
                     <span className="text-sm font-medium">1</span>
                   )}
                 </div>
-                <span className="text-sm font-medium">Status Selection</span>
+                <span className="text-sm font-medium">Select Event</span>
               </div>
 
               <div
@@ -523,17 +515,50 @@ export default function SeasonPopup({
 
               <div
                 className={`flex items-center space-x-2 ${
-                  currentStep === 2 ? "text-gold-500" : "text-gray-400"
+                  currentStep === 2
+                    ? "text-gold-500"
+                    : currentStep > 2
+                    ? "text-green-500"
+                    : "text-gray-400"
                 }`}
               >
                 <div
                   className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${
                     currentStep === 2
                       ? "border-gold-500 bg-gold-500/20"
+                      : currentStep > 2
+                      ? "border-green-500 bg-green-500/20"
                       : "border-gray-400 bg-gray-400/20"
                   }`}
                 >
-                  <span className="text-sm font-medium">2</span>
+                  {currentStep > 2 ? (
+                    <i className="ri-check-line text-sm"></i>
+                  ) : (
+                    <span className="text-sm font-medium">2</span>
+                  )}
+                </div>
+                <span className="text-sm font-medium">Select Status</span>
+              </div>
+
+              <div
+                className={`w-12 h-0.5 ${
+                  currentStep > 2 ? "bg-green-500" : "bg-gray-400"
+                }`}
+              ></div>
+
+              <div
+                className={`flex items-center space-x-2 ${
+                  currentStep === 3 ? "text-gold-500" : "text-gray-400"
+                }`}
+              >
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${
+                    currentStep === 3
+                      ? "border-gold-500 bg-gold-500/20"
+                      : "border-gray-400 bg-gray-400/20"
+                  }`}
+                >
+                  <span className="text-sm font-medium">3</span>
                 </div>
                 <span className="text-sm font-medium">Season Details</span>
               </div>
@@ -542,8 +567,93 @@ export default function SeasonPopup({
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Step 1: Status Selection */}
+          {/* Step 1: Event Selection */}
           {currentStep === 1 && !isEditing && (
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
+              className="space-y-6"
+            >
+              <div className="text-center space-y-4">
+                <div className="w-16 h-16 bg-gold-500/20 rounded-full flex items-center justify-center mx-auto">
+                  <i className="ri-calendar-event-line text-2xl text-gold-500"></i>
+                </div>
+                <h3 className="text-xl font-semibold text-gray-100">
+                  Select Event
+                </h3>
+                <p className="text-gray-400 max-w-md mx-auto">
+                  Choose the event for which you want to create a new season.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto">
+                {events.map((event) => (
+                  <div
+                    key={event._id}
+                    className={`relative p-6 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
+                      formData.eventId === event._id
+                        ? "border-gold-500 bg-gold-500/10"
+                        : "border-gray-600 bg-gray-800/50 hover:border-gray-500"
+                    }`}
+                    onClick={() =>
+                      setFormData((prev) => {
+                        const newData = { ...prev, eventId: event._id };
+                        // Auto-generate slug when event is selected
+                        if (prev.year) {
+                          newData.slug = `${event.name
+                            .toLowerCase()
+                            .replace(/[^a-z0-9\s-]/g, "")
+                            .replace(/\s+/g, "-")
+                            .replace(/-+/g, "-")
+                            .trim()}-${prev.year}`;
+                        }
+                        return newData;
+                      })
+                    }
+                  >
+                    <div className="space-y-3">
+                      <h4 className="font-semibold text-gray-100">
+                        {event.name}
+                      </h4>
+                      <p className="text-sm text-gray-400 line-clamp-2">
+                        {event.overview}
+                      </p>
+                    </div>
+
+                    {formData.eventId === event._id && (
+                      <div className="absolute top-2 right-2">
+                        <div className="w-6 h-6 bg-gold-500 rounded-full flex items-center justify-center">
+                          <i className="ri-check-line text-sm text-white"></i>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {errors.eventId && (
+                <p className="text-red-400 text-sm text-center">
+                  {errors.eventId}
+                </p>
+              )}
+
+              <div className="flex justify-end pt-6">
+                <AdminButton
+                  type="button"
+                  onClick={handleStepNext}
+                  disabled={!formData.eventId}
+                >
+                  Continue
+                  <i className="ri-arrow-right-line ml-2"></i>
+                </AdminButton>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Step 2: Status Selection */}
+          {currentStep === 2 && !isEditing && (
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -632,7 +742,15 @@ export default function SeasonPopup({
                 </p>
               )}
 
-              <div className="flex justify-end pt-6">
+              <div className="flex justify-between pt-6">
+                <AdminButton
+                  type="button"
+                  variant="outline"
+                  onClick={handleStepBack}
+                >
+                  <i className="ri-arrow-left-line mr-2"></i>
+                  Back
+                </AdminButton>
                 <AdminButton
                   type="button"
                   onClick={handleStepNext}
@@ -645,8 +763,8 @@ export default function SeasonPopup({
             </motion.div>
           )}
 
-          {/* Step 2: Season Details */}
-          {currentStep === 2 && (
+          {/* Step 3: Season Details */}
+          {currentStep === 3 && (
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -654,46 +772,43 @@ export default function SeasonPopup({
               transition={{ duration: 0.3 }}
               className="space-y-6"
             >
-              {/* Status Display for Step 2 */}
+              {/* Selected Event and Status Display */}
               {!isEditing && (
                 <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-600">
-                  <div className="flex items-center space-x-3">
-                    <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                        formData.status === "upcoming"
-                          ? "bg-blue-500/20"
-                          : formData.status === "ongoing"
-                          ? "bg-green-500/20"
-                          : "bg-gray-500/20"
-                      }`}
-                    >
-                      <i
-                        className={`text-sm ${
-                          formData.status === "upcoming"
-                            ? "ri-time-line text-blue-400"
-                            : formData.status === "ongoing"
-                            ? "ri-play-line text-green-400"
-                            : "ri-check-line text-gray-400"
-                        }`}
-                      ></i>
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-gray-100">
-                        {
-                          statusOptions.find(
-                            (opt) => opt.value === formData.status
-                          )?.label
-                        }{" "}
-                        Season
-                      </h4>
-                      <p className="text-sm text-gray-400">
-                        Fill in the required fields for this status
-                      </p>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <div className="flex items-center space-x-2">
+                        <i className="ri-calendar-event-line text-gold-400"></i>
+                        <span className="text-gray-300">
+                          <strong>Event:</strong>{" "}
+                          {events.find((e) => e._id === formData.eventId)?.name}
+                        </span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <div
+                          className={`w-3 h-3 rounded-full ${
+                            formData.status === "upcoming"
+                              ? "bg-blue-400"
+                              : formData.status === "ongoing"
+                              ? "bg-green-400"
+                              : "bg-gray-400"
+                          }`}
+                        ></div>
+                        <span className="text-gray-300">
+                          <strong>Status:</strong>{" "}
+                          {
+                            statusOptions.find(
+                              (opt) => opt.value === formData.status
+                            )?.label
+                          }
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
               )}
 
+              {/* Rest of the form - same as the existing SeasonPopup but without event selection */}
               {/* Basic Information */}
               <div className="space-y-4">
                 <div className="border-b border-gray-200 dark:border-gray-700 pb-3">
@@ -707,11 +822,7 @@ export default function SeasonPopup({
 
                 <div
                   className={`grid grid-cols-1 ${
-                    formData.status !== "ended"
-                      ? "md:grid-cols-3"
-                      : isEditing
-                      ? "md:grid-cols-2"
-                      : ""
+                    formData.status !== "ended" ? "md:grid-cols-2" : ""
                   } gap-4`}
                 >
                   <Input
@@ -725,18 +836,6 @@ export default function SeasonPopup({
                     error={errors.year}
                     disabled={submitting}
                   />
-                  {isEditing && (
-                    <Select
-                      label="Status"
-                      name="status"
-                      value={formData.status}
-                      onChange={handleInputChange}
-                      options={statusOptions}
-                      required
-                      error={errors.status}
-                      disabled={submitting}
-                    />
-                  )}
                   {formData.status !== "ended" && (
                     <Input
                       label="Price Per Vote"
@@ -975,31 +1074,33 @@ export default function SeasonPopup({
                 )}
               </div>
 
-              {/* Notice */}
-              <div className="space-y-4">
-                <div className="border-b border-gray-200 dark:border-gray-700 pb-3">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                    Notice
-                  </h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Add important notices for this season.
+              {/* Notice - Only show for non-ended seasons */}
+              {formData.status !== "ended" && (
+                <div className="space-y-4">
+                  <div className="border-b border-gray-200 dark:border-gray-700 pb-3">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                      Notice
+                    </h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Add important notices for this season.
+                    </p>
+                  </div>
+
+                  <Textarea
+                    label="Notice"
+                    name="notice"
+                    value={formData.notice}
+                    onChange={handleInputChange}
+                    placeholder="Enter notices for this season (one per line)"
+                    rows={3}
+                    error={errors.notice}
+                    disabled={submitting}
+                  />
+                  <p className="text-sm text-gray-400 -mt-2">
+                    Enter each notice on a new line
                   </p>
                 </div>
-
-                <Textarea
-                  label="Notice"
-                  name="notice"
-                  value={formData.notice}
-                  onChange={handleInputChange}
-                  placeholder="Enter notices for this season (one per line)"
-                  rows={3}
-                  error={errors.notice}
-                  disabled={submitting}
-                />
-                <p className="text-sm text-gray-400 -mt-2">
-                  Enter each notice on a new line
-                </p>
-              </div>
+              )}
 
               {/* Timeline */}
               <div className="space-y-4">
