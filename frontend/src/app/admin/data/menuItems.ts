@@ -60,24 +60,7 @@ export const menuItems: MenuSection[] = [
         icon: "ri-timer-line",
         href: "/admin/seasons",
       },
-      {
-        id: "contestants",
-        label: "Contestants",
-        icon: "ri-user-line",
-        href: "/admin/contestants",
-      },
-      {
-        id: "winners",
-        label: "Winners",
-        icon: "ri-medal-line",
-        href: "/admin/winners",
-      },
-      {
-        id: "jury",
-        label: "Jury",
-        icon: "ri-scale-line",
-        href: "/admin/jury",
-      },
+    
     ],
   },
   {

@@ -1,7 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+
+/**
+ * DataTable Component with Pagination
+ *
+ * Features:
+ * - Search functionality
+ * - Column sorting
+ * - Pagination with customizable items per page
+ * - Responsive design
+ * - Action buttons (Edit, Delete, View)
+ *
+ * Usage:
+ * <DataTable
+ *   data={yourData}
+ *   columns={columnConfig}
+ *   itemsPerPage={15}        // Default: 10
+ *   showPagination={true}    // Default: true
+ *   onEdit={handleEdit}
+ *   onDelete={handleDelete}
+ * />
+ */
 
 interface Column<T> {
   key: keyof T | string;
@@ -20,6 +41,8 @@ interface DataTableProps<T> {
   loading?: boolean;
   emptyMessage?: string;
   searchPlaceholder?: string;
+  itemsPerPage?: number;
+  showPagination?: boolean;
 }
 
 export default function DataTable<T extends { _id: string }>({
@@ -31,10 +54,14 @@ export default function DataTable<T extends { _id: string }>({
   loading = false,
   emptyMessage = "No data available",
   searchPlaceholder = "Search...",
+  itemsPerPage = 5,
+  showPagination = true,
 }: DataTableProps<T>) {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage, setPerPage] = useState(itemsPerPage);
 
   // Filter data based on search term
   const filteredData = data.filter((item) =>
@@ -58,6 +85,25 @@ export default function DataTable<T extends { _id: string }>({
     if (aStr > bStr) return sortDirection === "asc" ? 1 : -1;
     return 0;
   });
+
+  // Pagination calculations
+  const totalItems = sortedData.length;
+  const totalPages = Math.ceil(totalItems / perPage);
+  const startIndex = (currentPage - 1) * perPage;
+  const endIndex = startIndex + perPage;
+  const paginatedData = showPagination
+    ? sortedData.slice(startIndex, endIndex)
+    : sortedData;
+
+  // Reset to first page when search term changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
+  // Reset to first page when items per page changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [perPage]);
 
   const getValue = (item: T, key: string): unknown => {
     if (key.includes(".")) {
@@ -95,10 +141,7 @@ export default function DataTable<T extends { _id: string }>({
                      focus:ring-1 focus:ring-gold-500/20 transition-colors"
           />
         </div>
-
-        <div className="text-sm text-gray-400">
-          {filteredData.length} of {data.length} items
-        </div>
+        {/* Filter Button here - in future */}
       </div>
 
       {/* Table Container */}
@@ -168,7 +211,7 @@ export default function DataTable<T extends { _id: string }>({
                       </div>
                     </td>
                   </tr>
-                ) : sortedData.length === 0 ? (
+                ) : paginatedData.length === 0 ? (
                   <tr>
                     <td
                       colSpan={
@@ -183,7 +226,7 @@ export default function DataTable<T extends { _id: string }>({
                     </td>
                   </tr>
                 ) : (
-                  sortedData.map((item, index) => (
+                  paginatedData.map((item, index) => (
                     <motion.tr
                       key={item._id}
                       initial={{ opacity: 0, y: 10 }}
@@ -208,12 +251,11 @@ export default function DataTable<T extends { _id: string }>({
 
                       {(onEdit || onDelete || onView) && (
                         <td className="px-4 py-3 text-right">
-                          <div className="flex items-center justify-end gap-2">
+                          <div className="flex items-center justify-end gap-4">
                             {onView && (
                               <button
                                 onClick={() => onView(item)}
-                                className="p-1.5 text-gray-400 hover:text-blue-400 hover:bg-blue-400/10 
-                                         rounded transition-colors"
+                                className="p-1.5 text-gray-400 hover:text-blue-400 hover:bg-blue-400/10 rounded transition-colors"
                                 title="View"
                               >
                                 <i className="ri-eye-line text-sm" />
@@ -222,21 +264,25 @@ export default function DataTable<T extends { _id: string }>({
                             {onEdit && (
                               <button
                                 onClick={() => onEdit(item)}
-                                className="p-1.5 text-gray-400 hover:text-gold-400 hover:bg-gold-400/10 
-                                         rounded transition-colors"
+                                className=""
                                 title="Edit"
                               >
-                                <i className="ri-edit-line text-sm" />
+                                <i
+                                  className="ri-edit-line text-md border p-2  border-gold-600 hover:bg-gold-500/20  cursor-pointer rounded transition-colors "
+                                />
                               </button>
                             )}
                             {onDelete && (
                               <button
                                 onClick={() => onDelete(item)}
-                                className="cursor-pointer p-1.5 text-gray-400 hover:text-red-400 hover:bg-red-400/10 
-                                         rounded transition-colors"
+
+                                className=" "
+
                                 title="Delete"
                               >
-                                <i className="ri-delete-bin-line text-sm" />
+                                <i
+                                  className="ri-delete-bin-line text-md border p-2 bg-red-700 border-red-700 hover:bg-transparent  cursor-pointer rounded transition-colors"
+                                />
                               </button>
                             )}
                           </div>
@@ -247,6 +293,127 @@ export default function DataTable<T extends { _id: string }>({
                 )}
               </AnimatePresence>
             </tbody>
+
+            {/* Pagination Footer Row */}
+            {showPagination && totalItems > 0 && (
+              <tfoot className="bg-background2 border-t border-gray-600">
+                <tr>
+                  <td
+                    colSpan={
+                      columns.length + (onEdit || onDelete || onView ? 1 : 0)
+                    }
+                    className="px-6 py-4"
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                      {/* Items per page selector */}
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm text-gray-400">Show</span>
+                        <select
+                          value={perPage}
+                          onChange={(e) => setPerPage(Number(e.target.value))}
+                          className="bg-muted-background border border-gray-600 rounded px-3 py-1 text-sm text-gray-100 
+                                   focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/20"
+                        >
+                          <option value={5}>5</option>
+                          <option value={10}>10</option>
+                          <option value={25}>25</option>
+                          <option value={50}>50</option>
+                          <option value={100}>100</option>
+                        </select>
+                        <span className="text-sm text-gray-400">per page</span>
+                      </div>
+
+                      {/* Pagination info and controls */}
+                      <div className="flex items-center gap-4">
+                        {/* Info */}
+                        <div className="text-sm text-gray-400">
+                          Showing {startIndex + 1} to{" "}
+                          {Math.min(endIndex, totalItems)} of {totalItems} items
+                        </div>
+
+                        {/* Navigation */}
+                        <div className="flex items-center gap-1">
+                          {/* First page */}
+                          <button
+                            onClick={() => setCurrentPage(1)}
+                            disabled={currentPage === 1}
+                            className="px-3 py-1 text-sm font-medium text-gray-400 hover:text-gray-100 
+                                     disabled:text-gray-600 disabled:cursor-not-allowed transition-colors"
+                            title="First page"
+                          >
+                            <i className="ri-skip-back-line" />
+                          </button>
+
+                          {/* Previous page */}
+                          <button
+                            onClick={() => setCurrentPage(currentPage - 1)}
+                            disabled={currentPage === 1}
+                            className="px-3 py-1 text-sm font-medium text-gray-400 hover:text-gray-100 
+                                     disabled:text-gray-600 disabled:cursor-not-allowed transition-colors"
+                            title="Previous page"
+                          >
+                            <i className="ri-arrow-left-s-line" />
+                          </button>
+
+                          {/* Page numbers */}
+                          {Array.from(
+                            { length: Math.min(5, totalPages) },
+                            (_, i) => {
+                              let pageNum;
+                              if (totalPages <= 5) {
+                                pageNum = i + 1;
+                              } else if (currentPage <= 3) {
+                                pageNum = i + 1;
+                              } else if (currentPage >= totalPages - 2) {
+                                pageNum = totalPages - 4 + i;
+                              } else {
+                                pageNum = currentPage - 2 + i;
+                              }
+
+                              return (
+                                <button
+                                  key={pageNum}
+                                  onClick={() => setCurrentPage(pageNum)}
+                                  className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
+                                    currentPage === pageNum
+                                      ? "bg-gold-500 text-black"
+                                      : "text-gray-400 hover:text-gray-100 hover:bg-gray-700"
+                                  }`}
+                                >
+                                  {pageNum}
+                                </button>
+                              );
+                            }
+                          )}
+
+                          {/* Next page */}
+                          <button
+                            onClick={() => setCurrentPage(currentPage + 1)}
+                            disabled={currentPage === totalPages}
+                            className="px-3 py-1 text-sm font-medium text-gray-400 hover:text-gray-100 
+                                     disabled:text-gray-600 disabled:cursor-not-allowed transition-colors"
+                            title="Next page"
+                          >
+                            <i className="ri-arrow-right-s-line" />
+                          </button>
+
+                          {/* Last page */}
+                          <button
+                            onClick={() => setCurrentPage(totalPages)}
+                            disabled={currentPage === totalPages}
+                            className="px-3 py-1 text-sm font-medium text-gray-400 hover:text-gray-100 
+                                     disabled:text-gray-600 disabled:cursor-not-allowed transition-colors"
+                            title="Last page"
+                          >
+                            <i className="ri-skip-forward-line" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </tfoot>
+            )}
           </table>
         </div>
       </div>
