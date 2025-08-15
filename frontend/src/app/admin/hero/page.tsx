@@ -6,12 +6,12 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 
 import PageHeader from "@/components/admin/PageHeader";
-import { AdminButton } from "@/components/admin/AdminButton";
 import PhotoUpload from "@/components/admin/form/photo-upload";
 
 import Axios from "@/lib/axios-instance";
 import { normalizeImagePath } from "@/lib/utils";
 import { Hero } from "@/types/admin";
+import { Button } from "@/components/ui/button";
 
 interface HeroFormData {
   titleImage: File[];
@@ -224,68 +224,87 @@ export default function HeroAdminPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Home page - Hero Section" />
+      <PageHeader title="Home page - Hero"
+      description="Manage the hero section content for your homepage." />
+        <form onSubmit={handleSubmit} className="space-y-8 rounded-lg border border-gray-600 p-6">
+          {/* Two Column Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            {/* Left Column - Title Image */}
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <h3 className="text-lg font-medium text-gray-200 flex items-center gap-2">
+                  <div className="w-2 h-2 bg-gold-500 rounded-full"></div>
+                  Title Image
+                </h3>
+              </div>
+              
+              <PhotoUpload
+                label=""
+                name="titleImage"
+                mode="single"
+                onImageChange={handleTitleImageChange}
+                error={errors.titleImage}
+                selectedFiles={formData.titleImage}
+                existingImages={
+                  hero?.titleImage && !formData.removedTitleImage
+                    ? [normalizeImagePath(hero.titleImage)]
+                    : []
+                }
+                onRemoveExisting={handleRemoveTitleImage}
+                required={true}
+                acceptedTypes={["image/*"]}
+                maxFileSize={5}
+                className="[&_>div:nth-child(2)]:min-h-[160px] [&_img]:w-40 [&_img]:h-16 [&_img]:rounded-full [&_img]:border [&_img]:border-stone-300 [&_img]:shadow-lg [&_.relative]:mx-auto"
+              />
+            </div>
 
-      {/* Hero Content Form */}
-      <div className="bg-muted-background rounded-lg border border-gray-600 p-6">
-        <h3 className="text-lg font-semibold text-gray-100 mb-6">
-          Hero Section Content
-        </h3>
+            {/* Right Column - Hero Images */}
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <h3 className="text-lg font-medium text-gray-200 flex items-center gap-2">
+                  <div className="w-2 h-2 bg-gold-500 rounded-full"></div>
+                  Hero Grid Images
+                </h3>
+              </div>
+              
+              <PhotoUpload
+                label=""
+                name="heroImages"
+                mode="fixed"
+                fixedSlots={4}
+                selectedFiles={formData.images}
+                existingImages={[
+                  hero?.image_1,
+                  hero?.image_2,
+                  hero?.image_3,
+                  hero?.image_4,
+                ].map((img, idx) => {
+                  const isRemoved = formData.removedExistingIndices.has(idx);
+                  return isRemoved || !img?.trim() ? "" : normalizeImagePath(img);
+                })}
+                onImageChange={handleImageChange}
+                error={errors.images}
+                required={false}
+                acceptedTypes={["image/*"]}
+                maxFileSize={5}
+                className="pt-10 [&_.grid]:grid-cols-4 [&_.grid]:gap-2 [&_.aspect-square]:h-28 [&_.aspect-square]:w-28"
+              />
+            </div>
+          </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Title Image Upload */}
-          <PhotoUpload
-            label="Title Image"
-            name="titleImage"
-            mode="single"
-            onImageChange={handleTitleImageChange}
-            error={errors.titleImage}
-            selectedFiles={formData.titleImage}
-            existingImages={
-              hero?.titleImage && !formData.removedTitleImage
-                ? [normalizeImagePath(hero.titleImage)]
-                : []
-            }
-            onRemoveExisting={handleRemoveTitleImage}
-            required={true}
-            acceptedTypes={["image/*"]}
-            maxFileSize={5}
-          />
-
-          {/* Hero Images Grid */}
-          <PhotoUpload
-            label="Hero Section Images"
-            name="heroImages"
-            mode="fixed"
-            fixedSlots={4}
-            selectedFiles={formData.images}
-            existingImages={[
-              hero?.image_1,
-              hero?.image_2,
-              hero?.image_3,
-              hero?.image_4,
-            ].map((img, idx) => {
-              const isRemoved = formData.removedExistingIndices.has(idx);
-              return isRemoved || !img?.trim() ? "" : normalizeImagePath(img);
-            })}
-            onImageChange={handleImageChange}
-            error={errors.images}
-            required={false}
-            acceptedTypes={["image/*"]}
-            maxFileSize={5}
-          />
-
-          <div className="flex gap-3 pt-4">
-            <AdminButton type="submit" disabled={submitting}>
+          {/* Action Buttons */}
+          <div className="flex items-center justify-between pt-6 border-t border-gray-700">
+           
+            <Button variant="default" disabled={submitting} className="px-8">
               {submitting
                 ? "Saving..."
                 : hero
                 ? "Update Hero Section"
                 : "Create Hero Section"}
-            </AdminButton>
+            </Button>
           </div>
         </form>
-      </div>
+
 
       {/* Live Preview Section */}
       <div className="bg-muted-background rounded-lg border border-gray-600">

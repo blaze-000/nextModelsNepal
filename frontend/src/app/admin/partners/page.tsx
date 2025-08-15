@@ -6,7 +6,7 @@ import Image from "next/image";
 
 import PageHeader from "@/components/admin/PageHeader";
 import DataTable from "@/components/admin/DataTable";
-import { AdminButton } from "@/components/admin/AdminButton";
+
 import DeleteConfirmModal from "@/components/admin/DeleteConfirmModal";
 import PartnerPopup from "./PartnerPopup";
 

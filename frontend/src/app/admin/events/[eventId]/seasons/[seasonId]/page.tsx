@@ -18,6 +18,7 @@ import WinnerPopup, { BackendWinner } from "./winners/WinnerPopup";
 
 import Axios from "@/lib/axios-instance";
 import { normalizeImagePath } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 // Types
 interface Event {
@@ -469,10 +470,10 @@ export default function SeasonDetailPage() {
             <i className="ri-arrow-left-line mr-2"></i>
             Back to Seasons
           </AdminButton>
-          <AdminButton onClick={handleEditSeason}>
+          <Button variant="default" onClick={handleEditSeason}>
             <i className="ri-edit-line mr-2"></i>
             Edit Season
-          </AdminButton>
+          </Button>
         </div>
       </PageHeader>
 
@@ -630,10 +631,10 @@ export default function SeasonDetailPage() {
                 <h3 className="text-lg font-semibold text-gray-100">
                   Contestants
                 </h3>
-                <AdminButton onClick={handleAddContestant}>
+                <Button variant="default" onClick={handleAddContestant}>
                   <i className="ri-add-line mr-2"></i>
                   Add Contestant
-                </AdminButton>
+                </Button>
               </div>
             </div>
             <DataTable
@@ -666,10 +667,10 @@ export default function SeasonDetailPage() {
                 <h3 className="text-lg font-semibold text-gray-100">
                   Jury Members
                 </h3>
-                <AdminButton onClick={handleAddJury}>
+                <Button variant="default" onClick={handleAddJury}>
                   <i className="ri-add-line mr-2"></i>
                   Add Jury Member
-                </AdminButton>
+                </Button>
               </div>
             </div>
             <DataTable
@@ -700,10 +701,10 @@ export default function SeasonDetailPage() {
             <div className="p-6 border-b border-gray-600">
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-semibold text-gray-100">Winners</h3>
-                <AdminButton onClick={handleAddWinner}>
+                <Button variant="default" onClick={handleAddWinner}>
                   <i className="ri-add-line mr-2"></i>
                   Add Winner
-                </AdminButton>
+                </Button>
               </div>
             </div>
             <DataTable
