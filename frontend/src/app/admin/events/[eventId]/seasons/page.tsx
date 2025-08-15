@@ -9,7 +9,7 @@ import Image from "next/image";
 import PageHeader from "@/components/admin/PageHeader";
 import { AdminButton } from "@/components/admin/AdminButton";
 import DeleteConfirmModal from "@/components/admin/DeleteConfirmModal";
-import SeasonPopup, { BackendSeason } from "../SeasonPopup";
+import SeasonPopup, { BackendSeason } from "./SeasonPopup";
 
 import Axios from "@/lib/axios-instance";
 import { normalizeImagePath } from "@/lib/utils";

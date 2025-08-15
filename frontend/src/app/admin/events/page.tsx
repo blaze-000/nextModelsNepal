@@ -251,9 +251,9 @@ export default function EventsAdminPage() {
                 </div>
 
                 {/* Event Content */}
-                <div className="p-4 lg:p-6">
-                  <div className="flex items-start justify-between mb-3">
-                    <h3 className="text-base lg:text-lg font-semibold text-gray-100 line-clamp-2 flex-1">
+                <div className="p-4">
+                  <div className="flex items-start justify-between mb-1">
+                    <h3 className="text-base lg:text-xl font-newsreader font-semibold text-gold-500 line-clamp-2 flex-1">
                       {event.name}
                     </h3>
                   </div>
@@ -261,15 +261,10 @@ export default function EventsAdminPage() {
                   <p className="text-sm text-gray-300 mb-2 line-clamp-1">
                     {event.subtitle}
                   </p>
-
-                  <p className="text-xs lg:text-sm text-gray-400 mb-4 line-clamp-2">
-                    {event.overview}
-                  </p>
-
                   {/* Seasons Count */}
                   <div className="flex items-center text-xs lg:text-sm text-gray-400 mb-4">
                     <i className="ri-calendar-2-line mr-2"></i>
-                    <span>{event.seasons?.length || 0} Seasons</span>
+                    <span>{event.seasons?.length} Seasons</span>
                   </div>
 
                   {/* Actions */}
