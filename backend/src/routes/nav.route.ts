@@ -13,7 +13,7 @@ router.get("/", getVotingState);
 // POST /nav - Create navigation settings
 router.post("/", createVotingState);
 
-// GET /nav/items - Get navigation items
-router.get("/items", getAllNavInfo);
+// GET /nav/info - Get navigation info
+router.get("/info", getAllNavInfo);
 
 export default router;

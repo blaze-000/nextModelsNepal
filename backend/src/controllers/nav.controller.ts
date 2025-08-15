@@ -86,19 +86,24 @@ export const getAllNavInfo = async (req: Request, res: Response) => {
                 // Cast seasons to any to access properties
                 const seasons = event.seasons as any[];
 
-                // Sort seasons by year descending and get the latest one
-                const sortedSeasons = seasons.sort((a: any, b: any) => b.year - a.year);
-                const latestSeason = sortedSeasons[0];
+                // Filter for ended seasons and sort by year descending to get the latest ended season
+                const endedSeasons = seasons
+                    .filter((season: any) => season.status === 'ended')
+                    .sort((a: any, b: any) => b.year - a.year);
 
-                const eventItem = {
-                    label: event.name,
-                    slug: latestSeason.slug
-                };
+                if (endedSeasons.length > 0) {
+                    const latestEndedSeason = endedSeasons[0];
 
-                if (event.managedBy === 'self') {
-                    selfEvents.push(eventItem);
-                } else if (event.managedBy === 'partner') {
-                    partnerEvents.push(eventItem);
+                    const eventItem = {
+                        label: event.name,
+                        slug: latestEndedSeason.slug
+                    };
+
+                    if (event.managedBy === 'self') {
+                        selfEvents.push(eventItem);
+                    } else if (event.managedBy === 'partner') {
+                        partnerEvents.push(eventItem);
+                    }
                 }
             }
         }

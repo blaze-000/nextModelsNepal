@@ -62,6 +62,16 @@ export const createSeason = async (req: Request, res: Response) => {
 
     const season = await SeasonModel.create(seasonData);
 
+    // Manually ensure the event-seasons relationship is maintained
+    try {
+      await EventModel.findByIdAndUpdate(
+        validatedData.eventId,
+        { $addToSet: { seasons: season._id } }
+      );
+    } catch (error) {
+      console.error(`Error manually updating event:`, error);
+    }
+
     res.status(201).json({ success: true, data: season });
   } catch (error) {
     if (error instanceof mongoose.Error.ValidationError) {
@@ -306,9 +316,74 @@ export const deleteSeason = async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, message: "Season not found" });
     }
 
+    // Manually ensure the event-seasons relationship is updated
+    try {
+      await EventModel.findByIdAndUpdate(
+        deletedSeason.eventId,
+        { $pull: { seasons: deletedSeason._id } }
+      );
+    } catch (error) {
+      console.error(`Error manually updating event:`, error);
+    }
+
     res.json({ success: true, message: "Season deleted successfully" });
   } catch (error) {
     console.error("Delete season error:", error);
     res.status(500).json({ success: false, message: "Failed to delete season" });
+  }
+};
+
+/**
+ * Manual sync function to update event seasons arrays
+ * This can be used to fix existing data where the relationship is broken
+ */
+export const syncEventSeasons = async (req: Request, res: Response) => {
+  try {
+    // Get all seasons
+    const seasons = await SeasonModel.find({});
+
+    // Group seasons by eventId
+    const seasonsByEvent: { [eventId: string]: string[] } = {};
+
+    seasons.forEach(season => {
+      const eventId = season.eventId.toString();
+      if (!seasonsByEvent[eventId]) {
+        seasonsByEvent[eventId] = [];
+      }
+      seasonsByEvent[eventId].push(season._id.toString());
+    });
+
+    // Update each event with its seasons
+    const updatePromises = Object.entries(seasonsByEvent).map(async ([eventId, seasonIds]) => {
+      try {
+        await EventModel.findByIdAndUpdate(
+          eventId,
+          { $set: { seasons: seasonIds } }
+        );
+        return { eventId, success: true, seasonCount: seasonIds.length };
+      } catch (error) {
+        return { eventId, success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+      }
+    });
+
+    const results = await Promise.all(updatePromises);
+    const successful = results.filter(r => r.success);
+    const failed = results.filter(r => !r.success);
+
+    res.json({
+      success: true,
+      message: `Sync completed. ${successful.length} events updated successfully, ${failed.length} failed.`,
+      results: {
+        successful,
+        failed
+      }
+    });
+  } catch (error) {
+    console.error("Sync error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to sync event-seasons relationship",
+      error: error instanceof Error ? error.message : "Unknown error"
+    });
   }
 };
