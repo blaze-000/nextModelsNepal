@@ -41,53 +41,6 @@ interface Season {
   updatedAt: string;
 }
 
-interface Contestant {
-  _id: string;
-  seasonId: string;
-  name: string;
-  age: number;
-  bio: string;
-  hometown: string;
-  profession: string;
-  socialMedia: {
-    instagram?: string;
-    facebook?: string;
-    twitter?: string;
-  };
-  images: string[];
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface Jury {
-  _id: string;
-  seasonId: string;
-  name: string;
-  title: string;
-  bio: string;
-  expertise: string[];
-  images: string[];
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface Winner {
-  _id: string;
-  seasonId: string;
-  contestantId: string;
-  position: number;
-  prize: string;
-  createdAt: string;
-  updatedAt: string;
-  contestant?: {
-    _id: string;
-    name: string;
-    images: string[];
-  };
-}
-
 type TabKey = "overview" | "contestants" | "jury" | "winners";
 
 interface TabConfig {
@@ -107,9 +60,9 @@ export default function SeasonDetailPage() {
   // State
   const [event, setEvent] = useState<Event | null>(null);
   const [season, setSeason] = useState<Season | null>(null);
-  const [contestants, setContestants] = useState<Contestant[]>([]);
-  const [jury, setJury] = useState<Jury[]>([]);
-  const [winners, setWinners] = useState<Winner[]>([]);
+  const [contestants, setContestants] = useState<BackendContestant[]>([]);
+  const [jury, setJury] = useState<BackendJury[]>([]);
+  const [winners, setWinners] = useState<BackendWinner[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -192,7 +145,7 @@ export default function SeasonDetailPage() {
   useEffect(() => {
     const fetchContestants = async () => {
       try {
-        const res = await Axios.get(`/api/contestants?seasonId=${seasonId}`);
+        const res = await Axios.get(`/api/contestants/season/${seasonId}`);
         setContestants(res.data.data || []);
       } catch (err) {
         console.error("Failed to fetch contestants:", err);
@@ -205,7 +158,7 @@ export default function SeasonDetailPage() {
   useEffect(() => {
     const fetchJury = async () => {
       try {
-        const res = await Axios.get(`/api/jury?seasonId=${seasonId}`);
+        const res = await Axios.get(`/api/jury/season/${seasonId}`);
         setJury(res.data.data || []);
       } catch (err) {
         console.error("Failed to fetch jury:", err);
@@ -218,7 +171,7 @@ export default function SeasonDetailPage() {
   useEffect(() => {
     const fetchWinners = async () => {
       try {
-        const res = await Axios.get(`/api/winners?seasonId=${seasonId}`);
+        const res = await Axios.get(`/api/winners/season/${seasonId}`);
         setWinners(res.data.data || []);
       } catch (err) {
         console.error("Failed to fetch winners:", err);
@@ -256,18 +209,6 @@ export default function SeasonDetailPage() {
     setWinnerPopup({ isOpen: true, winner: null });
   };
 
-  const handleEditContestant = (contestant: BackendContestant) => {
-    setContestantPopup({ isOpen: true, contestant });
-  };
-
-  const handleEditJury = (jury: BackendJury) => {
-    setJuryPopup({ isOpen: true, jury });
-  };
-
-  const handleEditWinner = (winner: BackendWinner) => {
-    setWinnerPopup({ isOpen: true, winner });
-  };
-
   const handleCloseContestantPopup = () => {
     setContestantPopup({ isOpen: false, contestant: null });
   };
@@ -285,7 +226,7 @@ export default function SeasonDetailPage() {
     // Refresh contestants data
     const fetchContestants = async () => {
       try {
-        const res = await Axios.get(`/api/contestants?seasonId=${seasonId}`);
+        const res = await Axios.get(`/api/contestants/season/${seasonId}`);
         setContestants(res.data.data || []);
       } catch (err) {
         console.error("Failed to fetch contestants:", err);
@@ -299,7 +240,7 @@ export default function SeasonDetailPage() {
     // Refresh jury data
     const fetchJury = async () => {
       try {
-        const res = await Axios.get(`/api/jury?seasonId=${seasonId}`);
+        const res = await Axios.get(`/api/jury/season/${seasonId}`);
         setJury(res.data.data || []);
       } catch (err) {
         console.error("Failed to fetch jury:", err);
@@ -313,7 +254,7 @@ export default function SeasonDetailPage() {
     // Refresh winners data
     const fetchWinners = async () => {
       try {
-        const res = await Axios.get(`/api/winners?seasonId=${seasonId}`);
+        const res = await Axios.get(`/api/winners/season/${seasonId}`);
         setWinners(res.data.data || []);
       } catch (err) {
         console.error("Failed to fetch winners:", err);
@@ -343,17 +284,17 @@ export default function SeasonDetailPage() {
         switch (deleteModal.type) {
           case "contestant":
             const contestantRes = await Axios.get(
-              `/api/contestants?seasonId=${seasonId}`
+              `/api/contestants/season/${seasonId}`
             );
             setContestants(contestantRes.data.data || []);
             break;
           case "jury":
-            const juryRes = await Axios.get(`/api/jury?seasonId=${seasonId}`);
+            const juryRes = await Axios.get(`/api/jury/season/${seasonId}`);
             setJury(juryRes.data.data || []);
             break;
           case "winner":
             const winnerRes = await Axios.get(
-              `/api/winners?seasonId=${seasonId}`
+              `/api/winners/season/${seasonId}`
             );
             setWinners(winnerRes.data.data || []);
             break;
@@ -367,14 +308,6 @@ export default function SeasonDetailPage() {
     }
   };
 
-  const openDeleteModal = (
-    type: "contestant" | "jury" | "winner",
-    id: string,
-    name: string
-  ) => {
-    setDeleteModal({ isOpen: true, type, id, name });
-  };
-
   const closeDeleteModal = () => {
     setDeleteModal({ isOpen: false, type: null, id: null, name: "" });
   };
@@ -382,207 +315,110 @@ export default function SeasonDetailPage() {
   // Table columns
   const contestantColumns = [
     {
+      key: "image" as const,
+      label: "Image",
+      render: (value: unknown) => {
+        const imagePath = String(value);
+        return (
+          <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-700">
+            <Image
+              src={normalizeImagePath(imagePath)}
+              alt="Contestant"
+              width={48}
+              height={48}
+              className="w-full h-full object-cover"
+              unoptimized
+            />
+          </div>
+        );
+      },
+    },
+    {
       key: "name" as const,
       label: "Name",
       render: (value: unknown) => String(value),
     },
     {
-      key: "age" as const,
-      label: "Age",
+      key: "gender" as const,
+      label: "Gender",
       render: (value: unknown) => String(value),
     },
     {
-      key: "hometown" as const,
-      label: "Hometown",
+      key: "address" as const,
+      label: "Address",
       render: (value: unknown) => String(value),
     },
     {
-      key: "profession" as const,
-      label: "Profession",
-      render: (value: unknown) => String(value),
-    },
-    {
-      key: "isActive" as const,
-      label: "Status",
-      render: (value: unknown) => (
-        <span
-          className={`px-2 py-1 rounded-full text-xs font-medium ${
-            value
-              ? "bg-green-500/20 text-green-400 border border-green-500/30"
-              : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
-          }`}
-        >
-          {value ? "Active" : "Inactive"}
-        </span>
-      ),
-    },
-    {
-      key: "_id" as const,
-      label: "Actions",
-      render: (value: unknown, row: unknown) => {
-        const contestant = row as Contestant;
-        return (
-          <div className="flex gap-2">
-            <AdminButton
-              variant="outline"
-              size="sm"
-              onClick={() =>
-                handleEditContestant(contestant as unknown as BackendContestant)
-              }
-            >
-              <i className="ri-edit-line mr-1"></i>
-              Edit
-            </AdminButton>
-            <AdminButton
-              variant="destructive"
-              size="sm"
-              onClick={() =>
-                openDeleteModal("contestant", contestant._id, contestant.name)
-              }
-            >
-              <i className="ri-delete-bin-line mr-1"></i>
-              Delete
-            </AdminButton>
-          </div>
-        );
+      key: "intro" as const,
+      label: "Introduction",
+      render: (value: unknown) => {
+        const intro = String(value);
+        return intro.length > 50 ? intro.substring(0, 50) + "..." : intro;
       },
     },
   ];
 
   const juryColumns = [
     {
+      key: "image" as const,
+      label: "Image",
+      render: (value: unknown) => {
+        const imagePath = String(value);
+        return (
+          <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-700">
+            <Image
+              src={normalizeImagePath(imagePath)}
+              alt="Jury Member"
+              width={48}
+              height={48}
+              className="w-full h-full object-cover"
+              unoptimized
+            />
+          </div>
+        );
+      },
+    },
+    {
       key: "name" as const,
       label: "Name",
       render: (value: unknown) => String(value),
     },
     {
-      key: "title" as const,
-      label: "Title",
-      render: (value: unknown) => String(value),
-    },
-    {
-      key: "expertise" as const,
-      label: "Expertise",
-      render: (value: unknown) => {
-        const expertise = value as string[];
-        return Array.isArray(expertise)
-          ? expertise.slice(0, 2).join(", ") +
-              (expertise.length > 2 ? "..." : "")
-          : String(value);
-      },
-    },
-    {
-      key: "isActive" as const,
-      label: "Status",
-      render: (value: unknown) => (
-        <span
-          className={`px-2 py-1 rounded-full text-xs font-medium ${
-            value
-              ? "bg-green-500/20 text-green-400 border border-green-500/30"
-              : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
-          }`}
-        >
-          {value ? "Active" : "Inactive"}
-        </span>
-      ),
-    },
-    {
-      key: "_id" as const,
-      label: "Actions",
-      render: (value: unknown, row: unknown) => {
-        const juryMember = row as Jury;
-        return (
-          <div className="flex gap-2">
-            <AdminButton
-              variant="outline"
-              size="sm"
-              onClick={() =>
-                handleEditJury(juryMember as unknown as BackendJury)
-              }
-            >
-              <i className="ri-edit-line mr-1"></i>
-              Edit
-            </AdminButton>
-            <AdminButton
-              variant="destructive"
-              size="sm"
-              onClick={() =>
-                openDeleteModal("jury", juryMember._id, juryMember.name)
-              }
-            >
-              <i className="ri-delete-bin-line mr-1"></i>
-              Delete
-            </AdminButton>
-          </div>
-        );
-      },
+      key: "designation" as const,
+      label: "Designation",
+      render: (value: unknown) => String(value || "N/A"),
     },
   ];
 
   const winnerColumns = [
     {
-      key: "position" as const,
-      label: "Position",
+      key: "image" as const,
+      label: "Image",
       render: (value: unknown) => {
-        const position = Number(value);
-        const suffix =
-          position === 1
-            ? "st"
-            : position === 2
-            ? "nd"
-            : position === 3
-            ? "rd"
-            : "th";
-        return `${position}${suffix}`;
-      },
-    },
-    {
-      key: "contestant" as const,
-      label: "Contestant",
-      render: (value: unknown) => {
-        const contestant = value as Winner["contestant"];
-        return contestant?.name || "Unknown";
-      },
-    },
-    {
-      key: "prize" as const,
-      label: "Prize",
-      render: (value: unknown) => String(value),
-    },
-    {
-      key: "_id" as const,
-      label: "Actions",
-      render: (value: unknown, row: unknown) => {
-        const winner = row as Winner;
+        const imagePath = String(value);
         return (
-          <div className="flex gap-2">
-            <AdminButton
-              variant="outline"
-              size="sm"
-              onClick={() =>
-                handleEditWinner(winner as unknown as BackendWinner)
-              }
-            >
-              <i className="ri-edit-line mr-1"></i>
-              Edit
-            </AdminButton>
-            <AdminButton
-              variant="destructive"
-              size="sm"
-              onClick={() =>
-                openDeleteModal(
-                  "winner",
-                  winner._id,
-                  `Position ${winner.position}`
-                )
-              }
-            >
-              <i className="ri-delete-bin-line mr-1"></i>
-              Delete
-            </AdminButton>
+          <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-700">
+            <Image
+              src={normalizeImagePath(imagePath)}
+              alt="Winner"
+              width={48}
+              height={48}
+              className="w-full h-full object-cover"
+              unoptimized
+            />
           </div>
         );
       },
+    },
+    {
+      key: "rank" as const,
+      label: "Rank",
+      render: (value: unknown) => String(value),
+    },
+    {
+      key: "name" as const,
+      label: "Winner Name",
+      render: (value: unknown) => String(value),
     },
   ];
 
@@ -800,7 +636,21 @@ export default function SeasonDetailPage() {
                 </AdminButton>
               </div>
             </div>
-            <DataTable data={contestants} columns={contestantColumns} />
+            <DataTable
+              data={contestants}
+              columns={contestantColumns}
+              onEdit={(contestant) =>
+                setContestantPopup({ isOpen: true, contestant })
+              }
+              onDelete={(contestant) =>
+                setDeleteModal({
+                  isOpen: true,
+                  type: "contestant",
+                  id: contestant._id,
+                  name: contestant.name,
+                })
+              }
+            />
           </motion.div>
         )}
 
@@ -822,7 +672,21 @@ export default function SeasonDetailPage() {
                 </AdminButton>
               </div>
             </div>
-            <DataTable data={jury} columns={juryColumns} />
+            <DataTable
+              data={jury}
+              columns={juryColumns}
+              onEdit={(juryMember) =>
+                setJuryPopup({ isOpen: true, jury: juryMember })
+              }
+              onDelete={(juryMember) =>
+                setDeleteModal({
+                  isOpen: true,
+                  type: "jury",
+                  id: juryMember._id,
+                  name: juryMember.name,
+                })
+              }
+            />
           </motion.div>
         )}
 
@@ -842,7 +706,19 @@ export default function SeasonDetailPage() {
                 </AdminButton>
               </div>
             </div>
-            <DataTable data={winners} columns={winnerColumns} />
+            <DataTable
+              data={winners}
+              columns={winnerColumns}
+              onEdit={(winner) => setWinnerPopup({ isOpen: true, winner })}
+              onDelete={(winner) =>
+                setDeleteModal({
+                  isOpen: true,
+                  type: "winner",
+                  id: winner._id,
+                  name: `Rank ${winner.rank}`,
+                })
+              }
+            />
           </motion.div>
         )}
       </div>

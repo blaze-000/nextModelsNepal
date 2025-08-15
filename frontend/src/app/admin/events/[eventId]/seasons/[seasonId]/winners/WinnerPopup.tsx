@@ -145,8 +145,8 @@ export default function WinnerPopup({
         formDataToSend.append("image", formData.image[0]);
       }
 
-      const url = isEditing ? `/api/winner/${winner!._id}` : "/api/winner";
-      const method = isEditing ? "patch" : "post";
+      const url = isEditing ? `/api/winners/${winner!._id}` : "/api/winners";
+      const method = isEditing ? "put" : "post";
 
       const response = await Axios[method](url, formDataToSend, {
         headers: {

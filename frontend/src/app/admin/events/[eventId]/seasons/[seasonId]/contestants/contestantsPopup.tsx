@@ -158,9 +158,9 @@ export default function ContestantPopup({
       }
 
       const url = isEditing
-        ? `/api/contestant/${contestant!._id}`
-        : "/api/contestant";
-      const method = isEditing ? "patch" : "post";
+        ? `/api/contestants/${contestant!._id}`
+        : "/api/contestants";
+      const method = isEditing ? "put" : "post";
 
       const response = await Axios[method](url, formDataToSend, {
         headers: {
