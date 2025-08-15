@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
 import Image from "next/image";
 
@@ -39,7 +39,7 @@ export default function NewsPage() {
   const statistics = useNewsStatistics(news);
 
   // Fetch news function
-  const fetchNews = useCallback(() => {
+  const fetchNews = () => {
     setLoading(true);
     Axios.get("/api/news")
       .then((response) => {
@@ -56,10 +56,10 @@ export default function NewsPage() {
       .finally(() => {
         setLoading(false);
       });
-  }, []);
+  };
 
   // Fetch events function
-  const fetchEvents = useCallback(() => {
+  const fetchEvents = () => {
     Axios.get("/api/events")
       .then((response) => {
         if (response.data.success && response.data.data) {
@@ -69,58 +69,55 @@ export default function NewsPage() {
       .catch((error) => {
         console.error("Error fetching events:", error);
       });
-  }, []);
+  };
 
   // Initial data fetch
   useEffect(() => {
     fetchNews();
     fetchEvents();
-  }, [fetchNews, fetchEvents]);
+  }, []);
 
   // Modal handlers
-  const handleCreateNews = useCallback(() => {
+  const handleCreateNews = () => {
     setEditingNews(null);
     setIsPopupOpen(true);
-  }, []);
+  };
 
-  const handleEditNews = useCallback((newsItem: News) => {
+  const handleEditNews = (newsItem: News) => {
     setEditingNews(newsItem);
     setIsPopupOpen(true);
-  }, []);
+  };
 
-  const handleClosePopup = useCallback(() => {
+  const handleClosePopup = () => {
     setIsPopupOpen(false);
     setEditingNews(null);
-  }, []);
+  };
 
-  const handleDeleteNews = useCallback(
-    (newsItem: News) => {
-      const confirmMessage = `Are you sure you want to delete "${newsItem.title}"? This action cannot be undone.`;
+  const handleDeleteNews = (newsItem: News) => {
+    const confirmMessage = `Are you sure you want to delete "${newsItem.title}"? This action cannot be undone.`;
 
-      if (!window.confirm(confirmMessage)) {
-        return;
-      }
+    if (!window.confirm(confirmMessage)) {
+      return;
+    }
 
-      Axios.delete(`/api/news/${newsItem._id}`)
-        .then((response) => {
-          if (response.data.success) {
-            toast.success("News article deleted successfully");
-            fetchNews(); // Refresh the list
-          } else {
-            toast.error(response.data.message || "Failed to delete news");
-          }
-        })
-        .catch((error) => {
-          console.error("Error deleting news:", error);
-          toast.error("Failed to delete news article");
-        });
-    },
-    [fetchNews]
-  );
+    Axios.delete(`/api/news/${newsItem._id}`)
+      .then((response) => {
+        if (response.data.success) {
+          toast.success("News article deleted successfully");
+          fetchNews(); // Refresh the list
+        } else {
+          toast.error(response.data.message || "Failed to delete news");
+        }
+      })
+      .catch((error) => {
+        console.error("Error deleting news:", error);
+        toast.error("Failed to delete news article");
+      });
+  };
 
-  const handlePopupSuccess = useCallback(() => {
+  const handlePopupSuccess = () => {
     fetchNews(); // Refresh the list after successful create/edit
-  }, [fetchNews]);
+  };
 
   // Table columns configuration
   const tableColumns = useMemo(

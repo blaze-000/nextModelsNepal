@@ -13,6 +13,7 @@ import PartnerPopup from "./PartnerPopup";
 import Axios from "@/lib/axios-instance";
 import { normalizeImagePath } from "@/lib/utils";
 import { Partner } from "@/types/admin";
+import { Button } from "@/components/ui/button";
 
 export default function PartnersPage() {
   const [partners, setPartners] = useState<Partner[]>([]);
@@ -38,9 +39,7 @@ export default function PartnersPage() {
         setPartners([]);
       }
     } catch (error) {
-      console.error("Error fetching partners:", error);
       setPartners([]);
-      // Don't show error toast for 404 (no partners found)
       if (
         (error as { response?: { status?: number } })?.response?.status !== 404
       ) {
@@ -82,8 +81,8 @@ export default function PartnersPage() {
       } else {
         toast.error("Failed to delete partner");
       }
-    } catch (error) {
-      console.error("Error deleting partner:", error);
+    } catch {
+     
       toast.error("Failed to delete partner");
     } finally {
       setIsDeleting(false);
@@ -119,7 +118,7 @@ export default function PartnersPage() {
       key: "sponserImage",
       label: "Image",
       render: (value: unknown) => (
-        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-800 rounded-lg overflow-hidden border border-gray-600 flex-shrink-0">
+        <div className="w-10 h-10 sm:w-16 sm:h-16 bg-gray-800 rounded-lg overflow-hidden border border-gray-600 flex-shrink-0">
           <Image
             src={normalizeImagePath(String(value))}
             alt="Partner"
@@ -134,15 +133,15 @@ export default function PartnersPage() {
   ];
 
   return (
-    <div className="space-y-4 sm:space-y-6 p-4 sm:p-6 lg:p-8">
+    <div className="space-y-4 sm:space-y-6">
       <PageHeader
         title="Partners"
         description="Manage business partners and sponsors"
       >
-        <AdminButton onClick={handleCreate} className="w-full sm:w-auto">
+        <Button variant="default" onClick={handleCreate} className="w-full sm:w-auto">
           <i className="ri-add-line mr-2" />
           Add Partner
-        </AdminButton>
+        </Button>
       </PageHeader>
 
       <div className="overflow-hidden">
