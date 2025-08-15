@@ -13,6 +13,8 @@ export const createSeasonSchema = z.object({
   votingEndDate: z.coerce.date().optional(),
   endDate: z.coerce.date(),
   slug: z.string().min(1, "Slug is required"),
+
+
   pricePerVote: z.string().min(1, "Price per vote is required").optional(),
   notice: z.array(z.string()).optional(),
   timeline: z
@@ -24,6 +26,7 @@ export const createSeasonSchema = z.object({
       })
     )
     .optional(),
+
 });
 
 export const updateSeasonSchema = createSeasonSchema.partial().extend({

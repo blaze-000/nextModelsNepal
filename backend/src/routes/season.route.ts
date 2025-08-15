@@ -38,4 +38,7 @@ router.patch("/:id",
 // Delete season
 router.delete("/:id", seasonController.deleteSeason);
 
+// Sync event-seasons relationship (for fixing existing data)
+router.post("/sync", seasonController.syncEventSeasons);
+
 export default router;

@@ -77,9 +77,7 @@ const HeroSection = () => {
             </div>
             {/* Description */}
             <p className="text-white text-base leading-relaxed font-light pt-6">
-              Next Models Nepal is a team of seasoned professionals dedicated to
-              <br />
-              talent management, elite training, and launching aspiring models.
+              Next Models Nepal is a team of seasoned professionals dedicated to talent management, elite training, and launching aspiring models.
             </p>
             {/* Buttons */}
             <div className="flex flex-col items-start gap-4 lg:flex-row lg:gap-10 lg:items-center pt-4">
@@ -91,7 +89,7 @@ const HeroSection = () => {
               </Link>
               <Link
                 href="/events/upcoming-events"
-                className="px-4 py-4 rounded-full text-gold-500 text-base -tracking-tight font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer"
+                className="px-4 py-4 md:mb-8 lg:mb-0 rounded-full text-gold-500 text-base -tracking-tight font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer"
               >
                 <span className="underline underline-offset-4">
                   Upcoming Events

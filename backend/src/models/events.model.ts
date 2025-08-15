@@ -84,6 +84,31 @@ seasonSchema.virtual("auditions", {
 seasonSchema.set("toObject", { virtuals: true });
 seasonSchema.set("toJSON", { virtuals: true });
 
+/** Helper: keep seasons array updated in Event when Season is created or deleted */
+seasonSchema.post("save", async function (doc) {
+    try {
+        await EventModel.findByIdAndUpdate(
+            doc.eventId,
+            { $addToSet: { seasons: doc._id } }
+        );
+    } catch (error) {
+        console.error(`Error updating event with season:`, error);
+    }
+});
+
+seasonSchema.post("findOneAndDelete", async function (doc) {
+    if (doc) {
+        try {
+            await EventModel.findByIdAndUpdate(
+                doc.eventId,
+                { $pull: { seasons: doc._id } }
+            );
+        } catch (error) {
+            console.error(`Error removing season from event:`, error);
+        }
+    }
+});
+
 /** Contestant Schema */
 const contestantSchema = new Schema({
     seasonId: { type: Schema.Types.ObjectId, ref: "Season", required: true },
@@ -142,14 +167,3 @@ export const JuryModel = mongoose.model("Jury", jurySchema);
 export const SponsorModel = mongoose.model("Sponsor", sponsorSchema);
 export const CriteriaModel = mongoose.model("Criteria", criteriaSchema);
 export const AuditionModel = mongoose.model("Audition", auditionSchema);
-
-/** Helper: keep seasons array updated in Event when Season is created or deleted */
-seasonSchema.post("save", async function (doc) {
-    await EventModel.findByIdAndUpdate(doc.eventId, { $addToSet: { seasons: doc._id } });
-});
-
-seasonSchema.post("findOneAndDelete", async function (doc) {
-    if (doc) {
-        await EventModel.findByIdAndUpdate(doc.eventId, { $pull: { seasons: doc._id } });
-    }
-});
