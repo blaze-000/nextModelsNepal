@@ -10,7 +10,9 @@ import PageHeader from "@/components/admin/PageHeader";
 import { AdminButton } from "@/components/admin/AdminButton";
 import DataTable from "@/components/admin/DataTable";
 import DeleteConfirmModal from "@/components/admin/DeleteConfirmModal";
-import ContestantPopup, { BackendContestant } from "./ContestantPopup";
+import ContestantPopup, {
+  BackendContestant,
+} from "./contestants/contestantsPopup";
 import JuryPopup, { BackendJury } from "./jury/JuryPopup";
 import WinnerPopup, { BackendWinner } from "./winners/WinnerPopup";
 
@@ -125,6 +127,31 @@ export default function SeasonDetailPage() {
   });
   const [deleting, setDeleting] = useState(false);
 
+  // Popup states
+  const [contestantPopup, setContestantPopup] = useState<{
+    isOpen: boolean;
+    contestant: BackendContestant | null;
+  }>({
+    isOpen: false,
+    contestant: null,
+  });
+
+  const [juryPopup, setJuryPopup] = useState<{
+    isOpen: boolean;
+    jury: BackendJury | null;
+  }>({
+    isOpen: false,
+    jury: null,
+  });
+
+  const [winnerPopup, setWinnerPopup] = useState<{
+    isOpen: boolean;
+    winner: BackendWinner | null;
+  }>({
+    isOpen: false,
+    winner: null,
+  });
+
   // Tab configuration
   const tabs: TabConfig[] = [
     { key: "overview", label: "Overview" },
@@ -218,18 +245,81 @@ export default function SeasonDetailPage() {
   };
 
   const handleAddContestant = () => {
-    // TODO: Implement add contestant modal
-    console.log("Add contestant");
+    setContestantPopup({ isOpen: true, contestant: null });
   };
 
   const handleAddJury = () => {
-    // TODO: Implement add jury modal
-    console.log("Add jury");
+    setJuryPopup({ isOpen: true, jury: null });
   };
 
   const handleAddWinner = () => {
-    // TODO: Implement add winner modal
-    console.log("Add winner");
+    setWinnerPopup({ isOpen: true, winner: null });
+  };
+
+  const handleEditContestant = (contestant: BackendContestant) => {
+    setContestantPopup({ isOpen: true, contestant });
+  };
+
+  const handleEditJury = (jury: BackendJury) => {
+    setJuryPopup({ isOpen: true, jury });
+  };
+
+  const handleEditWinner = (winner: BackendWinner) => {
+    setWinnerPopup({ isOpen: true, winner });
+  };
+
+  const handleCloseContestantPopup = () => {
+    setContestantPopup({ isOpen: false, contestant: null });
+  };
+
+  const handleCloseJuryPopup = () => {
+    setJuryPopup({ isOpen: false, jury: null });
+  };
+
+  const handleCloseWinnerPopup = () => {
+    setWinnerPopup({ isOpen: false, winner: null });
+  };
+
+  const handleContestantSuccess = () => {
+    handleCloseContestantPopup();
+    // Refresh contestants data
+    const fetchContestants = async () => {
+      try {
+        const res = await Axios.get(`/api/contestants?seasonId=${seasonId}`);
+        setContestants(res.data.data || []);
+      } catch (err) {
+        console.error("Failed to fetch contestants:", err);
+      }
+    };
+    fetchContestants();
+  };
+
+  const handleJurySuccess = () => {
+    handleCloseJuryPopup();
+    // Refresh jury data
+    const fetchJury = async () => {
+      try {
+        const res = await Axios.get(`/api/jury?seasonId=${seasonId}`);
+        setJury(res.data.data || []);
+      } catch (err) {
+        console.error("Failed to fetch jury:", err);
+      }
+    };
+    fetchJury();
+  };
+
+  const handleWinnerSuccess = () => {
+    handleCloseWinnerPopup();
+    // Refresh winners data
+    const fetchWinners = async () => {
+      try {
+        const res = await Axios.get(`/api/winners?seasonId=${seasonId}`);
+        setWinners(res.data.data || []);
+      } catch (err) {
+        console.error("Failed to fetch winners:", err);
+      }
+    };
+    fetchWinners();
   };
 
   const handleDelete = async () => {
@@ -336,9 +426,9 @@ export default function SeasonDetailPage() {
             <AdminButton
               variant="outline"
               size="sm"
-              onClick={() => {
-                // TODO: Edit contestant
-              }}
+              onClick={() =>
+                handleEditContestant(contestant as unknown as BackendContestant)
+              }
             >
               <i className="ri-edit-line mr-1"></i>
               Edit
@@ -406,9 +496,9 @@ export default function SeasonDetailPage() {
             <AdminButton
               variant="outline"
               size="sm"
-              onClick={() => {
-                // TODO: Edit jury
-              }}
+              onClick={() =>
+                handleEditJury(juryMember as unknown as BackendJury)
+              }
             >
               <i className="ri-edit-line mr-1"></i>
               Edit
@@ -469,9 +559,9 @@ export default function SeasonDetailPage() {
             <AdminButton
               variant="outline"
               size="sm"
-              onClick={() => {
-                // TODO: Edit winner
-              }}
+              onClick={() =>
+                handleEditWinner(winner as unknown as BackendWinner)
+              }
             >
               <i className="ri-edit-line mr-1"></i>
               Edit
@@ -765,6 +855,31 @@ export default function SeasonDetailPage() {
         title={`Delete ${deleteModal.type}`}
         message={`Are you sure you want to delete "${deleteModal.name}"? This action cannot be undone.`}
         isDeleting={deleting}
+      />
+
+      {/* Popup Modals */}
+      <ContestantPopup
+        isOpen={contestantPopup.isOpen}
+        onClose={handleCloseContestantPopup}
+        contestant={contestantPopup.contestant}
+        seasonId={seasonId}
+        onSuccess={handleContestantSuccess}
+      />
+
+      <JuryPopup
+        isOpen={juryPopup.isOpen}
+        onClose={handleCloseJuryPopup}
+        jury={juryPopup.jury}
+        seasonId={seasonId}
+        onSuccess={handleJurySuccess}
+      />
+
+      <WinnerPopup
+        isOpen={winnerPopup.isOpen}
+        onClose={handleCloseWinnerPopup}
+        winner={winnerPopup.winner}
+        seasonId={seasonId}
+        onSuccess={handleWinnerSuccess}
       />
     </div>
   );
