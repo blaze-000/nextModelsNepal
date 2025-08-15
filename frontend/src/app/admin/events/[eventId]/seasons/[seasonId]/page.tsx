@@ -10,6 +10,9 @@ import PageHeader from "@/components/admin/PageHeader";
 import { AdminButton } from "@/components/admin/AdminButton";
 import DataTable from "@/components/admin/DataTable";
 import DeleteConfirmModal from "@/components/admin/DeleteConfirmModal";
+import ContestantPopup, { BackendContestant } from "./ContestantPopup";
+import JuryPopup, { BackendJury } from "./jury/JuryPopup";
+import WinnerPopup, { BackendWinner } from "./winners/WinnerPopup";
 
 import Axios from "@/lib/axios-instance";
 import { normalizeImagePath } from "@/lib/utils";
