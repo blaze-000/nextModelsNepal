@@ -155,10 +155,16 @@ const HireModelForm = () => {
 
     setIsSending(true);
     try {
+      // Convert date to ISO string for backend compatibility
+      let isoDate = "";
+      if (formData.date) {
+        // If already ISO, use as is; else convert
+        isoDate = new Date(formData.date).toISOString();
+      }
       const hireData = {
         email: formData.email,
         phone: formData.phone,
-        date: formData.date,
+        date: isoDate,
         message: formData.message,
       };
 

@@ -8,12 +8,23 @@ import { Model } from "../models/model.model";
 export const createHire = async (req: Request, res: Response) => {
     try {
         const modelId = req.params.id;
-        const data = hireFormSchema.parse(req.body);
+        let data;
+        try {
+            data = hireFormSchema.parse(req.body);
+        } catch (validationError) {
+            console.error("[HireModel] Validation error:", validationError);
+            return res.status(400).json({
+                success: false,
+                message: "Validation failed",
+                error: validationError
+            });
+        }
         const { name, date, email, phone, message } = data;
 
         // Get model details
         const getModel = await Model.findById(modelId);
         if (!getModel) {
+            console.error("[HireModel] Model not found for ID:", modelId);
             return res.status(404).json({
                 success: false,
                 message: "Model not found",
@@ -29,8 +40,10 @@ export const createHire = async (req: Request, res: Response) => {
             phone,
             message
         };
+        console.log("[HireModel] Creating hire record:", hireData);
 
         const hireModel = await HireModel.create(hireData);
+        console.log("[HireModel] Hire record created:", hireModel);
 
         // Send email to admin
         const transporter = nodemailer.createTransport({
@@ -59,6 +72,7 @@ export const createHire = async (req: Request, res: Response) => {
         };
 
         await transporter.sendMail(mailOptions);
+        console.log("[HireModel] Email sent to admin.");
 
         return res.status(201).json({
             success: true,
@@ -73,10 +87,11 @@ export const createHire = async (req: Request, res: Response) => {
         });
 
     } catch (error: any) {
-        console.error("Error creating contact:", error);
+        console.error("[HireModel] Error creating contact:", error);
         return res.status(500).json({
             success: false,
             message: "Failed to submit contact.",
+            error: error?.message || error
         });
     }
 }

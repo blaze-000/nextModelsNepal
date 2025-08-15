@@ -1,13 +1,13 @@
 import { z } from "zod";
 
 export const hireFormSchema = z.object({
-    coverTitle: {type: String},
-    coverImage: {type: String},
-    coverSubImg: {type: String},
-    coverDescription: {type: String},
+    coverTitle: z.string().optional(),
+    coverImage: z.string().optional(),
+    coverSubImg: z.string().optional(),
+    coverDescription: z.string().optional(),
 
     name: z.string().optional(),
-    date: z.coerce.date("A valid date is required"),
+    date: z.string().min(1, "A valid date is required"),
     email: z.email("Invalid email address"),
     phone: z
         .string()
