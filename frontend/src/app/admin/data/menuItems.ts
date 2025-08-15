@@ -22,29 +22,7 @@ export const menuItems: MenuSection[] = [
       },
     ],
   },
-  {
-    title: "Website",
-    items: [
-      {
-        id: "hero",
-        label: "Hero Section",
-        icon: "ri-image-line",
-        href: "/admin/hero",
-      },
-      {
-        id: "partners",
-        label: "Partners",
-        icon: "ri-image-line",
-        href: "/admin/partners",
-      },
-      {
-        id: "testimonials",
-        label: "Testimonials",
-        icon: "ri-message-2-line",
-        href: "/admin/feedback",
-      },
-    ],
-  },
+  
   {
     title: "Events Management",
     items: [
@@ -78,6 +56,37 @@ export const menuItems: MenuSection[] = [
         icon: "ri-newspaper-line",
         href: "/admin/news",
       },
+      {
+        id: "partners",
+        label: "Partners",
+        icon: "ri-image-line",
+        href: "/admin/partners",
+      },
+      {
+        id: "testimonials",
+        label: "Testimonials",
+        icon: "ri-message-2-line",
+        href: "/admin/feedback",
+      },
+    ],
+  },
+  {
+    title: "Website",
+    items: [
+     {
+        id: "nav",
+        label: "Nav items",
+        icon: "ri-file-list-3-line",
+        href: "/admin/nav",
+      },
+
+      {
+        id: "hero",
+        label: "Hero Section",
+        icon: "ri-image-line",
+        href: "/admin/hero",
+      },
+      
     ],
   },
   {
@@ -88,6 +97,12 @@ export const menuItems: MenuSection[] = [
         label: "Applications",
         icon: "ri-file-user-line",
         href: "/admin/applications",
+      },
+      {
+        id: "hiringRequest",
+        label: "Hiring Requests",
+        icon: "ri-bar-chart-line",
+        href: "/admin/hire-requests",
       },
       {
         id: "contacts",
