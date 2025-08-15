@@ -139,7 +139,7 @@ export default function FeedbackPage() {
       key: "message",
       label: "Message",
       render: (value: unknown) => (
-        <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate max-w-40 sm:max-w-xs">
+        <div className="text-xs sm:text-sm text-gray-500 line-clamp-2 max-w-40 sm:max-w-xs">
           {String(value)}
         </div>
       ),
@@ -150,7 +150,7 @@ export default function FeedbackPage() {
       sortable: true,
       render: (value: unknown) => (
         <span className="text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-2 py-1 rounded">
-          #{value ?? ""}
+          #{value !== undefined && value !== null ? String(value) : ""}
         </span>
       ),
     },
@@ -168,9 +168,9 @@ export default function FeedbackPage() {
       </PageHeader>
 
       {/* Statistics */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 pb-6">
         {/* Total Feedback */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+        <div className="bg-background2 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
           <div className="flex items-center justify-between">
             <div className="flex-1">
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Feedback</p>
@@ -185,7 +185,7 @@ export default function FeedbackPage() {
         </div>
 
         {/* This Month */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+        <div className="bg-background2 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
           <div className="flex items-center justify-between">
             <div className="flex-1">
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">This Month</p>
@@ -201,7 +201,7 @@ export default function FeedbackPage() {
       </div>
 
       {/* Feedback Table */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="overflow-hidden">
         <DataTable
           data={feedbackItems}
           columns={columns}

@@ -1,6 +1,9 @@
 import { Request, Response } from "express";
 import { SeasonModel, EventModel } from "../models/events.model";
-import { createSeasonSchema, updateSeasonSchema } from "../validations/season.validation";
+import {
+  createSeasonSchema,
+  updateSeasonSchema,
+} from "../validations/season.validation";
 import mongoose from "mongoose";
 import fs from "fs";
 import path from "path";
@@ -27,30 +30,85 @@ const deleteFile = (filePath: string): void => {
  */
 export const createSeason = async (req: Request, res: Response) => {
   try {
+    // Parse JSON fields from FormData
+    const requestData = { ...req.body };
+
+    // Parse notice array if present
+    if (requestData.notice && typeof requestData.notice === "string") {
+      try {
+        requestData.notice = JSON.parse(requestData.notice);
+      } catch (error) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Invalid notice format" });
+      }
+    }
+
+    // Parse timeline array if present
+    if (requestData.timeline && typeof requestData.timeline === "string") {
+      try {
+        requestData.timeline = JSON.parse(requestData.timeline);
+      } catch (error) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Invalid timeline format" });
+      }
+    }
+
+    // Parse gallery array if present (though this comes as files)
+    if (requestData.gallery && typeof requestData.gallery === "string") {
+      try {
+        requestData.gallery = JSON.parse(requestData.gallery);
+      } catch (error) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Invalid gallery format" });
+      }
+    }
+
     // Validate text fields
-    const validatedData = createSeasonSchema.parse(req.body);
+    const validatedData = createSeasonSchema.parse(requestData);
 
     if (!mongoose.Types.ObjectId.isValid(validatedData.eventId)) {
-      return res.status(400).json({ success: false, message: "Invalid event ID format" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid event ID format" });
     }
 
     const eventExists = await EventModel.exists({ _id: validatedData.eventId });
     if (!eventExists) {
-      return res.status(404).json({ success: false, message: "Event not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Event not found" });
     }
 
     // Check if required image was uploaded
     if (!req.files || !(req.files as any).image) {
       return res.status(400).json({
         success: false,
-        message: "Main image is required"
+        message: "Main image is required",
       });
     }
 
     // Get file paths
     const image = (req.files as any).image[0].path;
-    const titleImage = (req.files as any).titleImage ? (req.files as any).titleImage[0].path : undefined;
-    const posterImage = (req.files as any).posterImage ? (req.files as any).posterImage[0].path : undefined;
+    const titleImage = (req.files as any).titleImage
+      ? (req.files as any).titleImage[0].path
+      : undefined;
+    const posterImage = (req.files as any).posterImage
+      ? (req.files as any).posterImage[0].path
+      : undefined;
+
+    // Process gallery images
+    const galleryImages: string[] = [];
+    if ((req.files as any).gallery) {
+      const galleryFiles = Array.isArray((req.files as any).gallery)
+        ? (req.files as any).gallery
+        : [(req.files as any).gallery];
+      galleryFiles.forEach((file: any) => {
+        galleryImages.push(file.path);
+      });
+    }
 
     // Create season with file paths
     const seasonData = {
@@ -58,6 +116,7 @@ export const createSeason = async (req: Request, res: Response) => {
       image,
       ...(titleImage && { titleImage }),
       ...(posterImage && { posterImage }),
+      ...(galleryImages.length > 0 && { gallery: galleryImages }),
     };
 
     const season = await SeasonModel.create(seasonData);
@@ -91,10 +150,18 @@ export const createSeason = async (req: Request, res: Response) => {
 export const getSeasonsByEvent = async (req: Request, res: Response) => {
   try {
     const { eventId } = req.params;
-    const { page = 1, limit = 10, status, sort = "year", order = "desc" } = req.query;
+    const {
+      page = 1,
+      limit = 10,
+      status,
+      sort = "year",
+      order = "desc",
+    } = req.query;
 
     if (!mongoose.Types.ObjectId.isValid(eventId)) {
-      return res.status(400).json({ success: false, message: "Invalid event ID format" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid event ID format" });
     }
 
     const skip = (Number(page) - 1) * Number(limit);
@@ -126,12 +193,14 @@ export const getSeasonsByEvent = async (req: Request, res: Response) => {
         page: Number(page),
         limit: Number(limit),
         total,
-        pages: Math.ceil(total / Number(limit))
-      }
+        pages: Math.ceil(total / Number(limit)),
+      },
     });
   } catch (error) {
     console.error("Get seasons by event error:", error);
-    res.status(500).json({ success: false, message: "Failed to fetch seasons" });
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to fetch seasons" });
   }
 };
 
@@ -140,7 +209,14 @@ export const getSeasonsByEvent = async (req: Request, res: Response) => {
  */
 export const getAllSeasons = async (req: Request, res: Response) => {
   try {
-    const { page = 1, limit = 10, status, eventId, sort = "createdAt", order = "desc" } = req.query;
+    const {
+      page = 1,
+      limit = 10,
+      status,
+      eventId,
+      sort = "createdAt",
+      order = "desc",
+    } = req.query;
 
     const skip = (Number(page) - 1) * Number(limit);
     const sortOrder = order === "asc" ? 1 : -1;
@@ -174,12 +250,14 @@ export const getAllSeasons = async (req: Request, res: Response) => {
         page: Number(page),
         limit: Number(limit),
         total,
-        pages: Math.ceil(total / Number(limit))
-      }
+        pages: Math.ceil(total / Number(limit)),
+      },
     });
   } catch (error) {
     console.error("Get all seasons error:", error);
-    res.status(500).json({ success: false, message: "Failed to fetch seasons" });
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to fetch seasons" });
   }
 };
 
@@ -191,7 +269,9 @@ export const getSeasonById = async (req: Request, res: Response) => {
     const { id } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ success: false, message: "Invalid season ID format" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid season ID format" });
     }
 
     const season = await SeasonModel.findById(id)
@@ -203,7 +283,9 @@ export const getSeasonById = async (req: Request, res: Response) => {
       .populate("auditions");
 
     if (!season) {
-      return res.status(404).json({ success: false, message: "Season not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Season not found" });
     }
 
     res.json({ success: true, data: season });
@@ -220,17 +302,46 @@ export const updateSeason = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ success: false, message: "Invalid season ID format" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid season ID format" });
     }
 
     // Get existing season to check for old images
     const existingSeason = await SeasonModel.findById(id);
     if (!existingSeason) {
-      return res.status(404).json({ success: false, message: "Season not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Season not found" });
+    }
+
+    // Parse JSON fields from FormData
+    const requestData = { ...req.body };
+
+    // Parse notice array if present
+    if (requestData.notice && typeof requestData.notice === "string") {
+      try {
+        requestData.notice = JSON.parse(requestData.notice);
+      } catch (error) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Invalid notice format" });
+      }
+    }
+
+    // Parse timeline array if present
+    if (requestData.timeline && typeof requestData.timeline === "string") {
+      try {
+        requestData.timeline = JSON.parse(requestData.timeline);
+      } catch (error) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Invalid timeline format" });
+      }
     }
 
     // Validate text fields
-    const validatedData = updateSeasonSchema.parse(req.body);
+    const validatedData = updateSeasonSchema.parse(requestData);
 
     // Handle image uploads
     const updateData: any = { ...validatedData };
@@ -268,7 +379,9 @@ export const updateSeason = async (req: Request, res: Response) => {
     });
 
     if (!updatedSeason) {
-      return res.status(404).json({ success: false, message: "Season not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Season not found" });
     }
 
     res.json({ success: true, data: updatedSeason });
@@ -292,12 +405,16 @@ export const deleteSeason = async (req: Request, res: Response) => {
     const { id } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ success: false, message: "Invalid season ID format" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid season ID format" });
     }
 
     const season = await SeasonModel.findById(id);
     if (!season) {
-      return res.status(404).json({ success: false, message: "Season not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Season not found" });
     }
 
     // Delete associated image files
@@ -313,7 +430,9 @@ export const deleteSeason = async (req: Request, res: Response) => {
 
     const deletedSeason = await SeasonModel.findByIdAndDelete(id);
     if (!deletedSeason) {
-      return res.status(404).json({ success: false, message: "Season not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Season not found" });
     }
 
     // Manually ensure the event-seasons relationship is updated
@@ -329,7 +448,9 @@ export const deleteSeason = async (req: Request, res: Response) => {
     res.json({ success: true, message: "Season deleted successfully" });
   } catch (error) {
     console.error("Delete season error:", error);
-    res.status(500).json({ success: false, message: "Failed to delete season" });
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to delete season" });
   }
 };
 

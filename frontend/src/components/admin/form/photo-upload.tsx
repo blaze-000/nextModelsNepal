@@ -31,7 +31,6 @@ const PhotoUpload = ({
   maxFiles = 10,
   maxFileSize = 5,
   acceptedTypes = ["image/*"],
-  required = false,
   mode = "multiple",
   fixedSlots = 4,
   existingImages = [],
@@ -221,8 +220,8 @@ const PhotoUpload = ({
       }}
       className={`absolute ${
         size === "small"
-          ? "top-1 right-1 w-5 h-5 text-xs"
-          : "top-2 right-2 w-7 h-7 text-sm"
+          ? "top-1 right-1 w-4 h-4 text-xs"
+          : "top-2 right-2 w-6 h-6 text-sm"
       } 
         bg-red-500 text-white rounded-full flex items-center justify-center 
         hover:bg-red-600 transition-colors z-10 shadow-lg hover:shadow-xl`}
@@ -237,7 +236,7 @@ const PhotoUpload = ({
     return (
       <div className={`w-full ${className}`}>
         <label className="block mb-4 text-sm font-medium text-gray-200">
-          {label} {required && <span className="text-red-500">*</span>}
+          {label} 
         </label>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -325,7 +324,7 @@ const PhotoUpload = ({
     return (
       <div className={`w-full ${className}`}>
         <label className="block mb-4 text-sm font-medium text-gray-200">
-          {label} {required && <span className="text-red-500">*</span>}
+          {label}
         </label>
 
         <div
@@ -404,7 +403,7 @@ const PhotoUpload = ({
   return (
     <div className={`w-full ${className}`}>
       <label className="block mb-4 text-sm font-medium text-gray-200">
-        {label} {required && <span className="text-red-500">*</span>}
+        {label} 
       </label>
 
       {/* File Input Area with existing and new images */}
