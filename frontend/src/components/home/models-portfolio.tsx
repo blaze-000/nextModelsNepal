@@ -87,7 +87,7 @@ const ModelsPortfolioSection = () => {
             className="space-y-8"
           >
             <div className="flex items-center gap-2">
-              <Image src="/small_star.svg" alt="" width={20} height={20} className="w-8 h-8" />
+              <Image src="/svg-icons/small_star.svg" alt="" width={20} height={20} className="w-8 h-8" />
               <h3 className="text-white text-xl lg:text-2xl font-medium font-newsreader tracking-tight">
                 Female Models
               </h3>
@@ -126,7 +126,7 @@ const ModelsPortfolioSection = () => {
             className="space-y-8"
           >
             <div className="flex items-center gap-2">
-              <Image src="/small_star.svg" alt="" width={20} height={20} className="w-8 h-8" />
+              <Image src="/svg-icons/small_star.svg" alt="" width={20} height={20} className="w-8 h-8" />
               <h3 className="text-white text-xl lg:text-2xl font-medium font-newsreader tracking-tight">
                 Male Models
               </h3>

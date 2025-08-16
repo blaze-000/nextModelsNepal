@@ -24,7 +24,7 @@ export default function Voting() {
             <Image
               width={40}
               height={0}
-              src="/small_star.svg"
+              src="/svg-icons/small_star.svg"
               alt=""
               className="w-4 h-4"
             />

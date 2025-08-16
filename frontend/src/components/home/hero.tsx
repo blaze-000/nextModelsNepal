@@ -144,7 +144,7 @@ const HeroSection = () => {
             {/* Center decorative element */}
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
               <Image
-                src="/small_star.svg"
+                src="/svg-icons/small_star.svg"
                 alt=""
                 width={25}
                 height={25}

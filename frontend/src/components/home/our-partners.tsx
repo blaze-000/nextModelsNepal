@@ -31,7 +31,7 @@ const OurPartners = () => {
           <h2 className="text-4xl md:text-5xl font-extralight tracking-tight text-center md:text-left relative">
             Our Strategic
             <Image
-              src="/star.svg"
+              src="/svg-icons/star.svg"
               alt=""
               width={30}
               height={0}

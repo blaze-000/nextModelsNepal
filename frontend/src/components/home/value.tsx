@@ -75,7 +75,7 @@ const ValuesSection = () => {
                         : "justify-start"
                     }`}
                   >
-                    <Image src="/star.svg" alt="Star" width={48} height={48} />
+                    <Image src="/svg-icons/star.svg" alt="Star" width={48} height={48} />
                     <div className="flex flex-col">
                       <h3 className="font-newsreader text-xl font-light text-white">
                         {feature.title}
@@ -105,7 +105,7 @@ const ValuesSection = () => {
               {/* Content */}
               <div className="relative z-10 flex flex-col gap-2 items-start">
                 <div className="flex items-start gap-3">
-                  <Image src="/star.svg" alt="Star" width={36} height={36} />
+                  <Image src="/svg-icons/star.svg" alt="Star" width={36} height={36} />
                   <div className="flex flex-col">
                     <h3 className="font-newsreader text-xl md:text-2xl font-light text-white">
                       {feature.title}

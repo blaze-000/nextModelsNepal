@@ -45,7 +45,7 @@ const TestimonialSection: React.FC = () => {
         <div className="text-gold-500 relative inline-block">
           Shining Stars
           <Image
-            src="/star.svg"
+            src="/svg-icons/star.svg"
             alt=""
             height={12}
             width={12}

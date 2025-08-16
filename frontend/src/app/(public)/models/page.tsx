@@ -220,7 +220,7 @@ export default function HireModel() {
             >
               <div className="flex items-center gap-2">
                 <Image
-                  src="/small_star.svg"
+                  src="/svg-icons/small_star.svg"
                   alt=""
                   width={20}
                   height={20}
@@ -258,7 +258,7 @@ export default function HireModel() {
             >
               <div className="flex items-center gap-2">
                 <Image
-                  src="/small_star.svg"
+                  src="/svg-icons/small_star.svg"
                   alt=""
                   width={20}
                   height={20}

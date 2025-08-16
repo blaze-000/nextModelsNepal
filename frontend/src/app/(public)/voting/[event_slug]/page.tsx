@@ -92,7 +92,7 @@ export default function EventVoting() {
             className="font-newsreader flex items-baseline gap-2 text-2xl pt-7 pb-9"
           >
             <Image
-              src="/small_star.svg"
+              src="/svg-icons/small_star.svg"
               height={20}
               width={20}
               alt=""

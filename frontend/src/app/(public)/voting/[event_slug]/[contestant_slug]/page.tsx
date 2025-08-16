@@ -66,7 +66,7 @@ const ModelVoting: React.FC = () => {
             {/* Vote the Model */}
             <div>
               <h4 className='flex gap-2 py-4 items-baseline font-newsreader text-2xl'>
-                <Image src="/small_star.svg" alt='' width={40} height={0} className='object-cover w-4 h-4' />
+                <Image src="/svg-icons/small_star.svg" alt='' width={40} height={0} className='object-cover w-4 h-4' />
                 <span>Vote the Model</span>
               </h4>
               <div className="flex items-center bg-muted-background overflow-hidden mb-6 max-w-[85vw] mdplus:max-w-lg">
@@ -95,7 +95,7 @@ const ModelVoting: React.FC = () => {
             {/* Payment Methods */}
             <div>
               <h4 className='flex items-baseline gap-2 font-newsreader text-2xl mb-8 mt-20'>
-                <Image src="/small_star.svg" height={20} width={20} alt="" className='w-4 h-4 object-cover' />
+                <Image src="/svg-icons/small_star.svg" height={20} width={20} alt="" className='w-4 h-4 object-cover' />
                 <span>Available Payment Methods</span>
               </h4>
               <div className='flex gap-6 items-center'>

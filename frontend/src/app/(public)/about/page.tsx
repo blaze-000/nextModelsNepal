@@ -13,8 +13,7 @@ export default function About() {
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         viewport={{ once: true, amount: 0.6 }}
-        className="h-[40vh] mdplus:h-[70vh] bg-black bg-cover bg-center relative"
-        style={{ backgroundImage: "url('/events_1.jpg')" }}
+        className="h-[40vh] md:h-[80vh] bg-black bg-cover relative bg-[url('/about/about-us-cover.jpg')] bg-no-repeat bg-center"
       >
         {/* Gradient mask */}
         <div className="hidden mdplus:flex absolute inset-0 bg-gradient-to-r from-black via-black/80 to-black/20" />
@@ -26,11 +25,11 @@ export default function About() {
             <div className="flex items-center gap-4 mt-2">
               <span>About</span>
               <Image
-                src="/handshake.jpg"
+                src="/about/about-us-title-image.jpg"
                 alt="Handshake"
                 width={160}
                 height={64}
-                className="h-16 w-24 rounded-full object-cover hidden md:flex border-stone-300 shadow-[-10px_8px_20px_10px_rgba(179,131,0,0.19)]"
+                className="h-16 w-28 rounded-full object-cover hidden md:flex border-stone-300 border-[1px] shadow-[-10px_8px_20px_10px_rgba(179,131,0,0.19)]"
               />
             </div>
             <div className="flex items-baseline gap-3 mt-2">
@@ -81,7 +80,7 @@ export default function About() {
             <div className="hidden mdplus:flex text-primary items-center gap-4">
               <span>one</span>
               <Image
-                src="/spotlight.png"
+                src="/about/spotlight.png"
                 alt=""
                 width={150}
                 height={0}
@@ -111,7 +110,7 @@ export default function About() {
           className="max-w-7xl mx-auto px-6 pt-24 hidden mdplus:flex"
         >
           <Image
-            src="/about.png"
+            src="/about/intro-image.jpg"
             alt=""
             width={600}
             height={400}
@@ -133,7 +132,7 @@ export default function About() {
             className="grid mdplus:grid-cols-[1fr_0.8fr] gap-6 mdplus:gap-20"
           >
             <Image
-              src="/events_1.jpg"
+              src="/about/image-1.jpg"
               alt=""
               width={500}
               height={0}
@@ -158,7 +157,7 @@ export default function About() {
             className="grid mdplus:grid-cols-[0.8fr_1fr] gap-6 mdplus:gap-20"
           >
             <Image
-              src="/events_1.jpg"
+              src="/about/image-2.jpg"
               alt=""
               width={500}
               height={0}
@@ -185,7 +184,7 @@ export default function About() {
             className="grid mdplus:grid-cols-[1fr_0.8fr] gap-6 mdplus:gap-20"
           >
             <Image
-              src="/events_1.jpg"
+              src="/about/image-3.jpg"
               alt=""
               width={500}
               height={0}
@@ -212,7 +211,7 @@ export default function About() {
             className="grid mdplus:grid-cols-[0.8fr_1fr] gap-6 mdplus:gap-20"
           >
             <Image
-              src="/events_1.jpg"
+              src="/about/image-4.jpg"
               alt=""
               width={500}
               height={0}

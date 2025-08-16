@@ -36,7 +36,7 @@ const UpcomingEventSection = () => {
         >
           <div className="flex justify-center items-center gap-2 mb-8">
             <Image
-              src="/star.svg"
+              src="/svg-icons/star.svg"
               alt=""
               width={24}
               height={0}
@@ -54,7 +54,7 @@ const UpcomingEventSection = () => {
                 <span className="text-gold-500 relative inline-block">
                   Shine
                   <Image
-                    src="/star.svg"
+                    src="/svg-icons/star.svg"
                     alt=""
                     height={1}
                     width={1}
@@ -81,7 +81,7 @@ const UpcomingEventSection = () => {
                 <span className="text-gold-500 relative inline-block">
                   Shine
                   <Image
-                    src="/star.svg"
+                    src="/svg-icons/star.svg"
                     alt=""
                     height={20}
                     width={20}

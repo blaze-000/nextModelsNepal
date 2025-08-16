@@ -72,7 +72,7 @@ export const Winners = () => {
             {/* Title - Centered */}
             <div className="flex items-center justify-center gap-2">
               <Image
-                src="/small_star.svg"
+                src="/svg-icons/small_star.svg"
                 alt=""
                 width={1}
                 height={0}

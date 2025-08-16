@@ -170,7 +170,7 @@ export default function EventDetails() {
             <div className="lg:order-1 flex flex-col justify-end gap-10">
               <div className="flex items-center gap-2">
                 <Image
-                  src="/small_star.svg"
+                  src="/svg-icons/small_star.svg"
                   alt=""
                   width={20}
                   height={20}

@@ -12,8 +12,7 @@ export default function ContactUs() {
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         viewport={{ once: true, amount: 0.6 }}
-        className="h-[40vh] md:h-[80vh] bg-black bg-cover bg-center relative"
-        style={{ backgroundImage: "url('/contact-us-cover.jpg')" }}
+        className="h-[40vh] md:h-[80vh] bg-black bg-cover relative bg-[url('/contact-us-cover.jpg')] bg-no-repeat bg-center"
       >
         {/* Gradient mask */}
         <div className="hidden md:flex absolute inset-0 bg-gradient-to-r from-black via-black/80 to-black/20" />

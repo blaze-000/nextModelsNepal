@@ -18,7 +18,7 @@ const Timeline: React.FC<TimelineProps> = ({
         }`}
       >
         <Image
-          src="/small_star.svg"
+          src="/svg-icons/small_star.svg"
           alt="Timeline Icon"
           width={24}
           height={24}
