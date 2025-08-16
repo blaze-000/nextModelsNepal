@@ -3,23 +3,26 @@ import { Router } from "express";
 import upload from "../middleware/upload";
 import { createAppForm, deleteAppFormById, getAllForms, getAppFormById } from "../controllers/appForm.controller";
 import { appFormLimiter } from "../middleware/rateLimiters";
+import { verifyAdminToken } from "../middleware/auth.middleware";
 
 const router = Router();
 
 // Get all application forms (admin only)
-router.get("/", getAllForms);
+router.get("/", verifyAdminToken, getAllForms);
 
 // Create application form (upload images)
 router.post("/",
-  appFormLimiter,
   upload.array("images", 10), // field name "images", max 10 files
   createAppForm
 );
 
 // Get single application form by ID (admin only)
-router.get("/:id", getAppFormById);
+router.get("/:id", verifyAdminToken, getAppFormById);
 
 // Delete application form by ID (admin only)
-router.delete("/:id", deleteAppFormById);
+router.delete("/:id",
+  verifyAdminToken,
+  deleteAppFormById
+);
 
 export default router;

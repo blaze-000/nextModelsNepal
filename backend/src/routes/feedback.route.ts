@@ -7,11 +7,12 @@ import {
   updateFeedbackById,
   deleteFeedbackById,
 } from "../controllers/feedback.controller";
+import { verifyAdminToken } from "../middleware/auth.middleware";
 
 const router = Router();
 
 // Create a new feedback with image upload
-router.post("/", upload.single("image"), createFeedback);
+router.post("/", verifyAdminToken, upload.single("image"), createFeedback);
 
 // Get all feedbacks
 router.get("/", getAllFeedbacks);
@@ -20,9 +21,9 @@ router.get("/", getAllFeedbacks);
 router.get("/:id", getFeedbackById);
 
 // Update a feedback by ID with optional image upload
-router.patch("/:id", upload.single("image"), updateFeedbackById);
+router.patch("/:id", verifyAdminToken, upload.single("image"), updateFeedbackById);
 
 // Delete a feedback by ID
-router.delete("/:id", deleteFeedbackById);
+router.delete("/:id", verifyAdminToken, deleteFeedbackById);
 
 export default router;

@@ -1,7 +1,7 @@
 import { Router } from "express";
 import * as sponsorController from "../controllers/sponsor.controller";
 import upload from "../middleware/upload"; // Import multer middleware
-import { verifyAdminToken } from "src/middleware/auth.middleware";
+import { verifyAdminToken } from "../middleware/auth.middleware";
 
 const router = Router();
 

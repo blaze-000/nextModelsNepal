@@ -7,17 +7,19 @@ import {
   updateheroById,
 } from "../controllers/hero.controller";
 import upload from "../middleware/upload";
+import { verifyAdminToken } from "../middleware/auth.middleware";
 
 const router = Router();
 
 // Get all hero items
-router.route("/").get(getHeroItem);
+router.get("/", getHeroItem);
 
 // Get single hero item by ID
-router.route("/:id").get(getHeroItemById);
+router.get("/:id", getHeroItemById);
 
 // Create hero item (admin only)
-router.route("/").post(
+router.post("/",
+  verifyAdminToken,
   upload.fields([
     { name: "titleImage", maxCount: 1 },
     { name: "image_1", maxCount: 1 },
@@ -29,7 +31,8 @@ router.route("/").post(
 );
 
 // Update hero item by ID (admin only)
-router.route("/:id").patch(
+router.patch("/:id",
+  verifyAdminToken, 
   upload.fields([
     { name: "titleImage", maxCount: 1 },
     { name: "image_1", maxCount: 1 },
@@ -41,6 +44,9 @@ router.route("/:id").patch(
 );
 
 // Delete hero item by ID (admin only)
-router.route("/:id").delete(deleteheroById);
+router.delete("/:id",
+  verifyAdminToken,
+  deleteheroById
+);
 
 export default router;
