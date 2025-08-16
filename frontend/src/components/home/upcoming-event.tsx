@@ -11,7 +11,7 @@ const UpcomingEventSection = () => {
   useEffect(() => {
     (async () => {
       try {
-        const res = await Axios.get('/api/next-events');
+        const res = await Axios.get('/api/next-events-latest');
         const data = res.data;
         // console.log(data.data[0]);
         setData(data.data[0])

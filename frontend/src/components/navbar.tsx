@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -204,7 +205,7 @@ export default function Header() {
       transition={{ duration: 0.5, ease: "easeOut" }}
       className="w-full bg-background2"
     >
-      <div className="max-w-7xl mx-auto px-6 flex justify-between items-center py-4">
+      <div className="max-w-7xl mx-auto px-6 flex justify-between items-center pt-2.5 pb-1">
         <Image
           src="/logo.png"
           alt="logo"
