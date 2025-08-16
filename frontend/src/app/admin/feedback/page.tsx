@@ -8,7 +8,7 @@ import PageHeader from "@/components/admin/PageHeader";
 import DataTable from "@/components/admin/DataTable";
 import FeedbackPopup from "@/app/admin/feedback/FeedbackPopup";
 import DeleteConfirmModal from "@/components/admin/DeleteConfirmModal";
-import { AdminButton } from "@/components/admin/AdminButton";
+import { Button } from "@/components/ui/button";
 import Axios from "@/lib/axios-instance";
 import { normalizeImagePath } from "@/lib/utils";
 import { FeedbackItem } from "@/types/admin";
@@ -162,9 +162,9 @@ export default function FeedbackPage() {
         title="Feedback Management"
         description="Manage customer feedback and testimonials for your website"
       >
-        <AdminButton onClick={handleCreate} className="w-full sm:w-auto">
+        <Button onClick={handleCreate} className="w-full sm:w-auto">
           Add New Feedback
-        </AdminButton>
+        </Button>
       </PageHeader>
 
       {/* Statistics */}

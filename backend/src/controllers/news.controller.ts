@@ -19,7 +19,11 @@ const deleteImageFile = (imagePath: string) => {
  */
 export const getAllNews = async (_req: Request, res: Response) => {
     try {
-        const newsItems = await NewsModel.find({}).populate('event');
+        const newsItems = await NewsModel.find({}).populate({
+            path: 'event',
+            select: 'name',
+            options: { strictPopulate: false }
+        });
         if (!newsItems || newsItems.length === 0) {
             return res.status(200).json({
                 success: true,
@@ -47,7 +51,11 @@ export const getAllNews = async (_req: Request, res: Response) => {
 export const getNewsById = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
-        const newsItem = await NewsModel.findById(id).populate('event');
+        const newsItem = await NewsModel.findById(id).populate({
+            path: 'event',
+            select: 'name',
+            options: { strictPopulate: false }
+        });
         if (!newsItem) {
             return res.status(404).json({
                 success: false,
@@ -86,10 +94,13 @@ export const createNews = async (req: Request, res: Response) => {
         const { title, description, link, type, year, event } = validation.data;
 
         // Handle uploaded image
-        let image = "";
-        if (req.file) {
-            image = `/uploads/${req.file.filename}`;
+        if (!req.file) {
+            return res.status(400).json({
+                success: false,
+                message: "Image is required",
+            });
         }
+        const image = `/uploads/${req.file.filename}`;
 
         // Prepare the news item data
         const newsData = {
@@ -97,7 +108,7 @@ export const createNews = async (req: Request, res: Response) => {
             description,
             link,
             type,
-            year: year || new Date().getFullYear(),
+            year: year || String(new Date().getFullYear()),
             image,
             event: event || null
         };
@@ -176,7 +187,11 @@ export const updateNewsById = async (req: Request, res: Response) => {
 
         const updatedNews = await NewsModel.findByIdAndUpdate(id, updateData, {
             new: true,
-        }).populate('event');
+        }).populate({
+            path: 'event',
+            select: 'name',
+            options: { strictPopulate: false }
+        });
 
         if (!updatedNews) {
             return res.status(404).json({

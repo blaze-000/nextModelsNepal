@@ -5,7 +5,7 @@ import { Spinner } from "@geist-ui/react";
 import { motion } from "framer-motion";
 import { highlightContact } from "@/lib/highlightContact";
 import Axios from "@/lib/axios-instance";
-import { validateEmail } from "@/lib/utils";
+import { validateEmail, validatePhone } from "@/lib/utils";
 
 // Reusable Input Component
 const InputField = ({
@@ -97,6 +97,8 @@ const ContactForm = () => {
     if (formData.email && !validateEmail(formData.email))
       newErrors.email = "Invalid email";
     if (!formData.phone.trim()) newErrors.phone = "Phone is required";
+    if (formData.phone && !validatePhone(formData.phone))
+      newErrors.phone = "Invalid phone number";
     if (!formData.message.trim()) newErrors.message = "Message is required";
 
     if (Object.keys(newErrors).length) {

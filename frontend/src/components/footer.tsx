@@ -110,32 +110,39 @@ const Footer: FC = (): ReactNode => {
             {/* Quick Links */}
             <motion.div variants={item} className="space-y-8 md:space-y-6 col-span-1">
               <h3 className="text-base font-semibold">Quick Links</h3>
-              <nav className="space-y-6 flex flex-col">
-                {quickLinks.map((link) => (
-                  <Link
-                    href={link.href}
-                    key={link.label}
-                    className="text-base font-light hover:text-gold-400 transition-colors cursor-pointer tracking-wider"
-                  >
-                    {link.label}
-                  </Link>
-                ))}
+              <nav >
+                <ul className="space-y-6 flex flex-col">
+                  {quickLinks.map((link) => (
+                    <li key={link.label}>
+                      <Link
+                        href={link.href}
+                        className="text-base font-light hover:text-gold-400 transition-colors cursor-pointer tracking-wider"
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+
+                  ))}
+                </ul>
               </nav>
             </motion.div>
 
             {/* Events */}
             <motion.div variants={item} className="space-y-8 md:space-y-6 col-span-1">
               <h3 className="text-base font-semibold">Events</h3>
-              <nav className="space-y-4 flex flex-col">
-                {events.map((event) => (
-                  <Link
-                    href={`events/${event.slug}`}
-                    key={event.label}
-                    className="text-base font-light hover:text-gold-400 transition-colors cursor-pointer underline underline-offset-4 tracking-wider"
-                  >
-                    {event.label}
-                  </Link>
-                ))}
+              <nav>
+                <ul className="space-y-4 flex flex-col">
+                  {events.map((event) => (
+                    <li key={event.label}>
+                      <Link
+                        href={`events/${event.slug}`}
+                        className="text-base font-light hover:text-gold-400 transition-colors cursor-pointer underline underline-offset-4 tracking-wider"
+                      >
+                        {event.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
               </nav>
             </motion.div>
 
@@ -146,26 +153,32 @@ const Footer: FC = (): ReactNode => {
               className="space-y-8 md:space-y-6 col-span-2 md:col-span-1 outline-none"
             >
               <h3 className="text-base font-semibold">Contact</h3>
-              <div className="space-y-4">
-                <Link href="tel:+9779819686790" className="flex items-center gap-3 group/phone hover:text-gold-400">
-                  <i className="w-5 h-5 text-white flex-shrink-0 ri-phone-line group-hover/phone:text-gold-400" />
-                  <span className="text-base font-light  transition-colors">
-                    9819686790
-                  </span>
-                </Link>
-                <Link href="mailto:info@nextmodelsnepal.com" className="flex items-center gap-3 group/mail">
-                  <i className="w-5 h-5 text-white flex-shrink-0 ri-mail-line group-hover/mail:text-gold-400" />
-                  <span className="text-base font-light hover:text-gold-400 transition-colors">
-                    info@nextmodelsnepal.com
-                  </span>
-                </Link>
-                <div className="flex items-start gap-3">
-                  <i className="w-5 h-5 text-white flex-shrink-0 ri-map-pin-line" />
-                  <span className="text-base font-light transition-colors cursor-default">
-                    Putalisadak, Kathmandu, Nepal
-                  </span>
-                </div>
-              </div>
+              <ul className="flex flex-col gap-4">
+                <li>
+                  <Link href="tel:+9779819686790" className="group/phone hover:text-gold-400">
+                    <i className="w-5 h-5 text-white flex-shrink-0 ri-phone-line group-hover/phone:text-gold-400 mr-3" />
+                    <span className="text-base font-light  transition-colors">
+                      9819686790
+                    </span>
+                  </Link>
+                </li>
+                <li>
+                  <Link href="mailto:info@nextmodelsnepal.com" className="group/mail">
+                    <i className="w-5 h-5 text-white flex-shrink-0 ri-mail-line group-hover/mail:text-gold-400 mr-3" />
+                    <span className="text-base font-light group-hover/mail:text-gold-400 transition-colors">
+                      info@nextmodelsnepal.com
+                    </span>
+                  </Link>
+                </li>
+                <li>
+                  <div className="flex items-center">
+                    <i className="w-5 h-5 text-white flex-shrink-0 ri-map-pin-line mr-3" />
+                    <span className="text-base font-light transition-colors cursor-default">
+                      Putalisadak, Kathmandu, Nepal
+                    </span>
+                  </div>
+                </li>
+              </ul>
             </motion.div>
           </div>
         </motion.div>
@@ -186,8 +199,8 @@ const Footer: FC = (): ReactNode => {
             </div> */}
           </div>
         </motion.div>
-      </div>
-    </motion.footer>
+      </div >
+    </motion.footer >
   );
 };
 

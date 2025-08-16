@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react";
 
 import "remixicon/fonts/remixicon.css";
-import Header from "./layout/Header";
-import Sidebar from "./layout/Sidebar";
+import Header from "../../components/admin/layout/Header";
+import Sidebar from "../../components/admin/layout/Sidebar";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

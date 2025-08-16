@@ -102,8 +102,8 @@ import Axios from "@/lib/axios-instance";
             </span>
             <div className="w-20 h-8 md:w-40 md:h-16 relative hidden md:block">
               <Image
-                src="/span-image.jpg"
-                alt="Badge"
+                src="/relive-the-glamour-title-image.png"
+                alt=""
                 fill
                 className="rounded-full object-cover border border-stone-300"
               />

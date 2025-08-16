@@ -7,7 +7,6 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 
 import PageHeader from "@/components/admin/PageHeader";
-import { AdminButton } from "@/components/admin/AdminButton";
 import DataTable from "@/components/admin/DataTable";
 import DeleteConfirmModal from "@/components/admin/DeleteConfirmModal";
 import ContestantPopup, {
@@ -445,12 +444,12 @@ export default function SeasonDetailPage() {
             Season Not Found
           </h3>
           <p className="text-gray-400 mb-6">{error || "Season not found"}</p>
-          <AdminButton
+          <Button
             onClick={() => router.push(`/admin/events/${eventId}/seasons`)}
           >
             <i className="ri-arrow-left-line mr-2"></i>
             Back to Seasons
-          </AdminButton>
+          </Button>
         </div>
       </div>
     );
@@ -463,13 +462,13 @@ export default function SeasonDetailPage() {
         description={`${event.name} - Season Management`}
       >
         <div className="flex gap-3">
-          <AdminButton
+          <Button
             variant="outline"
             onClick={() => router.push(`/admin/events/${eventId}/seasons`)}
           >
             <i className="ri-arrow-left-line mr-2"></i>
             Back to Seasons
-          </AdminButton>
+          </Button>
           <Button variant="default" onClick={handleEditSeason}>
             <i className="ri-edit-line mr-2"></i>
             Edit Season

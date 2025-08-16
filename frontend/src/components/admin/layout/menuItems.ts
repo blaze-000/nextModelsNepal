@@ -24,6 +24,23 @@ export const menuItems: MenuSection[] = [
   },
 
   {
+    title: "Website",
+    items: [
+      {
+        id: "hero",
+        label: "Hero Section",
+        icon: "ri-image-line",
+        href: "/admin/hero",
+      },
+      {
+        id: "nav",
+        label: "Navbar Settings",
+        icon: "ri-file-list-3-line",
+        href: "/admin/nav",
+      },
+    ],
+  },
+  {
     title: "Events Management",
     items: [
       {
@@ -68,25 +85,6 @@ export const menuItems: MenuSection[] = [
         icon: "ri-message-2-line",
         href: "/admin/feedback",
       },
-    ],
-  },
-  {
-    title: "Website",
-    items: [
-      {
-        id: "nav",
-        label: "Nav items",
-        icon: "ri-file-list-3-line",
-        href: "/admin/nav",
-      },
-
-      {
-        id: "hero",
-        label: "Hero Section",
-        icon: "ri-image-line",
-        href: "/admin/hero",
-      },
-
     ],
   },
   {

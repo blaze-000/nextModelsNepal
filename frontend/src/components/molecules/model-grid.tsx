@@ -8,7 +8,7 @@ const ModelGrid: React.FC<ModelGridProps> = ({ models, children }) => {
   return (
     <div className="space-y-8">
       {/* Desktop Grid */}
-      <div className="hidden lg:grid lg:grid-cols-4 gap-6 ">
+      <div className="hidden xl:grid lg:grid-cols-4 gap-6 ">
         {models?.map((model: Model, index: number) => (
           <div
             key={index}
@@ -19,7 +19,7 @@ const ModelGrid: React.FC<ModelGridProps> = ({ models, children }) => {
               alt="model"
               width={400}
               height={0}
-              className="w-full h-80 object-cover"
+              className="w-full h-80 object-cover object-top"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
             <div className="absolute bottom-4 left-6 right-6">
@@ -28,7 +28,7 @@ const ModelGrid: React.FC<ModelGridProps> = ({ models, children }) => {
             {model.slug && (
               <Link
                 href={`/models/${model.slug}`}
-                className="absolute bottom-6 right-6"
+                className="absolute bottom-5 right-3"
               >
                 <i className="w-6 h-6 text-gold-400 rounded ri-arrow-right-up-line text-2xl font-light" />
               </Link>
@@ -38,18 +38,15 @@ const ModelGrid: React.FC<ModelGridProps> = ({ models, children }) => {
       </div>
 
       {/* Mobile Slider */}
-      <div className="lg:hidden overflow-x-auto snap-x snap-mandatory scroll-smooth">
+      <div className="xl:hidden overflow-x-auto snap-x snap-mandatory scroll-smooth">
         <div className="flex space-x-6 w-max px-6">
           {models?.map((model: Model, index: number) => (
             <div
               key={index}
-
-              className="relative overflow-hidden group w-[75vw] min-w-[75vw] max-w-[75vw] snap-start shrink-0  "
-
-
+              className="relative overflow-hidden group w-[75vw] max-w-xs  snap-start shrink-0"
             >
               <Image
-                className="w-full h-80 object-cover [mask:linear-gradient(to_top,transparent_0%,black_30%)]"
+                className="w-full h-80 object-cover object-top [mask:linear-gradient(to_top,transparent_0%,black_30%)]"
                 src={normalizeImagePath(model.coverImage)}
                 alt="model"
                 width={300}
@@ -59,14 +56,12 @@ const ModelGrid: React.FC<ModelGridProps> = ({ models, children }) => {
                 {children(model)}
               </div>
               {model.slug && (
-                <a
+                <Link
                   href={`/models/${model.slug}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="absolute bottom-6 right-6"
+                  className="absolute bottom-5 right-3"
                 >
-                  <i className="w-5 h-5 text-gold-400 rounded ri-arrow-right-up-line" />
-                </a>
+                  <i className="w-6 h-6 text-gold-400 rounded ri-arrow-right-up-line text-2xl font-light" />
+                </Link>
               )}
             </div>
           ))}

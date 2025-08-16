@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button } from "./ui/button";
 import Axios from "@/lib/axios-instance";
-import { motion, AnimatePresence } from "framer-motion"; // Import framer-motion
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function Header() {
   const [showEventsDropdown, setShowEventsDropdown] = useState<boolean>(false);

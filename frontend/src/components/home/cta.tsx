@@ -10,7 +10,7 @@ const CTASection = () => {
     <section className="w-full">
       <div
         className="relative w-full flex items-center justify-center overflow-hidden h-screen max-h-[1067px] bg-no-repeat bg-cover bg-bottom"
-        style={{ backgroundImage: "url('/runway.png')" }}
+        style={{ backgroundImage: "url('/runway/background-image.png')" }}
       >
         {/* Lamp and Beam Group */}
         <motion.div
@@ -97,7 +97,7 @@ const CTASection = () => {
                   The Runway
                 </h3>
                 <Image
-                  src="/platform.jpg"
+                  src="/runway/title-image.jpg"
                   alt="Badge"
                   height={200}
                   width={200}

@@ -1,8 +1,3 @@
-type NewsletterSubscriptionProps = {
-  onSubmit?: (email: string) => void,
-  className?: string,
-}
-
 interface EventCardProps {
   title: string,
   slug: string,
@@ -39,8 +34,8 @@ type LoopPoint = { target: () => number; index: number };
 
 
 type Partner = {
-  name: string,
-  image: string,
+  sponserImage: string,
+  sponserName: string,
 };
 
 type PartnerScrollerProps = {
@@ -52,7 +47,8 @@ type PartnerScrollerProps = {
 interface Testimonial {
   message: string,
   name: string,
-  images: string,
+  image: string,
+  order: number,
 }
 
 interface BreadcrumbProps {
@@ -121,4 +117,15 @@ type AuthContextType = {
   loading: boolean;
   logout: () => void;
   refreshAuth: () => void;
+}
+
+type NewsItem = {
+  _id: string,
+  title: string,
+  description: string,
+  link: string,
+  type: "Interview" | "Feature" | "Announcement",
+  year: string,
+  image: string,
+  event: string | null,
 }

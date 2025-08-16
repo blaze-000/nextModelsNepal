@@ -25,8 +25,8 @@ const ModelsPortfolioSection = () => {
     })();
   }, []);
 
-  const femaleModels = data?.filter(x => x.gender === "Female");
-  const maleModels = data?.filter(x => x.gender === "Male");
+  const femaleModels = data?.filter(x => x.gender === "Female").slice(0, 4);
+  const maleModels = data?.filter(x => x.gender === "Male").slice(0, 4);
 
   // console.log(femaleModels ?? "No female models")
   // console.log(maleModels ?? "No male models")
@@ -52,13 +52,13 @@ const ModelsPortfolioSection = () => {
           </div>
 
           {/* Desktop Title */}
-          <div className="hidden lg:flex flex-col gap-2">
+          <div className="hidden md:flex flex-col gap-2">
             <div className="flex items-center gap-4">
-              <h2 className="text-white text-3xl lg:text-5xl font-light font-newsreader">Find a</h2>
+              <h2 className="text-white text-4xl lg:text-5xl font-light font-newsreader">Find a</h2>
               <Image
                 width={300}
                 height={0}
-                src="/find-a-face.jpg"
+                src="/find-a-face-title-image.jpg"
                 alt=""
                 className="object-cover w-24 h-12 lg:w-36 lg:h-16 rounded-full border border-stone-300 mb-3"
               />

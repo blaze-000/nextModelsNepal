@@ -90,12 +90,12 @@ const UpcomingEventSection = () => {
                 </span>
                 <span>on Nepal&rsquo;s Premier</span>
                 <Image
-                  src={`${process.env.NEXT_PUBLIC_API_URL}/${data?.titleImage}`}
+                  src="/upcoming-event-title-image.jpg"
                   alt=""
                   width={1}
                   height={0}
                   sizes="100vw"
-                  className="w-32 h-16 rounded-full border border-stone-300 mb-3"
+                  className="w-32 h-16 rounded-full border border-stone-300 mb-3 object-cover object-top"
                 />
                 <span>Fashion Event.</span>
               </div>

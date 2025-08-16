@@ -13,7 +13,7 @@ export default function ContactUs() {
         transition={{ duration: 0.6 }}
         viewport={{ once: true, amount: 0.6 }}
         className="h-[40vh] md:h-[80vh] bg-black bg-cover bg-center relative"
-        style={{ backgroundImage: "url('/events_1.jpg')" }}
+        style={{ backgroundImage: "url('/contact-us-cover.jpg')" }}
       >
         {/* Gradient mask */}
         <div className="hidden md:flex absolute inset-0 bg-gradient-to-r from-black via-black/80 to-black/20" />
@@ -25,8 +25,8 @@ export default function ContactUs() {
             <span>Contact</span>
             <div className="flex items-baseline gap-3 mt-2">
               <Image
-                src="/handshake.jpg"
-                alt="Handshake"
+                src="/contact-us-title-image.png"
+                alt=""
                 width={160}
                 height={64}
                 className="h-16 w-40 rounded-full object-cover hidden md:flex border-stone-300 shadow-[-10px_8px_20px_10px_rgba(179,131,0,0.19)]"

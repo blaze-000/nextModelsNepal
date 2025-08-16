@@ -1,9 +1,10 @@
 'use client';
 
+import { normalizeImagePath } from '@/lib/utils';
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 
-export default function PartnerScroller({ partners, speed = 1000 }: PartnerScrollerProps) {
+export default function PartnerScroller({ partners = [], speed = 500 }: PartnerScrollerProps) {
   const [translateX, setTranslateX] = useState(0);
   const [itemWidth, setItemWidth] = useState(160);
   const itemRef = useRef<HTMLDivElement>(null);
@@ -51,13 +52,13 @@ export default function PartnerScroller({ partners, speed = 1000 }: PartnerScrol
       >
         {[...partners, ...partners].map((partner, idx) => (
           <div
-            key={`${partner.name}-${idx}`}
+            key={idx}
             ref={idx === 0 ? itemRef : null}
             className="h-16 w-40 mr-4 flex-shrink-0 flex items-center justify-center"
           >
             <Image
-              src={partner.image}
-              alt={partner.name}
+              src={normalizeImagePath(partner.sponserImage)}
+              alt={partner.sponserName}
               width={120}
               height={56}
               className="object-contain h-full"

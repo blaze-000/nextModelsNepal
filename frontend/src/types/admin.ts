@@ -19,7 +19,7 @@ export interface Navigation {
 // Events Types
 export interface Event {
   _id: string;
-  title: string;
+  name: string;
   overview: string;
   coverImage: string;
   titleImage: string;
@@ -130,10 +130,11 @@ export interface News {
   _id: string;
   title: string;
   description: string;
-  content: string;
+  link: string;
+  type: "Interview" | "Feature" | "Announcement";
   year: string;
-  images: string[];
-  event?: string; // Optional event reference
+  image: string;
+  event?: string | { _id: string; name: string }; // Optional event reference or populated event
 }
 
 // Contact Types
@@ -216,10 +217,11 @@ export interface ModelFormData {
 export interface NewsFormData {
   title: string;
   description: string;
-  content: string;
+  link: string;
+  type: "Interview" | "Feature" | "Announcement";
   year: string;
-  images: File[];
-  event?: string; // Optional event reference
+  image: File | null;
+  event: string; // Event reference (empty string if no event)
 }
 
 export interface PartnerFormData {

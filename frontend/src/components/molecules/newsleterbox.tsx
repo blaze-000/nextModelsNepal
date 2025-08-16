@@ -4,8 +4,11 @@ import { Button } from '../ui/button';
 import type React from 'react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { validateEmail } from '@/lib/utils';
+import Axios from '@/lib/axios-instance';
+import { isAxiosError } from 'axios';
 
-const NewsLetterBox: React.FC<NewsletterSubscriptionProps> = () => {
+export default function NewsLetterBox() {
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -13,20 +16,33 @@ const NewsLetterBox: React.FC<NewsletterSubscriptionProps> = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim()) {
-      setError('Email is required');
+      setError('Email is required.');
+      return;
+    }
+    if (!validateEmail(email)) {
+      setError('Enter a valid email address.');
       return;
     }
 
-    setIsSubmitting(true);
-    setError('');
-
     try {
-      // await onSubmit(email);
+      setIsSubmitting(true);
+      await Axios.post('/api/newsletter', { email });
       toast.success('Thank you for subscribing!');
       setEmail('');
     } catch (error) {
-      console.error('Subscription error:', error);
-      toast.error('Something went wrong. Please try again.');
+      if (isAxiosError(error)) {
+        const errorMessage = error.response?.data.message || 'Something went wrong. Please try again.';
+        if (errorMessage.includes("already subscribed")) {
+          toast.success(errorMessage);
+          setEmail('');
+          return;
+        }
+        toast.error(errorMessage);
+      }
+      else {
+        console.error('Subscription error:', error);
+        toast.error('Something went wrong. Please try again.');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -40,7 +56,7 @@ const NewsLetterBox: React.FC<NewsletterSubscriptionProps> = () => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-gold-900 lg:rounded-none rounded-3xl px-6 py-6 sm:px-16 sm:py-10 shadow-lg w-full mx-auto"
+      className="bg-gold-900 lg:rounded-none rounded-3xl px-6 py-6 sm:px-16 py-10 shadow-lg w-full mx-auto"
     >
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
         {/* Newsletter Title */}
@@ -51,32 +67,40 @@ const NewsLetterBox: React.FC<NewsletterSubscriptionProps> = () => {
           </h2>
         </div>
 
-        {/* Desktop Layout */}
-        <div className="hidden sm:flex items-stretch sm:items-start gap-4 flex-1 lg:max-w-2xl">
-          <div className="flex-1 min-w-0">
+        {/* Responsive Input and Button Layout */}
+        <div className="flex flex-col sm:flex-row items-stretch gap-4 flex-1 lg:max-w-2xl relative">
+          <div className="flex-1 min-w-0 relative">
             <input
-              type="email"
               value={email}
               autoComplete="email"
               onChange={handleInputChange}
               placeholder="e.g johndoe@example.com"
-              className={`w-full px-6 py-4 rounded-full bg-white text-gray-800 placeholder-gray-500 outline-none focus:ring-2 transition-all duration-200 text-base ${error ? 'focus:ring-red-500' : 'focus:ring-gold-400'
-                }`}
+              className={`w-full px-5 sm:px-6 py-5 sm:py-4 pr-16 sm:pr-6 rounded-full bg-white text-gray-800 placeholder-gray-500 outline-none focus:ring-2 transition-all duration-200 text-base ${error ? 'focus:ring-red-500' : 'focus:ring-gold-400'}`}
               disabled={isSubmitting}
               aria-label="Email address"
               aria-invalid={!!error}
             />
-            {error && (
-              <p className="text-red-400 text-sm mt-2 px-2" role="alert">
-                {error}
-              </p>
-            )}
+            {/* Mobile Submit Button (absolute positioned) */}
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="absolute right-0 top-0 w-16 h-16 rounded-full bg-gold-500 hover:bg-gold-400 text-white flex items-center justify-center transition-colors duration-200 sm:hidden"
+              aria-label={isSubmitting ? 'Submitting subscription' : 'Submit subscription'}
+            >
+              {isSubmitting ? (
+                <Spinner scale={0.5} color="white" />
+              ) : (
+                <i className="ri-arrow-right-up-line text-lg" />
+              )}
+            </button>
           </div>
+
+          {/* Desktop Submit Button */}
           <Button
             variant="default"
             type="submit"
             disabled={isSubmitting}
-            className="flex items-center justify-center gap-2 w-full sm:w-auto sm:px-6 sm:py-4 min-w-[120px] group"
+            className="hidden sm:flex items-center justify-center gap-2 w-full sm:w-auto sm:px-6 sm:py-4 min-w-[120px] group"
             aria-label={isSubmitting ? 'Submitting subscription' : 'Submit subscription'}
           >
             {isSubmitting ? (
@@ -91,38 +115,9 @@ const NewsLetterBox: React.FC<NewsletterSubscriptionProps> = () => {
               </>
             )}
           </Button>
-        </div>
 
-        {/* 📱 Mobile Layout */}
-        <div className="flex flex-col gap-2 w-full sm:hidden">
-          <div className="relative">
-            <input
-              type="email"
-              value={email}
-              autoComplete="email"
-              onChange={handleInputChange}
-              placeholder="e.g johndoe@example.com"
-              className={`w-full px-5 py-5 pr-16 rounded-full bg-white text-gray-800 placeholder-gray-500 outline-none focus:ring-2 transition-all duration-200 text-base ${error ? 'focus:ring-red-500' : 'focus:ring-gold-400'
-                }`}
-              disabled={isSubmitting}
-              aria-label="Email address"
-              aria-invalid={!!error}
-            />
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="absolute right-0 top-0 w-16 h-16 rounded-full bg-gold-500 hover:bg-gold-400 text-white flex items-center justify-center transition-colors duration-200"
-              aria-label={isSubmitting ? 'Submitting subscription' : 'Submit subscription'}
-            >
-              {isSubmitting ? (
-                <Spinner scale={0.5} color="white" />
-              ) : (
-                <i className="ri-arrow-right-up-line text-lg" />
-              )}
-            </button>
-          </div>
           {error && (
-            <p className="text-red-400 text-sm px-2" role="alert">
+            <p className="text-red-400 text-sm mt-2 px-2 absolute top-full left-0" role="alert">
               {error}
             </p>
           )}
@@ -131,5 +126,3 @@ const NewsLetterBox: React.FC<NewsletterSubscriptionProps> = () => {
     </form>
   );
 };
-
-export default NewsLetterBox;

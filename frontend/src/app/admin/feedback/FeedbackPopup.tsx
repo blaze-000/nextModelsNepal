@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 
 import Modal from "@/components/admin/Modal";
-import { AdminButton } from "@/components/admin/AdminButton";
+import { Button } from "@/components/ui/button";
 import Input from "@/components/admin/form/input";
 import Textarea from "@/components/admin/form/textarea";
 import PhotoUpload from "@/components/admin/form/photo-upload";
@@ -134,11 +134,11 @@ export default function FeedbackPopup({
         error && typeof error === "object" && "response" in error;
       const errorMessage = isAxiosError
         ? (error as { response?: { data?: { message?: string } } }).response
-            ?.data?.message
+          ?.data?.message
         : undefined;
       toast.error(
         errorMessage ||
-          `Failed to ${editingItem ? "update" : "create"} feedback`
+        `Failed to ${editingItem ? "update" : "create"} feedback`
       );
     } finally {
       setSubmitting(false);
@@ -211,15 +211,15 @@ export default function FeedbackPopup({
         </div>
 
         <div className="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t border-gray-700">
-          <AdminButton
+          <Button
             variant="ghost"
             onClick={handleClose}
             type="button"
             className="order-2 sm:order-1"
           >
             Cancel
-          </AdminButton>
-          <AdminButton
+          </Button>
+          <Button
             type="submit"
             disabled={submitting}
             className="order-1 sm:order-2"
@@ -229,9 +229,9 @@ export default function FeedbackPopup({
                 ? "Updating..."
                 : "Adding..."
               : editingItem
-              ? "Update Feedback"
-              : "Add Feedback"}
-          </AdminButton>
+                ? "Update Feedback"
+                : "Add Feedback"}
+          </Button>
         </div>
       </form>
     </Modal>
