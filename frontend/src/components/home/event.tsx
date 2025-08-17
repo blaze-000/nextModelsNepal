@@ -100,12 +100,14 @@ import Axios from "@/lib/axios-instance";
             <span className="text-white text-4xl md:text-5xl font-extralight font-newsreader md:tracking-tight">
               Relive the
             </span>
-            <div className="w-20 h-8 md:w-40 md:h-16 relative hidden md:block">
+            <div className=" relative hidden md:block">
               <Image
                 src="/relive-the-glamour-title-image.png"
-                alt=""
-                fill
-                className="rounded-full object-cover border border-stone-300"
+                alt="Title-Image"
+                width={160}
+                height={80}
+                className=" w-20 h-8 md:w-40 md:h-16 rounded-full object-cover border border-stone-300"
+                priority
               />
             </div>
             <span className="text-white text-4xl md:text-5xl font-extralight font-newsreader md:tracking-tight">

@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Spinner } from "@geist-ui/react";
 import { motion } from "framer-motion";
 import PhotoUpload from "./ui/photo-upload";
+import TagsInput from "./admin/form/tagInput";
 import { validateEmail } from "@/lib/utils";
 import Axios from "@/lib/axios-instance";
 
@@ -25,16 +26,6 @@ const locationOptions = [
   { value: "milan", label: "Milan" },
   { value: "tokyo", label: "Tokyo" },
   { value: "online", label: "Online" },
-];
-
-const languageOptions = [
-  { value: "English", label: "English" },
-  { value: "Spanish", label: "Spanish" },
-  { value: "French", label: "French" },
-  { value: "German", label: "German" },
-  { value: "Mandarin", label: "Mandarin" },
-  { value: "Japanese", label: "Japanese" },
-
 ];
 
 // Reusable Input Component
@@ -104,7 +95,9 @@ const SelectField = ({
       onChange={onChange}
       className="w-full bg-muted-background text-gray-100 px-6 md:px-6 py-4 md:py-6 outline-none rounded"
     >
-      <option value="" disabled>{placeholder || "Select an option"}</option>
+      <option value="" disabled>
+        {placeholder || "Select an option"}
+      </option>
       {options.map((option) => (
         <option key={option.value} value={option.value}>
           {option.label}
@@ -158,7 +151,7 @@ const BecomeModelForm = () => {
     ethnicity: "",
     email: "",
     age: "",
-    languages: "", // Changed from language to languages (array)
+    languages: [] as string[],
     gender: "",
     occupation: "",
     // Physical Attributes
@@ -183,7 +176,9 @@ const BecomeModelForm = () => {
   });
 
   const [errors, setErrors] = useState<
-    Partial<typeof formData & { photos: string }>
+    Partial<
+      Omit<typeof formData, "languages"> & { languages: string; photos: string }
+    >
   >({});
   const [isSending, setIsSending] = useState(false);
   const [selectedPhotos, setSelectedPhotos] = useState<File[]>([]);
@@ -195,6 +190,11 @@ const BecomeModelForm = () => {
   ) => {
     setErrors({});
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleLanguagesChange = (newLanguages: string[]) => {
+    setErrors({});
+    setFormData((prev) => ({ ...prev, languages: newLanguages }));
   };
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -239,7 +239,8 @@ const BecomeModelForm = () => {
     if (!formData.ethnicity.trim())
       newErrors.ethnicity = "Ethnicity is required";
     if (!formData.age) newErrors.age = "Age is required";
-    if (!formData.languages) newErrors.languages = "Language is required";
+    if (!formData.languages.length)
+      (newErrors as any).languages = "At least one language is required";
     if (!formData.gender) newErrors.gender = "Gender is required";
     if (!formData.occupation.trim())
       newErrors.occupation = "Occupation is required";
@@ -261,7 +262,7 @@ const BecomeModelForm = () => {
       newErrors.temporaryAddress = "Temporary address is required";
 
     if (Object.keys(newErrors).length) {
-      setErrors(newErrors);
+      setErrors(newErrors as any);
       return;
     }
 
@@ -273,19 +274,23 @@ const BecomeModelForm = () => {
       // Add all form fields
       Object.entries(formData).forEach(([key, value]) => {
         // Handle languages field (convert to array)
-        if (key === 'languages') {
-          formDataToSend.append('languages', value);
+        if (key === "languages") {
+          // Append each language as a separate field
+          (value as string[]).forEach((lang) => {
+            formDataToSend.append("languages", lang);
+          });
         } else {
-          formDataToSend.append(key, value);
+          formDataToSend.append(key, value as string);
         }
       });
 
       // Add photos with correct field name
       selectedPhotos.forEach((photo) => {
-        formDataToSend.append('images', photo);
+        formDataToSend.append("images", photo);
       });
 
-      const res = await Axios.post("/api/app-form", formDataToSend, {
+      // Make API call
+      await Axios.post("/api/app-form", formDataToSend, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -302,7 +307,7 @@ const BecomeModelForm = () => {
         ethnicity: "",
         email: "",
         age: "",
-        languages: "",
+        languages: [],
         gender: "",
         occupation: "",
         dressSize: "",
@@ -338,11 +343,14 @@ const BecomeModelForm = () => {
           errorMessage = error.response.data.message;
         } else if (error.response.data && error.response.data.error) {
           // Handle ZodError or other structured errors
-          if (typeof error.response.data.error === 'string') {
+          if (typeof error.response.data.error === "string") {
             errorMessage = error.response.data.error;
           } else if (error.response.data.error.message) {
             errorMessage = error.response.data.error.message;
-          } else if (error.response.data.error.errors && error.response.data.error.errors.length > 0) {
+          } else if (
+            error.response.data.error.errors &&
+            error.response.data.error.errors.length > 0
+          ) {
             // Handle ZodError structure
             const firstError = error.response.data.error.errors[0];
             errorMessage = firstError.message || "Invalid form data";
@@ -361,12 +369,6 @@ const BecomeModelForm = () => {
       setIsSending(false);
     }
   };
-  // Dropdown options
-  const ageOptions = Array.from({ length: 50 }, (_, i) => ({
-    value: (i + 18).toString(),
-    label: (i + 18).toString(),
-  }));
-
 
   const genderOptions = [
     { value: "Male", label: "Male" },
@@ -377,7 +379,6 @@ const BecomeModelForm = () => {
     value: (i + 35).toString(),
     label: (i + 35).toString(),
   }));
-
 
   return (
     <section className="w-full py-16 md:py-16 flex flex-col items-center text-white font-urbanist">
@@ -531,13 +532,12 @@ const BecomeModelForm = () => {
               placeholder="Select your age"
               error={errors.age}
             />
-            <SelectField
+            <TagsInput
               label="Languages"
               name="languages"
-              value={formData.languages}
-              onChange={handleChange}
-              options={languageOptions}
-              placeholder="Select language"
+              values={formData.languages}
+              onChange={handleLanguagesChange}
+              placeholder="Type language and press Enter"
               error={errors.languages}
             />
             <SelectField

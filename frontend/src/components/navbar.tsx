@@ -9,15 +9,20 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export default function Header() {
   const [showEventsDropdown, setShowEventsDropdown] = useState<boolean>(false);
-  const [showEventsCentralDropdown, setShowEventsCentralDropdown] = useState<boolean>(false);
+  const [showEventsCentralDropdown, setShowEventsCentralDropdown] =
+    useState<boolean>(false);
   const [selfEvents, setSelfEvents] = useState<NavEventType[] | null>(null);
-  const [partnersEvents, setPartnersEvents] = useState<NavEventType[] | null>(null);
+  const [partnersEvents, setPartnersEvents] = useState<NavEventType[] | null>(
+    null
+  );
   const [showVoting, setShowVoting] = useState<boolean>(true);
 
   // Mobile view states
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
-  const [mobileEventsDropdownOpen, setMobileEventsDropdownOpen] = useState<boolean>(false);
-  const [mobileEventsCentralDropdownOpen, setMobileEventsCentralDropdownOpen] = useState<boolean>(false);
+  const [mobileEventsDropdownOpen, setMobileEventsDropdownOpen] =
+    useState<boolean>(false);
+  const [mobileEventsCentralDropdownOpen, setMobileEventsCentralDropdownOpen] =
+    useState<boolean>(false);
 
   // Refs for dropdown containers
   const eventsDropdownRef = useRef<HTMLDivElement>(null);
@@ -36,7 +41,7 @@ export default function Header() {
     { label: "Upcoming Events", href: "/events/upcoming-events" },
     { label: "Past Events & Winners", href: "/events/past-events" },
     { label: "Events Highlight Gallery", href: "/events/gallery" },
-    { label: "Press & Media Coverage", href: "/events/news-press" }
+    { label: "Press & Media Coverage", href: "/events/news-press" },
   ];
 
   // Toggle functions that ensure only one dropdown is open at a time
@@ -70,8 +75,7 @@ export default function Header() {
         setShowVoting(data.data.showVoting);
         setSelfEvents(data.data.selfEvents);
         setPartnersEvents(data.data.partnerEvents);
-      }
-      catch {
+      } catch {
         console.log("Nav info fetch failed");
       }
     })();
@@ -84,10 +88,16 @@ export default function Header() {
       if (!showEventsDropdown && !showEventsCentralDropdown) return;
 
       // Check if click is within any dropdown or button
-      const isClickInEventsDropdown = eventsDropdownRef.current?.contains(event.target as Node);
-      const isClickInEventsButton = eventsButtonRef.current?.contains(event.target as Node);
-      const isClickInEventsCentralDropdown = eventsCentralDropdownRef.current?.contains(event.target as Node);
-      const isClickInEventsCentralButton = eventsCentralButtonRef.current?.contains(event.target as Node);
+      const isClickInEventsDropdown = eventsDropdownRef.current?.contains(
+        event.target as Node
+      );
+      const isClickInEventsButton = eventsButtonRef.current?.contains(
+        event.target as Node
+      );
+      const isClickInEventsCentralDropdown =
+        eventsCentralDropdownRef.current?.contains(event.target as Node);
+      const isClickInEventsCentralButton =
+        eventsCentralButtonRef.current?.contains(event.target as Node);
 
       // If click is outside all dropdowns and buttons, close them
       if (
@@ -100,9 +110,9 @@ export default function Header() {
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [showEventsDropdown, showEventsCentralDropdown]);
 
@@ -119,7 +129,7 @@ export default function Header() {
       <div className="space-y-4">
         <h4 className="text-xs text-primary">Our Events</h4>
         <div className="flex flex-col gap-3 text-sm">
-          {selfEvents?.map(item => (
+          {selfEvents?.map((item) => (
             <Link
               key={item.label}
               href={`/events/${item.slug}`}
@@ -137,7 +147,7 @@ export default function Header() {
       <div className="space-y-4">
         <h4 className="text-xs">Managed Events</h4>
         <div className="flex flex-col gap-3 text-sm">
-          {partnersEvents?.map(item => (
+          {partnersEvents?.map((item) => (
             <Link
               key={item.label}
               href={`/events/${item.slug}`}
@@ -165,7 +175,7 @@ export default function Header() {
       className="bg-muted-background p-6 pt-4 w-full mdplus:w-auto rounded-lg mdplus:rounded-none"
     >
       <div className="flex flex-col gap-3 text-sm">
-        {eventCentralDropdownList?.map(item => (
+        {eventCentralDropdownList?.map((item) => (
           <Link
             key={item.label}
             href={item.href}
@@ -206,14 +216,16 @@ export default function Header() {
       className="w-full bg-background2"
     >
       <div className="max-w-7xl mx-auto px-6 flex justify-between items-center pt-2.5 pb-1">
-        <Image
-          src="/logo.png"
-          alt="logo"
-          width={75}
-          height={100}
-          className="flex items-center"
-          priority={true}
-        />
+        <div>
+          <Image
+            src="/logo.png"
+            alt="logo"
+            width={80}
+            height={80}
+            className="flex items-center"
+            priority
+          />
+        </div>
 
         {/* Desktop Navbar */}
         <div className="mdplus:flex justify-between items-center gap-16 hidden relative">
@@ -236,7 +248,13 @@ export default function Header() {
                 className="cursor-pointer flex items-center gap-1"
               >
                 Events
-                <i className={`ri-arrow-drop-${showEventsDropdown ? 'up' : 'down'}-line transition-all duration-200 ease-in-out ${showEventsDropdown ? 'rotate-180' : ''}`} />
+                <i
+                  className={`ri-arrow-drop-${
+                    showEventsDropdown ? "up" : "down"
+                  }-line transition-all duration-200 ease-in-out ${
+                    showEventsDropdown ? "rotate-180" : ""
+                  }`}
+                />
               </button>
 
               {/* Add AnimatePresence for desktop dropdowns */}
@@ -263,7 +281,13 @@ export default function Header() {
                 onClick={toggleEventsCentralDropdown}
                 className="cursor-pointer"
               >
-                <i className={`ri-arrow-drop-${showEventsCentralDropdown ? 'up' : 'down'}-line transition-all duration-200 ease-in-out ${showEventsCentralDropdown ? 'rotate-180' : ''}`} />
+                <i
+                  className={`ri-arrow-drop-${
+                    showEventsCentralDropdown ? "up" : "down"
+                  }-line transition-all duration-200 ease-in-out ${
+                    showEventsCentralDropdown ? "rotate-180" : ""
+                  }`}
+                />
               </button>
 
               {/* Add AnimatePresence for desktop dropdowns */}
@@ -277,7 +301,7 @@ export default function Header() {
             </div>
 
             {/* Voting */}
-            {showVoting &&
+            {showVoting && (
               <Link
                 className="text-nowrap"
                 href={menuItems[1].href}
@@ -285,7 +309,7 @@ export default function Header() {
               >
                 {menuItems[1].label}
               </Link>
-            }
+            )}
 
             {/* About Us */}
             <Link
@@ -314,19 +338,25 @@ export default function Header() {
 
         {/* Mobile : Apply/Vote Button and Hamburger */}
         <div className="mdplus:hidden flex items-center gap-8">
-          {!showVoting &&
+          {!showVoting && (
             <Link href="/apply">
-              <Button className="py-2.5" variant="default">Apply</Button>
+              <Button className="py-2.5" variant="default">
+                Apply
+              </Button>
             </Link>
-          }
-          {showVoting &&
+          )}
+          {showVoting && (
             <Link href="/voting">
-              <Button className="py-2.5" variant="default">Vote</Button>
+              <Button className="py-2.5" variant="default">
+                Vote
+              </Button>
             </Link>
-          }
+          )}
           <button
             role="button"
-            className={`${isMobileMenuOpen ? 'ri-close-line' : 'ri-menu-line'} text-3xl text-foreground/90 cursor-pointer`}
+            className={`${
+              isMobileMenuOpen ? "ri-close-line" : "ri-menu-line"
+            } text-3xl text-foreground/90 cursor-pointer`}
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           />
         </div>
@@ -359,7 +389,13 @@ export default function Header() {
                   className="flex justify-between items-center w-full"
                 >
                   <span>Events</span>
-                  <i className={`ri-arrow-${mobileEventsDropdownOpen ? 'up' : 'down'}-s-line text-lg transition-transform duration-200 ${mobileEventsDropdownOpen ? 'rotate-180' : ''}`} />
+                  <i
+                    className={`ri-arrow-${
+                      mobileEventsDropdownOpen ? "up" : "down"
+                    }-s-line text-lg transition-transform duration-200 ${
+                      mobileEventsDropdownOpen ? "rotate-180" : ""
+                    }`}
+                  />
                 </button>
 
                 {/* Mobile Events Dropdown with animation */}
@@ -391,7 +427,13 @@ export default function Header() {
                     onClick={toggleMobileEventsCentralDropdown}
                     className="ml-2 flex-1 text-right"
                   >
-                    <i className={`ri-arrow-${mobileEventsCentralDropdownOpen ? 'up' : 'down'}-s-line text-lg transition-transform duration-200 ${mobileEventsCentralDropdownOpen ? 'rotate-180' : ''}`} />
+                    <i
+                      className={`ri-arrow-${
+                        mobileEventsCentralDropdownOpen ? "up" : "down"
+                      }-s-line text-lg transition-transform duration-200 ${
+                        mobileEventsCentralDropdownOpen ? "rotate-180" : ""
+                      }`}
+                    />
                   </button>
                 </div>
 
@@ -430,7 +472,7 @@ export default function Header() {
               </Link>
 
               {/* Apply - Normal menu item in mobile */}
-              {showVoting &&
+              {showVoting && (
                 <Link
                   href="/apply"
                   className="py-2"
@@ -438,7 +480,7 @@ export default function Header() {
                 >
                   Apply
                 </Link>
-              }
+              )}
             </div>
           </motion.div>
         )}
