@@ -86,16 +86,15 @@ type HeroData = {
   image_2: string,
   image_3: string,
   image_4: string,
-
 }
 
 type UpcomingEventData = {
-  title: string,
-  titleImage: string,
-  slug: string,
   image: string,
+  posterImage: string,
+  year: string,
   description: string,
   notice: string[],
+  eventId: { name: string, },
   card: {
     cardTitle: string,
     index: string,

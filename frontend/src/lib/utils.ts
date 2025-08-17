@@ -14,6 +14,21 @@ export const validateEmail = (email: string): boolean =>
 export const validatePhone = (phone: string): boolean =>
   /^(\+\d{1,3}[- ]?)?\d{6,15}$/.test(phone);
 
+// Date formatting function
+export function formatDate(date: string | Date): string {
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
+
+  if (isNaN(dateObj.getTime())) {
+    return 'Invalid Date';
+  }
+
+  const day = dateObj.getDate();
+  const month = dateObj.toLocaleDateString('en-US', { month: 'short' });
+  const year = dateObj.getFullYear();
+
+  return `${day} ${month}, ${year}`;
+}
+
 // Normalized image path
 export function normalizeImagePath(path: string): string {
   if (!path) return '';

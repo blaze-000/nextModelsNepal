@@ -14,7 +14,6 @@ const HeroSection = () => {
       try {
         const res = await Axios.get("/api/hero");
         const data = res.data;
-        // console.log(data.data[0]);
         setData(data.data[0]);
       } catch (err) {
         console.log(err);

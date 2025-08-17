@@ -386,8 +386,8 @@ export const updateSeason = async (req: Request, res: Response) => {
       if (files.gallery) {
         const newImages = Array.isArray(files.gallery)
           ? files.gallery.map(
-              (file: any) => `/uploads/${path.basename(file.path)}`
-            )
+            (file: any) => `/uploads/${path.basename(file.path)}`
+          )
           : [`/uploads/${path.basename(files.gallery.path)}`];
         images = [...images, ...newImages];
       }
@@ -443,7 +443,7 @@ export const deleteSeason = async (req: Request, res: Response) => {
 
     const imagesToDelete = [
       season.image,
-    
+
       season.posterImage,
       ...(season.gallery || []),
     ].filter(Boolean) as string[];
@@ -540,61 +540,34 @@ export const getAllUpcomingEvents = async (req: Request, res: Response) => {
 };
 
 /**
- * Manual sync function to update event seasons arrays
- * This can be used to fix existing data where the relationship is broken
+ * Get One Earliest Upcoming Event
  */
-export const syncEventSeasons = async (req: Request, res: Response) => {
+export const getEarliestUpcomingEvent = async (req: Request, res: Response) => {
   try {
-    // Get all seasons
-    const seasons = await SeasonModel.find({});
+    // Filter for upcoming seasons and get the earliest one
+    const earliestUpcomingSeason = await SeasonModel.findOne({ status: "upcoming" })
+      .populate("eventId", "name overview") // Populate event with name and overview
+      .populate("criteria")
+      .populate("auditions")
+      .sort({ startDate: 1 }) // Sort by startDate ascending to get the earliest upcoming
+      .limit(1);
 
-    // Group seasons by eventId
-    const seasonsByEvent: { [eventId: string]: string[] } = {};
-
-    seasons.forEach((season) => {
-      const eventId = season.eventId.toString();
-      if (!seasonsByEvent[eventId]) {
-        seasonsByEvent[eventId] = [];
-      }
-      seasonsByEvent[eventId].push(season._id.toString());
-    });
-
-    // Update each event with its seasons
-    const updatePromises = Object.entries(seasonsByEvent).map(
-      async ([eventId, seasonIds]) => {
-        try {
-          await EventModel.findByIdAndUpdate(eventId, {
-            $set: { seasons: seasonIds },
-          });
-          return { eventId, success: true, seasonCount: seasonIds.length };
-        } catch (error) {
-          return {
-            eventId,
-            success: false,
-            error: error instanceof Error ? error.message : "Unknown error",
-          };
-        }
-      }
-    );
-
-    const results = await Promise.all(updatePromises);
-    const successful = results.filter((r) => r.success);
-    const failed = results.filter((r) => !r.success);
+    if (!earliestUpcomingSeason) {
+      return res.json({
+        success: true,
+        message: "No upcoming event",
+        data: null
+      });
+    }
 
     res.json({
       success: true,
-      message: `Sync completed. ${successful.length} events updated successfully, ${failed.length} failed.`,
-      results: {
-        successful,
-        failed,
-      },
+      data: earliestUpcomingSeason
     });
   } catch (error) {
-    console.error("Sync error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to sync event-seasons relationship",
-      error: error instanceof Error ? error.message : "Unknown error",
-    });
+    console.error("Get earliest upcoming event error:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to fetch earliest upcoming event" });
   }
 };
