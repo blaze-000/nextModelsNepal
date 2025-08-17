@@ -1,13 +1,17 @@
 "use client";
 
 import Image from "next/image";
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "../ui/button";
 import ModelGrid from "../molecules/model-grid";
 import { motion } from "framer-motion";
 import SectionHeader from "../ui/section-header";
+import Dropdown from "../ui/Dropdown";
 
 export const Winners = () => {
+  const [sortBy, setSortBy] = useState("Most Recent");
+
+  const sortOptions = ["Popularity", "Most Recent", "Oldest"];
   const models = [
     {
       tag: "Winner",
@@ -53,17 +57,17 @@ export const Winners = () => {
           <div className="hidden md:flex justify-between items-center">
             <SectionHeader title="Winners from Past Events" />
 
-            <div className="flex pb-8">
-              <Button variant="outline" className="py-2 mr-4">
-                <span>Sort By:</span>
-                <span>Most Recent</span>
-                <i className="ri-arrow-down-s-line text-lg" />
-              </Button>
-              <Button variant="outline" className="py-2">
-                <span>Sort By:</span>
-                <span>Most Recent</span>
-                <i className="ri-arrow-down-s-line text-lg" />
-              </Button>
+            <div className="flex  pb-5 gap-4">
+              <Dropdown
+                options={sortOptions}
+                selected={sortBy}
+                onSelect={(val) => setSortBy(val)}
+              />
+              <Dropdown
+                options={sortOptions}
+                selected={sortBy}
+                onSelect={(val) => setSortBy(val)}
+              />
             </div>
           </div>
 

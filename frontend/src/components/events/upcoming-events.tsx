@@ -1,30 +1,32 @@
 "use client";
 
 import Image from "next/image";
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
-import ImageBox from "../molecules/image-box";
 import { Button } from "../ui/button";
 import SectionHeader from "../ui/section-header";
+import EventBox from "../molecules/event-box";
+import Dropdown from "../ui/Dropdown";
 
 export const UpcomingEvents = () => {
+  const [sortBy, setSortBy] = useState("Most Recent");
+  const sortOptions = ["Popularity", "Most Recent", "Oldest"];
   const newsItems = [
     {
       id: 1,
       image: "/news_1.jpg",
-      title:
-        "Bivash Bista and Neha Budha Crowned Winners of Model Hunt Nepal Season 9",
+      title: "Mr Nepal",
       description:
         "Our recent fashion show made headlines, showcasing Nepal's emerging talent pool in the modeling industry.",
-      link: "#",
+      slug: "mr-nepal-2025",
     },
     {
       id: 2,
       image: "/news_1.jpg",
-      title: "Next Models Nepal Hosts Successful Fashion Week Event",
+      title: "Next Models Nepal ",
       description:
         "A spectacular showcase of emerging designers and models, setting new standards for the Nepalese fashion industry.",
-      link: "#",
+      slug: "next-models-nepal-2025",
     },
   ];
 
@@ -42,13 +44,11 @@ export const UpcomingEvents = () => {
           <div className="hidden md:flex justify-between items-center px-2">
             <SectionHeader title="Upcoming Events" />
 
-            <div className="pb-8">
-              <Button variant="outline" className="py-2">
-                <span>Sort By:</span>
-                <span>Most Recent</span>
-                <i className="ri-arrow-down-s-line text-lg" />
-              </Button>
-            </div>
+            <Dropdown
+              options={sortOptions}
+              selected={sortBy}
+              onSelect={(val) => setSortBy(val)}
+            />
           </div>
 
           {/* Mobile Layout */}
@@ -87,12 +87,13 @@ export const UpcomingEvents = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.1 * i }}
             >
-              <ImageBox
+              <EventBox
+                slug={item.slug}
                 image={item.image}
                 title={item.title}
                 desc={item.description}
-                link={item.link}
                 buttonText="Visit News Source"
+                status="upcoming"
               />
             </motion.div>
           ))}

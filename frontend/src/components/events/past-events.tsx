@@ -1,46 +1,50 @@
 "use client";
 import Image from "next/image";
-import React from "react";
+import React, { useState } from "react";
 import ImageBox from "../molecules/image-box";
 import { Button } from "../ui/button";
 import { motion } from "framer-motion";
 import SectionHeader from "../ui/section-header";
+import EventBox from "../molecules/event-box";
+import Dropdown from "../ui/Dropdown";
 
 export const PastEvents = () => {
+  const [sortBy, setSortBy] = useState("Most Recent");
+
+  const sortOptions = ["Popularity", "Most Recent", "Oldest"];
+
   const newsItems = [
     {
       id: 1,
       image: "/news_1.jpg",
-      title:
-        "Bivash Bista and Neha Budha Crowned Winners of Model Hunt Nepal Season 9",
+      title: "Mister. Nepal",
       description:
         "Our recent fashion show made headlines, showcasing Nepal's emerging talent pool in the modeling industry.",
-      link: "#",
+      slug: "mr-nepal-2025",
     },
     {
       id: 2,
       image: "/news_1.jpg",
-      title: "Next Models Nepal Hosts Successful Fashion Week Event",
+      title: "Miss Nepal Peace",
       description:
         "A spectacular showcase of emerging designers and models, setting new standards for the Nepalese fashion industry.",
-      link: "#",
+      slug: "miss-nepal-peace",
     },
     {
       id: 3,
       image: "/news_1.jpg",
-      title:
-        "Bivash Bista and Neha Budha Crowned Winners of Model Hunt Nepal Season 9",
+      title: "Mister. Nepal",
       description:
         "Our recent fashion show made headlines, showcasing Nepal's emerging talent pool in the modeling industry.",
-      link: "#",
+      slug: "mister-nepal",
     },
     {
       id: 4,
       image: "/news_1.jpg",
-      title: "Next Models Nepal Hosts Successful Fashion Week Event",
+      title: "Mr Nepal",
       description:
         "A spectacular showcase of emerging designers and models, setting new standards for the Nepalese fashion industry.",
-      link: "#",
+      slug: "mr-nepal",
     },
   ];
 
@@ -106,15 +110,13 @@ export const PastEvents = () => {
           className="px-2"
         >
           {/* Desktop Layout */}
-          <div className="hidden md:flex justify-between items-center">
+          <div className="hidden md:flex justify-between items-center py-5">
             <SectionHeader title="Past Events" />
-            <div className="pb-6">
-              <Button variant="outline" className="py-2">
-                <span>Sort By:</span>
-                <span>Most Recent</span>
-                <i className="ri-arrow-down-s-line text-lg" />
-              </Button>
-            </div>
+            <Dropdown
+              options={sortOptions}
+              selected={sortBy}
+              onSelect={(val) => setSortBy(val)}
+            />
           </div>
 
           {/* Mobile Layout - Stacked */}
@@ -133,11 +135,11 @@ export const PastEvents = () => {
               </h3>
             </div>
             <div className="flex justify-center">
-              <Button variant="outline" className="py-2 md:w-full">
-                <span>Sort By:</span>
-                <span>Most Recent</span>
-                <i className="ri-arrow-down-s-line text-lg" />
-              </Button>
+              <Dropdown
+                options={sortOptions}
+                selected={sortBy}
+                onSelect={(val) => setSortBy(val)}
+              />
             </div>
           </div>
         </motion.div>
@@ -152,11 +154,12 @@ export const PastEvents = () => {
               transition={{ duration: 0.6, ease: "easeOut" }}
               viewport={{ once: true, amount: 0.3 }}
             >
-              <ImageBox
+              <EventBox
+                status="ended"
                 image={item.image}
                 title={item.title}
                 desc={item.description}
-                link={item.link}
+                slug={item.slug}
                 buttonText="Visit News Source"
               />
             </motion.div>
