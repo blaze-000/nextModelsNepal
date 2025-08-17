@@ -1,13 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Button } from "../ui/button";
 import Link from "next/link";
 
 import MasonryGallery from "../molecules/masonary-gallery";
 import SectionHeader from "../ui/section-header";
+import Dropdown from "../ui/Dropdown";
 
 const winnerImages = [
   "/handshake.jpg",
@@ -24,6 +24,21 @@ const winnerImages = [
 ];
 
 export const Gallery = () => {
+  const [selectedYear, setSelectedYear] = useState("2024");
+  const [selectedEvent, setSelectedEvent] = useState("All Events");
+
+  const years = [
+    "2024",
+    "2023",
+    "2022",
+    "2021",
+    "2020",
+    "2019",
+    "2018",
+    "2017",
+  ];
+  const eventTypes = ["Miss Nepal Peace", "Mr.Nepal", "Model Hunt Nepal"];
+
   return (
     <div className="w-full bg-background py-16 md:py-20">
       <div className="max-w-7xl mx-auto px-6">
@@ -38,17 +53,24 @@ export const Gallery = () => {
           <div className="hidden md:flex justify-between items-center -mb-4">
             <SectionHeader title="Gallery" />
 
-            <div className="pb-8">
-              <Button variant="outline" className="py-2 mr-4">
-                <span>Events:</span>
-                <span>Miss Nepal Peace</span>
-                <i className="ri-arrow-down-s-line text-lg" />
-              </Button>
-              <Button variant="outline" className="py-2">
-                <span>Year:</span>
-                <span>2024</span>
-                <i className="ri-arrow-down-s-line text-lg" />
-              </Button>
+            <div className="pb-8 flex items-center space-x-4 ml-[-20px]">
+              <div className="w-48">
+                <Dropdown
+                  label="Event"
+                  options={eventTypes}
+                  selected={selectedEvent}
+                  onSelect={setSelectedEvent}
+                />
+              </div>
+              <div className="w-32">
+                <Dropdown
+                  label="Year"
+                  options={years}
+                  selected={selectedYear}
+                  onSelect={setSelectedYear}
+                  maxHeight="180px"
+                />
+              </div>
             </div>
           </div>
 
@@ -64,21 +86,28 @@ export const Gallery = () => {
                 className="w-4 h-4 rounded-full"
               />
               <h3 className="text-white text-xl font-normal font-newsreader">
-                Highlights
+                Gallery
               </h3>
             </div>
 
-            <div className="flex flex-wrap gap-4 justify-center">
-              <Button variant="outline" className="py-2 min-w-0 text-xs">
-                <span>Events:</span>
-                <span></span>
-                <i className="ri-arrow-down-s-line text-lg" />
-              </Button>
-              <Button variant="outline" className="py-2 min-w-0 text-xs">
-                <span>Year:</span>
-                <span>2024</span>
-                <i className="ri-arrow-down-s-line text-lg" />
-              </Button>
+            <div className="flex flex-wrap justify-center space-x-4">
+              <div className="w-36">
+                <Dropdown
+                  label="Event"
+                  options={eventTypes}
+                  selected={selectedEvent}
+                  onSelect={setSelectedEvent}
+                />
+              </div>
+              <div className="w-28">
+                <Dropdown
+                  label="Year"
+                  options={years}
+                  selected={selectedYear}
+                  onSelect={setSelectedYear}
+                  maxHeight="500px"
+                />
+              </div>
             </div>
           </div>
         </motion.div>

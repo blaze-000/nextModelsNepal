@@ -1,8 +1,7 @@
 "use client";
 import Image from "next/image";
 import React, { useState } from "react";
-import ImageBox from "../molecules/image-box";
-import { Button } from "../ui/button";
+
 import { motion } from "framer-motion";
 import SectionHeader from "../ui/section-header";
 import EventBox from "../molecules/event-box";
@@ -113,6 +112,7 @@ export const PastEvents = () => {
           <div className="hidden md:flex justify-between items-center py-5">
             <SectionHeader title="Past Events" />
             <Dropdown
+              label="Sort By"
               options={sortOptions}
               selected={sortBy}
               onSelect={(val) => setSortBy(val)}
@@ -136,6 +136,7 @@ export const PastEvents = () => {
             </div>
             <div className="flex justify-center">
               <Dropdown
+                label="Sort By"
                 options={sortOptions}
                 selected={sortBy}
                 onSelect={(val) => setSortBy(val)}
