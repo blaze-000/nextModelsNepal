@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import AllSeasonsPopup, { BackendSeason } from "./AllSeasonsPopup";
 
 import Axios from "@/lib/axios-instance";
-import { normalizeImagePath } from "@/lib/utils";
+import { normalizeImagePath, formatDate } from "@/lib/utils";
 
 // Types
 interface Event {
@@ -306,13 +306,12 @@ export default function AllSeasonsPage() {
                 {/* Status Badge */}
                 <div className="absolute top-3 right-3">
                   <span
-                    className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      season.status === "ended"
-                        ? "bg-gray-500/20 text-gray-400 border border-gray-500/30"
-                        : season.status === "ongoing"
+                    className={`px-2 py-1 rounded-full text-xs font-medium ${season.status === "ended"
+                      ? "bg-gray-500/20 text-gray-400 border border-gray-500/30"
+                      : season.status === "ongoing"
                         ? "bg-green-500/20 text-green-400 border border-green-500/30"
                         : "bg-blue-500/20 text-blue-400 border border-blue-500/30"
-                    }`}
+                      }`}
                   >
                     {season.status.charAt(0).toUpperCase() +
                       season.status.slice(1)}
@@ -345,9 +344,9 @@ export default function AllSeasonsPage() {
                   <i className="ri-calendar-line mr-2"></i>
                   <span>
                     {season.startDate
-                      ? new Date(season.startDate).toLocaleDateString()
+                      ? formatDate(season.startDate)
                       : "TBD"}{" "}
-                    - {new Date(season.endDate).toLocaleDateString()}
+                    - {formatDate(season.endDate)}
                   </span>
                 </div>
 
@@ -374,7 +373,7 @@ export default function AllSeasonsPage() {
                     onClick={() => handleEditSeason(season)}
                     className="flex-1 text-xs lg:text-sm"
                   >
-                    <i className="ri-edit-line mr-1 lg:mr-2"></i>
+                    <i className="ri-edit-line mr-1 lg:mr-2"/>
                     Edit
                   </Button>
                 </div>
@@ -383,7 +382,7 @@ export default function AllSeasonsPage() {
               {/* Footer with timestamp */}
               <div className="px-4 lg:px-6 py-3 bg-gray-800/50 border-t border-gray-700">
                 <p className="text-xs text-gray-500">
-                  Created {new Date(season.createdAt).toLocaleDateString()}
+                  Created {formatDate(season.createdAt)}
                 </p>
               </div>
             </motion.div>

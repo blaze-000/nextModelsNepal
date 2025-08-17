@@ -23,6 +23,9 @@ router.get("/", seasonController.getAllSeasons);
 // Get all upcoming events
 router.get("/upcoming", seasonController.getAllUpcomingEvents);
 
+// Get earliest upcoming event
+router.get("/earliest-upcoming", seasonController.getEarliestUpcomingEvent);
+
 // Get seasons by event ID
 router.get("/event/:eventId", seasonController.getSeasonsByEvent);
 

@@ -4,23 +4,29 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import Axios from "@/lib/axios-instance";
+import { normalizeImagePath } from "@/lib/utils";
 
 const UpcomingEventSection = () => {
-  const [data, setData] = useState<UpcomingEventData | null>(null);
+  const [event, setEvent] = useState<UpcomingEventData | null>(null);
+  const [success, setSuccess] = useState<boolean>(false);
 
   useEffect(() => {
     (async () => {
       try {
-        const res = await Axios.get('/api/next-events-latest');
+        const res = await Axios.get('/api/season/earliest-upcoming');
         const data = res.data;
-        // console.log(data.data[0]);
-        setData(data.data[0])
+
+        console.log(data.data);
+        setSuccess(data.success);
+        setEvent(data.data);
       }
       catch (err) {
         console.log(err);
       }
     })();
   }, []);
+
+  if (!success) return null; // Don't render this section if there is no event
 
   return (
     <section className="bg-black-900 w-full">
@@ -71,7 +77,7 @@ const UpcomingEventSection = () => {
                 Presenting,
               </div>
               <div className="text-5xl font-light font-newsreader tracking-tighter text-gold-500 mb-4">
-                {data?.title}
+                {event?.eventId.name} {" "} {event?.year}
               </div>
             </div>
 
@@ -100,14 +106,14 @@ const UpcomingEventSection = () => {
                 <span>Fashion Event.</span>
               </div>
               <div className="text-6xl font-light font-newsreader tracking-tighter text-gold-500 mb-4">
-                Presenting {data?.title}
+                Presenting, {event?.eventId.name} {" "} {event?.year}
               </div>
             </div>
 
             {/* Description - mobile */}
             <div className="text-center lg:hidden">
               <p className="text-white text-base font-light max-w-2xl mx-auto">
-                {data?.description}
+                Next Models Nepal leads Nepal&rsquo;s fashion and entertainment scene—discovering talent, creating iconic events, and shaping industry trends.
               </p>
             </div>
           </div>
@@ -126,7 +132,7 @@ const UpcomingEventSection = () => {
               width={500}
               height={600}
               className="h-full w-auto"
-              src={`${process.env.NEXT_PUBLIC_API_URL}/${data?.image}`}
+              src={event?.posterImage ? normalizeImagePath(event?.posterImage) : "/default-fallback-image.png"}
               alt="Mr. Nepal 2025"
             />
             <div className="h-[115%] absolute right-0 -top-[7.5%] w-[1px] bg-gradient-to-b from-transparent via-white to-transparent" />
@@ -144,20 +150,20 @@ const UpcomingEventSection = () => {
             className="order-2 lg:order-2 space-y-8"
           >
             <p className="hidden lg:block text-white text-md lg:text-lg font-light lead">
-              {data?.description}
+              Next Models Nepal leads Nepal&rsquo;s fashion and entertainment scene—discovering talent, creating iconic events, and shaping industry trends.
             </p>
 
             {/* Eligibility */}
-            <div className="bg-muted-background p-8 md:px-8 md:py-6 space-y-4">
+            {/* <div className="bg-muted-background p-8 md:px-8 md:py-6 space-y-4">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-4 rounded-full border-2 border-white " />
                 <h4 className="text-white text-xl font-bold font-['Urbanist'] leading-loose tracking-tight">
-                  {data?.card[0].cardTitle}
+                  {event?.card[0].cardTitle}
                 </h4>
               </div>
 
               <div className="flex justify-between flex-col lg:flex-row gap-4 space-y-8 md:space-y-0 lg:gap-0">
-                {data?.card[0].item.map((itm, index) => (
+                {event?.card[0].item.map((itm, index) => (
                   <div key={index} className="flex items-center gap-4 ">
                     <Image
                       src={`${process.env.NEXT_PUBLIC_API_URL}/${itm.criteriaIcon}`}
@@ -177,19 +183,19 @@ const UpcomingEventSection = () => {
                   </div>
                 ))}
               </div>
-            </div>
+            </div> */}
 
             {/* Auditions */}
-            <div className="bg-muted-background p-8 md:px-8 md:py-6 space-y-4">
+            {/* <div className="bg-muted-background p-8 md:px-8 md:py-6 space-y-4">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-8 h-4 rounded-full border-2 border-white" />
                 <h4 className="text-white text-xl font-bold leading-loose tracking-tight">
-                  {data?.card[1].cardTitle}
+                  {event?.card[1].cardTitle}
                 </h4>
               </div>
 
               <div className="grid sm:grid-cols-2 gap-4">
-                {data?.card[1].item.map((audition, index) => (
+                {event?.card[1].item.map((audition, index) => (
                   <div
                     key={index}
                     className="bg-neutral-900 p-4 flex items-center gap-4"
@@ -210,15 +216,15 @@ const UpcomingEventSection = () => {
                   </div>
                 ))}
               </div>
-            </div>
+            </div> */}
 
             {/* Notice */}
             <div className="space-y-3">
               <p className="text-gold-500 text-base font-semibold font-urbanist">
-                {data?.noticeName}
+                {event?.noticeName}
               </p>
               <div className="space-y-2">
-                {data?.notice.map((item, index) => (
+                {event?.notice.map((item, index) => (
                   <p
                     key={index}
                     className="text-white text-sm font-light font-urbanist">
@@ -241,9 +247,9 @@ const UpcomingEventSection = () => {
               </div>
 
               <Link
-                href={"#"}
+                href={"/events/upcoming-events"}
                 className="px-4 py-4 rounded-full text-gold-500 text-base -tracking-tight font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer">
-                <span className="underline underline-offset-4">Upcoming Events</span>
+                <span className="underline underline-offset-4">More Upcoming Events</span>
                 <i className="ri-arrow-right-up-line group-hover:scale-130 transition-transform duration-400 text-xl font-extralight" />
               </Link>
             </div>
