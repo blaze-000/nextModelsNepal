@@ -53,14 +53,16 @@ const HeroSection = () => {
               <div className="flex items-center md:items-baseline gap-2">
                 {/* Badge image with soft layered shadow */}
                 <div className=" relative">
-                  <Image
-                    src={normalizeImagePath(data?.titleImage || "")}
-                    alt="titleImage"
-                    priority
-                    width={160} 
-                    height={64} 
-                    className="w-40 h-16 rounded-full object-cover border border-stone-300 shadow-[-10px_8px_20px_10px_rgba(179,131,0,0.19)]"
-                  />
+                  {data?.titleImage && (
+                    <Image
+                      src={normalizeImagePath(data.titleImage)}
+                      alt="titleImage"
+                      priority
+                      width={160}
+                      height={64}
+                      className="w-40 h-16 rounded-full object-cover border border-stone-300 shadow-[-10px_8px_20px_10px_rgba(179,131,0,0.19)]"
+                    />
+                  )}
                 </div>
                 {/* Label */}
                 <span className="text-white font-extralight font-newsreader tracking-tighter leading-px">
