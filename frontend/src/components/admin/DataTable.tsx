@@ -2,27 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-
-/**
- * DataTable Component with Pagination
- *
- * Features:
- * - Search functionality
- * - Column sorting
- * - Pagination with customizable items per page
- * - Responsive design
- * - Action buttons (Edit, Delete, View)
- *
- * Usage:
- * <DataTable
- *   data={yourData}
- *   columns={columnConfig}
- *   itemsPerPage={15}        // Default: 10
- *   showPagination={true}    // Default: true
- *   onEdit={handleEdit}
- *   onDelete={handleDelete}
- * />
- */
+import React from "react";
 
 interface Column<T> {
   key: keyof T | string;
@@ -62,6 +42,17 @@ export default function DataTable<T extends { _id: string }>({
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState(itemsPerPage);
+
+   const getValue = (item: T, key: string): unknown => {
+    if (key.includes(".")) {
+      return key.split(".").reduce((obj: unknown, k: string) => {
+        return obj && typeof obj === "object" && k in obj
+          ? (obj as Record<string, unknown>)[k]
+          : undefined;
+      }, item);
+    }
+    return (item as Record<string, unknown>)[key];
+  };
 
   // Filter data based on search term
   const filteredData = data.filter((item) =>
@@ -105,16 +96,7 @@ export default function DataTable<T extends { _id: string }>({
     setCurrentPage(1);
   }, [perPage]);
 
-  const getValue = (item: T, key: string): unknown => {
-    if (key.includes(".")) {
-      return key.split(".").reduce((obj: unknown, k: string) => {
-        return obj && typeof obj === "object" && k in obj
-          ? (obj as Record<string, unknown>)[k]
-          : undefined;
-      }, item);
-    }
-    return (item as Record<string, unknown>)[key];
-  };
+ 
 
   const handleSort = (columnKey: string) => {
     if (sortColumn === columnKey) {

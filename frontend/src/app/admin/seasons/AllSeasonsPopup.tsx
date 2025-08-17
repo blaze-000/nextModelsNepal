@@ -275,7 +275,15 @@ export default function AllSeasonsPopup({
   };
 
   const handleImageChange = (name: string, files: File[]) => {
-    setFormData((prev) => ({ ...prev, [name]: files }));
+    // For galleryImages, append new files to existing instead of replacing
+    if (name === "galleryImages") {
+      setFormData((prev) => ({
+        ...prev,
+        galleryImages: [...prev.galleryImages, ...files],
+      }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: files }));
+    }
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
@@ -424,10 +432,21 @@ export default function AllSeasonsPopup({
         formDataToSend.append("posterImage", formData.posterImage[0]);
       }
 
-      // Add gallery images
+      // Add gallery images (new uploads)
       formData.galleryImages.forEach((image) => {
         formDataToSend.append("gallery", image);
       });
+
+      // When editing, include which existing gallery images to retain so backend can delete removed ones
+      if (isEditing) {
+        const retain = existingGalleryImages
+          .map((url) => {
+            const filename = url.split("/").pop() || "";
+            return filename ? `/uploads/${filename}` : "";
+          })
+          .filter(Boolean) as string[];
+        formDataToSend.append("retainGallery", JSON.stringify(retain));
+      }
 
       const url = isEditing ? `/api/season/${season!._id}` : "/api/season";
       const method = isEditing ? "patch" : "post";
@@ -811,11 +830,11 @@ export default function AllSeasonsPopup({
               {/* Rest of the form - same as the existing SeasonPopup but without event selection */}
               {/* Basic Information */}
               <div className="space-y-4">
-                <div className="border-b border-gray-200 dark:border-gray-700 pb-3">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                <div className="border-b border-gray-700 pb-3">
+                  <h3 className="text-lg font-semibold text-gray-100">
                     Basic Information
                   </h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  <p className="text-sm text-gray-400">
                     Enter the season&apos;s basic details and information.
                   </p>
                 </div>
@@ -868,11 +887,11 @@ export default function AllSeasonsPopup({
 
               {/* Date Information - Status Dependent */}
               <div className="space-y-4">
-                <div className="border-b border-gray-200 dark:border-gray-700 pb-3">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                <div className="border-b border-gray-700 pb-3">
+                  <h3 className="text-lg font-semibold text-gray-100">
                     Date Information
                   </h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  <p className="text-sm text-gray-400">
                     Set important dates for the season.
                   </p>
                 </div>
@@ -958,11 +977,11 @@ export default function AllSeasonsPopup({
 
               {/* Images */}
               <div className="space-y-4">
-                <div className="border-b border-gray-200 dark:border-gray-700 pb-3">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                <div className="border-b border-gray-700 pb-3">
+                  <h3 className="text-lg font-semibold text-gray-100">
                     Season Images
                   </h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  <p className="text-sm text-gray-400">
                     Upload images for your season. Main image is required for
                     new seasons.
                   </p>
@@ -1031,21 +1050,15 @@ export default function AllSeasonsPopup({
                     />
                   )}
                 </div>
-
-                {isEditing && (
-                  <p className="text-sm text-gray-400">
-                    Leave image fields empty to keep current images
-                  </p>
-                )}
               </div>
 
               {/* Gallery Images */}
               <div className="space-y-4">
-                <div className="border-b border-gray-200 dark:border-gray-700 pb-3">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                <div className="border-b border-gray-700 pb-3">
+                  <h3 className="text-lg font-semibold text-gray-100">
                     Gallery Images
                   </h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  <p className="text-sm text-gray-400">
                     Upload additional images to showcase the season.
                   </p>
                 </div>
@@ -1077,14 +1090,7 @@ export default function AllSeasonsPopup({
               {/* Notice - Only show for non-ended seasons */}
               {formData.status !== "ended" && (
                 <div className="space-y-4">
-                  <div className="border-b border-gray-200 dark:border-gray-700 pb-3">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                      Notice
-                    </h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Add important notices for this season.
-                    </p>
-                  </div>
+                  <div className="border-b border-gray-700 pb-3"></div>
 
                   <Textarea
                     label="Notice"
@@ -1104,11 +1110,11 @@ export default function AllSeasonsPopup({
 
               {/* Timeline */}
               <div className="space-y-4">
-                <div className="border-b border-gray-200 dark:border-gray-700 pb-3">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                <div className="border-b border-gray-700 pb-3">
+                  <h3 className="text-lg font-semibold text-gray-100">
                     Timeline
                   </h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  <p className="text-sm text-gray-400">
                     Add key milestones and events for this season.
                   </p>
                 </div>
@@ -1180,7 +1186,7 @@ export default function AllSeasonsPopup({
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row justify-between gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
+              <div className="flex flex-col sm:flex-row justify-between gap-3 pt-6 border-t border-gray-700">
                 <div className="flex gap-3">
                   {!isEditing && (
                     <Button

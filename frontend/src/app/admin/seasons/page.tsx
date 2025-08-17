@@ -44,6 +44,10 @@ export default function AllSeasonsPage() {
     pages: 0,
   });
   const [addSeasonModal, setAddSeasonModal] = useState(false);
+  const [editSeasonModal, setEditSeasonModal] = useState<{
+    isOpen: boolean;
+    season: Season | null;
+  }>({ isOpen: false, season: null });
 
   // Filters
   const [filters, setFilters] = useState({
@@ -117,6 +121,10 @@ export default function AllSeasonsPage() {
 
   const handleAddSeason = () => {
     setAddSeasonModal(true);
+  };
+
+  const handleEditSeason = (season: Season) => {
+    setEditSeasonModal({ isOpen: true, season });
   };
 
   const handleSeasonSuccess = async () => {
@@ -194,21 +202,34 @@ export default function AllSeasonsPage() {
           </span>
           <Button
             size="sm"
-            variant={!filters.eventId ? null : "outline"}
+            variant={!filters.eventId ? undefined : "outline"}
             onClick={() => handleEventFilter("")}
+            className={
+              !filters.eventId
+                ? "bg-gold-500/10 border-gold-500 text-gold-400"
+                : undefined
+            }
           >
             All Events
           </Button>
-          {events.map((event) => (
-            <Button
-              key={event._id}
-              size="sm"
-              variant={filters.eventId === event._id ? null : "outline"}
-              onClick={() => handleEventFilter(event._id)}
-            >
-              {event.name}
-            </Button>
-          ))}
+          {events.map((event) => {
+            const active = filters.eventId === event._id;
+            return (
+              <Button
+                key={event._id}
+                size="sm"
+                variant={active ? undefined : "outline"}
+                onClick={() => handleEventFilter(event._id)}
+                className={
+                  active
+                    ? "bg-gold-500/10 border-gold-500 text-gold-400"
+                    : undefined
+                }
+              >
+                {event.name}
+              </Button>
+            );
+          })}
         </div>
 
         <div className="flex items-center gap-4">
@@ -285,12 +306,13 @@ export default function AllSeasonsPage() {
                 {/* Status Badge */}
                 <div className="absolute top-3 right-3">
                   <span
-                    className={`px-2 py-1 rounded-full text-xs font-medium ${season.status === "ended"
+                    className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      season.status === "ended"
                         ? "bg-gray-500/20 text-gray-400 border border-gray-500/30"
                         : season.status === "ongoing"
-                          ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                          : "bg-blue-500/20 text-blue-400 border border-blue-500/30"
-                      }`}
+                        ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                        : "bg-blue-500/20 text-blue-400 border border-blue-500/30"
+                    }`}
                   >
                     {season.status.charAt(0).toUpperCase() +
                       season.status.slice(1)}
@@ -345,6 +367,15 @@ export default function AllSeasonsPage() {
                   >
                     <i className="ri-eye-line mr-1 lg:mr-2"></i>
                     View Details
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleEditSeason(season)}
+                    className="flex-1 text-xs lg:text-sm"
+                  >
+                    <i className="ri-edit-line mr-1 lg:mr-2"></i>
+                    Edit
                   </Button>
                 </div>
               </div>
@@ -406,6 +437,15 @@ export default function AllSeasonsPage() {
         isOpen={addSeasonModal}
         onClose={() => setAddSeasonModal(false)}
         season={null}
+        events={events}
+        onSuccess={handleSeasonSuccess}
+      />
+
+      {/* Edit Season Modal */}
+      <AllSeasonsPopup
+        isOpen={editSeasonModal.isOpen}
+        onClose={() => setEditSeasonModal({ isOpen: false, season: null })}
+        season={editSeasonModal.season}
         events={events}
         onSuccess={handleSeasonSuccess}
       />

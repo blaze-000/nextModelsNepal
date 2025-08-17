@@ -96,7 +96,7 @@ export default function NewsPage() {
       await Axios.delete(`/api/news/${newsItem._id}`);
       toast.success("News article deleted successfully");
       fetchNews(); // Refresh the list
-    } catch (error) {
+    } catch {
       toast.error("Failed to delete news article");
     }
   };
@@ -113,7 +113,7 @@ export default function NewsPage() {
         label: "Photo",
         sortable: false,
         render: (value: unknown) => (
-          <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 flex-shrink-0">
+          <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-800 rounded-lg overflow-hidden border border-gray-700 flex-shrink-0">
             {value ? (
               <Image
                 src={normalizeImagePath(value as string)}
@@ -124,7 +124,7 @@ export default function NewsPage() {
                 unoptimized
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500">
+              <div className="w-full h-full flex items-center justify-center text-gray-500">
                 <i className="ri-image-line text-xl" />
               </div>
             )}
@@ -136,20 +136,7 @@ export default function NewsPage() {
         label: "Title",
         sortable: true,
         render: (value: unknown) => (
-          <div className="font-medium text-sm sm:text-base text-gray-900 dark:text-gray-100">
-            {String(value)}
-          </div>
-        ),
-      },
-      {
-        key: "description",
-        label: "Description",
-        sortable: false,
-        render: (value: unknown) => (
-          <div
-            className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 truncate max-w-40 sm:max-w-xs"
-            title={String(value)}
-          >
+          <div className="font-medium text-sm sm:text-base text-gray-100">
             {String(value)}
           </div>
         ),
@@ -157,16 +144,20 @@ export default function NewsPage() {
       {
         key: "type",
         label: "Type",
-        sortable: true,
+        sortable: false,
         render: (value: unknown) => {
           const typeColors = {
-            Interview: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
-            Feature: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
-            Announcement: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400",
+            Interview: "bg-blue-900/30 text-blue-400",
+            Feature: "bg-green-900/30 text-green-400",
+            Announcement: "bg-purple-900/30 text-purple-400",
           };
-          const colorClass = typeColors[value as keyof typeof typeColors] || "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400";
+          const colorClass =
+            typeColors[value as keyof typeof typeColors] ||
+            "bg-gray-900/30 text-gray-400";
           return (
-            <span className={`text-xs px-2 py-1 rounded font-medium ${colorClass}`}>
+            <span
+              className={`text-xs px-2 py-1 rounded font-medium ${colorClass}`}
+            >
               {String(value)}
             </span>
           );
@@ -177,7 +168,7 @@ export default function NewsPage() {
         label: "Year",
         sortable: true,
         render: (value: unknown) => (
-          <span className="text-xs bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 px-2 py-1 rounded font-medium">
+          <span className="text-xs bg-amber-900/30 text-amber-400 px-2 py-1 rounded font-medium">
             {String(value)}
           </span>
         ),
@@ -188,30 +179,28 @@ export default function NewsPage() {
         sortable: false,
         render: (value: unknown) => {
           if (!value) {
-            return (
-              <span className="text-xs text-gray-400 dark:text-gray-500">
-                No event
-              </span>
-            );
+            return <span className="text-xs text-gray-500">No event</span>;
           }
 
           // Handle both string (ID) and object (populated) event values
-          let eventName = '';
-          if (typeof value === 'string') {
+          let eventName = "";
+          if (typeof value === "string") {
             const linkedEvent = events.find((event) => event._id === value);
-            eventName = linkedEvent ? linkedEvent.name : '';
-          } else if (typeof value === 'object' && value !== null && 'name' in value) {
+            eventName = linkedEvent ? linkedEvent.name : "";
+          } else if (
+            typeof value === "object" &&
+            value !== null &&
+            "name" in value
+          ) {
             eventName = (value as { name: string }).name;
           }
 
           return eventName ? (
-            <span className="text-xs bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400 px-2 py-1 rounded font-medium">
+            <span className="text-xs bg-indigo-900/30 text-indigo-400 px-2 py-1 rounded font-medium">
               {eventName}
             </span>
           ) : (
-            <span className="text-xs text-gray-400 dark:text-gray-500">
-              Unknown event
-            </span>
+            <span className="text-xs text-gray-500">Unknown event</span>
           );
         },
       },
@@ -226,29 +215,29 @@ export default function NewsPage() {
         title: "Total Articles",
         value: statistics.total,
         icon: "ri-newspaper-line",
-        bgColor: "bg-blue-100 dark:bg-blue-900/30",
-        textColor: "text-blue-600 dark:text-blue-400",
+        bgColor: "bg-blue-900/30",
+        textColor: "text-blue-400",
       },
       {
         title: "This Year",
         value: statistics.thisYear,
         icon: "ri-calendar-line",
-        bgColor: "bg-green-100 dark:bg-green-900/30",
-        textColor: "text-green-600 dark:text-green-400",
+        bgColor: "bg-green-900/30",
+        textColor: "text-green-400",
       },
       {
         title: "Last Year",
         value: statistics.lastYear,
         icon: "ri-history-line",
-        bgColor: "bg-yellow-100 dark:bg-yellow-900/30",
-        textColor: "text-yellow-600 dark:text-yellow-400",
+        bgColor: "bg-yellow-900/30",
+        textColor: "text-yellow-400",
       },
       {
         title: "With Events",
         value: statistics.withEvents,
         icon: "ri-links-line",
-        bgColor: "bg-purple-100 dark:bg-purple-900/30",
-        textColor: "text-purple-600 dark:text-purple-400",
+        bgColor: "bg-purple-900/30",
+        textColor: "text-purple-400",
       },
     ],
     [statistics]
@@ -270,14 +259,14 @@ export default function NewsPage() {
         {statisticsCards.map((card, index) => (
           <div
             key={index}
-            className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6 transition-colors duration-200"
+            className="bg-background2 rounded-lg border border-gray-700 p-4 sm:p-6 transition-colors duration-200"
           >
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                <p className="text-sm font-medium text-gray-400">
                   {card.title}
                 </p>
-                <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
+                <p className="text-xl sm:text-2xl font-bold text-gray-100 mt-1">
                   {loading ? "..." : card.value}
                 </p>
               </div>
@@ -302,7 +291,7 @@ export default function NewsPage() {
           onDelete={handleDeleteNews}
           loading={loading}
           emptyMessage="No news articles found. Create your first article to get started."
-          searchPlaceholder="Search news by title, description, type, or year..."
+          searchPlaceholder="Search news by title, type, or year..."
         />
       </div>
 

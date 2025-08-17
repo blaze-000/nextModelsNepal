@@ -67,7 +67,7 @@ interface SeasonPopupProps {
   onClose: () => void;
   season: BackendSeason | null;
   eventId: string;
-  eventName: string;
+  eventName?: string;
   onSuccess: () => void;
 }
 
@@ -455,7 +455,7 @@ export default function SeasonPopup({
       } else {
         throw new Error(
           response.data.message ||
-          `Failed to ${isEditing ? "update" : "create"} season`
+            `Failed to ${isEditing ? "update" : "create"} season`
         );
       }
     } catch (error: unknown) {
@@ -489,20 +489,22 @@ export default function SeasonPopup({
           <div className="mb-6">
             <div className="flex items-center justify-center space-x-4">
               <div
-                className={`flex items-center space-x-2 ${currentStep === 1
-                  ? "text-gold-500"
-                  : currentStep > 1
+                className={`flex items-center space-x-2 ${
+                  currentStep === 1
+                    ? "text-gold-500"
+                    : currentStep > 1
                     ? "text-green-500"
                     : "text-gray-400"
-                  }`}
+                }`}
               >
                 <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${currentStep === 1
-                    ? "border-gold-500 bg-gold-500/20"
-                    : currentStep > 1
+                  className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${
+                    currentStep === 1
+                      ? "border-gold-500 bg-gold-500/20"
+                      : currentStep > 1
                       ? "border-green-500 bg-green-500/20"
                       : "border-gray-400 bg-gray-400/20"
-                    }`}
+                  }`}
                 >
                   {currentStep > 1 ? (
                     <i className="ri-check-line text-sm"></i>
@@ -514,19 +516,22 @@ export default function SeasonPopup({
               </div>
 
               <div
-                className={`w-12 h-0.5 ${currentStep > 1 ? "bg-green-500" : "bg-gray-400"
-                  }`}
+                className={`w-12 h-0.5 ${
+                  currentStep > 1 ? "bg-green-500" : "bg-gray-400"
+                }`}
               ></div>
 
               <div
-                className={`flex items-center space-x-2 ${currentStep === 2 ? "text-gold-500" : "text-gray-400"
-                  }`}
+                className={`flex items-center space-x-2 ${
+                  currentStep === 2 ? "text-gold-500" : "text-gray-400"
+                }`}
               >
                 <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${currentStep === 2
-                    ? "border-gold-500 bg-gold-500/20"
-                    : "border-gray-400 bg-gray-400/20"
-                    }`}
+                  className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${
+                    currentStep === 2
+                      ? "border-gold-500 bg-gold-500/20"
+                      : "border-gray-400 bg-gray-400/20"
+                  }`}
                 >
                   <span className="text-sm font-medium">2</span>
                 </div>
@@ -563,10 +568,11 @@ export default function SeasonPopup({
                 {statusOptions.map((option) => (
                   <div
                     key={option.value}
-                    className={`relative p-6 rounded-lg border-2 cursor-pointer transition-all duration-200 ${formData.status === option.value
-                      ? "border-gold-500 bg-gold-500/10"
-                      : "border-gray-600 bg-gray-800/50 hover:border-gray-500"
-                      }`}
+                    className={`relative p-6 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
+                      formData.status === option.value
+                        ? "border-gold-500 bg-gold-500/10"
+                        : "border-gray-600 bg-gray-800/50 hover:border-gray-500"
+                    }`}
                     onClick={() =>
                       setFormData((prev) => ({
                         ...prev,
@@ -579,20 +585,22 @@ export default function SeasonPopup({
                   >
                     <div className="text-center space-y-3">
                       <div
-                        className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto ${option.value === "upcoming"
-                          ? "bg-blue-500/20"
-                          : option.value === "ongoing"
+                        className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto ${
+                          option.value === "upcoming"
+                            ? "bg-blue-500/20"
+                            : option.value === "ongoing"
                             ? "bg-green-500/20"
                             : "bg-gray-500/20"
-                          }`}
+                        }`}
                       >
                         <i
-                          className={`text-xl ${option.value === "upcoming"
-                            ? "ri-time-line text-blue-400"
-                            : option.value === "ongoing"
+                          className={`text-xl ${
+                            option.value === "upcoming"
+                              ? "ri-time-line text-blue-400"
+                              : option.value === "ongoing"
                               ? "ri-play-line text-green-400"
                               : "ri-check-line text-gray-400"
-                            }`}
+                          }`}
                         ></i>
                       </div>
                       <h4 className="font-semibold text-gray-100">
@@ -602,8 +610,8 @@ export default function SeasonPopup({
                         {option.value === "upcoming"
                           ? "Season hasn't started yet"
                           : option.value === "ongoing"
-                            ? "Season is currently active"
-                            : "Season has completed"}
+                          ? "Season is currently active"
+                          : "Season has completed"}
                       </p>
                     </div>
 
@@ -651,20 +659,22 @@ export default function SeasonPopup({
                 <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-600">
                   <div className="flex items-center space-x-3">
                     <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center ${formData.status === "upcoming"
-                        ? "bg-blue-500/20"
-                        : formData.status === "ongoing"
+                      className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                        formData.status === "upcoming"
+                          ? "bg-blue-500/20"
+                          : formData.status === "ongoing"
                           ? "bg-green-500/20"
                           : "bg-gray-500/20"
-                        }`}
+                      }`}
                     >
                       <i
-                        className={`text-sm ${formData.status === "upcoming"
-                          ? "ri-time-line text-blue-400"
-                          : formData.status === "ongoing"
+                        className={`text-sm ${
+                          formData.status === "upcoming"
+                            ? "ri-time-line text-blue-400"
+                            : formData.status === "ongoing"
                             ? "ri-play-line text-green-400"
                             : "ri-check-line text-gray-400"
-                          }`}
+                        }`}
                       ></i>
                     </div>
                     <div>
@@ -686,11 +696,11 @@ export default function SeasonPopup({
 
               {/* Basic Information */}
               <div className="space-y-4">
-                <div className="border-b border-gray-200 dark:border-gray-700 pb-3">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                <div className="border-b border-gray-700 pb-3">
+                  <h3 className="text-lg font-semibold text-gray-100">
                     Basic Information
                   </h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  <p className="text-sm text-gray-400">
                     Enter the season&apos;s basic details and information.
                   </p>
                 </div>
@@ -759,11 +769,11 @@ export default function SeasonPopup({
 
               {/* Date Information - Status Dependent */}
               <div className="space-y-4">
-                <div className="border-b border-gray-200 dark:border-gray-700 pb-3">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                <div className="border-b border-gray-700 pb-3">
+                  <h3 className="text-lg font-semibold text-gray-100">
                     Date Information
                   </h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  <p className="text-sm text-gray-400">
                     Set important dates for the season.
                   </p>
                 </div>
@@ -811,49 +821,49 @@ export default function SeasonPopup({
                   {/* Voting End Date - For upcoming and ongoing seasons */}
                   {(formData.status === "upcoming" ||
                     formData.status === "ongoing") && (
-                      <Input
-                        label="Voting End Date"
-                        name="votingEndDate"
-                        type="date"
-                        value={formData.votingEndDate}
-                        onChange={handleInputChange}
-                        required
-                        error={errors.votingEndDate}
-                        disabled={submitting}
-                      />
-                    )}
+                    <Input
+                      label="Voting End Date"
+                      name="votingEndDate"
+                      type="date"
+                      value={formData.votingEndDate}
+                      onChange={handleInputChange}
+                      required
+                      error={errors.votingEndDate}
+                      disabled={submitting}
+                    />
+                  )}
                 </div>
 
                 {/* Voting Opened Checkbox - For upcoming and ongoing seasons */}
                 {(formData.status === "upcoming" ||
                   formData.status === "ongoing") && (
-                    <div className="flex items-center space-x-3">
-                      <input
-                        type="checkbox"
-                        id="votingOpened"
-                        name="votingOpened"
-                        checked={formData.votingOpened}
-                        onChange={handleInputChange}
-                        disabled={submitting}
-                        className="w-4 h-4 text-gold-500 bg-gray-700 border-gray-600 rounded focus:ring-gold-500 focus:ring-2"
-                      />
-                      <label
-                        htmlFor="votingOpened"
-                        className="text-sm text-gray-300"
-                      >
-                        Voting is currently opened
-                      </label>
-                    </div>
-                  )}
+                  <div className="flex items-center space-x-3">
+                    <input
+                      type="checkbox"
+                      id="votingOpened"
+                      name="votingOpened"
+                      checked={formData.votingOpened}
+                      onChange={handleInputChange}
+                      disabled={submitting}
+                      className="w-4 h-4 text-gold-500 bg-gray-700 border-gray-600 rounded focus:ring-gold-500 focus:ring-2"
+                    />
+                    <label
+                      htmlFor="votingOpened"
+                      className="text-sm text-gray-300"
+                    >
+                      Voting is currently opened
+                    </label>
+                  </div>
+                )}
               </div>
 
               {/* Images */}
               <div className="space-y-4">
-                <div className="border-b border-gray-200 dark:border-gray-700 pb-3">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                <div className="border-b border-gray-700 pb-3">
+                  <h3 className="text-lg font-semibold text-gray-100">
                     Season Images
                   </h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  <p className="text-sm text-gray-400">
                     Upload images for your season. Main image is required for
                     new seasons.
                   </p>
@@ -922,21 +932,15 @@ export default function SeasonPopup({
                     />
                   )}
                 </div>
-
-                {isEditing && (
-                  <p className="text-sm text-gray-400">
-                    Leave image fields empty to keep current images
-                  </p>
-                )}
               </div>
 
               {/* Gallery Images */}
               <div className="space-y-4">
-                <div className="border-b border-gray-200 dark:border-gray-700 pb-3">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                <div className="border-b border-gray-700 pb-3">
+                  <h3 className="text-lg font-semibold text-gray-100">
                     Gallery Images
                   </h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  <p className="text-sm text-gray-400">
                     Upload additional images to showcase the season.
                   </p>
                 </div>
@@ -967,14 +971,7 @@ export default function SeasonPopup({
 
               {/* Notice */}
               <div className="space-y-4">
-                <div className="border-b border-gray-200 dark:border-gray-700 pb-3">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                    Notice
-                  </h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Add important notices for this season.
-                  </p>
-                </div>
+                <div className="border-b border-gray-700 pb-3"></div>
 
                 <Textarea
                   label="Notice"
@@ -993,11 +990,11 @@ export default function SeasonPopup({
 
               {/* Timeline */}
               <div className="space-y-4">
-                <div className="border-b border-gray-200 dark:border-gray-700 pb-3">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                <div className="border-b border-gray-700 pb-3">
+                  <h3 className="text-lg font-semibold text-gray-100">
                     Timeline
                   </h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  <p className="text-sm text-gray-400">
                     Add key milestones and events for this season.
                   </p>
                 </div>
@@ -1069,7 +1066,7 @@ export default function SeasonPopup({
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row justify-between gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
+              <div className="flex flex-col sm:flex-row justify-between gap-3 pt-6 border-t border-gray-700">
                 <div className="flex gap-3">
                   {!isEditing && (
                     <Button
