@@ -210,11 +210,11 @@ export default function ContestantPopup({
       <form onSubmit={handleSubmit} className="p-6 space-y-6">
         {/* Basic Information */}
         <div className="space-y-4">
-          <div className="border-b border-gray-200 dark:border-gray-700 pb-3">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <div className="border-b border-gray-700 pb-3">
+            <h3 className="text-lg font-semibold text-gray-100">
               Contestant Information
             </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-sm text-gray-400">
               Enter the contestant&apos;s details and information.
             </p>
           </div>
@@ -268,11 +268,11 @@ export default function ContestantPopup({
 
         {/* Image */}
         <div className="space-y-4">
-          <div className="border-b border-gray-200 dark:border-gray-700 pb-3">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <div className="border-b border-gray-700 pb-3">
+            <h3 className="text-lg font-semibold text-gray-100">
               Contestant Image
             </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-sm text-gray-400">
               Upload an image for the contestant. Image is required for new
               contestants.
             </p>
@@ -294,16 +294,10 @@ export default function ContestantPopup({
             acceptedTypes={["image/*"]}
             disabled={submitting}
           />
-
-          {isEditing && (
-            <p className="text-sm text-gray-400">
-              Leave image field empty to keep current image
-            </p>
-          )}
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
+        <div className="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t border-gray-700">
           <Button
             variant="ghost"
             onClick={handleClose}

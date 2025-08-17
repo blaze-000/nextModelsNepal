@@ -8,21 +8,20 @@ import mongoose from "mongoose";
 import fs from "fs";
 import path from "path";
 
-/**
- * Helper function to safely delete a file
- */
-const deleteFile = (filePath: string): void => {
-  try {
-    if (filePath && filePath.trim() !== "") {
-      const fullPath = path.resolve(filePath);
+// Consistent helper from model.controller
+const deleteImageFiles = (imagePaths: string[]) => {
+  imagePaths.forEach((imagePath) => {
+    if (imagePath) {
+      const fullPath = path.join(
+        process.cwd(),
+        "uploads",
+        path.basename(imagePath)
+      );
       if (fs.existsSync(fullPath)) {
         fs.unlinkSync(fullPath);
-        console.log(`Deleted file: ${fullPath}`);
       }
     }
-  } catch (error) {
-    console.error(`Error deleting file ${filePath}:`, error);
-  }
+  });
 };
 
 /**
@@ -351,26 +350,58 @@ export const updateSeason = async (req: Request, res: Response) => {
 
       // Update only the images that were uploaded and delete old ones
       if (files.image) {
-        // Delete old main image if it exists
         if (existingSeason.image) {
-          deleteFile(existingSeason.image);
+          deleteImageFiles([existingSeason.image]);
         }
         updateData.image = files.image[0].path;
       }
       if (files.titleImage) {
-        // Delete old title image if it exists
         if (existingSeason.titleImage) {
-          deleteFile(existingSeason.titleImage);
+          deleteImageFiles([existingSeason.titleImage]);
         }
         updateData.titleImage = files.titleImage[0].path;
       }
       if (files.posterImage) {
-        // Delete old poster image if it exists
         if (existingSeason.posterImage) {
-          deleteFile(existingSeason.posterImage);
+          deleteImageFiles([existingSeason.posterImage]);
         }
         updateData.posterImage = files.posterImage[0].path;
       }
+
+      // Gallery images: retain/delete + append new
+      // Accept retainGallery as JSON array of existing gallery paths to keep
+      let retainGallery: string[] | undefined;
+      try {
+        if (typeof (req.body as any).retainGallery === "string") {
+          retainGallery = JSON.parse((req.body as any).retainGallery);
+        } else if (Array.isArray((req.body as any).retainGallery)) {
+          retainGallery = (req.body as any).retainGallery as string[];
+        }
+      } catch (_) {
+        retainGallery = undefined;
+      }
+
+      // Strictly match model controller logic for gallery images
+      let images = [...(existingSeason.gallery || [])];
+
+      // Handle retainGallery (same as retainImages in model)
+      if (retainGallery) {
+        const toDelete = images.filter((img) => !retainGallery.includes(img));
+        if (toDelete.length) deleteImageFiles(toDelete);
+        images = retainGallery;
+      }
+
+      // Append any newly uploaded gallery images
+      if (files.gallery) {
+        const newImages = Array.isArray(files.gallery)
+          ? files.gallery.map(
+              (file: any) => `/uploads/${path.basename(file.path)}`
+            )
+          : [`/uploads/${path.basename(files.gallery.path)}`];
+        images = [...images, ...newImages];
+      }
+
+      updateData.gallery = images;
     }
 
     const updatedSeason = await SeasonModel.findByIdAndUpdate(id, updateData, {
@@ -418,15 +449,13 @@ export const deleteSeason = async (req: Request, res: Response) => {
     }
 
     // Delete associated image files
-    if (season.image) {
-      deleteFile(season.image);
-    }
-    if (season.titleImage) {
-      deleteFile(season.titleImage);
-    }
-    if (season.posterImage) {
-      deleteFile(season.posterImage);
-    }
+    const imagesToDelete = [
+      season.image,
+      season.titleImage,
+      season.posterImage,
+      ...(season.gallery || []),
+    ].filter(Boolean) as string[];
+    deleteImageFiles(imagesToDelete);
 
     const deletedSeason = await SeasonModel.findByIdAndDelete(id);
     if (!deletedSeason) {

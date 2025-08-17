@@ -172,7 +172,10 @@ const ModelsPopup = ({
   // Handle gallery images changes
   const handleGalleryImagesChange = useCallback(
     (files: File[]) => {
-      setFormData((prev) => ({ ...prev, galleryImages: files }));
+      setFormData((prev) => ({
+        ...prev,
+        galleryImages: [...prev.galleryImages, ...files],
+      }));
       if (errors.galleryImages) {
         setErrors((prev) => ({ ...prev, galleryImages: "" }));
       }
@@ -222,6 +225,17 @@ const ModelsPopup = ({
           submitFormData.append("images", image);
         });
 
+        // When editing, include which existing images to retain so backend can delete the removed ones
+        if (isEditing) {
+          const retain = existingGalleryImages
+            .map((url) => {
+              const filename = url.split("/").pop() || "";
+              return filename ? `/uploads/${filename}` : "";
+            })
+            .filter(Boolean);
+          submitFormData.append("retainImages", JSON.stringify(retain));
+        }
+
         const url = isEditing ? `/api/models/${model!._id}` : "/api/models";
         const method = isEditing ? "patch" : "post";
 
@@ -252,14 +266,14 @@ const ModelsPopup = ({
               data?: {
                 message?: string;
                 error?:
-                | string
-                | {
-                  message?: string;
-                  issues?: Array<{ message?: string }>;
-                  code?: number;
-                  keyPattern?: { [key: string]: number };
-                  keyValue?: { [key: string]: string };
-                };
+                  | string
+                  | {
+                      message?: string;
+                      issues?: Array<{ message?: string }>;
+                      code?: number;
+                      keyPattern?: { [key: string]: number };
+                      keyValue?: { [key: string]: string };
+                    };
                 code?: string;
                 field?: string;
               };
@@ -330,8 +344,9 @@ const ModelsPopup = ({
               } else if (responseData.code === "LIMIT_UNEXPECTED_FILE") {
                 errorMessage = `Unexpected file field: ${responseData.field}`;
               } else {
-                errorMessage = `File upload error: ${responseData.message || responseData.code
-                  }`;
+                errorMessage = `File upload error: ${
+                  responseData.message || responseData.code
+                }`;
               }
             }
           }
@@ -381,7 +396,15 @@ const ModelsPopup = ({
         setIsSubmitting(false);
       }
     },
-    [validateForm, formData, isEditing, model, onSuccess, onClose]
+    [
+      validateForm,
+      formData,
+      isEditing,
+      model,
+      onSuccess,
+      onClose,
+      existingGalleryImages,
+    ]
   );
 
   // Handle modal close
@@ -400,11 +423,11 @@ const ModelsPopup = ({
       <form onSubmit={handleSubmit} className="p-6 space-y-8">
         {/* Basic Information Section */}
         <div className="space-y-6">
-          <div className="border-b border-gray-200 dark:border-gray-700 pb-3">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <div className="border-b border-gray-700 pb-3">
+            <h3 className="text-lg font-semibold text-gray-100">
               Basic Information
             </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-sm text-gray-400">
               Enter the model&apos;s basic details and information.
             </p>
           </div>
@@ -483,11 +506,9 @@ const ModelsPopup = ({
 
         {/* Cover Image Section */}
         <div className="space-y-4">
-          <div className="border-b border-gray-200 dark:border-gray-700 pb-3">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-              Cover Image
-            </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+          <div className="border-b border-gray-700 pb-3">
+            <h3 className="text-lg font-semibold text-gray-100">Cover Image</h3>
+            <p className="text-sm text-gray-400">
               Upload a high-quality cover image that represents the model.
             </p>
           </div>
@@ -510,11 +531,11 @@ const ModelsPopup = ({
 
         {/* Gallery Images Section */}
         <div className="space-y-4">
-          <div className="border-b border-gray-200 dark:border-gray-700 pb-3">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <div className="border-b border-gray-700 pb-3">
+            <h3 className="text-lg font-semibold text-gray-100">
               Gallery Images
             </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-sm text-gray-400">
               Upload additional images to showcase the model&apos;s portfolio.
             </p>
           </div>
@@ -537,7 +558,7 @@ const ModelsPopup = ({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
+        <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-6 border-t border-gray-700">
           <Button
             type="button"
             variant="ghost"

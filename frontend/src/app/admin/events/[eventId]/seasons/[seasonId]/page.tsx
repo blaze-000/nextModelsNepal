@@ -494,10 +494,10 @@ export default function SeasonDetailPage() {
         <div className="flex gap-3">
           <Button
             variant="outline"
-            onClick={() => router.push(`/admin/events/${eventId}/seasons`)}
+            onClick={() => router.push(`/admin/events/${eventId}`)}
           >
             <i className="ri-arrow-left-line mr-2"></i>
-            Back to Seasons
+            Back to Events
           </Button>
           <Button variant="default" onClick={handleEditSeason}>
             <i className="ri-edit-line mr-2"></i>
@@ -635,61 +635,55 @@ export default function SeasonDetailPage() {
 
         {/* Statistics */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-background2 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+          <div className="bg-background2 rounded-lg border border-gray-700 p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                  Contestants
-                </p>
-                <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
+                <p className="text-sm font-medium text-gray-400">Contestants</p>
+                <p className="text-xl sm:text-2xl font-bold text-gray-100 mt-1">
                   {contestants.length}
                 </p>
               </div>
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                <i className="ri-user-3-line text-blue-600 dark:text-blue-400 text-lg sm:text-xl" />
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-900/30 rounded-lg flex items-center justify-center">
+                <i className="ri-user-3-line text-blue-400 text-lg sm:text-xl" />
               </div>
             </div>
           </div>
 
-          <div className="bg-background2 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+          <div className="bg-background2 rounded-lg border border-gray-700 p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                <p className="text-sm font-medium text-gray-400">
                   Jury Members
                 </p>
-                <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
+                <p className="text-xl sm:text-2xl font-bold text-gray-100 mt-1">
                   {jury.length}
                 </p>
               </div>
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center">
-                <i className="ri-judge-line text-indigo-600 dark:text-indigo-400 text-lg sm:text-xl" />
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-indigo-900/30 rounded-lg flex items-center justify-center">
+                <i className="ri-judge-line text-indigo-400 text-lg sm:text-xl" />
               </div>
             </div>
           </div>
 
-          <div className="bg-background2 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+          <div className="bg-background2 rounded-lg border border-gray-700 p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                  Winners
-                </p>
-                <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
+                <p className="text-sm font-medium text-gray-400">Winners</p>
+                <p className="text-xl sm:text-2xl font-bold text-gray-100 mt-1">
                   {winners.length}
                 </p>
               </div>
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gold-100 dark:bg-gold-900/30 rounded-lg flex items-center justify-center">
-                <i className="ri-trophy-line text-gold-600 dark:text-gold-400 text-lg sm:text-xl" />
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gold-900/30 rounded-lg flex items-center justify-center">
+                <i className="ri-trophy-line text-gold-400 text-lg sm:text-xl" />
               </div>
             </div>
           </div>
 
-          <div className="bg-background2 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+          <div className="bg-background2 rounded-lg border border-gray-700 p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                  Duration
-                </p>
-                <p className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100 mt-1">
+                <p className="text-sm font-medium text-gray-400">Duration</p>
+                <p className="text-lg sm:text-xl font-bold text-gray-100 mt-1">
                   {(() => {
                     const start = new Date(season.startDate);
                     const end = new Date(season.endDate);
@@ -701,8 +695,8 @@ export default function SeasonDetailPage() {
                   })()}
                 </p>
               </div>
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
-                <i className="ri-time-line text-green-600 dark:text-green-400 text-lg sm:text-xl" />
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-900/30 rounded-lg flex items-center justify-center">
+                <i className="ri-time-line text-green-400 text-lg sm:text-xl" />
               </div>
             </div>
           </div>
@@ -710,7 +704,7 @@ export default function SeasonDetailPage() {
       </motion.div>
 
       {/* Enhanced Tab Navigation */}
-      <div className="border-b border-gray-200 dark:border-gray-700">
+      <div className="border-b border-gray-700">
         <nav className="-mb-px flex space-x-8">
           {tabs.map((tab) => (
             <button
@@ -719,7 +713,7 @@ export default function SeasonDetailPage() {
               className={`py-4 px-1 border-b-2 font-semibold text-sm transition-all duration-200 ${
                 activeTab === tab.key
                   ? "border-gold-500 text-gold-400"
-                  : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600"
+                  : "border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-600"
               }`}
             >
               <div className="flex items-center space-x-2">
@@ -728,8 +722,8 @@ export default function SeasonDetailPage() {
                   <span
                     className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                       activeTab === tab.key
-                        ? "bg-gold-100 text-gold-800 dark:bg-gold-900/50 dark:text-gold-300"
-                        : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300"
+                        ? "bg-gold-900/50 text-gold-300"
+                        : "bg-gray-800 text-gray-300"
                     }`}
                   >
                     {tab.count}
@@ -752,7 +746,7 @@ export default function SeasonDetailPage() {
           >
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Season Information */}
-              <div className="bg-background2 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+              <div className="bg-background2 rounded-lg border  border-gray-700 p-6">
                 <h3 className="text-lg font-semibold text-foreground flex items-center mb-4">
                   <i className="ri-information-line mr-2 text-gold-500"></i>
                   Season Information
@@ -848,8 +842,8 @@ export default function SeasonDetailPage() {
                         <span
                           className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                             season.votingOpened
-                              ? "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300"
-                              : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300"
+                              ? "bg-green-100 "
+                              : " bg-gray-800 text-gray-300"
                           }`}
                         >
                           <i
@@ -880,7 +874,7 @@ export default function SeasonDetailPage() {
               {/* Timeline or Additional Info */}
               <div className="space-y-6">
                 {season.timeline && season.timeline.length > 0 && (
-                  <div className="bg-background2 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+                  <div className="bg-background2 rounded-lg border border-gray-700 p-6">
                     <h3 className="text-lg font-semibold text-foreground flex items-center mb-4">
                       <i className="ri-time-line mr-2 text-gold-500"></i>
                       Timeline
@@ -910,7 +904,7 @@ export default function SeasonDetailPage() {
                 )}
 
                 {season.notice && season.notice.length > 0 && (
-                  <div className="bg-background2 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+                  <div className="bg-background2 rounded-lg border border-gray-700 p-6">
                     <h3 className="text-lg font-semibold text-foreground flex items-center mb-4">
                       <i className="ri-notification-line mr-2 text-gold-500"></i>
                       Notices
@@ -930,7 +924,6 @@ export default function SeasonDetailPage() {
                     </div>
                   </div>
                 )}
-                
               </div>
             </div>
           </motion.div>
@@ -941,9 +934,9 @@ export default function SeasonDetailPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="bg-background2 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden"
+            className="bg-background2 rounded-lg border border-gray-700 overflow-hidden"
           >
-            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+            <div className="p-6 border-b border-gray-700">
               <div className="flex justify-between items-center">
                 <div>
                   <h3 className="text-lg font-semibold text-foreground flex items-center">
@@ -983,9 +976,9 @@ export default function SeasonDetailPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="bg-background2 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden"
+            className="bg-background2 rounded-lg border border-gray-700 overflow-hidden"
           >
-            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+            <div className="p-6 border-b border-gray-700">
               <div className="flex justify-between items-center">
                 <div>
                   <h3 className="text-lg font-semibold text-foreground flex items-center">
@@ -1025,9 +1018,9 @@ export default function SeasonDetailPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="bg-background2 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden"
+            className="bg-background2 rounded-lg border border-gray-700 overflow-hidden"
           >
-            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+            <div className="p-6 border-b border-gray-700">
               <div className="flex justify-between items-center">
                 <div>
                   <h3 className="text-lg font-semibold text-foreground flex items-center">

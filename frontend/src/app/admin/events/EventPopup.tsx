@@ -217,7 +217,7 @@ export default function EventPopup({
       } else {
         throw new Error(
           response.data.message ||
-          `Failed to ${isEditing ? "update" : "create"} event`
+            `Failed to ${isEditing ? "update" : "create"} event`
         );
       }
     } catch (error: unknown) {
@@ -248,11 +248,11 @@ export default function EventPopup({
       <form onSubmit={handleSubmit} className="p-6 space-y-6">
         {/* Basic Information */}
         <div className="space-y-4">
-          <div className="border-b border-gray-200 dark:border-gray-700 pb-3">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <div className="border-b border-gray-700 pb-3">
+            <h3 className="text-lg font-semibold text-gray-100">
               Basic Information
             </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-sm text-gray-400">
               Enter the event&apos;s basic details and information.
             </p>
           </div>
@@ -341,11 +341,11 @@ export default function EventPopup({
 
         {/* Images */}
         <div className="space-y-4">
-          <div className="border-b border-gray-200 dark:border-gray-700 pb-3">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <div className="border-b border-gray-700 pb-3">
+            <h3 className="text-lg font-semibold text-gray-100">
               Event Images
             </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-sm text-gray-400">
               Upload images for your event. All images are required for new
               events.
             </p>
@@ -411,16 +411,10 @@ export default function EventPopup({
               disabled={submitting}
             />
           </div>
-
-          {isEditing && (
-            <p className="text-sm text-gray-400">
-              Leave image fields empty to keep current images
-            </p>
-          )}
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
+        <div className="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t border-gray-700">
           <Button
             variant="ghost"
             onClick={handleClose}

@@ -67,7 +67,9 @@ export default function FeedbackPage() {
 
     try {
       setSubmitting(true);
-      const response = await Axios.delete(`/api/feedback/${deleteModal.item._id}`);
+      const response = await Axios.delete(
+        `/api/feedback/${deleteModal.item._id}`
+      );
       if (response.data.success) {
         toast.success("Feedback deleted successfully");
         setDeleteModal({ isOpen: false, item: null });
@@ -98,11 +100,13 @@ export default function FeedbackPage() {
 
   // Statistics
   const totalFeedback = feedbackItems.length;
-  const thisMonthFeedback = feedbackItems.filter(item => {
+  const thisMonthFeedback = feedbackItems.filter((item) => {
     if (!item.createdAt) return false;
     const d = new Date(item.createdAt);
     const now = new Date();
-    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    return (
+      d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
+    );
   }).length;
 
   // Table columns
@@ -111,7 +115,7 @@ export default function FeedbackPage() {
       key: "image",
       label: "Photo",
       render: (value: unknown) => (
-        <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 flex-shrink-0">
+        <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-800 rounded-lg overflow-hidden border border-gray-700 flex-shrink-0">
           {value && typeof value === "string" ? (
             <Image
               src={normalizeImagePath(value)}
@@ -122,7 +126,7 @@ export default function FeedbackPage() {
               unoptimized
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500">
+            <div className="w-full h-full flex items-center justify-center text-gray-500">
               <i className="ri-image-line text-xl" />
             </div>
           )}
@@ -133,7 +137,9 @@ export default function FeedbackPage() {
       key: "name",
       label: "Name",
       sortable: true,
-      render: (value: unknown) => <div className="font-medium text-sm sm:text-base">{String(value)}</div>,
+      render: (value: unknown) => (
+        <div className="font-medium text-sm sm:text-base">{String(value)}</div>
+      ),
     },
     {
       key: "message",
@@ -149,7 +155,7 @@ export default function FeedbackPage() {
       label: "Order",
       sortable: true,
       render: (value: unknown) => (
-        <span className="text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-2 py-1 rounded">
+        <span className="text-xs bg-blue-900/30 text-blue-400 px-2 py-1 rounded">
           #{value !== undefined && value !== null ? String(value) : ""}
         </span>
       ),
@@ -170,31 +176,33 @@ export default function FeedbackPage() {
       {/* Statistics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 pb-6">
         {/* Total Feedback */}
-        <div className="bg-background2 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+        <div className="bg-background2 rounded-lg border border-gray-700 p-4 sm:p-6">
           <div className="flex items-center justify-between">
             <div className="flex-1">
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Feedback</p>
-              <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
+              <p className="text-sm font-medium text-gray-400">
+                Total Feedback
+              </p>
+              <p className="text-xl sm:text-2xl font-bold text-gray-100 mt-1">
                 {loading ? "..." : totalFeedback}
               </p>
             </div>
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-              <i className="ri-chat-quote-line text-blue-600 dark:text-blue-400 text-lg sm:text-xl" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-900/30 rounded-lg flex items-center justify-center">
+              <i className="ri-chat-quote-line text-blue-400 text-lg sm:text-xl" />
             </div>
           </div>
         </div>
 
         {/* This Month */}
-        <div className="bg-background2 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+        <div className="bg-background2 rounded-lg border border-gray-700 p-4 sm:p-6">
           <div className="flex items-center justify-between">
             <div className="flex-1">
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">This Month</p>
-              <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
+              <p className="text-sm font-medium text-gray-400">This Month</p>
+              <p className="text-xl sm:text-2xl font-bold text-gray-100 mt-1">
                 {loading ? "..." : thisMonthFeedback}
               </p>
             </div>
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center">
-              <i className="ri-calendar-line text-indigo-600 dark:text-indigo-400 text-lg sm:text-xl" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-indigo-900/30 rounded-lg flex items-center justify-center">
+              <i className="ri-calendar-line text-indigo-400 text-lg sm:text-xl" />
             </div>
           </div>
         </div>

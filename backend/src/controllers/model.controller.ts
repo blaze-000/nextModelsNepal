@@ -30,11 +30,16 @@ export const createModel = async (req: Request, res: Response) => {
       createModelSchema.parse(req.body);
 
     // Determine max order
-    const maxOrderDoc = await Model.findOne().sort({ order: -1 }).session(session);
+    const maxOrderDoc = await Model.findOne()
+      .sort({ order: -1 })
+      .session(session);
     const maxOrder = maxOrderDoc ? maxOrderDoc.order : 0;
 
     let newOrder;
-    const parsedOrder = order !== undefined && order !== null && order !== '' ? parseInt(order) : undefined;
+    const parsedOrder =
+      order !== undefined && order !== null && order !== ""
+        ? parseInt(order)
+        : undefined;
 
     if (parsedOrder === undefined || parsedOrder > maxOrder) {
       // If order is undefined, null, empty string, or greater than max existing order → assign maxOrder + 1
@@ -170,21 +175,42 @@ export const updateModelById = async (req: Request, res: Response) => {
       coverImage = `/uploads/${files.coverImage[0].filename}`;
     }
 
-    // Handle images update
-    if (files.images && files.images.length > 0) {
-      // Delete old images
-      if (existingModel.images.length > 0) {
-        deleteImageFiles(existingModel.images);
+    // Handle gallery images update
+    // Frontend can send a JSON array `retainImages` of existing image paths to keep
+    // We'll delete any existing images not present in retainImages
+    let retainImages: string[] | undefined;
+    try {
+      if (typeof req.body.retainImages === "string") {
+        retainImages = JSON.parse(req.body.retainImages);
+      } else if (Array.isArray(req.body.retainImages)) {
+        retainImages = req.body.retainImages as string[];
       }
-      // Set new images
-      images = files.images.map((file) => `/uploads/${file.filename}`);
+    } catch (_) {
+      retainImages = undefined;
+    }
+
+    if (retainImages) {
+      const toDelete = images.filter((img) => !retainImages!.includes(img));
+      if (toDelete.length) deleteImageFiles(toDelete);
+      images = retainImages;
+    }
+
+    // Append any newly uploaded files
+    if (files.images && files.images.length > 0) {
+      const newImages = files.images.map((file) => `/uploads/${file.filename}`);
+      images = [...images, ...newImages];
     }
 
     // Handle order update
     if (order !== undefined) {
-      const parsedOrder = order !== undefined && order !== null && order !== '' ? parseInt(order) : undefined;
+      const parsedOrder =
+        order !== undefined && order !== null && order !== ""
+          ? parseInt(order)
+          : undefined;
       const currentOrder = existingModel.order;
-      const maxOrderDoc = await Model.findOne().sort({ order: -1 }).session(session);
+      const maxOrderDoc = await Model.findOne()
+        .sort({ order: -1 })
+        .session(session);
       const maxOrder = maxOrderDoc ? maxOrderDoc.order : 0;
 
       let finalOrder;
@@ -212,23 +238,22 @@ export const updateModelById = async (req: Request, res: Response) => {
 
           // First, temporarily move the current model to a safe position
           const tempOrder = maxOrder + 2;
-          await Model.updateOne(
-            { _id: id },
-            { order: tempOrder },
-            { session }
-          );
+          await Model.updateOne({ _id: id }, { order: tempOrder }, { session });
 
           // Get models in the range that need to be shifted
           const modelsToShift = await Model.find({
             order: { $gte: startOrder, $lte: endOrder },
-            _id: { $ne: id }
+            _id: { $ne: id },
           })
             .sort({ order: -1 })
             .session(session);
 
           // Update each model's order one by one, starting from the highest order
           for (const modelToShift of modelsToShift) {
-            const newOrder = parsedOrder < currentOrder ? modelToShift.order + 1 : modelToShift.order - 1;
+            const newOrder =
+              parsedOrder < currentOrder
+                ? modelToShift.order + 1
+                : modelToShift.order - 1;
             await Model.updateOne(
               { _id: modelToShift._id },
               { order: newOrder },

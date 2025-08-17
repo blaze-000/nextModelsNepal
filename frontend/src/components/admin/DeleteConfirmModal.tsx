@@ -26,11 +26,11 @@ export default function DeleteConfirmModal({
     <Modal isOpen={isOpen} onClose={onClose} title={title} size="md">
       <div className="p-6">
         <div className="flex items-center gap-4 mb-6">
-          <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center flex-shrink-0">
-            <i className="ri-delete-bin-line text-red-600 dark:text-red-400 text-xl" />
+          <div className="w-12 h-12bg-red-900/30 rounded-full flex items-center justify-center flex-shrink-0">
+            <i className="ri-delete-bin-line text-red-400 text-xl" />
           </div>
           <div className="flex-1">
-            <p className="text-gray-700 dark:text-gray-300">{message}</p>
+            <p className="text-gray-300">{message}</p>
           </div>
         </div>
 

@@ -51,7 +51,7 @@ const Input = ({
       />
 
       {helpText && (
-        <p className="text-gray-500 dark:text-gray-400 text-xs mt-1">
+        <p className="text-gray-400 text-xs mt-1">
           {helpText}
         </p>
       )}

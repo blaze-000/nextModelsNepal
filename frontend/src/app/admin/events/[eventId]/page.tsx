@@ -295,16 +295,18 @@ export default function EventDetailPage() {
                 {/* Management Badge */}
                 <div className="flex items-center gap-3">
                   <span
-                    className={`px-4 py-2 rounded-full text-sm font-medium backdrop-blur-sm ${event.managedBy === "self"
-                      ? "bg-green-500/20 text-green-300 border border-green-500/40"
-                      : "bg-blue-500/20 text-blue-300 border border-blue-500/40"
-                      }`}
+                    className={`px-4 py-2 rounded-full text-sm font-medium backdrop-blur-sm ${
+                      event.managedBy === "self"
+                        ? "bg-green-500/20 text-green-300 border border-green-500/40"
+                        : "bg-blue-500/20 text-blue-300 border border-blue-500/40"
+                    }`}
                   >
                     <i
-                      className={`mr-2 ${event.managedBy === "self"
-                        ? "ri-user-settings-line"
-                        : "ri-team-line"
-                        }`}
+                      className={`mr-2 ${
+                        event.managedBy === "self"
+                          ? "ri-user-settings-line"
+                          : "ri-team-line"
+                      }`}
                     ></i>
                     {event.managedBy === "self"
                       ? "Self Managed"
@@ -335,56 +337,54 @@ export default function EventDetailPage() {
         {/* Statistics */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 pb-6">
           {/* Total Seasons */}
-          <div className="bg-background2 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+          <div className="bg-background2 rounded-lg border border-gray-700 p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                <p className="text-sm font-medium text-gray-400">
                   Total Seaons
                 </p>
-                <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
+                <p className="text-xl sm:text-2xl font-bold text-gray-100 mt-1">
                   {loading ? "..." : seasons.length}
                 </p>
               </div>
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                <i className="ri-chat-quote-line text-blue-600 dark:text-blue-400 text-lg sm:text-xl" />
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-900/30 rounded-lg flex items-center justify-center">
+                <i className="ri-chat-quote-line text-blue-400 text-lg sm:text-xl" />
               </div>
             </div>
           </div>
 
           {/* This Month */}
-          <div className="bg-background2 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+          <div className="bg-background2 rounded-lg border border-gray-700 p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                <p className="text-sm font-medium text-gray-400">
                   Active Seasons
                 </p>
-                <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
+                <p className="text-xl sm:text-2xl font-bold text-gray-100 mt-1">
                   {loading
                     ? "..."
                     : seasons.filter((s) => s.status === "ongoing").length}
                 </p>
               </div>
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center">
-                <i className="ri-calendar-line text-indigo-600 dark:text-indigo-400 text-lg sm:text-xl" />
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-indigo-900/30 rounded-lg flex items-center justify-center">
+                <i className="ri-calendar-line text-indigo-400 text-lg sm:text-xl" />
               </div>
             </div>
           </div>
 
           {/* Completed */}
-          <div className="bg-background2 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+          <div className="bg-background2 rounded-lg border border-gray-700 p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                  Completed
-                </p>
-                <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
+                <p className="text-sm font-medium text-gray-400">Completed</p>
+                <p className="text-xl sm:text-2xl font-bold text-gray-100 mt-1">
                   {loading
                     ? "..."
                     : seasons.filter((s) => s.status === "completed").length}
                 </p>
               </div>
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center">
-                <i className="ri-calendar-line text-indigo-600 dark:text-indigo-400 text-lg sm:text-xl" />
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-indigo-900/30 rounded-lg flex items-center justify-center">
+                <i className="ri-calendar-line text-indigo-400 text-lg sm:text-xl" />
               </div>
             </div>
           </div>
@@ -406,10 +406,11 @@ export default function EventDetailPage() {
             {/* Quote Accordion Item */}
             {event.quote && (
               <div
-                className={`border border-gold-900/20 rounded-lg overflow-hidden ${isAccordionItemOpen("quote")
-                  ? "bg-muted-background"
-                  : "bg-background2"
-                  }`}
+                className={`border border-gold-900/20 rounded-lg overflow-hidden ${
+                  isAccordionItemOpen("quote")
+                    ? "bg-muted-background"
+                    : "bg-background2"
+                }`}
               >
                 <button
                   onClick={() => toggleAccordionItem("quote")}
@@ -425,8 +426,9 @@ export default function EventDetailPage() {
                       </span>
                     </div>
                     <i
-                      className={`ri-arrow-${isAccordionItemOpen("quote") ? "up" : "down"
-                        }-s-line text-foreground/60 transition-transform`}
+                      className={`ri-arrow-${
+                        isAccordionItemOpen("quote") ? "up" : "down"
+                      }-s-line text-foreground/60 transition-transform`}
                     ></i>
                   </div>
                 </button>
@@ -450,10 +452,11 @@ export default function EventDetailPage() {
 
             {/* Purpose Accordion Item */}
             <div
-              className={`border border-gold-900/20 rounded-lg overflow-hidden ${isAccordionItemOpen("purpose")
-                ? "bg-muted-background"
-                : "bg-background2"
-                }`}
+              className={`border border-gold-900/20 rounded-lg overflow-hidden ${
+                isAccordionItemOpen("purpose")
+                  ? "bg-muted-background"
+                  : "bg-background2"
+              }`}
             >
               <button
                 onClick={() => toggleAccordionItem("purpose")}
@@ -469,8 +472,9 @@ export default function EventDetailPage() {
                     </span>
                   </div>
                   <i
-                    className={`ri-arrow-${isAccordionItemOpen("purpose") ? "up" : "down"
-                      }-s-line text-foreground/60 transition-transform`}
+                    className={`ri-arrow-${
+                      isAccordionItemOpen("purpose") ? "up" : "down"
+                    }-s-line text-foreground/60 transition-transform`}
                   ></i>
                 </div>
               </button>
@@ -507,10 +511,11 @@ export default function EventDetailPage() {
             {/* Timeline Accordion Item */}
             {event.timelineSubtitle && (
               <div
-                className={`border border-gold-900/20 rounded-lg overflow-hidden ${isAccordionItemOpen("timeline")
-                  ? "bg-muted-background"
-                  : "bg-background2"
-                  }`}
+                className={`border border-gold-900/20 rounded-lg overflow-hidden ${
+                  isAccordionItemOpen("timeline")
+                    ? "bg-muted-background"
+                    : "bg-background2"
+                }`}
               >
                 <button
                   onClick={() => toggleAccordionItem("timeline")}
@@ -526,8 +531,9 @@ export default function EventDetailPage() {
                       </span>
                     </div>
                     <i
-                      className={`ri-arrow-${isAccordionItemOpen("timeline") ? "up" : "down"
-                        }-s-line text-foreground/60 transition-transform`}
+                      className={`ri-arrow-${
+                        isAccordionItemOpen("timeline") ? "up" : "down"
+                      }-s-line text-foreground/60 transition-transform`}
                     ></i>
                   </div>
                 </button>
@@ -611,14 +617,14 @@ export default function EventDetailPage() {
                       season.images && season.images.length > 0
                         ? season.images[0]
                         : season.titleImage
-                          ? season.titleImage
-                          : season.posterImage
-                            ? season.posterImage
-                            : season.image
-                              ? season.image
-                              : season.gallery && season.gallery.length > 0
-                                ? season.gallery[0]
-                                : null;
+                        ? season.titleImage
+                        : season.posterImage
+                        ? season.posterImage
+                        : season.image
+                        ? season.image
+                        : season.gallery && season.gallery.length > 0
+                        ? season.gallery[0]
+                        : null;
 
                     return imageSource ? (
                       <Image
@@ -638,12 +644,13 @@ export default function EventDetailPage() {
                   {/* Status Badge */}
                   <div className="absolute top-3 right-3">
                     <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium border ${season.status === "completed"
-                        ? "bg-green-500/20 text-green-400 border-green-500/30"
-                        : season.status === "ongoing"
+                      className={`px-2 py-1 rounded-full text-xs font-medium border ${
+                        season.status === "completed"
+                          ? "bg-green-500/20 text-green-400 border-green-500/30"
+                          : season.status === "ongoing"
                           ? "bg-gold-500/20 text-gold-400 border-gold-500/30"
                           : "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
-                        }`}
+                      }`}
                     >
                       {season.status.charAt(0).toUpperCase() +
                         season.status.slice(1)}
