@@ -40,16 +40,16 @@ const EventBox = ({
           <h3 className="text-5xl font-newsreader leading-relaxed mb-3 md:mb-4 tracking-tighter">
             {title}
           </h3>
-          <p className="text-sm md:text-base font-light text-white/80 leading-relaxed">
+          <p className="text-sm md:text-base font-light text-white/80 leading-relaxed line-clamp-2">
             {desc}
           </p>
         </div>
       </div>
       <div>
-        <div className="flex gap-3">
+        <div className="flex md:gap-3 flex-col md:flex-row">
           {/* CTA Button */}
           {status === "upcoming" && (
-            <>
+            <div className="flex gap-4">
               <Link href={`/events/${slug}`}>
                 <Button variant="default">Apply Now</Button>
               </Link>
@@ -59,7 +59,7 @@ const EventBox = ({
                   Get Tickets
                 </Button>
               </Link>
-            </>
+            </div>
           )}
 
           <Link

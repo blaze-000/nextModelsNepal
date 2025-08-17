@@ -92,9 +92,6 @@ export const createSeason = async (req: Request, res: Response) => {
 
     // Get file paths
     const image = (req.files as any).image[0].path;
-    const titleImage = (req.files as any).titleImage
-      ? (req.files as any).titleImage[0].path
-      : undefined;
     const posterImage = (req.files as any).posterImage
       ? (req.files as any).posterImage[0].path
       : undefined;
@@ -114,7 +111,6 @@ export const createSeason = async (req: Request, res: Response) => {
     const seasonData = {
       ...validatedData,
       image,
-      ...(titleImage && { titleImage }),
       ...(posterImage && { posterImage }),
       ...(galleryImages.length > 0 && { gallery: galleryImages }),
     };
@@ -357,13 +353,7 @@ export const updateSeason = async (req: Request, res: Response) => {
         }
         updateData.image = files.image[0].path;
       }
-      if (files.titleImage) {
-        // Delete old title image if it exists
-        if (existingSeason.titleImage) {
-          deleteFile(existingSeason.titleImage);
-        }
-        updateData.titleImage = files.titleImage[0].path;
-      }
+
       if (files.posterImage) {
         // Delete old poster image if it exists
         if (existingSeason.posterImage) {
@@ -421,9 +411,7 @@ export const deleteSeason = async (req: Request, res: Response) => {
     if (season.image) {
       deleteFile(season.image);
     }
-    if (season.titleImage) {
-      deleteFile(season.titleImage);
-    }
+
     if (season.posterImage) {
       deleteFile(season.posterImage);
     }
@@ -450,6 +438,70 @@ export const deleteSeason = async (req: Request, res: Response) => {
     res
       .status(500)
       .json({ success: false, message: "Failed to delete season" });
+  }
+};
+
+/**
+ * Get All Upcoming Seasons with Event Details
+ */
+export const getAllUpcomingEvents = async (req: Request, res: Response) => {
+  try {
+    const {
+      page = 1,
+      limit = 10,
+      sort = "startDate",
+      order = "asc",
+    } = req.query;
+
+    const skip = (Number(page) - 1) * Number(limit);
+    const sortOrder = order === "desc" ? -1 : 1;
+
+    // Filter for upcoming seasons
+    const filter = { status: "upcoming" };
+
+    const seasons = await SeasonModel.find(filter)
+      .populate("eventId", "name overview") // Populate event with name and overview (no slug)
+      .populate("criteria")
+      .populate("auditions")
+      .sort({ [String(sort)]: sortOrder })
+      .limit(Number(limit))
+      .skip(skip);
+
+    // Get the latest ended season for each event to get the event slug
+    const seasonsWithLatestEnded = await Promise.all(
+      seasons.map(async (season) => {
+        const latestEndedSeason = await SeasonModel.findOne({
+          eventId: season.eventId,
+          status: "ended"
+        })
+          .sort({ endDate: -1 })
+          .select("slug");
+
+        return {
+          ...season.toObject(),
+          eventSlug: latestEndedSeason?.slug || null, // Event slug from latest ended season
+          latestEndedSeasonSlug: latestEndedSeason?.slug || null // Latest ended season slug
+        };
+      })
+    );
+
+    const total = await SeasonModel.countDocuments(filter);
+
+    res.json({
+      success: true,
+      data: seasonsWithLatestEnded,
+      pagination: {
+        page: Number(page),
+        limit: Number(limit),
+        total,
+        pages: Math.ceil(total / Number(limit)),
+      },
+    });
+  } catch (error) {
+    console.error("Get all upcoming events error:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to fetch upcoming events" });
   }
 };
 
