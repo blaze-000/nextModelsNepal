@@ -9,9 +9,20 @@ import SectionHeader from "../ui/section-header";
 import Dropdown from "../ui/Dropdown";
 
 export const Winners = () => {
-  const [sortBy, setSortBy] = useState("Most Recent");
+  const [selectedYear, setSelectedYear] = useState("2024");
+  const [selectedEvent, setSelectedEvent] = useState("All Events");
 
-  const sortOptions = ["Popularity", "Most Recent", "Oldest"];
+  const years = [
+    "2024",
+    "2023",
+    "2022",
+    "2021",
+    "2020",
+    "2019",
+    "2018",
+    "2017",
+  ];
+  const eventTypes = ["Miss Nepal Peace", "Mr.Nepal", "Model Hunt Nepal"];
   const models = [
     {
       tag: "Winner",
@@ -57,17 +68,25 @@ export const Winners = () => {
           <div className="hidden md:flex justify-between items-center">
             <SectionHeader title="Winners from Past Events" />
 
-            <div className="flex  pb-5 gap-4">
-              <Dropdown
-                options={sortOptions}
-                selected={sortBy}
-                onSelect={(val) => setSortBy(val)}
-              />
-              <Dropdown
-                options={sortOptions}
-                selected={sortBy}
-                onSelect={(val) => setSortBy(val)}
-              />
+            <div className="pb-8 flex items-center space-x-4 ml-[-20px]">
+              <div className="w-48">
+                <Dropdown
+                  label="Event"
+                  options={eventTypes}
+                  selected={selectedEvent}
+                  onSelect={setSelectedEvent}
+                  maxHeight="180px"
+                />
+              </div>
+              <div className="w-28">
+                <Dropdown
+                  label="Year"
+                  options={years}
+                  selected={selectedYear}
+                  onSelect={setSelectedYear}
+                  maxHeight="180px"
+                />
+              </div>
             </div>
           </div>
 

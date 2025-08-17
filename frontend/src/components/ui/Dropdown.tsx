@@ -1,51 +1,97 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Button } from "../ui/button";
 
 interface DropdownProps {
+  label: string;
   options: string[];
   selected: string;
   onSelect: (value: string) => void;
+  maxHeight?: string;
 }
 
-const Dropdown: React.FC<DropdownProps> = ({ options, selected, onSelect }) => {
+const Dropdown: React.FC<DropdownProps> = ({
+  options,
+  label,
+  selected,
+  onSelect,
+
+  maxHeight = "200px",
+}) => {
   const [open, setOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [showGradient, setShowGradient] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    if (contentRef.current) {
+      const { scrollHeight, clientHeight } = contentRef.current;
+      setShowGradient(scrollHeight > clientHeight);
+    }
+  }, [open]);
 
   return (
-    <div className="relative inline-block text-left">
+    <div className="relative inline-block text-left " ref={dropdownRef}>
       {/* Button */}
-      <div className="pb-3">
+      <div className="pb-3 ">
         <Button
           variant="outline"
           onClick={() => setOpen(!open)}
-          className="py-2 "
+          className="py-2 min-w-2xs"
         >
-          <span className="text-sm text-[16px]">Sort By: {selected}</span>
+          <span className="text-sm text-[16px]">
+            {label}: <span className="text-gold-500">{selected}</span>
+          </span>
           <i className="ri-arrow-down-s-line text-base" />
         </Button>
       </div>
 
       {/* Dropdown List */}
       {open && (
-        <div className="absolute right-0 -mt-1 bg-[#12110D] z-50 rounded-md">
-          {options.map((option, idx) => (
-            <React.Fragment key={option}>
-              <p
-                onClick={() => {
-                  onSelect(option);
-                  setOpen(false);
-                }}
-                className="px-4 py-2 text-sm text-white text-center cursor-pointer"
-              >
-                {option}
-              </p>
+        <div className="absolute right-0 -mt-1 bg-[#12110D] z-50  gap-5 rounded-md shadow-lg overflow-hidden">
+          <div
+            ref={contentRef}
+            className="overflow-y-auto"
+            style={{ maxHeight }}
+          >
+            {[...options]
+              .sort((a, b) => a.localeCompare(b))
+              .map((option, idx, sortedOptions) => (
+                <React.Fragment key={option}>
+                  <p
+                    onClick={() => {
+                      onSelect(option);
+                      setOpen(false);
+                    }}
+                    className={`px-4 py-2 text-sm text-white text-center cursor-pointer  ${
+                      selected === option ? "text-gold-500" : ""
+                    }`}
+                  >
+                    {option}
+                  </p>
 
-              {/* Custom divider (shorter) */}
-              {idx < options.length - 1 && (
-                <div className="mx-4 border-t border-gray-400"></div>
-              )}
-            </React.Fragment>
-          ))}
+                  {idx < sortedOptions.length - 1 && <div className=""></div>}
+                </React.Fragment>
+              ))}
+          </div>
+
+          {showGradient && (
+            <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-[#12110D] to-transparent pointer-events-none" />
+          )}
         </div>
       )}
     </div>
