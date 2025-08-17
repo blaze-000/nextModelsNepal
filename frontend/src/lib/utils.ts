@@ -6,12 +6,15 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-// Email validation regex
-export const validateEmail = (email: string) =>
+// Email validation
+export const validateEmail = (email: string): boolean =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
+// Phone validation
+export const validatePhone = (phone: string): boolean =>
+  /^(\+\d{1,3}[- ]?)?\d{6,15}$/.test(phone);
 
-// Normalize image paths
+// Normalized image path
 export function normalizeImagePath(path: string): string {
   if (!path) return '';
 

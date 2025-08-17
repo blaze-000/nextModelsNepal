@@ -3,108 +3,25 @@ import HireModelForm from "@/components/hire-model-form";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import ModelGrid from "@/components/molecules/model-grid";
-// import Link from "next/link";
+import { useEffect, useState } from "react";
+import Axios from "@/lib/axios-instance";
+import Link from "next/link";
 
-const femaleModels = [
-  {
-    name: "Monika Adhikary",
-    location: "Kathmandu, Nepal",
-    image: "/bro_1.png",
-    slug: "monika-adhikary",
-  },
-  {
-    name: "Pratista",
-    location: "Kathmandu, Nepal",
-    image: "/bro_1.png",
-    slug: "pratista",
-  },
-  {
-    name: "Kristina",
-    location: "Kathmandu, Nepal",
-    image: "/bro_1.png",
-    slug: "kristina",
-  },
-  {
-    name: "Aayushma Poudel",
-    location: "Kathmandu, Nepal",
-    image: "/bro_1.png",
-    slug: "aayushma-poudel",
-  },
-  {
-    name: "Monika Adhikary",
-    location: "Kathmandu, Nepal",
-    image: "/bro_1.png",
-    slug: "monika-adhikary",
-  },
-  {
-    name: "Pratista",
-    location: "Kathmandu, Nepal",
-    image: "/bro_1.png",
-    slug: "pratista",
-  },
-  {
-    name: "Kristina",
-    location: "Kathmandu, Nepal",
-    image: "/bro_1.png",
-    slug: "kristina",
-  },
-  {
-    name: "Aayushma Poudel",
-    location: "Kathmandu, Nepal",
-    image: "/bro_1.png",
-    slug: "aayushma-poudel",
-  },
-];
-
-const maleModels = [
-  {
-    name: "Model Name 1",
-    location: "Kathmandu, Nepal",
-    image: "/bro_1.png",
-    slug: "male-model-1",
-  },
-  {
-    name: "Model Name 2",
-    location: "Kathmandu, Nepal",
-    image: "/bro_1.png",
-    slug: "male-model-2",
-  },
-  {
-    name: "Model Name 3",
-    location: "Kathmandu, Nepal",
-    image: "/bro_1.png",
-    slug: "male-model-3",
-  },
-  {
-    name: "Model Name 4",
-    location: "Kathmandu, Nepal",
-    image: "/bro_1.png",
-    slug: "male-model-4",
-  },
-  {
-    name: "Model Name 1",
-    location: "Kathmandu, Nepal",
-    image: "/bro_1.png",
-    slug: "male-model-1",
-  },
-  {
-    name: "Model Name 2",
-    location: "Kathmandu, Nepal",
-    image: "/bro_1.png",
-  },
-  {
-    name: "Model Name 3",
-    location: "Kathmandu, Nepal",
-    image: "/bro_1.png",
-  },
-  {
-    name: "Model Name 4",
-    location: "Kathmandu, Nepal",
-    image: "/bro_1.png",
-  },
-];
 
 export default function HireModel() {
+  const [femaleModels, setFemaleModels] = useState<Model[]>([]);
+  const [maleModels, setMaleModels] = useState<Model[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      const res = await Axios.get('/api/models');
+      const data = res.data.data;
+      console.log(data);
+      setFemaleModels(data.filter((model: Model) => model.gender === "Female"));
+      setMaleModels(data.filter((model: Model) => model.gender === "Male"));
+    })();
+  }, []);
+
   return (
     <main>
       {/* Hero image and text */}
@@ -220,7 +137,7 @@ export default function HireModel() {
             >
               <div className="flex items-center gap-2">
                 <Image
-                  src="/small_star.svg"
+                  src="/svg-icons/small_star.svg"
                   alt=""
                   width={20}
                   height={20}
@@ -239,7 +156,7 @@ export default function HireModel() {
                     <div className="flex gap-2">
                       <i className="w-4 h-4 ri-map-pin-line" />
                       <span className="text-white text-sm lg:text-base font-semibold font-urbanist">
-                        {model.location}
+                        {model.address}
                       </span>
                     </div>
                   </>
@@ -258,7 +175,7 @@ export default function HireModel() {
             >
               <div className="flex items-center gap-2">
                 <Image
-                  src="/small_star.svg"
+                  src="/svg-icons/small_star.svg"
                   alt=""
                   width={20}
                   height={20}
@@ -277,7 +194,7 @@ export default function HireModel() {
                     <div className="flex gap-2">
                       <i className="w-4 h-4 ri-map-pin-line" />
                       <span className="text-white text-sm lg:text-base font-semibold font-urbanist">
-                        {model.location}
+                        {model.address}
                       </span>
                     </div>
                   </>

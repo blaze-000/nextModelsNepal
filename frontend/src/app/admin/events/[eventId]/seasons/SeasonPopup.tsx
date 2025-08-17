@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { motion } from "framer-motion";
 
 import Modal from "@/components/admin/Modal";
-import { AdminButton } from "@/components/admin/AdminButton";
+import { Button } from "@/components/ui/button";
 import Input from "@/components/admin/form/input";
 import Textarea from "@/components/admin/form/textarea";
 import Select from "@/components/admin/form/select";
@@ -455,7 +455,7 @@ export default function SeasonPopup({
       } else {
         throw new Error(
           response.data.message ||
-            `Failed to ${isEditing ? "update" : "create"} season`
+          `Failed to ${isEditing ? "update" : "create"} season`
         );
       }
     } catch (error: unknown) {
@@ -489,22 +489,20 @@ export default function SeasonPopup({
           <div className="mb-6">
             <div className="flex items-center justify-center space-x-4">
               <div
-                className={`flex items-center space-x-2 ${
-                  currentStep === 1
-                    ? "text-gold-500"
-                    : currentStep > 1
+                className={`flex items-center space-x-2 ${currentStep === 1
+                  ? "text-gold-500"
+                  : currentStep > 1
                     ? "text-green-500"
                     : "text-gray-400"
-                }`}
+                  }`}
               >
                 <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${
-                    currentStep === 1
-                      ? "border-gold-500 bg-gold-500/20"
-                      : currentStep > 1
+                  className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${currentStep === 1
+                    ? "border-gold-500 bg-gold-500/20"
+                    : currentStep > 1
                       ? "border-green-500 bg-green-500/20"
                       : "border-gray-400 bg-gray-400/20"
-                  }`}
+                    }`}
                 >
                   {currentStep > 1 ? (
                     <i className="ri-check-line text-sm"></i>
@@ -516,22 +514,19 @@ export default function SeasonPopup({
               </div>
 
               <div
-                className={`w-12 h-0.5 ${
-                  currentStep > 1 ? "bg-green-500" : "bg-gray-400"
-                }`}
+                className={`w-12 h-0.5 ${currentStep > 1 ? "bg-green-500" : "bg-gray-400"
+                  }`}
               ></div>
 
               <div
-                className={`flex items-center space-x-2 ${
-                  currentStep === 2 ? "text-gold-500" : "text-gray-400"
-                }`}
+                className={`flex items-center space-x-2 ${currentStep === 2 ? "text-gold-500" : "text-gray-400"
+                  }`}
               >
                 <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${
-                    currentStep === 2
-                      ? "border-gold-500 bg-gold-500/20"
-                      : "border-gray-400 bg-gray-400/20"
-                  }`}
+                  className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${currentStep === 2
+                    ? "border-gold-500 bg-gold-500/20"
+                    : "border-gray-400 bg-gray-400/20"
+                    }`}
                 >
                   <span className="text-sm font-medium">2</span>
                 </div>
@@ -568,11 +563,10 @@ export default function SeasonPopup({
                 {statusOptions.map((option) => (
                   <div
                     key={option.value}
-                    className={`relative p-6 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
-                      formData.status === option.value
-                        ? "border-gold-500 bg-gold-500/10"
-                        : "border-gray-600 bg-gray-800/50 hover:border-gray-500"
-                    }`}
+                    className={`relative p-6 rounded-lg border-2 cursor-pointer transition-all duration-200 ${formData.status === option.value
+                      ? "border-gold-500 bg-gold-500/10"
+                      : "border-gray-600 bg-gray-800/50 hover:border-gray-500"
+                      }`}
                     onClick={() =>
                       setFormData((prev) => ({
                         ...prev,
@@ -585,22 +579,20 @@ export default function SeasonPopup({
                   >
                     <div className="text-center space-y-3">
                       <div
-                        className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto ${
-                          option.value === "upcoming"
-                            ? "bg-blue-500/20"
-                            : option.value === "ongoing"
+                        className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto ${option.value === "upcoming"
+                          ? "bg-blue-500/20"
+                          : option.value === "ongoing"
                             ? "bg-green-500/20"
                             : "bg-gray-500/20"
-                        }`}
+                          }`}
                       >
                         <i
-                          className={`text-xl ${
-                            option.value === "upcoming"
-                              ? "ri-time-line text-blue-400"
-                              : option.value === "ongoing"
+                          className={`text-xl ${option.value === "upcoming"
+                            ? "ri-time-line text-blue-400"
+                            : option.value === "ongoing"
                               ? "ri-play-line text-green-400"
                               : "ri-check-line text-gray-400"
-                          }`}
+                            }`}
                         ></i>
                       </div>
                       <h4 className="font-semibold text-gray-100">
@@ -610,8 +602,8 @@ export default function SeasonPopup({
                         {option.value === "upcoming"
                           ? "Season hasn't started yet"
                           : option.value === "ongoing"
-                          ? "Season is currently active"
-                          : "Season has completed"}
+                            ? "Season is currently active"
+                            : "Season has completed"}
                       </p>
                     </div>
 
@@ -633,14 +625,14 @@ export default function SeasonPopup({
               )}
 
               <div className="flex justify-end pt-6">
-                <AdminButton
+                <Button
                   type="button"
                   onClick={handleStepNext}
                   disabled={!formData.status}
                 >
                   Continue
                   <i className="ri-arrow-right-line ml-2"></i>
-                </AdminButton>
+                </Button>
               </div>
             </motion.div>
           )}
@@ -659,22 +651,20 @@ export default function SeasonPopup({
                 <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-600">
                   <div className="flex items-center space-x-3">
                     <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                        formData.status === "upcoming"
-                          ? "bg-blue-500/20"
-                          : formData.status === "ongoing"
+                      className={`w-8 h-8 rounded-full flex items-center justify-center ${formData.status === "upcoming"
+                        ? "bg-blue-500/20"
+                        : formData.status === "ongoing"
                           ? "bg-green-500/20"
                           : "bg-gray-500/20"
-                      }`}
+                        }`}
                     >
                       <i
-                        className={`text-sm ${
-                          formData.status === "upcoming"
-                            ? "ri-time-line text-blue-400"
-                            : formData.status === "ongoing"
+                        className={`text-sm ${formData.status === "upcoming"
+                          ? "ri-time-line text-blue-400"
+                          : formData.status === "ongoing"
                             ? "ri-play-line text-green-400"
                             : "ri-check-line text-gray-400"
-                        }`}
+                          }`}
                       ></i>
                     </div>
                     <div>
@@ -821,40 +811,40 @@ export default function SeasonPopup({
                   {/* Voting End Date - For upcoming and ongoing seasons */}
                   {(formData.status === "upcoming" ||
                     formData.status === "ongoing") && (
-                    <Input
-                      label="Voting End Date"
-                      name="votingEndDate"
-                      type="date"
-                      value={formData.votingEndDate}
-                      onChange={handleInputChange}
-                      required
-                      error={errors.votingEndDate}
-                      disabled={submitting}
-                    />
-                  )}
+                      <Input
+                        label="Voting End Date"
+                        name="votingEndDate"
+                        type="date"
+                        value={formData.votingEndDate}
+                        onChange={handleInputChange}
+                        required
+                        error={errors.votingEndDate}
+                        disabled={submitting}
+                      />
+                    )}
                 </div>
 
                 {/* Voting Opened Checkbox - For upcoming and ongoing seasons */}
                 {(formData.status === "upcoming" ||
                   formData.status === "ongoing") && (
-                  <div className="flex items-center space-x-3">
-                    <input
-                      type="checkbox"
-                      id="votingOpened"
-                      name="votingOpened"
-                      checked={formData.votingOpened}
-                      onChange={handleInputChange}
-                      disabled={submitting}
-                      className="w-4 h-4 text-gold-500 bg-gray-700 border-gray-600 rounded focus:ring-gold-500 focus:ring-2"
-                    />
-                    <label
-                      htmlFor="votingOpened"
-                      className="text-sm text-gray-300"
-                    >
-                      Voting is currently opened
-                    </label>
-                  </div>
-                )}
+                    <div className="flex items-center space-x-3">
+                      <input
+                        type="checkbox"
+                        id="votingOpened"
+                        name="votingOpened"
+                        checked={formData.votingOpened}
+                        onChange={handleInputChange}
+                        disabled={submitting}
+                        className="w-4 h-4 text-gold-500 bg-gray-700 border-gray-600 rounded focus:ring-gold-500 focus:ring-2"
+                      />
+                      <label
+                        htmlFor="votingOpened"
+                        className="text-sm text-gray-300"
+                      >
+                        Voting is currently opened
+                      </label>
+                    </div>
+                  )}
               </div>
 
               {/* Images */}
@@ -1049,7 +1039,7 @@ export default function SeasonPopup({
                         disabled={submitting}
                       />
                       <div className="flex items-end">
-                        <AdminButton
+                        <Button
                           type="button"
                           variant="destructive"
                           size="sm"
@@ -1060,12 +1050,12 @@ export default function SeasonPopup({
                           className="w-full"
                         >
                           <i className="ri-delete-bin-line"></i>
-                        </AdminButton>
+                        </Button>
                       </div>
                     </div>
                   ))}
 
-                  <AdminButton
+                  <Button
                     type="button"
                     variant="outline"
                     onClick={addTimelineItem}
@@ -1074,7 +1064,7 @@ export default function SeasonPopup({
                   >
                     <i className="ri-add-line mr-2"></i>
                     Add Timeline Item
-                  </AdminButton>
+                  </Button>
                 </div>
               </div>
 
@@ -1082,7 +1072,7 @@ export default function SeasonPopup({
               <div className="flex flex-col sm:flex-row justify-between gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
                 <div className="flex gap-3">
                   {!isEditing && (
-                    <AdminButton
+                    <Button
                       type="button"
                       variant="outline"
                       onClick={handleStepBack}
@@ -1090,23 +1080,23 @@ export default function SeasonPopup({
                     >
                       <i className="ri-arrow-left-line mr-2"></i>
                       Back
-                    </AdminButton>
+                    </Button>
                   )}
-                  <AdminButton
+                  <Button
                     variant="ghost"
                     onClick={handleClose}
                     type="button"
                     disabled={submitting}
                   >
                     Cancel
-                  </AdminButton>
+                  </Button>
                 </div>
 
-                <AdminButton type="submit" disabled={submitting}>
+                <Button type="submit" disabled={submitting}>
                   {submitting
                     ? `${isEditing ? "Updating" : "Creating"}...`
                     : `${isEditing ? "Update" : "Create"} Season`}
-                </AdminButton>
+                </Button>
               </div>
             </motion.div>
           )}

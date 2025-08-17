@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 
 import Modal from "@/components/admin/Modal";
-import { AdminButton } from "@/components/admin/AdminButton";
+import { Button } from "@/components/ui/button";
 import Input from "@/components/admin/form/input";
 import Textarea from "@/components/admin/form/textarea";
 import Select from "@/components/admin/form/select";
@@ -217,7 +217,7 @@ export default function EventPopup({
       } else {
         throw new Error(
           response.data.message ||
-            `Failed to ${isEditing ? "update" : "create"} event`
+          `Failed to ${isEditing ? "update" : "create"} event`
         );
       }
     } catch (error: unknown) {
@@ -421,7 +421,7 @@ export default function EventPopup({
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
-          <AdminButton
+          <Button
             variant="ghost"
             onClick={handleClose}
             type="button"
@@ -429,8 +429,8 @@ export default function EventPopup({
             className="order-2 sm:order-1"
           >
             Cancel
-          </AdminButton>
-          <AdminButton
+          </Button>
+          <Button
             type="submit"
             disabled={submitting}
             className="order-1 sm:order-2"
@@ -438,7 +438,7 @@ export default function EventPopup({
             {submitting
               ? `${isEditing ? "Updating" : "Creating"}...`
               : `${isEditing ? "Update" : "Create"} Event`}
-          </AdminButton>
+          </Button>
         </div>
       </form>
     </Modal>

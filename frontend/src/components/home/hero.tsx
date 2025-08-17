@@ -14,7 +14,7 @@ const HeroSection = () => {
       try {
         const res = await Axios.get("/api/hero");
         const data = res.data;
-        console.log(data.data[0]);
+        // console.log(data.data[0]);
         setData(data.data[0]);
       } catch (err) {
         console.log(err);
@@ -34,16 +34,16 @@ const HeroSection = () => {
             className="space-y-2 pt-8 lg:pt-20 lg:pb-[7.5rem] -mb-8 md:mb-0"
           >
             {/* We are Next Models Nepal */}
-            <div className="self-stretch justify-center">
-              <span className="text-white text-2xl leading-loose tracking-wide">
+            <div className="self-stretch justify-center text-xl xs:text-2xl leading-loose tracking-wide">
+              <span className="text-foreground">
                 We are{" "}
               </span>
-              <span className="text-gold-500 text-2xl font-normal leading-loose tracking-wide">
+              <span className="text-gold-500 font-normal">
                 Next Models Nepal
               </span>
             </div>
             {/* Main Title with Badge */}
-            <div className="space-y-2 text-6xl md:text-7xl lg:text-8xl">
+            <div className="space-y-2 text-5xl xs:text-6xl md:text-7xl lg:text-8xl">
               <div>
                 <span className="text-white font-extralight font-newsreader tracking-tighter">
                   Nepal&rsquo;s{" "}
@@ -52,7 +52,7 @@ const HeroSection = () => {
                   No.1
                 </span>
               </div>
-              <div className="flex items-baseline gap-2">
+              <div className="flex items-center md:items-baseline gap-2">
                 {/* Badge image with soft layered shadow */}
                 <div className="w-40 h-16 relative">
                   <Image
@@ -144,7 +144,7 @@ const HeroSection = () => {
             {/* Center decorative element */}
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
               <Image
-                src="/small_star.svg"
+                src="/svg-icons/small_star.svg"
                 alt=""
                 width={25}
                 height={25}

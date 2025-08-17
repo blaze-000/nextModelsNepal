@@ -33,6 +33,7 @@ import sponsorsRoutes from "./routes/sponsor.route";
 import auditionsRoutes from "./routes/audition.route";
 import contestantRoutes from "./routes/contestant.route";
 import criteriaRoutes from "./routes/criteria.route";
+import newsletterRoutes from "./routes/newsletter.route";
 const app = express();
 
 app.use(cookieParser());
@@ -108,6 +109,7 @@ app.use("/api/contact", contactRoutes);
 app.use("/api/hire-model", hireRoutes);
 app.use("/api/app-form", appRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/newsletter", newsletterRoutes);
 
 // Global error handler for Multer errors
 app.use((error: any, req: Request, res: Response, next: NextFunction) => {

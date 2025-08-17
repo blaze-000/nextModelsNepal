@@ -1,26 +1,23 @@
 import { motion } from "framer-motion";
 import ImageBox from "../molecules/image-box";
+import { useEffect, useState } from "react";
+import Axios from "@/lib/axios-instance";
+import { normalizeImagePath } from "@/lib/utils";
+import Link from "next/link";
 
 const NewsSection = () => {
-  const newsItems = [
-    {
-      id: 1,
-      image: "/news_1.jpg",
-      title:
-        "Bivash Bista and Neha Budha Crowned Winners of Model Hunt Nepal Season 9",
-      description:
-        "Our recent fashion show made headlines, showcasing Nepal's emerging talent pool in the modeling industry.",
-      link: "#",
-    },
-    {
-      id: 2,
-      image: "/news_1.jpg",
-      title: "Next Models Nepal Hosts Successful Fashion Week Event",
-      description:
-        "A spectacular showcase of emerging designers and models, setting new standards for the Nepalese fashion industry.",
-      link: "#",
-    },
-  ];
+  const [newsItems, setNewsItems] = useState<NewsItem[] | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const response = await Axios.get("/api/news");
+        setNewsItems(response.data.data.slice(0, 2));
+      } catch (error) {
+        console.error("Error fetching news:", error);
+      }
+    })();
+  }, []);
 
   return (
     <section className="w-full bg-background pb-24 pt-20 md:py-16">
@@ -50,16 +47,16 @@ const NewsSection = () => {
 
         {/* News Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-6">
-          {newsItems.map((item, i) => (
+          {newsItems?.map((item, i) => (
             <motion.div
-              key={item.id}
+              key={item._id}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 * i }}
               viewport={{ once: true }}
             >
               <ImageBox
-                image={item.image}
+                image={normalizeImagePath(item.image)}
                 title={item.title}
                 desc={item.description}
                 link={item.link}
@@ -68,9 +65,26 @@ const NewsSection = () => {
             </motion.div>
           ))}
         </div>
+
+        <motion.div
+          className="flex justify-center mt-10"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+        >
+          <Link
+            href="/events/news-press"
+            className="py-4 md:mb-8 lg:mb-0 rounded-full text-gold-500 text-base -tracking-tight font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer ml-auto"
+          >
+            <span className="underline underline-offset-4">
+              View All News
+            </span>
+            <i className="ri-arrow-right-up-line group-hover:scale-130 transition-transform duration-400 text-xl font-extralight" />
+          </Link>
+        </motion.div>
       </div>
     </section>
-
   );
 };
 

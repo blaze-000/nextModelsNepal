@@ -1,7 +1,7 @@
 "use client";
 
 import Modal from "@/components/admin/Modal";
-import { AdminButton } from "@/components/admin/AdminButton";
+import { Button } from "@/components/ui/button";
 
 interface DeleteConfirmModalProps {
   isOpen: boolean;
@@ -35,22 +35,22 @@ export default function DeleteConfirmModal({
         </div>
 
         <div className="flex flex-col-reverse sm:flex-row justify-end gap-3">
-          <AdminButton
+          <Button
             variant="ghost"
             onClick={onClose}
             disabled={isDeleting}
             className="w-full sm:w-auto"
           >
             Cancel
-          </AdminButton>
-          <AdminButton
+          </Button>
+          <Button
             variant="destructive"
             onClick={onConfirm}
             disabled={isDeleting}
             className="w-full sm:w-auto"
           >
             {isDeleting ? "Deleting..." : confirmText}
-          </AdminButton>
+          </Button>
         </div>
       </div>
     </Modal>

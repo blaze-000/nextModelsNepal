@@ -1,11 +1,13 @@
 import { Router } from "express";
 import * as seasonController from "../controllers/season.controller";
 import upload from "../middleware/upload"; // Import multer middleware
+import { verifyAdminToken } from "../middleware/auth.middleware";
 
 const router = Router();
 
 // Create season under an event (with file uploads)
 router.post("/",
+    verifyAdminToken,
     upload.fields([
         { name: 'image', maxCount: 1 },
         { name: 'titleImage', maxCount: 1 },
@@ -26,6 +28,7 @@ router.get("/:id", seasonController.getSeasonById);
 
 // Update season (with file uploads)
 router.patch("/:id",
+    verifyAdminToken,
     upload.fields([
         { name: 'image', maxCount: 1 },
         { name: 'titleImage', maxCount: 1 },
@@ -36,9 +39,9 @@ router.patch("/:id",
 );
 
 // Delete season
-router.delete("/:id", seasonController.deleteSeason);
-
-// Sync event-seasons relationship (for fixing existing data)
-router.post("/sync", seasonController.syncEventSeasons);
+router.delete("/:id",
+    verifyAdminToken,
+    seasonController.deleteSeason
+);
 
 export default router;

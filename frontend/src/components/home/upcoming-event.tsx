@@ -11,7 +11,7 @@ const UpcomingEventSection = () => {
   useEffect(() => {
     (async () => {
       try {
-        const res = await Axios.get('/api/next-events');
+        const res = await Axios.get('/api/next-events-latest');
         const data = res.data;
         // console.log(data.data[0]);
         setData(data.data[0])
@@ -36,7 +36,7 @@ const UpcomingEventSection = () => {
         >
           <div className="flex justify-center items-center gap-2 mb-8">
             <Image
-              src="/star.svg"
+              src="/svg-icons/star.svg"
               alt=""
               width={24}
               height={0}
@@ -54,7 +54,7 @@ const UpcomingEventSection = () => {
                 <span className="text-gold-500 relative inline-block">
                   Shine
                   <Image
-                    src="/star.svg"
+                    src="/svg-icons/star.svg"
                     alt=""
                     height={1}
                     width={1}
@@ -81,7 +81,7 @@ const UpcomingEventSection = () => {
                 <span className="text-gold-500 relative inline-block">
                   Shine
                   <Image
-                    src="/star.svg"
+                    src="/svg-icons/star.svg"
                     alt=""
                     height={20}
                     width={20}
@@ -90,12 +90,12 @@ const UpcomingEventSection = () => {
                 </span>
                 <span>on Nepal&rsquo;s Premier</span>
                 <Image
-                  src={`${process.env.NEXT_PUBLIC_API_URL}/${data?.titleImage}`}
+                  src="/upcoming-event-title-image.jpg"
                   alt=""
                   width={1}
                   height={0}
                   sizes="100vw"
-                  className="w-32 h-16 rounded-full border border-stone-300 mb-3"
+                  className="w-32 h-16 rounded-full border border-stone-300 mb-3 object-cover object-top"
                 />
                 <span>Fashion Event.</span>
               </div>

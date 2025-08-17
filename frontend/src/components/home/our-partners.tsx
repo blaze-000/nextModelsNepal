@@ -1,22 +1,22 @@
 "use client";
 import Image from "next/image";
-import React from "react";
+import { useState, useEffect } from "react";
 import PartnerScroller from "./../molecules/scroller";
 import { motion } from "framer-motion";
-
-const partners = [
-  { name: "1", image: "/partners/img1.png" },
-  { name: "2", image: "/partners/img2.png" },
-  { name: "3", image: "/partners/img3.png" },
-  { name: "4", image: "/partners/img4.png" },
-  { name: "5", image: "/partners/img5.png" },
-  { name: "6", image: "/partners/img6.png" },
-  { name: "7", image: "/partners/img7.png" },
-  { name: "8", image: "/partners/img8.png" },
-  { name: "9", image: "/partners/img9.png" },
-];
+import Axios from "@/lib/axios-instance";
 
 const OurPartners = () => {
+  const [partners, setPartners] = useState<Partner[] | null>(null);
+  useEffect(() => {
+    (async () => {
+      try {
+        const response = await Axios.get("/api/partners");
+        setPartners(response.data.data);
+      } catch (error) {
+        console.log(error);
+      }
+    })();
+  }, []);
   return (
     <section className="w-full py-16">
       <motion.div
@@ -31,7 +31,7 @@ const OurPartners = () => {
           <h2 className="text-4xl md:text-5xl font-extralight tracking-tight text-center md:text-left relative">
             Our Strategic
             <Image
-              src="/star.svg"
+              src="/svg-icons/star.svg"
               alt=""
               width={30}
               height={0}
@@ -66,7 +66,7 @@ const OurPartners = () => {
         transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
         viewport={{ once: true }}
       >
-        <PartnerScroller partners={partners} speed={200} />
+        <PartnerScroller partners={partners || []} speed={200} />
       </motion.div>
     </section>
 

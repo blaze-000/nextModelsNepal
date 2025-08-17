@@ -15,10 +15,10 @@ const newsSchema = new mongoose.Schema({
     default: () => String(new Date().getFullYear()),
     required: true,
   },
-  image: { type: String },
+  image: { type: String, required: true },
   event: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "EventModel",
+    ref: "Event",
   },
 });
 

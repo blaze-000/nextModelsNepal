@@ -55,7 +55,7 @@ export const UpcomingEvents = () => {
           <div className="block md:hidden space-y-4 px-2">
             <div className="flex items-center justify-center gap-2">
               <Image
-                src="/small_star.svg"
+                src="/svg-icons/small_star.svg"
                 alt=""
                 width={1}
                 height={0}

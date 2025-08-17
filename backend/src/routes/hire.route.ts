@@ -1,20 +1,24 @@
 import { Router } from "express";
 import { createHire, deleteHiredModelById, getAllHires, getHireById } from "../controllers/hire.controller";
 import { hireLimiter } from "../middleware/rateLimiters";
+import { verifyAdminToken } from "../middleware/auth.middleware";
 
 
 const router = Router();
 
 // Get all hire requests (admin only)
-router.route("/").get(getAllHires);
+router.get("/", getAllHires);
 
 // Create hire request for specific model
-router.route("/:id").post(hireLimiter, createHire);
+router.post("/:id", createHire);
 
 // Get single hire request by ID (admin only)
-router.route("/:id").get(getHireById);
+router.get("/:id", getHireById);
 
 // Delete hire request by ID (admin only)
-router.route("/:id").delete(deleteHiredModelById);
+router.delete("/:id",
+    verifyAdminToken,
+    deleteHiredModelById
+);
 
 export default router;

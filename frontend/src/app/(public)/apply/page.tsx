@@ -3,14 +3,14 @@ import Link from "next/link";
 
 export default function ApplyPage() {
   return (
-    <section className="py-40 mdplus:py-20 flex flex-col">
-      <div className="max-w-7xl px-6 mx-auto">
+    <section className="py-40 mdplus:py-20 flex flex-col min-h-[60vh]">
+      <div className="max-w-7xl px-6 m-auto">
         <h1 className="pb-8 mdplus:pb-3 w-full mb-6">
           <div className=" flex gap-2 items-center justify-center w-full font-medium text-xl font-newsreader">
             <Image
               width={40}
               height={0}
-              src="/small_star.svg"
+              src="/svg-icons/small_star.svg"
               alt=""
               className="w-4 h-4"
             />
@@ -21,10 +21,10 @@ export default function ApplyPage() {
         <div className="flex flex-col mdplus:flex-row gap-8 text-primary">
           <Link href="/models" className="border border-gold-500 rounded-full w-72 h-16 flex items-center gap-6 cursor-pointer hover:text-white">
             <Image
-              src="/bro_1.png"
+              src="/hire-a-model-title-image.jpg"
               width={150}
               height={0}
-              alt="sdfsd"
+              alt=""
               className="w-25 h-full rounded-full object-cover"
             />
             <span className="flex gap-1 items-center">
@@ -34,10 +34,10 @@ export default function ApplyPage() {
           </Link>
           <Link href="/become-a-model" className="border  border-gold-500 rounded-full w-72 h-16 flex items-center gap-6 cursor-pointer hover:text-white">
             <Image
-              src="/bro_1.png"
+              src="/become-a-model-title-image.jpg"
               width={150}
               height={0}
-              alt="sdfsd"
+              alt=""
               className="w-25 h-full rounded-full object-cover"
             />
             <span className="flex gap-1 items-center">

@@ -1,11 +1,13 @@
 import { Router } from "express";
 import * as winnerController from "../controllers/winner.controller";
 import upload from "../middleware/upload"; // Import multer middleware
+import { verifyAdminToken } from "../middleware/auth.middleware";
 
 const router = Router();
 
 // Create winner with image upload
 router.post("/",
+    verifyAdminToken,
     upload.single('image'), // Handle single file upload for winner image
     winnerController.createWinner
 );
@@ -18,11 +20,15 @@ router.get("/:id", winnerController.getWinnerById);
 
 // Update winner with optional image upload
 router.put("/:id",
+    verifyAdminToken,
     upload.single('image'), // Handle optional image update
     winnerController.updateWinner
 );
 
 // Delete winner
-router.delete("/:id", winnerController.deleteWinner);
+router.delete("/:id",
+    verifyAdminToken,
+    winnerController.deleteWinner
+);
 
 export default router;

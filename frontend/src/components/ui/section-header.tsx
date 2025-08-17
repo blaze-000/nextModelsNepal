@@ -31,7 +31,7 @@ export default function SectionHeader({
         {centered ? (
           <div className="flex items-center gap-2">
             <Image
-              src="/small_star.svg"
+              src="/svg-icons/small_star.svg"
               alt=""
               width={1}
               height={0}
@@ -45,7 +45,7 @@ export default function SectionHeader({
         ) : (
           <div className="flex-1 flex gap-2">
             <Image
-              src="/small_star.svg"
+              src="/svg-icons/small_star.svg"
               alt=""
               width={1}
               height={0}
@@ -63,7 +63,7 @@ export default function SectionHeader({
       <div className="block md:hidden space-y-4">
         <div className="flex items-center justify-center gap-2">
           <Image
-            src="/small_star.svg"
+            src="/svg-icons/small_star.svg"
             alt=""
             width={1}
             height={0}

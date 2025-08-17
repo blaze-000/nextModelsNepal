@@ -3,10 +3,12 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { menuItems, type MenuItem, type MenuSection } from "../data/menuItems";
+import { usePathname, useRouter } from "next/navigation";
+import { menuItems, type MenuItem, type MenuSection } from "./menuItems";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import useAuth from "@/hooks/useAuth";
+import Axios from "@/lib/axios-instance";
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -132,6 +134,21 @@ export default function Sidebar({
   isMobile = false,
 }: SidebarProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const auth = useAuth();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      await Axios.post("/api/auth/logout");
+      auth?.logout();
+      router.push("/login");
+    } catch (error) {
+      console.error("Logout failed:", error);
+      // Still logout locally even if server request fails
+      auth?.logout();
+      router.push("/login");
+    }
+  };
 
   // On mobile, always expand when open. On desktop, expand on hover when collapsed
   const shouldExpand = isMobile
@@ -228,36 +245,37 @@ export default function Sidebar({
               isMobile={isMobile}
             />
           ))}
-        </nav>
 
-        {/* Bottom Section */}
-        <div className="p-4 border-t border-gold-900/20">
-          <motion.div
-            className={cn(
-              "group flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-all duration-200",
-              "hover:bg-gold-900/30 text-foreground/80 hover:text-foreground relative",
-              (isMobile ? !isMobileOpen : !shouldExpand) && "justify-center"
-            )}
-            whileHover={{ x: 2 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <i className="ri-logout-box-line text-xl flex-shrink-0" />
-
-            <AnimatePresence>
-              {(isMobile ? isMobileOpen : shouldExpand) && (
-                <motion.span
-                  initial={{ opacity: 0, width: 0 }}
-                  animate={{ opacity: 1, width: "auto" }}
-                  exit={{ opacity: 0, width: 0 }}
-                  transition={{ duration: 0.3, ease: "easeInOut" }}
-                  className="font-medium whitespace-nowrap"
-                >
-                  Logout
-                </motion.span>
+          {/* Bottom Section */}
+          <div className="p-4 border-t border-gold-900/20">
+            <motion.div
+              onClick={handleLogout}
+              className={cn(
+                "group flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-all duration-200",
+                "hover:bg-gold-900/30 text-foreground/80 hover:text-foreground relative",
+                (isMobile ? !isMobileOpen : !shouldExpand) && "justify-center"
               )}
-            </AnimatePresence>
-          </motion.div>
-        </div>
+              whileHover={{ x: 2 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <i className="ri-logout-box-line text-xl flex-shrink-0" />
+
+              <AnimatePresence>
+                {(isMobile ? isMobileOpen : shouldExpand) && (
+                  <motion.span
+                    initial={{ opacity: 0, width: 0 }}
+                    animate={{ opacity: 1, width: "auto" }}
+                    exit={{ opacity: 0, width: 0 }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    className="font-medium whitespace-nowrap"
+                  >
+                    Logout
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          </div>
+        </nav>
       </motion.aside>
     </>
   );

@@ -9,8 +9,9 @@ export const getVotingState = async (req: Request, res: Response) => {
         const nav = await NavModel.findOne();
 
         if (!nav) {
-            return res.status(404).json({
-                success: false,
+            return res.status(200).json({
+                success: true,
+                data: false,
                 message: "Navigation settings not found"
             });
         }
@@ -68,14 +69,17 @@ export const getAllNavInfo = async (req: Request, res: Response) => {
         const nav = await NavModel.findOne().select("showVoting");
 
         if (!nav) {
-            return res.status(404).json({
-                success: false,
+            return res.status(200).json({
+                success: true,
+                data: false,
                 message: "Navigation settings not found"
             });
         }
 
         // Get all events with their seasons populated
         const events = await EventModel.find().populate('seasons');
+
+        console.log(events);
 
         // Process events into self and partner categories
         const selfEvents = [];

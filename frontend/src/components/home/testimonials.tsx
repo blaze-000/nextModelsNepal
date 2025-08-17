@@ -1,60 +1,10 @@
 "use client";
 import Image from "next/image";
-import React, { useState, useEffect } from "react";
+import type React from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Axios from "@/lib/axios-instance";
 import { normalizeImagePath } from "@/lib/utils";
-
-// const dummyTestimonials: Testimonial[] = [
-//   {
-//     quote:
-//       "Next Model Nepal is a game-changer in the modeling industry. Their commitment to nurturing talent and providing a platform for models to shine is commendable. The events are well-organized, and the networking opportunities are immense. I've learned and grown so much since joining, and I highly recommend it to any aspiring model.",
-//     name: "Ronish Khadgi",
-//     image: "/news_1.jpg",
-//   },
-//   {
-//     quote:
-//       "As a model for Next Model Nepal, I've had an incredible experience. The opportunities provided by this platform are unparalleled, and the exposure I've gained has significantly boosted my career. The team is professional, supportive, and always strives to bring out the best in us. I'm proud to be associated with such a prestigious organization.",
-//     name: "Bikram Aditya Mahaseth",
-//     image: "/news_1.jpg",
-//   },
-//   {
-//     quote:
-//       "Being a part of Next Model Nepal has been a transformative experience for me. The platform offers excellent training, exposure, and opportunities that have helped me advance my modeling career and grow as a model. The team's dedication to excellence is evident in every aspect of their work.",
-//     name: "Samrat Pratap Singh",
-//     image: "/news_1.jpg",
-//   },
-//   {
-//     quote:
-//       "Next Model Nepal is a game-changer in the modeling industry. Their commitment to nurturing talent and providing a platform for models to shine is commendable. The events are well-organized, and the networking opportunities are immense. I've learned and grown so much since joining, and I highly recommend it to any aspiring model.",
-//     name: "Monika Adhikary",
-//     image: "/news_1.jpg",
-//   },
-//   {
-//     quote:
-//       "As a model for Next Model Nepal, I've had an incredible experience. The opportunities provided by this platform are unparalleled, and the exposure I've gained has significantly boosted my career. The team is professional, supportive, and always strives to bring out the best in us. I'm proud to be associated with such a prestigious organization.",
-//     name: "Bikram Aditya Mahaseth",
-//     image: "/news_1.jpg",
-//   },
-//   {
-//     quote:
-//       "Next Model Nepal is a game-changer in the modeling industry. Their commitment to nurturing talent and providing a platform for models to shine is commendable. The events are well-organized, and the networking opportunities are immense. I've learned and grown so much since joining, and I highly recommend it to any aspiring model.",
-//     name: "Ronish Khadgi",
-//     image: "/news_1.jpg",
-//   },
-//   {
-//     quote:
-//       "Next Model Nepal is a game-changer in the modeling industry. Their commitment to nurturing talent and providing a platform for models to shine is commendable. The events are well-organized, and the networking opportunities are immense. I've learned and grown so much since joining, and I highly recommend it to any aspiring model.",
-//     name: "Monika Adhikary",
-//     image: "/news_1.jpg",
-//   },
-//   {
-//     quote:
-//       "Being a part of Next Model Nepal has been a transformative experience for me. The platform offers excellent training, exposure, and opportunities that have helped me advance my modeling career and grow as a model. The team's dedication to excellence is evident in every aspect of their work.",
-//     name: "Samrat Pratap Singh",
-//     image: "/news_1.jpg",
-//   },
-// ];
 
 const TestimonialSection: React.FC = () => {
   const [data, setData] = useState<Testimonial[] | null>(null);
@@ -64,18 +14,18 @@ const TestimonialSection: React.FC = () => {
       try {
         const res = await Axios.get('/api/feedback');
         const data = res.data;
-        console.log(data.data.item);
-        setData(data.data.item);
+        // console.log(data.data);
+        setData(data.data);
       }
       catch (err) {
-        // console.log(err);
+        console.log(err);
       }
     })();
   }, []);
 
   const [page, setPage] = useState(0);
   const itemsPerPage = 4;
-  const maxPage = Math.ceil((data?.length || 0 )/ itemsPerPage) - 1;
+  const maxPage = Math.ceil((data?.length || 0) / itemsPerPage) - 1;
 
   const handlePrev = () => setPage((p) => (p > 0 ? p - 1 : p));
   const handleNext = () => setPage((p) => (p < maxPage ? p + 1 : p));
@@ -95,7 +45,7 @@ const TestimonialSection: React.FC = () => {
         <div className="text-gold-500 relative inline-block">
           Shining Stars
           <Image
-            src="/star.svg"
+            src="/svg-icons/star.svg"
             alt=""
             height={12}
             width={12}
@@ -126,11 +76,12 @@ const TestimonialSection: React.FC = () => {
               <div className="flex items-center mt-auto pt-4">
                 <div className="relative w-10 h-10 rounded-full overflow-hidden mr-3">
                   <Image
-                    src={normalizeImagePath(testimonial.images)}
+                    src={normalizeImagePath(testimonial.image)}
                     alt={testimonial.name}
                     layout="fill"
                     objectFit="cover"
                     quality={75}
+                    className="object-top"
                   />
                 </div>
                 <p className="text-neutral-100 font-semibold">
@@ -162,11 +113,12 @@ const TestimonialSection: React.FC = () => {
                 <div className="flex items-center mt-auto pt-4">
                   <div className="relative w-10 h-10 rounded-full overflow-hidden mr-3">
                     <Image
-                      src={normalizeImagePath(testimonial.images)}
+                      src={normalizeImagePath(testimonial.image)}
                       alt={testimonial.name}
                       layout="fill"
                       objectFit="cover"
                       quality={75}
+                      className="object-top"
                     />
                   </div>
                   <p className="text-neutral-100 font-semibold">{testimonial.name}</p>

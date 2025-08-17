@@ -7,7 +7,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 import PageHeader from "@/components/admin/PageHeader";
-import { AdminButton } from "@/components/admin/AdminButton";
+
 import DeleteConfirmModal from "@/components/admin/DeleteConfirmModal";
 import EventPopup, { BackendEvent } from "./EventPopup";
 
@@ -237,11 +237,10 @@ export default function EventsAdminPage() {
                   {/* Managed By Badge */}
                   <div className="absolute top-3 right-3">
                     <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        event.managedBy === "self"
-                          ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                          : "bg-blue-500/20 text-blue-400 border border-blue-500/30"
-                      }`}
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${event.managedBy === "self"
+                        ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                        : "bg-blue-500/20 text-blue-400 border border-blue-500/30"
+                        }`}
                     >
                       {event.managedBy === "self"
                         ? "Self Managed"
@@ -269,7 +268,7 @@ export default function EventsAdminPage() {
 
                   {/* Actions */}
                   <div className="flex gap-2">
-                    <AdminButton
+                    <Button
                       variant="outline"
                       size="sm"
                       onClick={() => handleViewEvent(event)}
@@ -277,9 +276,9 @@ export default function EventsAdminPage() {
                     >
                       <i className="ri-eye-line mr-1 lg:mr-2"></i>
                       View
-                    </AdminButton>
+                    </Button>
 
-                    <AdminButton
+                    <Button
                       variant="outline"
                       size="sm"
                       onClick={() => handleEditEvent(event)}
@@ -287,16 +286,16 @@ export default function EventsAdminPage() {
                     >
                       <i className="ri-edit-line mr-1 lg:mr-2"></i>
                       Edit
-                    </AdminButton>
+                    </Button>
 
-                    <AdminButton
+                    <Button
                       variant="destructive"
                       size="sm"
                       onClick={() => openDeleteModal(event)}
                       className="px-2 lg:px-3"
                     >
                       <i className="ri-delete-bin-line text-sm"></i>
-                    </AdminButton>
+                    </Button>
                   </div>
                 </div>
 
@@ -318,18 +317,18 @@ export default function EventsAdminPage() {
               transition={{ duration: 0.5, delay: 0.3 }}
               className="flex justify-center items-center gap-2 mt-8"
             >
-              <AdminButton
+              <Button
                 variant="outline"
                 size="sm"
                 onClick={() => handlePageChange(pagination.page - 1)}
                 disabled={pagination.page === 1}
               >
                 <i className="ri-arrow-left-line"></i>
-              </AdminButton>
+              </Button>
 
               {Array.from({ length: pagination.pages }, (_, i) => i + 1).map(
                 (pageNum) => (
-                  <AdminButton
+                  <Button
                     key={pageNum}
                     variant={
                       pageNum === pagination.page ? "default" : "outline"
@@ -339,18 +338,18 @@ export default function EventsAdminPage() {
                     className="min-w-[40px]"
                   >
                     {pageNum}
-                  </AdminButton>
+                  </Button>
                 )
               )}
 
-              <AdminButton
+              <Button
                 variant="outline"
                 size="sm"
                 onClick={() => handlePageChange(pagination.page + 1)}
                 disabled={pagination.page === pagination.pages}
               >
                 <i className="ri-arrow-right-line"></i>
-              </AdminButton>
+              </Button>
             </motion.div>
           )}
         </>

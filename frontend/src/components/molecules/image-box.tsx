@@ -32,7 +32,9 @@ const ImageBox = ({ image, title, desc, link, buttonText }: ImageBoxProps) => {
         {/* CTA Button */}
         <Link
           href={link}
-          className="px-4 py-4 rounded-full text-gold-500 text-base -tracking-tight font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer">
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-fit px-4 py-4 rounded-full text-gold-500 text-base -tracking-tight font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer">
           <span className="underline underline-offset-4">{buttonText}</span>
           <i className="ri-arrow-right-up-line group-hover:scale-130 transition-transform duration-400 text-xl font-extralight" />
         </Link>

@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 
 import Modal from "@/components/admin/Modal";
-import { AdminButton } from "@/components/admin/AdminButton";
+import { Button } from "@/components/ui/button";
 import Input from "@/components/admin/form/input";
 import Textarea from "@/components/admin/form/textarea";
 import Select from "@/components/admin/form/select";
@@ -23,9 +23,10 @@ interface NewsPopupProps {
 const initialFormData: NewsFormData = {
   title: "",
   description: "",
-  content: "",
+  link: "",
+  type: "Feature",
   year: new Date().getFullYear().toString(),
-  images: [],
+  image: null,
   event: "",
 };
 
@@ -36,6 +37,7 @@ export default function NewsPopup({
   onSuccess,
 }: NewsPopupProps) {
   const [formData, setFormData] = useState<NewsFormData>(initialFormData);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -62,16 +64,29 @@ export default function NewsPopup({
   // Set form data when editing
   useEffect(() => {
     if (editingNews) {
+      // Handle event field - could be string (ID) or object (populated)
+      let eventValue = "";
+      if (editingNews.event) {
+        if (typeof editingNews.event === 'string') {
+          eventValue = editingNews.event;
+        } else if (typeof editingNews.event === 'object' && editingNews.event !== null && '_id' in editingNews.event) {
+          eventValue = (editingNews.event as { _id: string })._id;
+        }
+      }
+
       setFormData({
-        title: editingNews.title,
-        description: editingNews.description,
-        content: editingNews.content,
-        year: editingNews.year,
-        images: [],
-        event: editingNews.event || "",
+        title: editingNews.title || "",
+        description: editingNews.description || "",
+        link: editingNews.link || "",
+        type: editingNews.type || "Feature",
+        year: editingNews.year || new Date().getFullYear().toString(),
+        image: null,
+        event: eventValue,
       });
+      setSelectedFiles([]); // Reset selected files when editing
     } else {
       setFormData(initialFormData);
+      setSelectedFiles([]); // Reset selected files for new news
     }
     setErrors({});
   }, [editingNews, isOpen]);
@@ -89,9 +104,10 @@ export default function NewsPopup({
   };
 
   const handleImageChange = useCallback((files: File[]) => {
+    setSelectedFiles(files);
     setFormData((prev) => ({
       ...prev,
-      images: files,
+      image: files[0] || null,
     }));
   }, []);
 
@@ -101,11 +117,19 @@ export default function NewsPopup({
     if (!formData.title.trim()) newErrors.title = "Title is required";
     if (!formData.description.trim())
       newErrors.description = "Description is required";
-    if (!formData.content.trim()) newErrors.content = "Content is required";
+    if (!formData.link.trim()) newErrors.link = "Link is required";
     if (!formData.year.trim()) newErrors.year = "Year is required";
 
-    if (!editingNews && formData.images.length === 0) {
-      newErrors.images = "At least one image is required";
+    // Validate URL format
+    try {
+      new URL(formData.link);
+    } catch {
+      newErrors.link = "Please enter a valid URL";
+    }
+
+    // Check if we have either a new image or an existing image
+    if (!formData.image && !editingNews?.image) {
+      newErrors.image = "An image is required";
     }
 
     setErrors(newErrors);
@@ -122,15 +146,17 @@ export default function NewsPopup({
 
     submitFormData.append("title", formData.title);
     submitFormData.append("description", formData.description);
-    submitFormData.append("content", formData.content);
+    submitFormData.append("link", formData.link);
+    submitFormData.append("type", formData.type);
     submitFormData.append("year", formData.year);
     if (formData.event) {
       submitFormData.append("event", formData.event);
     }
 
-    formData.images.forEach((image) => {
-      submitFormData.append("images", image);
-    });
+    // Only append image if we have a new file
+    if (formData.image) {
+      submitFormData.append("image", formData.image);
+    }
 
     const request = editingNews
       ? Axios.patch(`/api/news/${editingNews._id}`, submitFormData)
@@ -163,8 +189,14 @@ export default function NewsPopup({
 
   const eventOptions = events.map((event) => ({
     value: event._id,
-    label: event.title,
+    label: event.name,
   }));
+
+  const typeOptions = [
+    { value: "Interview", label: "Interview" },
+    { value: "Feature", label: "Feature" },
+    { value: "Announcement", label: "Announcement" },
+  ];
 
   return (
     <Modal
@@ -208,15 +240,24 @@ export default function NewsPopup({
           rows={3}
         />
 
-        <Textarea
-          label="Content"
-          name="content"
-          value={formData.content}
+        <Input
+          label="Link"
+          name="link"
+          value={formData.link}
           onChange={handleInputChange}
-          placeholder="Enter full article content"
-          error={errors.content}
+          placeholder="Enter article URL"
+          error={errors.link}
           required
-          rows={8}
+        />
+
+        <Select
+          label="Type"
+          name="type"
+          value={formData.type}
+          onChange={handleInputChange}
+          options={typeOptions}
+          placeholder="Select article type..."
+          required
         />
 
         <Select
@@ -229,29 +270,32 @@ export default function NewsPopup({
         />
 
         <PhotoUpload
-          label="Gallery Images"
-          name="images"
-          mode="multiple"
-          maxFiles={10}
+          label="Article Image"
+          name="image"
+          mode="single"
+          maxFiles={1}
+          selectedFiles={selectedFiles}
           onImageChange={handleImageChange}
-          existingImages={editingNews?.images || []}
-          error={errors.images}
-          required={!editingNews}
+          existingImages={editingNews?.image ? [editingNews.image] : []}
+          error={errors.image}
+          required={true}
         />
 
         <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-          <AdminButton
+          <Button
             variant="ghost"
             onClick={onClose}
             type="button"
             disabled={submitting}
           >
             Cancel
-          </AdminButton>
-          <AdminButton type="submit" disabled={submitting}>
+          </Button>
+          <Button
+            type="submit"
+            disabled={submitting}>
             {submitting ? "Saving..." : editingNews ? "Update" : "Create"}{" "}
             Article
-          </AdminButton>
+          </Button>
         </div>
       </form>
     </Modal>

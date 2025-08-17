@@ -4,6 +4,7 @@ import {
   createVotingState,
   getAllNavInfo
 } from "../controllers/nav.controller";
+import { verifyAdminToken } from "../middleware/auth.middleware";
 
 const router = express.Router();
 
@@ -11,7 +12,7 @@ const router = express.Router();
 router.get("/", getVotingState);
 
 // POST /nav - Create navigation settings
-router.post("/", createVotingState);
+router.post("/", verifyAdminToken, createVotingState);
 
 // GET /nav/info - Get navigation info
 router.get("/info", getAllNavInfo);

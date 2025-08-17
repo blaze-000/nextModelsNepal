@@ -6,11 +6,12 @@ import Image from "next/image";
 
 import PageHeader from "@/components/admin/PageHeader";
 import DataTable from "@/components/admin/DataTable";
-import { AdminButton } from "@/components/admin/AdminButton";
+import { Button } from "@/components/ui/button";
 import NewsPopup from "./NewsPopup";
 
 import Axios from "@/lib/axios-instance";
 import { News, Event } from "@/types/admin";
+import { normalizeImagePath } from "@/lib/utils";
 
 // Statistics calculation hook
 const useNewsStatistics = (news: News[]) => {
@@ -38,40 +39,31 @@ export default function NewsPage() {
 
   const statistics = useNewsStatistics(news);
 
-  // Fetch news function
-  const fetchNews = () => {
+  const fetchNews = async () => {
     setLoading(true);
-    Axios.get("/api/news")
-      .then((response) => {
-        if (response.data.success && response.data.data) {
-          setNews(response.data.data);
-        } else {
-          toast.error(response.data.message || "Failed to fetch news");
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching news:", error);
-        toast.error("Failed to load news");
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+    try {
+      const response = await Axios.get("/api/news");
+      console.log(response.data.data);
+      setNews(response.data.data);
+    } catch (error) {
+      console.error("Error fetching news:", error);
+      toast.error("Failed to load news");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Fetch events function
-  const fetchEvents = () => {
-    Axios.get("/api/events")
-      .then((response) => {
-        if (response.data.success && response.data.data) {
-          setEvents(response.data.data);
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching events:", error);
-      });
+  const fetchEvents = async () => {
+    try {
+      const response = await Axios.get("/api/events");
+      setEvents(response.data.data);
+    } catch (error) {
+      console.error("Error fetching events:", error);
+      toast.error("Failed to load events");
+    }
   };
 
-  // Initial data fetch
+  // Fetch news list
   useEffect(() => {
     fetchNews();
     fetchEvents();
@@ -93,26 +85,20 @@ export default function NewsPage() {
     setEditingNews(null);
   };
 
-  const handleDeleteNews = (newsItem: News) => {
+  const handleDeleteNews = async (newsItem: News) => {
     const confirmMessage = `Are you sure you want to delete "${newsItem.title}"? This action cannot be undone.`;
 
     if (!window.confirm(confirmMessage)) {
       return;
     }
 
-    Axios.delete(`/api/news/${newsItem._id}`)
-      .then((response) => {
-        if (response.data.success) {
-          toast.success("News article deleted successfully");
-          fetchNews(); // Refresh the list
-        } else {
-          toast.error(response.data.message || "Failed to delete news");
-        }
-      })
-      .catch((error) => {
-        console.error("Error deleting news:", error);
-        toast.error("Failed to delete news article");
-      });
+    try {
+      await Axios.delete(`/api/news/${newsItem._id}`);
+      toast.success("News article deleted successfully");
+      fetchNews(); // Refresh the list
+    } catch (error) {
+      toast.error("Failed to delete news article");
+    }
   };
 
   const handlePopupSuccess = () => {
@@ -123,14 +109,14 @@ export default function NewsPage() {
   const tableColumns = useMemo(
     () => [
       {
-        key: "images",
+        key: "image",
         label: "Photo",
         sortable: false,
         render: (value: unknown) => (
           <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 flex-shrink-0">
-            {value && Array.isArray(value) && value.length > 0 ? (
+            {value ? (
               <Image
-                src={`http://localhost:8000/${value[0]}`}
+                src={normalizeImagePath(value as string)}
                 alt="News image"
                 width={64}
                 height={64}
@@ -169,11 +155,29 @@ export default function NewsPage() {
         ),
       },
       {
+        key: "type",
+        label: "Type",
+        sortable: true,
+        render: (value: unknown) => {
+          const typeColors = {
+            Interview: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
+            Feature: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
+            Announcement: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400",
+          };
+          const colorClass = typeColors[value as keyof typeof typeColors] || "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400";
+          return (
+            <span className={`text-xs px-2 py-1 rounded font-medium ${colorClass}`}>
+              {String(value)}
+            </span>
+          );
+        },
+      },
+      {
         key: "year",
         label: "Year",
         sortable: true,
         render: (value: unknown) => (
-          <span className="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 px-2 py-1 rounded font-medium">
+          <span className="text-xs bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 px-2 py-1 rounded font-medium">
             {String(value)}
           </span>
         ),
@@ -190,31 +194,24 @@ export default function NewsPage() {
               </span>
             );
           }
-          const linkedEvent = events.find((event) => event._id === value);
-          return linkedEvent ? (
-            <span className="text-xs bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 px-2 py-1 rounded font-medium">
-              {linkedEvent.title}
+
+          // Handle both string (ID) and object (populated) event values
+          let eventName = '';
+          if (typeof value === 'string') {
+            const linkedEvent = events.find((event) => event._id === value);
+            eventName = linkedEvent ? linkedEvent.name : '';
+          } else if (typeof value === 'object' && value !== null && 'name' in value) {
+            eventName = (value as { name: string }).name;
+          }
+
+          return eventName ? (
+            <span className="text-xs bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400 px-2 py-1 rounded font-medium">
+              {eventName}
             </span>
           ) : (
             <span className="text-xs text-gray-400 dark:text-gray-500">
               Unknown event
             </span>
-          );
-        },
-      },
-      {
-        key: "images",
-        label: "Gallery",
-        sortable: false,
-        render: (value: unknown) => {
-          const images = value as string[];
-          const count = images?.length || 0;
-          return (
-            <div className="flex items-center">
-              <span className="text-xs bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 px-2 py-1 rounded font-medium">
-                {count} {count === 1 ? "image" : "images"}
-              </span>
-            </div>
           );
         },
       },
@@ -263,9 +260,9 @@ export default function NewsPage() {
         title="News Management"
         description="Manage news articles and press coverage for your website"
       >
-        <AdminButton onClick={handleCreateNews} className="w-full sm:w-auto">
+        <Button onClick={handleCreateNews} className="w-full sm:w-auto">
           Add News Article
-        </AdminButton>
+        </Button>
       </PageHeader>
 
       {/* Statistics Cards */}
@@ -305,7 +302,7 @@ export default function NewsPage() {
           onDelete={handleDeleteNews}
           loading={loading}
           emptyMessage="No news articles found. Create your first article to get started."
-          searchPlaceholder="Search news by title, description, or year..."
+          searchPlaceholder="Search news by title, description, type, or year..."
         />
       </div>
 

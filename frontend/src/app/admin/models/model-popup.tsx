@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { toast } from "sonner";
 import Modal from "@/components/admin/Modal";
-import { AdminButton } from "@/components/admin/AdminButton";
+import { Button } from "@/components/ui/button";
 import Input from "@/components/admin/form/input";
 import Textarea from "@/components/admin/form/textarea";
 import Select from "@/components/admin/form/select";
@@ -538,7 +538,7 @@ const ModelsPopup = ({
 
         {/* Action Buttons */}
         <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
-          <AdminButton
+          <Button
             type="button"
             variant="ghost"
             onClick={handleClose}
@@ -546,9 +546,9 @@ const ModelsPopup = ({
             className="w-full sm:w-auto"
           >
             Cancel
-          </AdminButton>
+          </Button>
 
-          <AdminButton
+          <Button
             type="submit"
             disabled={isSubmitting}
             className="w-full sm:w-auto"
@@ -556,7 +556,7 @@ const ModelsPopup = ({
             {isSubmitting
               ? `${isEditing ? "Updating" : "Creating"}...`
               : `${isEditing ? "Update" : "Create"} Model`}
-          </AdminButton>
+          </Button>
         </div>
       </form>
     </Modal>

@@ -374,11 +374,10 @@ export default function DataTable<T extends { _id: string }>({
                                 <button
                                   key={pageNum}
                                   onClick={() => setCurrentPage(pageNum)}
-                                  className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
-                                    currentPage === pageNum
+                                  className={`px-3 py-1 text-sm font-medium rounded transition-colors ${currentPage === pageNum
                                       ? "bg-gold-500 text-black"
                                       : "text-gray-400 hover:text-gray-100 hover:bg-gray-700"
-                                  }`}
+                                    }`}
                                 >
                                   {pageNum}
                                 </button>

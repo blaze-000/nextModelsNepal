@@ -286,7 +286,7 @@ export default function ModelsPage() {
         description="Manage your model portfolio with comprehensive tools for adding, editing, and organizing model profiles."
       >
         <Button
-        variant="default"
+          variant="default"
           onClick={handleCreateModel}
           className="w-full sm:w-auto"
           disabled={loading}

@@ -22,7 +22,24 @@ export const menuItems: MenuSection[] = [
       },
     ],
   },
-  
+
+  {
+    title: "Website",
+    items: [
+      {
+        id: "hero",
+        label: "Hero Section",
+        icon: "ri-image-line",
+        href: "/admin/hero",
+      },
+      {
+        id: "nav",
+        label: "Navbar Settings",
+        icon: "ri-file-list-3-line",
+        href: "/admin/nav",
+      },
+    ],
+  },
   {
     title: "Events Management",
     items: [
@@ -38,7 +55,7 @@ export const menuItems: MenuSection[] = [
         icon: "ri-timer-line",
         href: "/admin/seasons",
       },
-    
+
     ],
   },
   {
@@ -71,25 +88,6 @@ export const menuItems: MenuSection[] = [
     ],
   },
   {
-    title: "Website",
-    items: [
-     {
-        id: "nav",
-        label: "Nav items",
-        icon: "ri-file-list-3-line",
-        href: "/admin/nav",
-      },
-
-      {
-        id: "hero",
-        label: "Hero Section",
-        icon: "ri-image-line",
-        href: "/admin/hero",
-      },
-      
-    ],
-  },
-  {
     title: "User Management",
     items: [
       {
@@ -110,6 +108,12 @@ export const menuItems: MenuSection[] = [
         icon: "ri-contacts-line",
         href: "/admin/contacts",
       },
+      {
+        id: "newsletter",
+        label: "Newsletter",
+        icon: "ri-mail-line",
+        href: "/admin/newsletter",
+      },
     ],
   },
   {
@@ -120,13 +124,7 @@ export const menuItems: MenuSection[] = [
         label: "Change Password",
         icon: "ri-settings-line",
         href: "/admin/change-pw",
-      },
-      {
-        id: "logOut",
-        label: "Log Out",
-        icon: "ri-navigation-line",
-        href: "/admin/navigation",
-      },
+      }
     ],
   },
 ];
