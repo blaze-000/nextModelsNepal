@@ -20,6 +20,9 @@ router.post("/",
 // Get all seasons (with filtering)
 router.get("/", seasonController.getAllSeasons);
 
+// Get all upcoming events
+router.get("/upcoming", seasonController.getAllUpcomingEvents);
+
 // Get seasons by event ID
 router.get("/event/:eventId", seasonController.getSeasonsByEvent);
 

@@ -29,7 +29,6 @@ const seasonSchema = new Schema({
     endDate: { type: Date, required: true },
     slug: { type: String, required: true, unique: true },
     pricePerVote: { type: Number, required: true },
-    titleImage: { type: String },
     posterImage: { type: String },
     gallery: [{ type: String }],
     notice: [{ type: String }],
