@@ -155,7 +155,7 @@ export default function JuryPopup({
       } else {
         throw new Error(
           response.data.message ||
-          `Failed to ${isEditing ? "update" : "create"} jury member`
+            `Failed to ${isEditing ? "update" : "create"} jury member`
         );
       }
     } catch (error: unknown) {
@@ -163,8 +163,9 @@ export default function JuryPopup({
         `Failed to ${isEditing ? "update" : "create"} jury member:`,
         error
       );
-      let errorMessage = `Failed to ${isEditing ? "update" : "create"
-        } jury member`;
+      let errorMessage = `Failed to ${
+        isEditing ? "update" : "create"
+      } jury member`;
       if (error && typeof error === "object" && "response" in error) {
         const axiosError = error as {
           response?: { data?: { message?: string } };
@@ -187,11 +188,11 @@ export default function JuryPopup({
       <form onSubmit={handleSubmit} className="p-6 space-y-6">
         {/* Basic Information */}
         <div className="space-y-4">
-          <div className="border-b border-gray-200 dark:border-gray-700 pb-3">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <div className="border-b border-gray-700 pb-3">
+            <h3 className="text-lg font-semibold text-gray-100">
               Jury Member Information
             </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-sm text-gray-400">
               Enter the jury member&apos;s details and information.
             </p>
           </div>
@@ -220,11 +221,11 @@ export default function JuryPopup({
 
         {/* Image */}
         <div className="space-y-4">
-          <div className="border-b border-gray-200 dark:border-gray-700 pb-3">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <div className="border-b border-gray-700 pb-3">
+            <h3 className="text-lg font-semibold text-gray-100">
               Jury Member Image
             </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-sm text-gray-400">
               Upload an image for the jury member. Image is required for new
               jury members.
             </p>
@@ -244,16 +245,10 @@ export default function JuryPopup({
             acceptedTypes={["image/*"]}
             disabled={submitting}
           />
-
-          {isEditing && (
-            <p className="text-sm text-gray-400">
-              Leave image field empty to keep current image
-            </p>
-          )}
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
+        <div className="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t border-gray-700">
           <Button
             variant="ghost"
             onClick={handleClose}

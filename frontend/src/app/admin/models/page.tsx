@@ -18,12 +18,8 @@ import { Button } from "@/components/ui/button";
 const useModelStatistics = (models: CompanyModel[]) => {
   return useMemo(() => {
     const total = models.length;
-    const male = models.filter(
-      (model) => model.gender === "Male"
-    ).length;
-    const female = models.filter(
-      (model) => model.gender === "Female"
-    ).length;
+    const male = models.filter((model) => model.gender === "Male").length;
+    const female = models.filter((model) => model.gender === "Female").length;
 
     return { total, male, female };
   }, [models]);
@@ -116,7 +112,7 @@ export default function ModelsPage() {
         label: "Photo",
         sortable: false,
         render: (value: unknown) => (
-          <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 flex-shrink-0">
+          <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-800 rounded-lg overflow-hidden border  border-gray-700 flex-shrink-0">
             <Image
               src={`http://localhost:8000${String(value)}`}
               alt="Model photo"
@@ -146,7 +142,7 @@ export default function ModelsPage() {
         label: "Order",
         sortable: true,
         render: (value: unknown) => (
-          <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+          <div className="text-sm font-medium text-gray-100">
             {String(value)}
           </div>
         ),
@@ -156,7 +152,7 @@ export default function ModelsPage() {
         label: "Slug",
         sortable: true,
         render: (value: unknown) => (
-          <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 font-mono bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
+          <div className="text-xs sm:text-sm text-gray-400 font-mono bg-gray-800 px-2 py-1 rounded">
             {String(value)}
           </div>
         ),
@@ -168,14 +164,13 @@ export default function ModelsPage() {
         render: (value: unknown) => {
           const gender = String(value);
           const colorClasses = {
-            Male: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
-            Female:
-              "bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-400",
+            Male: "bg-blue-900/30 text-blue-400",
+            Female: "bg-pink-900/30 text-pink-400",
           };
 
           const className =
             colorClasses[gender as keyof typeof colorClasses] ||
-            "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400";
+            "bg-gray-900/30 text-gray-400";
 
           return (
             <span
@@ -196,7 +191,7 @@ export default function ModelsPage() {
           const count = images?.length || 0;
           return (
             <div className="flex items-center">
-              <span className="text-xs bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 px-2 py-1 rounded font-medium">
+              <span className="text-xs bg-amber-900/30 text-amber-400 px-2 py-1 rounded font-medium">
                 {count} {count === 1 ? "image" : "images"}
               </span>
             </div>
@@ -228,8 +223,8 @@ export default function ModelsPage() {
             />
           </svg>
         ),
-        bgColor: "bg-amber-100 dark:bg-amber-900/30",
-        textColor: "text-amber-600 dark:text-amber-400",
+        bgColor: "bg-amber-900/30",
+        textColor: "text-amber-400",
       },
       {
         title: "Male Models",
@@ -249,8 +244,8 @@ export default function ModelsPage() {
             />
           </svg>
         ),
-        bgColor: "bg-blue-100 dark:bg-blue-900/30",
-        textColor: "text-blue-600 dark:text-blue-400",
+        bgColor: "bg-blue-900/30",
+        textColor: "text-blue-400",
       },
       {
         title: "Female Models",
@@ -270,10 +265,9 @@ export default function ModelsPage() {
             />
           </svg>
         ),
-        bgColor: "bg-pink-100 dark:bg-pink-900/30",
-        textColor: "text-pink-600 dark:text-pink-400",
+        bgColor: "bg-pink-900/30",
+        textColor: "text-pink-400",
       },
-
     ],
     [statistics]
   );
@@ -313,13 +307,11 @@ export default function ModelsPage() {
         {statisticsCards.map((card, index) => (
           <div
             key={index}
-            className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6 transition-colors duration-200"
+            className="bg-background2 rounded-lg border border-gray-700 p-4 sm:p-6 transition-colors duration-200"
           >
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                  {card.title}
-                </p>
+                <p className="text-sm font-mediumtext-gray-400">{card.title}</p>
                 <p
                   className={`text-xl sm:text-2xl font-bold ${card.textColor} mt-1`}
                 >

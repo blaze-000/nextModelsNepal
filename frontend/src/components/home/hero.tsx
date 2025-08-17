@@ -35,9 +35,7 @@ const HeroSection = () => {
           >
             {/* We are Next Models Nepal */}
             <div className="self-stretch justify-center text-xl xs:text-2xl leading-loose tracking-wide">
-              <span className="text-foreground">
-                We are{" "}
-              </span>
+              <span className="text-foreground">We are </span>
               <span className="text-gold-500 font-normal">
                 Next Models Nepal
               </span>
@@ -54,12 +52,14 @@ const HeroSection = () => {
               </div>
               <div className="flex items-center md:items-baseline gap-2">
                 {/* Badge image with soft layered shadow */}
-                <div className="w-40 h-16 relative">
+                <div className=" relative">
                   <Image
                     src={normalizeImagePath(data?.titleImage || "")}
-                    alt=""
-                    fill
-                    className="rounded-full object-cover border border-stone-300 shadow-[-10px_8px_20px_10px_rgba(179,131,0,0.19)]"
+                    alt="titleImage"
+                    priority
+                    width={160} 
+                    height={64} 
+                    className="w-40 h-16 rounded-full object-cover border border-stone-300 shadow-[-10px_8px_20px_10px_rgba(179,131,0,0.19)]"
                   />
                 </div>
                 {/* Label */}
@@ -77,7 +77,8 @@ const HeroSection = () => {
             </div>
             {/* Description */}
             <p className="text-white text-base leading-relaxed font-light pt-6">
-              Next Models Nepal is a team of seasoned professionals dedicated to talent management, elite training, and launching aspiring models.
+              Next Models Nepal is a team of seasoned professionals dedicated to
+              talent management, elite training, and launching aspiring models.
             </p>
             {/* Buttons */}
             <div className="flex flex-col items-start gap-4 lg:flex-row lg:gap-10 lg:items-center pt-4">

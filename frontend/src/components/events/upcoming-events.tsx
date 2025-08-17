@@ -45,6 +45,7 @@ export const UpcomingEvents = () => {
             <SectionHeader title="Upcoming Events" />
 
             <Dropdown
+              label="Sort By"
               options={sortOptions}
               selected={sortBy}
               onSelect={(val) => setSortBy(val)}

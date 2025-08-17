@@ -67,9 +67,13 @@ export default function NewsPopup({
       // Handle event field - could be string (ID) or object (populated)
       let eventValue = "";
       if (editingNews.event) {
-        if (typeof editingNews.event === 'string') {
+        if (typeof editingNews.event === "string") {
           eventValue = editingNews.event;
-        } else if (typeof editingNews.event === 'object' && editingNews.event !== null && '_id' in editingNews.event) {
+        } else if (
+          typeof editingNews.event === "object" &&
+          editingNews.event !== null &&
+          "_id" in editingNews.event
+        ) {
           eventValue = (editingNews.event as { _id: string })._id;
         }
       }
@@ -281,7 +285,7 @@ export default function NewsPopup({
           required={true}
         />
 
-        <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+        <div className="flex justify-end gap-3 pt-4 border-t border-gray-700">
           <Button
             variant="ghost"
             onClick={onClose}
@@ -290,9 +294,7 @@ export default function NewsPopup({
           >
             Cancel
           </Button>
-          <Button
-            type="submit"
-            disabled={submitting}>
+          <Button type="submit" disabled={submitting}>
             {submitting ? "Saving..." : editingNews ? "Update" : "Create"}{" "}
             Article
           </Button>
