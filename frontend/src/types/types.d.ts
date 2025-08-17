@@ -59,15 +59,14 @@ interface BreadcrumbProps {
 }
 
 interface Model {
+  _id: string,
   name: string,
   coverImage: string,
   images: string[],
   gender: 'Male' | 'Female',
-  address?: string,
-  slug?: string,
+  address: string,
+  slug: string,
   intro: string,
-  designation?: string,
-  tag?: string,
 }
 
 interface ModelGridProps {

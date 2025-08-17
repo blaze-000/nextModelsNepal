@@ -123,10 +123,10 @@ export const getAllModels = async (_req: Request, res: Response) => {
   }
 };
 
-// Get model by ID
-export const getModelById = async (req: Request, res: Response) => {
+// Get model by slug
+export const getModelBySlug = async (req: Request, res: Response) => {
   try {
-    const model = await Model.findById(req.params.id);
+    const model = await Model.findOne({ slug: req.params.slug });
     if (!model) {
       return res
         .status(404)

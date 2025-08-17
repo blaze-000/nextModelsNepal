@@ -3,7 +3,7 @@ import upload from "../middleware/upload";
 import {
   createModel,
   getAllModels,
-  getModelById,
+  getModelBySlug,
   updateModelById,
   deleteModelById,
 } from "../controllers/model.controller";
@@ -27,7 +27,7 @@ router.post(
 router.get("/", getAllModels);
 
 // Get a single company by ID
-router.get("/:id", getModelById);
+router.get("/:slug", getModelBySlug);
 
 // Update a company by ID with optional image uploads
 router.patch(
