@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { motion } from "framer-motion";
 
 import Modal from "@/components/admin/Modal";
-import { AdminButton } from "@/components/admin/AdminButton";
+import { Button } from "@/components/ui/button";
 import Input from "@/components/admin/form/input";
 import Textarea from "@/components/admin/form/textarea";
 import PhotoUpload from "@/components/admin/form/photo-upload";
@@ -640,14 +640,14 @@ export default function AllSeasonsPopup({
               )}
 
               <div className="flex justify-end pt-6">
-                <AdminButton
+                <Button
                   type="button"
                   onClick={handleStepNext}
                   disabled={!formData.eventId}
                 >
                   Continue
                   <i className="ri-arrow-right-line ml-2"></i>
-                </AdminButton>
+                </Button>
               </div>
             </motion.div>
           )}
@@ -743,22 +743,22 @@ export default function AllSeasonsPopup({
               )}
 
               <div className="flex justify-between pt-6">
-                <AdminButton
+                <Button
                   type="button"
                   variant="outline"
                   onClick={handleStepBack}
                 >
                   <i className="ri-arrow-left-line mr-2"></i>
                   Back
-                </AdminButton>
-                <AdminButton
+                </Button>
+                <Button
                   type="button"
                   onClick={handleStepNext}
                   disabled={!formData.status}
                 >
                   Continue
                   <i className="ri-arrow-right-line ml-2"></i>
-                </AdminButton>
+                </Button>
               </div>
             </motion.div>
           )}
@@ -1150,7 +1150,7 @@ export default function AllSeasonsPopup({
                         disabled={submitting}
                       />
                       <div className="flex items-end">
-                        <AdminButton
+                        <Button
                           type="button"
                           variant="destructive"
                           size="sm"
@@ -1161,12 +1161,12 @@ export default function AllSeasonsPopup({
                           className="w-full"
                         >
                           <i className="ri-delete-bin-line"></i>
-                        </AdminButton>
+                        </Button>
                       </div>
                     </div>
                   ))}
 
-                  <AdminButton
+                  <Button
                     type="button"
                     variant="outline"
                     onClick={addTimelineItem}
@@ -1175,7 +1175,7 @@ export default function AllSeasonsPopup({
                   >
                     <i className="ri-add-line mr-2"></i>
                     Add Timeline Item
-                  </AdminButton>
+                  </Button>
                 </div>
               </div>
 
@@ -1183,7 +1183,7 @@ export default function AllSeasonsPopup({
               <div className="flex flex-col sm:flex-row justify-between gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
                 <div className="flex gap-3">
                   {!isEditing && (
-                    <AdminButton
+                    <Button
                       type="button"
                       variant="outline"
                       onClick={handleStepBack}
@@ -1191,23 +1191,23 @@ export default function AllSeasonsPopup({
                     >
                       <i className="ri-arrow-left-line mr-2"></i>
                       Back
-                    </AdminButton>
+                    </Button>
                   )}
-                  <AdminButton
+                  <Button
                     variant="ghost"
                     onClick={handleClose}
                     type="button"
                     disabled={submitting}
                   >
                     Cancel
-                  </AdminButton>
+                  </Button>
                 </div>
 
-                <AdminButton type="submit" disabled={submitting}>
+                <Button type="submit" disabled={submitting}>
                   {submitting
                     ? `${isEditing ? "Updating" : "Creating"}...`
                     : `${isEditing ? "Update" : "Create"} Season`}
-                </AdminButton>
+                </Button>
               </div>
             </motion.div>
           )}

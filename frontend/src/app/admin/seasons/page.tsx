@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 
 import PageHeader from "@/components/admin/PageHeader";
-import { AdminButton } from "@/components/admin/AdminButton";
+import { Button } from "@/components/ui/button";
 import AllSeasonsPopup, { BackendSeason } from "./AllSeasonsPopup";
 
 import Axios from "@/lib/axios-instance";
@@ -162,14 +162,14 @@ export default function AllSeasonsPage() {
         <i className="ri-error-warning-line text-3xl text-red-400 mb-4"></i>
         <h3 className="text-lg font-semibold text-red-400 mb-2">Error</h3>
         <p className="text-red-300">{error}</p>
-        <AdminButton
+        <Button
           variant="outline"
           onClick={() => window.location.reload()}
           className="mt-4"
         >
           <i className="ri-refresh-line mr-2"></i>
           Retry
-        </AdminButton>
+        </Button>
       </div>
     );
   }
@@ -180,10 +180,10 @@ export default function AllSeasonsPage() {
         title="All Seasons"
         description="Manage seasons across all events"
       >
-        <AdminButton onClick={handleAddSeason}>
+        <Button onClick={handleAddSeason}>
           <i className="ri-add-line mr-2"></i>
           Add Season
-        </AdminButton>
+        </Button>
       </PageHeader>
 
       {/* Event Filter Buttons and Results Summary */}
@@ -192,22 +192,22 @@ export default function AllSeasonsPage() {
           <span className="text-gray-400 text-sm font-medium">
             Filter by Event:
           </span>
-          <AdminButton
+          <Button
             size="sm"
-            variant={!filters.eventId ? "default" : "outline"}
+            variant={!filters.eventId ? null : "outline"}
             onClick={() => handleEventFilter("")}
           >
             All Events
-          </AdminButton>
+          </Button>
           {events.map((event) => (
-            <AdminButton
+            <Button
               key={event._id}
               size="sm"
-              variant={filters.eventId === event._id ? "default" : "outline"}
+              variant={filters.eventId === event._id ? null : "outline"}
               onClick={() => handleEventFilter(event._id)}
             >
               {event.name}
-            </AdminButton>
+            </Button>
           ))}
         </div>
 
@@ -239,7 +239,7 @@ export default function AllSeasonsPage() {
                 : "No seasons have been created yet."}
             </p>
             {filters.eventId && (
-              <AdminButton
+              <Button
                 onClick={() => {
                   setFilters({
                     eventId: "",
@@ -247,7 +247,7 @@ export default function AllSeasonsPage() {
                 }}
               >
                 Clear Filters
-              </AdminButton>
+              </Button>
             )}
           </div>
         </div>
@@ -285,13 +285,12 @@ export default function AllSeasonsPage() {
                 {/* Status Badge */}
                 <div className="absolute top-3 right-3">
                   <span
-                    className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      season.status === "ended"
+                    className={`px-2 py-1 rounded-full text-xs font-medium ${season.status === "ended"
                         ? "bg-gray-500/20 text-gray-400 border border-gray-500/30"
                         : season.status === "ongoing"
-                        ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                        : "bg-blue-500/20 text-blue-400 border border-blue-500/30"
-                    }`}
+                          ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                          : "bg-blue-500/20 text-blue-400 border border-blue-500/30"
+                      }`}
                   >
                     {season.status.charAt(0).toUpperCase() +
                       season.status.slice(1)}
@@ -338,7 +337,7 @@ export default function AllSeasonsPage() {
 
                 {/* Actions */}
                 <div className="flex gap-2">
-                  <AdminButton
+                  <Button
                     variant="outline"
                     size="sm"
                     onClick={() => handleViewSeason(season)}
@@ -346,7 +345,7 @@ export default function AllSeasonsPage() {
                   >
                     <i className="ri-eye-line mr-1 lg:mr-2"></i>
                     View Details
-                  </AdminButton>
+                  </Button>
                 </div>
               </div>
 
@@ -364,14 +363,14 @@ export default function AllSeasonsPage() {
       {/* Pagination */}
       {pagination.pages > 1 && (
         <div className="flex items-center justify-center space-x-2 mt-8">
-          <AdminButton
+          <Button
             variant="outline"
             size="sm"
             onClick={() => handlePageChange(pagination.page - 1)}
             disabled={pagination.page <= 1}
           >
             <i className="ri-arrow-left-line"></i>
-          </AdminButton>
+          </Button>
 
           {Array.from({ length: Math.min(5, pagination.pages) }, (_, i) => {
             const pageNum = Math.max(
@@ -379,26 +378,26 @@ export default function AllSeasonsPage() {
               Math.min(pagination.page - 2 + i, pagination.pages - 4 + i)
             );
             return (
-              <AdminButton
+              <Button
                 key={pageNum}
-                variant={pagination.page === pageNum ? "default" : "outline"}
+                variant={pagination.page === pageNum ? null : "outline"}
                 size="sm"
                 onClick={() => handlePageChange(pageNum)}
                 className="w-8 h-8 p-0"
               >
                 {pageNum}
-              </AdminButton>
+              </Button>
             );
           })}
 
-          <AdminButton
+          <Button
             variant="outline"
             size="sm"
             onClick={() => handlePageChange(pagination.page + 1)}
             disabled={pagination.page >= pagination.pages}
           >
             <i className="ri-arrow-right-line"></i>
-          </AdminButton>
+          </Button>
         </div>
       )}
 
