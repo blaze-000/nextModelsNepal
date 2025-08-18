@@ -10,6 +10,7 @@ type eventboxprops = {
   buttonText: string;
   status: "upcoming" | "ended";
   slug: string;
+  className?: string;
 };
 
 const EventBox = ({

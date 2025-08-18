@@ -54,7 +54,7 @@ export const Gallery = () => {
             <SectionHeader title="Gallery" />
 
             <div className="pb-8 flex items-center space-x-4 ml-[-20px]">
-              <div className="w-48">
+              <div className="">
                 <Dropdown
                   label="Event"
                   options={eventTypes}
@@ -62,7 +62,7 @@ export const Gallery = () => {
                   onSelect={setSelectedEvent}
                 />
               </div>
-              <div className="w-32">
+              <div className="">
                 <Dropdown
                   label="Year"
                   options={years}

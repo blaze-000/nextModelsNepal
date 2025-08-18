@@ -9,24 +9,55 @@ import Dropdown from "@/components/ui/Dropdown";
 
 export default function NewsPress() {
   const [sortBy, setSortBy] = useState("All");
-  const [selectedYear, setSelectedYear] = useState("2025");
+  const [selectedYear, setSelectedYear] = useState("All");
   const [selectedEvent, setSelectedEvent] = useState("All");
-  const sortOptions = ["Interview", "Feature", "Announcement", "All"];
-  const years = ["2025", "2024", "2023"];
-  const eventTypes = [
-    "All ",
-    "Miss Nepal Peace",
-    "Mr.Nepal",
-    "Model Hunt Nepal",
-  ];
+  // const sortOptions = ["Interview", "Feature", "Announcement", "All"];
+  // const years = ["2025", "2024", "2023"];
+  // const eventTypes = [
+  //   "All ",
+  //   "Miss Nepal Peace",
+  //   "Mr.Nepal",
+  //   "Model Hunt Nepal",
+  // ];
+
+  const [sortOptions, setSortOptions] = useState<string[]>([]);
+
+  const [years, setYears] = useState<string[]>([]);
+  const [eventTypes, setEventTypes] = useState<string[]>([]);
+
   const [newsItems, setNewItems] = useState<NewsItem[] | null>(null);
 
   const fetchNewsItems = async () => {
     try {
       const res = await Axios.get("/api/news");
-      const data = res.data;
-      console.log(data);
-      setNewItems(data.data);
+      const data = res.data.data;
+      setNewItems(data);
+
+      // Type Options
+      setSortOptions([
+        ...Array.from(new Set(data.map((item) => String(item.type)))),
+        "All",
+      ]);
+
+      // Year Options
+      setYears([
+        "All",
+        ...Array.from(new Set(data.map((item) => String(item.year)))).sort(
+          (a, b) => Number(b) - Number(a)
+        ),
+      ]);
+
+      // Event Options (filter out undefined)
+      setEventTypes([
+        "All",
+        ...Array.from(
+          new Set(
+            data
+              .map((item) => item.event?.name)
+              .filter((name): name is string => !!name)
+          )
+        ),
+      ]);
     } catch (error) {
       console.error("Error fetching news items:", error);
     }
@@ -35,15 +66,15 @@ export default function NewsPress() {
   useEffect(() => {
     fetchNewsItems();
   }, []);
+const filteredNews = newsItems
+  ?.filter((item) => {
+    if (sortBy !== "All" && item.type !== sortBy) return false;
+    if (selectedEvent !== "All" && item.event?.name !== selectedEvent) return false;
+    if (selectedYear !== "All" && item.year !== selectedYear) return false;
+    return true;
+  })
+  .sort((a, b) => Number(b.year) - Number(a.year));
 
-  const filteredNews = newsItems
-    ?.filter((item) => {
-      if (sortBy !== "All" && item.type !== sortBy) return false;
-      if (selectedEvent !== "All" && item.event !== selectedEvent) return false;
-      if (selectedYear && item.year !== selectedYear) return false;
-      return true;
-    })
-    .sort((a, b) => Number(b.year) - Number(a.year));
   return (
     <>
       <Breadcrumb

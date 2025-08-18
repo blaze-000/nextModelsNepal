@@ -15,7 +15,6 @@ const Dropdown: React.FC<DropdownProps> = ({
   label,
   selected,
   onSelect,
-
   maxHeight = "200px",
 }) => {
   const [open, setOpen] = useState(false);
@@ -45,9 +44,9 @@ const Dropdown: React.FC<DropdownProps> = ({
   }, [open]);
 
   return (
-    <div className="relative inline-block text-left " ref={dropdownRef}>
+    <div className="relative inline-block text-left" ref={dropdownRef}>
       {/* Button */}
-      <div className="pb-3 ">
+      <div className="pb-3">
         <Button
           variant="outline"
           onClick={() => setOpen(!open)}
@@ -62,7 +61,7 @@ const Dropdown: React.FC<DropdownProps> = ({
 
       {/* Dropdown List */}
       {open && (
-        <div className="absolute right-0 -mt-1 bg-[#12110D] z-50  gap-5 rounded-md shadow-lg overflow-hidden">
+        <div className="absolute right-0 -mt-1 bg-[#12110D] z-50 rounded-md shadow-lg overflow-hidden">
           <div
             ref={contentRef}
             className="overflow-y-auto"
@@ -77,14 +76,16 @@ const Dropdown: React.FC<DropdownProps> = ({
                       onSelect(option);
                       setOpen(false);
                     }}
-                    className={`px-4 py-2 text-sm text-white text-center cursor-pointer  ${
+                    className={`relative px-4 py-2 text-sm text-white text-center cursor-pointer ${
                       selected === option ? "text-gold-500" : ""
                     }`}
                   >
                     {option}
-                  </p>
 
-                  {idx < sortedOptions.length - 1 && <div className=""></div>}
+                    {idx < sortedOptions.length - 1 && (
+                      <span className="absolute bottom-0 left-4 right-4 h-px bg-[#4b4a4a]" />
+                    )}
+                  </p>
                 </React.Fragment>
               ))}
           </div>

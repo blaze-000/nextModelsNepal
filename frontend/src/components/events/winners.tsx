@@ -57,28 +57,25 @@ export const Winners = () => {
   return (
     <div className="w-full bg-background py-16 md:py-20">
       <div className="max-w-7xl mx-auto px-6">
-        {/* Header Section */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true, amount: 0.6 }}
         >
-          {/* Desktop Layout - No Changes */}
           <div className="hidden md:flex justify-between items-center">
             <SectionHeader title="Winners from Past Events" />
 
             <div className="pb-8 flex items-center space-x-4 ml-[-20px]">
-              <div className="w-48">
+              <div className="">
                 <Dropdown
                   label="Event"
                   options={eventTypes}
                   selected={selectedEvent}
                   onSelect={setSelectedEvent}
-                  maxHeight="180px"
                 />
               </div>
-              <div className="w-28">
+              <div className="">
                 <Dropdown
                   label="Year"
                   options={years}
@@ -91,6 +88,7 @@ export const Winners = () => {
           </div>
 
           {/* Mobile Layout */}
+          
           <div className="block md:hidden space-y-4">
             {/* Title - Centered */}
             <div className="flex items-center justify-center gap-2">
@@ -107,18 +105,21 @@ export const Winners = () => {
               </h3>
             </div>
 
-            {/* Responsive Buttons */}
-            <div className="flex flex-wrap gap-4 justify-center">
-              <Button variant="outline" className="py-2 min-w-0 text-xs">
-                <span>Sort By:</span>
-                <span></span>
-                <i className="ri-arrow-down-s-line text-lg" />
-              </Button>
-              <Button variant="outline" className="py-2 min-w-0 text-xs">
-                <span>Sort By:</span>
-                <span>Most </span>
-                <i className="ri-arrow-down-s-line text-lg" />
-              </Button>
+            {/* Mobile Dropdowns */}
+            <div className="flex flex-wrap justify-center gap-4">
+              <Dropdown
+                label="Event"
+                options={eventTypes}
+                selected={selectedEvent}
+                onSelect={setSelectedEvent}
+              />
+              <Dropdown
+                label="Year"
+                options={years}
+                selected={selectedYear}
+                onSelect={setSelectedYear}
+                maxHeight="180px"
+              />
             </div>
           </div>
         </motion.div>
