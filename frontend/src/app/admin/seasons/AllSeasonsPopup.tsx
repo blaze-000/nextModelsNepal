@@ -26,12 +26,13 @@ export interface BackendSeason {
   year: number;
   image: string;
   status: "upcoming" | "ongoing" | "ended";
-  startDate?: string;
+  startDate: string;
   auditionFormDeadline?: string;
   votingOpened?: boolean;
   votingEndDate?: string;
   endDate: string;
   slug: string;
+  getTicketLink?: string;
   pricePerVote: number;
   posterImage?: string;
   gallery?: string[];
@@ -64,6 +65,7 @@ interface SeasonFormData {
   votingEndDate: string;
   endDate: string;
   slug: string;
+  getTicketLink: string;
   pricePerVote: number;
   notice: string;
   image: File[];
@@ -103,6 +105,7 @@ const initialFormData: SeasonFormData = {
   votingEndDate: "",
   endDate: "",
   slug: "",
+  getTicketLink: "",
   pricePerVote: 0,
   notice: "",
   image: [],
@@ -157,6 +160,7 @@ export default function AllSeasonsPopup({
             : "",
           endDate: season.endDate ? season.endDate.split("T")[0] : "",
           slug: season.slug,
+          getTicketLink: season.getTicketLink || "",
           pricePerVote: season.pricePerVote,
           notice: season.notice ? season.notice.join("\\n") : "",
           image: [],
@@ -374,6 +378,9 @@ export default function AllSeasonsPopup({
     if (formData.year < 1900 || formData.year > 2100) {
       newErrors.year = "Year must be between 1900 and 2100";
     }
+    if (!formData.startDate.trim()) {
+      newErrors.startDate = "Start date is required";
+    }
     if (!formData.endDate.trim()) {
       newErrors.endDate = "End date is required";
     }
@@ -391,9 +398,6 @@ export default function AllSeasonsPopup({
 
     // Status-specific validations
     if (formData.status === "upcoming") {
-      if (!formData.startDate.trim()) {
-        newErrors.startDate = "Start date is required for upcoming seasons";
-      }
       if (!formData.auditionFormDeadline.trim()) {
         newErrors.auditionFormDeadline =
           "Audition form deadline is required for upcoming seasons";
@@ -458,6 +462,9 @@ export default function AllSeasonsPopup({
       formDataToSend.append("status", formData.status);
       formDataToSend.append("endDate", formData.endDate);
       formDataToSend.append("slug", formData.slug);
+      if (formData.getTicketLink) {
+        formDataToSend.append("getTicketLink", formData.getTicketLink);
+      }
       if (formData.status !== "ended") {
         formDataToSend.append("pricePerVote", formData.pricePerVote.toString());
       }
@@ -960,6 +967,19 @@ export default function AllSeasonsPopup({
                 <p className="text-sm text-gray-400 -mt-2">
                   URL-friendly identifier for the season
                 </p>
+
+                <Input
+                  label="Get Ticket Link"
+                  name="getTicketLink"
+                  value={formData.getTicketLink}
+                  onChange={handleInputChange}
+                  placeholder="https://example.com/tickets"
+                  error={errors.getTicketLink}
+                  disabled={submitting}
+                />
+                <p className="text-sm text-gray-400 -mt-2">
+                  Link where users can purchase tickets for this season
+                </p>
               </div>
 
               {/* Date Information - Status Dependent */}
@@ -974,19 +994,16 @@ export default function AllSeasonsPopup({
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Start Date - Only for upcoming seasons */}
-                  {formData.status === "upcoming" && (
-                    <Input
-                      label="Start Date"
-                      name="startDate"
-                      type="date"
-                      value={formData.startDate}
-                      onChange={handleInputChange}
-                      required
-                      error={errors.startDate}
-                      disabled={submitting}
-                    />
-                  )}
+                  <Input
+                    label="Start Date"
+                    name="startDate"
+                    type="date"
+                    value={formData.startDate}
+                    onChange={handleInputChange}
+                    required
+                    error={errors.startDate}
+                    disabled={submitting}
+                  />
 
                   <Input
                     label="End Date"

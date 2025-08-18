@@ -6,85 +6,21 @@ import EventCard from "../molecules/event-card";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import Axios from "@/lib/axios-instance";
+import { formatDate } from "@/lib/utils";
 
-  // Sample event data (aligned with new EventCard)
-  // const events = [
-  //   {
-  //     id: "1",
-  //     title: "Miss Nepal Peace",
-  //     slug: 'dummy',
-  //     startDate: "19th July",
-  //     endDate: "6th September",
-  //     briefInfo:
-  //       "Miss Nepal Peace is a pageant for honest, celebrating their role in care and peace while empowering them to represent Nepal on global stage.",
-  //     imageSrc: "/events_1.jpg",
-  //     state: "ongoing" as const,
-  //     managedBy: "self" as const,
-  //     getTicketLink: "https://example.com/tickets",
-  //     aboutLink: "https://example.com/about",
-  //   },
-  //   {
-  //     id: "2",
-  //     title: "Nepal Fashion Week",
-  //     slug: 'dummy',
-  //     startDate: "15th August",
-  //     endDate: "20th August",
-  //     briefInfo:
-  //       "A spectacular showcase of Nepalese fashion talent, bringing together designers, models, and fashion enthusiasts from across the region.",
-  //     imageSrc: "/events_1.jpg",
-  //     state: "ended" as const,
-  //     managedBy: "partners" as const,
-  //     getTicketLink: "https://example.com/fashion-tickets",
-  //     aboutLink: "https://example.com/fashion-about",
-  //   },
-  //   {
-  //     id: "3",
-  //     title: "International Beauty Contest",
-  //     slug: 'dummy',
-  //     startDate: "1st October",
-  //     endDate: "15th October",
-  //     briefInfo: "A global beauty pageant featuring contestants from around the world.",
-  //     imageSrc: "/events_1.jpg",
-  //     state: "ongoing" as const,
-  //     managedBy: "partners" as const,
-  //     getTicketLink: "https://partner.com/tickets",
-  //     aboutLink: "https://partner.com/about",
-  //   },
-  //   {
-  //     id: "4",
-  //     title: "National Model Hunt",
-  //     slug: 'dummy',
-  //     startDate: "10th June",
-  //     endDate: "30th June",
-  //     briefInfo:
-  //       "Discovering the next faces of fashion through a competitive and glamorous national talent hunt.",
-  //     imageSrc: "/events_1.jpg",
-  //     state: "ended" as const,
-  //     managedBy: "self" as const,
-  //     getTicketLink: "https://example.com/model-tickets",
-  //     aboutLink: "https://example.com/model-about",
-  //   },
-  // ];
-
-  const EventsSection = () => {
-
-
-  const [events, SetEvents] = useState<EventType[] | null>(null);
+const EventsSection = () => {
+  const [events, SetEvents] = useState<TimelineEvent[] | null>(null);
 
   useEffect(() => {
     (async () => {
-      const res = await Axios.get('/api/events');
+      const res = await Axios.get('/api/events/timeline');
       const data = res.data;
       SetEvents(data.data);
-      // console.log(data.data);
     })();
-  },[])
+  }, [])
 
-  const selfEvents = events?.filter(event => event.manageBy === "self");
-  const partnerEvents = events?.filter(event => event.manageBy === "partners");
-
-  // console.log(selfEvents)
-  // console.log(partnerEvents)
+  const selfEvents = events?.filter(event => event.managedBy === "self");
+  const partnerEvents = events?.filter(event => event.managedBy === "partner");
 
   return (
     <section className="bg-[#19160D] pt-20 pb-16">
@@ -132,13 +68,23 @@ import Axios from "@/lib/axios-instance";
           <Timeline position="left" title="Events by Next Models Nepal">
             {selfEvents?.map((event, i) => (
               <motion.div
-                key={event.slug}
+                key={event.season.slug}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: 0.1 * i }}
               >
-                <EventCard {...event} timelinePosition="left" />
+                <EventCard
+                  title={event.eventName}
+                  slug={event.season.slug}
+                  date={`${formatDate(event.season.startDate)} to ${formatDate(event.season.endDate)}`}
+                  overview={event.overview}
+                  coverImage={event.coverImage}
+                  state={event.season.status}
+                  manageBy={event.managedBy}
+                  getTicketLink={event.season.getTicketLink}
+                  timelinePosition="left"
+                />
               </motion.div>
             ))}
           </Timeline>
@@ -147,13 +93,22 @@ import Axios from "@/lib/axios-instance";
           <Timeline position="right" title="Partner Events">
             {partnerEvents?.map((event, i) => (
               <motion.div
-                key={event.slug}
+                key={event.season.slug}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: 0.1 * i }}
               >
-                <EventCard {...event} timelinePosition="right" />
+                <EventCard
+                  title={event.eventName}
+                  slug={event.season.slug}
+                  date={event.season.startDate}
+                  overview={event.overview}
+                  coverImage={event.coverImage}
+                  state={event.season.status}
+                  manageBy={event.managedBy}
+                  timelinePosition="right"
+                />
               </motion.div>
             ))}
           </Timeline>

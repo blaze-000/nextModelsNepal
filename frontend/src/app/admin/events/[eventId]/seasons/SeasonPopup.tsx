@@ -20,12 +20,13 @@ export interface BackendSeason {
   year: number;
   image: string;
   status: "upcoming" | "ongoing" | "ended";
-  startDate?: string;
+  startDate: string;
   auditionFormDeadline?: string;
   votingOpened?: boolean;
   votingEndDate?: string;
   endDate: string;
   slug: string;
+  getTicketLink?: string;
   pricePerVote: number;
   posterImage?: string;
   gallery?: string[];
@@ -48,6 +49,7 @@ interface SeasonFormData {
   votingEndDate: string;
   endDate: string;
   slug: string;
+  getTicketLink: string;
   pricePerVote: number;
   notice: string;
   image: File[];
@@ -78,6 +80,7 @@ const initialFormData: SeasonFormData = {
   votingEndDate: "",
   endDate: "",
   slug: "",
+  getTicketLink: "",
   pricePerVote: 0,
   notice: "",
   image: [],
@@ -147,6 +150,7 @@ export default function SeasonPopup({
             : "",
           endDate: season.endDate ? season.endDate.split("T")[0] : "",
           slug: season.slug,
+          getTicketLink: season.getTicketLink || "",
           pricePerVote: season.pricePerVote,
           notice: season.notice ? season.notice.join("\n") : "",
           image: [],
@@ -300,6 +304,9 @@ export default function SeasonPopup({
     if (formData.year < 1900 || formData.year > 2100) {
       newErrors.year = "Year must be between 1900 and 2100";
     }
+    if (!formData.startDate.trim()) {
+      newErrors.startDate = "Start date is required";
+    }
     if (!formData.endDate.trim()) {
       newErrors.endDate = "End date is required";
     }
@@ -317,9 +324,6 @@ export default function SeasonPopup({
 
     // Status-specific validations
     if (formData.status === "upcoming") {
-      if (!formData.startDate.trim()) {
-        newErrors.startDate = "Start date is required for upcoming seasons";
-      }
       if (!formData.auditionFormDeadline.trim()) {
         newErrors.auditionFormDeadline =
           "Audition form deadline is required for upcoming seasons";
@@ -384,6 +388,9 @@ export default function SeasonPopup({
       formDataToSend.append("status", formData.status);
       formDataToSend.append("endDate", formData.endDate);
       formDataToSend.append("slug", formData.slug);
+      if (formData.getTicketLink) {
+        formDataToSend.append("getTicketLink", formData.getTicketLink);
+      }
       if (formData.status !== "ended") {
         formDataToSend.append("pricePerVote", formData.pricePerVote.toString());
       }
@@ -483,18 +490,18 @@ export default function SeasonPopup({
             <div className="flex items-center justify-center space-x-4">
               <div
                 className={`flex items-center space-x-2 ${currentStep === 1
-                    ? "text-gold-500"
-                    : currentStep > 1
-                      ? "text-green-500"
-                      : "text-gray-400"
+                  ? "text-gold-500"
+                  : currentStep > 1
+                    ? "text-green-500"
+                    : "text-gray-400"
                   }`}
               >
                 <div
                   className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${currentStep === 1
-                      ? "border-gold-500 bg-gold-500/20"
-                      : currentStep > 1
-                        ? "border-green-500 bg-green-500/20"
-                        : "border-gray-400 bg-gray-400/20"
+                    ? "border-gold-500 bg-gold-500/20"
+                    : currentStep > 1
+                      ? "border-green-500 bg-green-500/20"
+                      : "border-gray-400 bg-gray-400/20"
                     }`}
                 >
                   {currentStep > 1 ? (
@@ -517,8 +524,8 @@ export default function SeasonPopup({
               >
                 <div
                   className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${currentStep === 2
-                      ? "border-gold-500 bg-gold-500/20"
-                      : "border-gray-400 bg-gray-400/20"
+                    ? "border-gold-500 bg-gold-500/20"
+                    : "border-gray-400 bg-gray-400/20"
                     }`}
                 >
                   <span className="text-sm font-medium">2</span>
@@ -557,8 +564,8 @@ export default function SeasonPopup({
                   <div
                     key={option.value}
                     className={`relative p-6 rounded-lg border-2 cursor-pointer transition-all duration-200 ${formData.status === option.value
-                        ? "border-gold-500 bg-gold-500/10"
-                        : "border-gray-600 bg-gray-800/50 hover:border-gray-500"
+                      ? "border-gold-500 bg-gold-500/10"
+                      : "border-gray-600 bg-gray-800/50 hover:border-gray-500"
                       }`}
                     onClick={() =>
                       setFormData((prev) => ({
@@ -573,18 +580,18 @@ export default function SeasonPopup({
                     <div className="text-center space-y-3">
                       <div
                         className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto ${option.value === "upcoming"
-                            ? "bg-blue-500/20"
-                            : option.value === "ongoing"
-                              ? "bg-green-500/20"
-                              : "bg-gray-500/20"
+                          ? "bg-blue-500/20"
+                          : option.value === "ongoing"
+                            ? "bg-green-500/20"
+                            : "bg-gray-500/20"
                           }`}
                       >
                         <i
                           className={`text-xl ${option.value === "upcoming"
-                              ? "ri-time-line text-blue-400"
-                              : option.value === "ongoing"
-                                ? "ri-play-line text-green-400"
-                                : "ri-check-line text-gray-400"
+                            ? "ri-time-line text-blue-400"
+                            : option.value === "ongoing"
+                              ? "ri-play-line text-green-400"
+                              : "ri-check-line text-gray-400"
                             }`}
                         ></i>
                       </div>
@@ -645,18 +652,18 @@ export default function SeasonPopup({
                   <div className="flex items-center space-x-3">
                     <div
                       className={`w-8 h-8 rounded-full flex items-center justify-center ${formData.status === "upcoming"
-                          ? "bg-blue-500/20"
-                          : formData.status === "ongoing"
-                            ? "bg-green-500/20"
-                            : "bg-gray-500/20"
+                        ? "bg-blue-500/20"
+                        : formData.status === "ongoing"
+                          ? "bg-green-500/20"
+                          : "bg-gray-500/20"
                         }`}
                     >
                       <i
                         className={`text-sm ${formData.status === "upcoming"
-                            ? "ri-time-line text-blue-400"
-                            : formData.status === "ongoing"
-                              ? "ri-play-line text-green-400"
-                              : "ri-check-line text-gray-400"
+                          ? "ri-time-line text-blue-400"
+                          : formData.status === "ongoing"
+                            ? "ri-play-line text-green-400"
+                            : "ri-check-line text-gray-400"
                           }`}
                       ></i>
                     </div>
@@ -690,10 +697,10 @@ export default function SeasonPopup({
 
                 <div
                   className={`grid grid-cols-1 ${formData.status !== "ended"
-                      ? "md:grid-cols-3"
-                      : isEditing
-                        ? "md:grid-cols-2"
-                        : ""
+                    ? "md:grid-cols-3"
+                    : isEditing
+                      ? "md:grid-cols-2"
+                      : ""
                     } gap-4`}
                 >
                   <Input
@@ -747,6 +754,19 @@ export default function SeasonPopup({
                 <p className="text-sm text-gray-400 -mt-2">
                   URL-friendly identifier for the season
                 </p>
+
+                <Input
+                  label="Get Ticket Link"
+                  name="getTicketLink"
+                  value={formData.getTicketLink}
+                  onChange={handleInputChange}
+                  placeholder="https://example.com/tickets"
+                  error={errors.getTicketLink}
+                  disabled={submitting}
+                />
+                <p className="text-sm text-gray-400 -mt-2">
+                  Link where users can purchase tickets for this season
+                </p>
               </div>
 
               {/* Date Information - Status Dependent */}
@@ -761,19 +781,17 @@ export default function SeasonPopup({
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Start Date - Only for upcoming seasons */}
-                  {formData.status === "upcoming" && (
-                    <Input
-                      label="Start Date"
-                      name="startDate"
-                      type="date"
-                      value={formData.startDate}
-                      onChange={handleInputChange}
-                      required
-                      error={errors.startDate}
-                      disabled={submitting}
-                    />
-                  )}
+                  {/* Start Date - Always visible for all statuses (upcoming, ongoing, ended) */}
+                  <Input
+                    label="Start Date"
+                    name="startDate"
+                    type="date"
+                    value={formData.startDate}
+                    onChange={handleInputChange}
+                    required
+                    error={errors.startDate}
+                    disabled={submitting}
+                  />
 
                   <Input
                     label="End Date"

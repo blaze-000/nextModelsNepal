@@ -2,7 +2,7 @@ import Image from "next/image";
 import { Button } from "../ui/button";
 import type { FC } from "react";
 import Link from "next/link";
-import { normalizeImagePath } from "@/lib/utils";
+import { formatDate, normalizeImagePath } from "@/lib/utils";
 
 const EventCard: FC<EventCardProps> = ({
   title,
@@ -63,19 +63,24 @@ const EventCard: FC<EventCardProps> = ({
             <h2 className="text-white text-3xl font-newsreader tracking-tighter font-normal">
               {title}
             </h2>
-            <p className="text-white text-xs font-semibold pb-3">{date}</p>
-            <p className="text-white text-sm font-light tracking-wider pr-4 mb-4 line-clamp-2">
+            <p className="text-white text-xs font-semibold pb-3">{formatDate(date)}</p>
+            <p className="text-white text-sm font-light tracking-wider pr-4 mb-4 line-clamp-3">
               {overview}
             </p>
 
             <div className="flex flex-row items-center gap-3">
               {state !== "ended" && getTicketLink && (
-                <Button
-                  variant="default"
-                  className="h-8 text-sm"
-                >
-                  Get Tickets
-                </Button>
+                <Link href={getTicketLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full">
+                  <Button
+                    variant="default"
+                    className="h-8 text-sm"
+                  >
+                    Get Tickets
+                  </Button>
+                </Link>
               )}
               {slug && (
                 <Link href={`/events/${slug}`}
@@ -101,7 +106,7 @@ const EventCard: FC<EventCardProps> = ({
               {title}
             </h2>
             <p className="text-white text-base font-semibold pb-4">{date}</p>
-            <p className="text-white text-base font-light tracking-wider pr-10 mb-4">
+            <p className="text-white text-base font-light tracking-wider pr-10 mb-4 line-clamp-3">
               {overview}
             </p>
 

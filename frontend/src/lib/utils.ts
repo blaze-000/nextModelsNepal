@@ -29,19 +29,20 @@ export function formatDate(date: string | Date): string {
   return `${day} ${month}, ${year}`;
 }
 
-// Normalized image path
-export function normalizeImagePath(path: string): string {
-  if (!path) return '';
+// Normalized image path with fallback
+export function normalizeImagePath(path?: string): string {
+  // ✅ If no path, return fallback
+  if (!path) return "/default-fallback-image.png";
 
   // Replace all backslashes with forward slashes
-  let fixed = path.replace(/\\/g, '/');
+  let fixed = path.replace(/\\/g, "/");
 
   // Ensure it starts with a slash
-  if (!fixed.startsWith('/')) {
-    fixed = '/' + fixed;
+  if (!fixed.startsWith("/")) {
+    fixed = "/" + fixed;
   }
 
-  // Prepend API URL (remove trailing slash if present to avoid //)
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+  // Prepend API URL (remove trailing slash if present)
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "";
   return `${baseUrl}${fixed}`;
-};
+}

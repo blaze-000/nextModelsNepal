@@ -55,7 +55,7 @@ const HeroSection = () => {
                   {data?.titleImage && (
                     <Image
                       src={normalizeImagePath(data.titleImage)}
-                      alt="titleImage"
+                      alt=""
                       priority
                       width={160}
                       height={64}
