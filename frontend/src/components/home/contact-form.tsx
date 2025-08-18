@@ -196,7 +196,7 @@ const ContactForm = () => {
             <InputField
               label="Email"
               name="email"
-              type="email"
+              type="text"
               value={formData.email}
               onChange={handleChange}
               placeholder="e.g. johndoe@example.com"

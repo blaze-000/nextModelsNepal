@@ -6,7 +6,7 @@ interface EventCardProps {
   coverImage: string,
   state: "ongoing" | "ended",
   timelinePosition?: "left" | "right" | false,
-  manageBy?: "self" | "partners",
+  manageBy?: "self" | "partner",
   getTicketLink?: string
 }
 
@@ -26,7 +26,7 @@ type EventType = {
   overview: string,
   coverImage: string,
   state: "ongoing" | "ended",
-  manageBy: "self" | "partners",
+  manageBy: "self" | "partner",
   getTicketLink: string,
 }
 
@@ -95,11 +95,13 @@ type UpcomingEventData = {
   description: string,
   notice: string[],
   eventId: { name: string, },
-  card: {
-    cardTitle: string,
-    index: string,
-    item: { criteriaTitle: string, criteria: string, criteriaIcon: string }[]
+  criteria: {
+    _id: string,
+    label: string,
+    icon: string,
+    value: string,
   }[],
+  auditions: { date: string, place: string }[],
   notice: string[],
   noticeName: string,
 };
@@ -126,4 +128,18 @@ type NewsItem = {
   year: string,
   image: string,
   event: string | null,
+}
+
+type TimelineEvent = {
+  eventName: string,
+  overview: string,
+  coverImage: string,
+  managedBy: "self" | "partner",
+  season: {
+    status: "ongoing" | "ended",
+    startDate: string,
+    endDate: string,
+    getTicketLink?: string,
+    slug: string,
+  }
 }

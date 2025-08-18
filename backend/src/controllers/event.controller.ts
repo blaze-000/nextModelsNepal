@@ -256,3 +256,89 @@ export const deleteEvent = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
+
+/**
+ * Get Events for homepage timeline
+ */
+export const getEventsForTimeline = async (req: Request, res: Response) => {
+  try {
+    // Get all events with their seasons populated
+    const events = await EventModel.find()
+      .populate({
+        path: "seasons",
+        select: "status startDate endDate slug year getTicketLink",
+        options: { sort: { year: -1 } } // Sort by year descending
+      });
+
+    // Filter out events that have any upcoming seasons
+    const filteredEvents = events.filter(event => {
+      if (!event.seasons || event.seasons.length === 0) {
+        return false; // Exclude events with no seasons
+      }
+
+      // Check if any season has "upcoming" status
+      const hasUpcomingSeason = (event.seasons as any[]).some((season: any) =>
+        season.status === "upcoming"
+      );
+
+      return !hasUpcomingSeason;
+    });
+
+    // Process each event to select the appropriate child season
+    const processedEvents = filteredEvents.map(event => {
+      const seasons = (event.seasons as any[]) || [];
+
+      // Find ongoing season first, then highest year
+      let selectedSeason: any = null;
+
+      // First priority: ongoing season
+      selectedSeason = seasons.find((season: any) => season.status === "ongoing");
+
+      // Second priority: highest year if no ongoing season
+      if (!selectedSeason && seasons.length > 0) {
+        selectedSeason = seasons[0]; // Already sorted by year descending
+      }
+
+      // If no season found, skip this event
+      if (!selectedSeason) {
+        return null;
+      }
+
+      return {
+        eventName: event.name,
+        overview: event.overview,
+        coverImage: event.coverImage,
+        managedBy: event.managedBy,
+        season: {
+          status: selectedSeason.status,
+          startDate: selectedSeason.startDate,
+          endDate: selectedSeason.endDate,
+          slug: selectedSeason.slug,
+          getTicketLink: selectedSeason.getTicketLink
+        }
+      };
+    }).filter(event => event !== null); // Remove null events
+
+    // Sort events by season status: ongoing first, ended later
+    const sortedEvents = processedEvents.sort((a, b) => {
+      // Define status priority: ongoing = 1, ended = 2
+      const statusPriority = {
+        'ongoing': 1,
+        'ended': 2
+      };
+
+      const aPriority = statusPriority[a.season.status as keyof typeof statusPriority] || 3;
+      const bPriority = statusPriority[b.season.status as keyof typeof statusPriority] || 3;
+
+      return aPriority - bPriority;
+    });
+
+    res.json({
+      success: true,
+      data: sortedEvents
+    });
+  } catch (error) {
+    console.error("Get events for timeline error:", error);
+    res.status(500).json({ success: false, message: "Failed to fetch events for timeline" });
+  }
+};

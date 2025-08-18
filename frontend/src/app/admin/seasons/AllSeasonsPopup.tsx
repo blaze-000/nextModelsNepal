@@ -26,14 +26,14 @@ export interface BackendSeason {
   year: number;
   image: string;
   status: "upcoming" | "ongoing" | "ended";
-  startDate?: string;
+  startDate: string;
   auditionFormDeadline?: string;
   votingOpened?: boolean;
   votingEndDate?: string;
   endDate: string;
   slug: string;
+  getTicketLink?: string;
   pricePerVote: number;
-  titleImage?: string;
   posterImage?: string;
   gallery?: string[];
   notice?: string[];
@@ -41,6 +41,15 @@ export interface BackendSeason {
     label: string;
     datespan: string;
     icon: string;
+  }>;
+  eligibilityCriteria?: Array<{
+    label: string;
+    value: string;
+    icon: string;
+  }>;
+  auditionPlaces?: Array<{
+    place: string;
+    date: string;
   }>;
   createdAt: string;
   updatedAt: string;
@@ -56,16 +65,25 @@ interface SeasonFormData {
   votingEndDate: string;
   endDate: string;
   slug: string;
+  getTicketLink: string;
   pricePerVote: number;
   notice: string;
   image: File[];
-  titleImage: File[];
   posterImage: File[];
   galleryImages: File[];
   timeline: Array<{
     label: string;
     datespan: string;
     icon: string;
+  }>;
+  eligibilityCriteria: Array<{
+    label: string;
+    value: string;
+    icon: string;
+  }>;
+  auditionPlaces: Array<{
+    place: string;
+    date: string;
   }>;
 }
 
@@ -87,13 +105,15 @@ const initialFormData: SeasonFormData = {
   votingEndDate: "",
   endDate: "",
   slug: "",
+  getTicketLink: "",
   pricePerVote: 0,
   notice: "",
   image: [],
-  titleImage: [],
   posterImage: [],
   galleryImages: [],
   timeline: [{ label: "", datespan: "", icon: "" }],
+  eligibilityCriteria: [{ label: "", value: "", icon: "" }],
+  auditionPlaces: [{ place: "", date: "" }],
 };
 
 const statusOptions = [
@@ -140,13 +160,15 @@ export default function AllSeasonsPopup({
             : "",
           endDate: season.endDate ? season.endDate.split("T")[0] : "",
           slug: season.slug,
+          getTicketLink: season.getTicketLink || "",
           pricePerVote: season.pricePerVote,
           notice: season.notice ? season.notice.join("\\n") : "",
           image: [],
-          titleImage: [],
           posterImage: [],
           galleryImages: [],
           timeline: season.timeline || [{ label: "", datespan: "", icon: "" }],
+          eligibilityCriteria: season.eligibilityCriteria || [{ label: "", value: "", icon: "" }],
+          auditionPlaces: season.auditionPlaces || [{ place: "", date: "" }],
         });
         setExistingGalleryImages(
           season.gallery
@@ -220,6 +242,60 @@ export default function AllSeasonsPopup({
     setFormData((prev) => ({
       ...prev,
       timeline: prev.timeline.map((item, i) =>
+        i === index ? { ...item, [field]: value } : item
+      ),
+    }));
+  };
+
+  const addEligibilityCriteria = () => {
+    setFormData((prev) => ({
+      ...prev,
+      eligibilityCriteria: [...prev.eligibilityCriteria, { label: "", value: "", icon: "" }],
+    }));
+  };
+
+  const removeEligibilityCriteria = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      eligibilityCriteria: prev.eligibilityCriteria.filter((_, i) => i !== index),
+    }));
+  };
+
+  const updateEligibilityCriteria = (
+    index: number,
+    field: keyof (typeof formData.eligibilityCriteria)[0],
+    value: string
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      eligibilityCriteria: prev.eligibilityCriteria.map((item, i) =>
+        i === index ? { ...item, [field]: value } : item
+      ),
+    }));
+  };
+
+  const addAuditionPlaces = () => {
+    setFormData((prev) => ({
+      ...prev,
+      auditionPlaces: [...prev.auditionPlaces, { place: "", date: "" }],
+    }));
+  };
+
+  const removeAuditionPlaces = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      auditionPlaces: prev.auditionPlaces.filter((_, i) => i !== index),
+    }));
+  };
+
+  const updateAuditionPlaces = (
+    index: number,
+    field: keyof (typeof formData.auditionPlaces)[0],
+    value: string
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      auditionPlaces: prev.auditionPlaces.map((item, i) =>
         i === index ? { ...item, [field]: value } : item
       ),
     }));
@@ -302,6 +378,9 @@ export default function AllSeasonsPopup({
     if (formData.year < 1900 || formData.year > 2100) {
       newErrors.year = "Year must be between 1900 and 2100";
     }
+    if (!formData.startDate.trim()) {
+      newErrors.startDate = "Start date is required";
+    }
     if (!formData.endDate.trim()) {
       newErrors.endDate = "End date is required";
     }
@@ -319,9 +398,6 @@ export default function AllSeasonsPopup({
 
     // Status-specific validations
     if (formData.status === "upcoming") {
-      if (!formData.startDate.trim()) {
-        newErrors.startDate = "Start date is required for upcoming seasons";
-      }
       if (!formData.auditionFormDeadline.trim()) {
         newErrors.auditionFormDeadline =
           "Audition form deadline is required for upcoming seasons";
@@ -386,6 +462,9 @@ export default function AllSeasonsPopup({
       formDataToSend.append("status", formData.status);
       formDataToSend.append("endDate", formData.endDate);
       formDataToSend.append("slug", formData.slug);
+      if (formData.getTicketLink) {
+        formDataToSend.append("getTicketLink", formData.getTicketLink);
+      }
       if (formData.status !== "ended") {
         formDataToSend.append("pricePerVote", formData.pricePerVote.toString());
       }
@@ -421,12 +500,31 @@ export default function AllSeasonsPopup({
         formDataToSend.append("timeline", JSON.stringify(timelineData));
       }
 
+      // Add eligibility criteria
+      const eligibilityCriteriaData = formData.eligibilityCriteria.filter(
+        (item) => item.label.trim() || item.value.trim() || item.icon.trim()
+      );
+      if (eligibilityCriteriaData.length > 0) {
+        formDataToSend.append(
+          "eligibilityCriteria",
+          JSON.stringify(eligibilityCriteriaData)
+        );
+      }
+
+      // Add audition places
+      const auditionPlacesData = formData.auditionPlaces.filter(
+        (item) => item.place.trim() || item.date.trim()
+      );
+      if (auditionPlacesData.length > 0) {
+        formDataToSend.append(
+          "auditionPlaces",
+          JSON.stringify(auditionPlacesData)
+        );
+      }
+
       // Add images only if they are selected
       if (formData.image.length > 0) {
         formDataToSend.append("image", formData.image[0]);
-      }
-      if (formData.titleImage.length > 0) {
-        formDataToSend.append("titleImage", formData.titleImage[0]);
       }
       if (formData.posterImage.length > 0) {
         formDataToSend.append("posterImage", formData.posterImage[0]);
@@ -466,7 +564,7 @@ export default function AllSeasonsPopup({
       } else {
         throw new Error(
           response.data.message ||
-            `Failed to ${isEditing ? "update" : "create"} season`
+          `Failed to ${isEditing ? "update" : "create"} season`
         );
       }
     } catch (error: unknown) {
@@ -500,22 +598,20 @@ export default function AllSeasonsPopup({
           <div className="mb-6">
             <div className="flex items-center justify-center space-x-4">
               <div
-                className={`flex items-center space-x-2 ${
-                  currentStep === 1
-                    ? "text-gold-500"
-                    : currentStep > 1
+                className={`flex items-center space-x-2 ${currentStep === 1
+                  ? "text-gold-500"
+                  : currentStep > 1
                     ? "text-green-500"
                     : "text-gray-400"
-                }`}
+                  }`}
               >
                 <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${
-                    currentStep === 1
-                      ? "border-gold-500 bg-gold-500/20"
-                      : currentStep > 1
+                  className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${currentStep === 1
+                    ? "border-gold-500 bg-gold-500/20"
+                    : currentStep > 1
                       ? "border-green-500 bg-green-500/20"
                       : "border-gray-400 bg-gray-400/20"
-                  }`}
+                    }`}
                 >
                   {currentStep > 1 ? (
                     <i className="ri-check-line text-sm"></i>
@@ -527,28 +623,25 @@ export default function AllSeasonsPopup({
               </div>
 
               <div
-                className={`w-12 h-0.5 ${
-                  currentStep > 1 ? "bg-green-500" : "bg-gray-400"
-                }`}
+                className={`w-12 h-0.5 ${currentStep > 1 ? "bg-green-500" : "bg-gray-400"
+                  }`}
               ></div>
 
               <div
-                className={`flex items-center space-x-2 ${
-                  currentStep === 2
-                    ? "text-gold-500"
-                    : currentStep > 2
+                className={`flex items-center space-x-2 ${currentStep === 2
+                  ? "text-gold-500"
+                  : currentStep > 2
                     ? "text-green-500"
                     : "text-gray-400"
-                }`}
+                  }`}
               >
                 <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${
-                    currentStep === 2
-                      ? "border-gold-500 bg-gold-500/20"
-                      : currentStep > 2
+                  className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${currentStep === 2
+                    ? "border-gold-500 bg-gold-500/20"
+                    : currentStep > 2
                       ? "border-green-500 bg-green-500/20"
                       : "border-gray-400 bg-gray-400/20"
-                  }`}
+                    }`}
                 >
                   {currentStep > 2 ? (
                     <i className="ri-check-line text-sm"></i>
@@ -560,22 +653,19 @@ export default function AllSeasonsPopup({
               </div>
 
               <div
-                className={`w-12 h-0.5 ${
-                  currentStep > 2 ? "bg-green-500" : "bg-gray-400"
-                }`}
+                className={`w-12 h-0.5 ${currentStep > 2 ? "bg-green-500" : "bg-gray-400"
+                  }`}
               ></div>
 
               <div
-                className={`flex items-center space-x-2 ${
-                  currentStep === 3 ? "text-gold-500" : "text-gray-400"
-                }`}
+                className={`flex items-center space-x-2 ${currentStep === 3 ? "text-gold-500" : "text-gray-400"
+                  }`}
               >
                 <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${
-                    currentStep === 3
-                      ? "border-gold-500 bg-gold-500/20"
-                      : "border-gray-400 bg-gray-400/20"
-                  }`}
+                  className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${currentStep === 3
+                    ? "border-gold-500 bg-gold-500/20"
+                    : "border-gray-400 bg-gray-400/20"
+                    }`}
                 >
                   <span className="text-sm font-medium">3</span>
                 </div>
@@ -611,11 +701,10 @@ export default function AllSeasonsPopup({
                 {events.map((event) => (
                   <div
                     key={event._id}
-                    className={`relative p-6 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
-                      formData.eventId === event._id
-                        ? "border-gold-500 bg-gold-500/10"
-                        : "border-gray-600 bg-gray-800/50 hover:border-gray-500"
-                    }`}
+                    className={`relative p-6 rounded-lg border-2 cursor-pointer transition-all duration-200 ${formData.eventId === event._id
+                      ? "border-gold-500 bg-gold-500/10"
+                      : "border-gray-600 bg-gray-800/50 hover:border-gray-500"
+                      }`}
                     onClick={() =>
                       setFormData((prev) => {
                         const newData = { ...prev, eventId: event._id };
@@ -697,11 +786,10 @@ export default function AllSeasonsPopup({
                 {statusOptions.map((option) => (
                   <div
                     key={option.value}
-                    className={`relative p-6 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
-                      formData.status === option.value
-                        ? "border-gold-500 bg-gold-500/10"
-                        : "border-gray-600 bg-gray-800/50 hover:border-gray-500"
-                    }`}
+                    className={`relative p-6 rounded-lg border-2 cursor-pointer transition-all duration-200 ${formData.status === option.value
+                      ? "border-gold-500 bg-gold-500/10"
+                      : "border-gray-600 bg-gray-800/50 hover:border-gray-500"
+                      }`}
                     onClick={() =>
                       setFormData((prev) => ({
                         ...prev,
@@ -714,22 +802,20 @@ export default function AllSeasonsPopup({
                   >
                     <div className="text-center space-y-3">
                       <div
-                        className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto ${
-                          option.value === "upcoming"
-                            ? "bg-blue-500/20"
-                            : option.value === "ongoing"
+                        className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto ${option.value === "upcoming"
+                          ? "bg-blue-500/20"
+                          : option.value === "ongoing"
                             ? "bg-green-500/20"
                             : "bg-gray-500/20"
-                        }`}
+                          }`}
                       >
                         <i
-                          className={`text-xl ${
-                            option.value === "upcoming"
-                              ? "ri-time-line text-blue-400"
-                              : option.value === "ongoing"
+                          className={`text-xl ${option.value === "upcoming"
+                            ? "ri-time-line text-blue-400"
+                            : option.value === "ongoing"
                               ? "ri-play-line text-green-400"
                               : "ri-check-line text-gray-400"
-                          }`}
+                            }`}
                         ></i>
                       </div>
                       <h4 className="font-semibold text-gray-100">
@@ -739,8 +825,8 @@ export default function AllSeasonsPopup({
                         {option.value === "upcoming"
                           ? "Season hasn't started yet"
                           : option.value === "ongoing"
-                          ? "Season is currently active"
-                          : "Season has completed"}
+                            ? "Season is currently active"
+                            : "Season has completed"}
                       </p>
                     </div>
 
@@ -805,13 +891,12 @@ export default function AllSeasonsPopup({
                       </div>
                       <div className="flex items-center space-x-2">
                         <div
-                          className={`w-3 h-3 rounded-full ${
-                            formData.status === "upcoming"
-                              ? "bg-blue-400"
-                              : formData.status === "ongoing"
+                          className={`w-3 h-3 rounded-full ${formData.status === "upcoming"
+                            ? "bg-blue-400"
+                            : formData.status === "ongoing"
                               ? "bg-green-400"
                               : "bg-gray-400"
-                          }`}
+                            }`}
                         ></div>
                         <span className="text-gray-300">
                           <strong>Status:</strong>{" "}
@@ -840,9 +925,8 @@ export default function AllSeasonsPopup({
                 </div>
 
                 <div
-                  className={`grid grid-cols-1 ${
-                    formData.status !== "ended" ? "md:grid-cols-2" : ""
-                  } gap-4`}
+                  className={`grid grid-cols-1 ${formData.status !== "ended" ? "md:grid-cols-2" : ""
+                    } gap-4`}
                 >
                   <Input
                     label="Year"
@@ -883,6 +967,19 @@ export default function AllSeasonsPopup({
                 <p className="text-sm text-gray-400 -mt-2">
                   URL-friendly identifier for the season
                 </p>
+
+                <Input
+                  label="Get Ticket Link"
+                  name="getTicketLink"
+                  value={formData.getTicketLink}
+                  onChange={handleInputChange}
+                  placeholder="https://example.com/tickets"
+                  error={errors.getTicketLink}
+                  disabled={submitting}
+                />
+                <p className="text-sm text-gray-400 -mt-2">
+                  Link where users can purchase tickets for this season
+                </p>
               </div>
 
               {/* Date Information - Status Dependent */}
@@ -897,19 +994,16 @@ export default function AllSeasonsPopup({
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Start Date - Only for upcoming seasons */}
-                  {formData.status === "upcoming" && (
-                    <Input
-                      label="Start Date"
-                      name="startDate"
-                      type="date"
-                      value={formData.startDate}
-                      onChange={handleInputChange}
-                      required
-                      error={errors.startDate}
-                      disabled={submitting}
-                    />
-                  )}
+                  <Input
+                    label="Start Date"
+                    name="startDate"
+                    type="date"
+                    value={formData.startDate}
+                    onChange={handleInputChange}
+                    required
+                    error={errors.startDate}
+                    disabled={submitting}
+                  />
 
                   <Input
                     label="End Date"
@@ -939,40 +1033,40 @@ export default function AllSeasonsPopup({
                   {/* Voting End Date - For upcoming and ongoing seasons */}
                   {(formData.status === "upcoming" ||
                     formData.status === "ongoing") && (
-                    <Input
-                      label="Voting End Date"
-                      name="votingEndDate"
-                      type="date"
-                      value={formData.votingEndDate}
-                      onChange={handleInputChange}
-                      required
-                      error={errors.votingEndDate}
-                      disabled={submitting}
-                    />
-                  )}
+                      <Input
+                        label="Voting End Date"
+                        name="votingEndDate"
+                        type="date"
+                        value={formData.votingEndDate}
+                        onChange={handleInputChange}
+                        required
+                        error={errors.votingEndDate}
+                        disabled={submitting}
+                      />
+                    )}
                 </div>
 
                 {/* Voting Opened Checkbox - For upcoming and ongoing seasons */}
                 {(formData.status === "upcoming" ||
                   formData.status === "ongoing") && (
-                  <div className="flex items-center space-x-3">
-                    <input
-                      type="checkbox"
-                      id="votingOpened"
-                      name="votingOpened"
-                      checked={formData.votingOpened}
-                      onChange={handleInputChange}
-                      disabled={submitting}
-                      className="w-4 h-4 text-gold-500 bg-gray-700 border-gray-600 rounded focus:ring-gold-500 focus:ring-2"
-                    />
-                    <label
-                      htmlFor="votingOpened"
-                      className="text-sm text-gray-300"
-                    >
-                      Voting is currently opened
-                    </label>
-                  </div>
-                )}
+                    <div className="flex items-center space-x-3">
+                      <input
+                        type="checkbox"
+                        id="votingOpened"
+                        name="votingOpened"
+                        checked={formData.votingOpened}
+                        onChange={handleInputChange}
+                        disabled={submitting}
+                        className="w-4 h-4 text-gold-500 bg-gray-700 border-gray-600 rounded focus:ring-gold-500 focus:ring-2"
+                      />
+                      <label
+                        htmlFor="votingOpened"
+                        className="text-sm text-gray-300"
+                      >
+                        Voting is currently opened
+                      </label>
+                    </div>
+                  )}
               </div>
 
               {/* Images */}
@@ -987,7 +1081,7 @@ export default function AllSeasonsPopup({
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <PhotoUpload
                     label="Main Image"
                     name="image"
@@ -1008,47 +1102,24 @@ export default function AllSeasonsPopup({
                   />
 
                   <PhotoUpload
-                    label="Title Image"
-                    name="titleImage"
+                    label="Poster Image"
+                    name="posterImage"
                     onImageChange={(files: File[]) =>
-                      handleImageChange("titleImage", files)
+                      handleImageChange("posterImage", files)
                     }
-                    selectedFiles={formData.titleImage}
+                    selectedFiles={formData.posterImage}
                     existingImages={
-                      season?.titleImage
-                        ? [normalizeImagePath(season.titleImage)]
+                      season?.posterImage
+                        ? [normalizeImagePath(season.posterImage)]
                         : []
                     }
-                    error={errors.titleImage}
+                    error={errors.posterImage}
                     mode="single"
                     maxFiles={1}
                     maxFileSize={5}
                     acceptedTypes={["image/*"]}
                     disabled={submitting}
                   />
-
-                  {/* Poster Image - Only for upcoming seasons */}
-                  {formData.status === "upcoming" && (
-                    <PhotoUpload
-                      label="Poster Image"
-                      name="posterImage"
-                      onImageChange={(files: File[]) =>
-                        handleImageChange("posterImage", files)
-                      }
-                      selectedFiles={formData.posterImage}
-                      existingImages={
-                        season?.posterImage
-                          ? [normalizeImagePath(season.posterImage)]
-                          : []
-                      }
-                      error={errors.posterImage}
-                      mode="single"
-                      maxFiles={1}
-                      maxFileSize={5}
-                      acceptedTypes={["image/*"]}
-                      disabled={submitting}
-                    />
-                  )}
                 </div>
               </div>
 
@@ -1119,6 +1190,13 @@ export default function AllSeasonsPopup({
                   </p>
                 </div>
 
+                {/* Debug Info */}
+                <div className="bg-red-500/20 p-4 rounded-lg border border-red-500">
+                  <p className="text-red-400 text-sm">
+                    Debug: Status = {formData.status}, Step = {currentStep}, IsEditing = {isEditing.toString()}
+                  </p>
+                </div>
+
                 <div className="space-y-3">
                   {formData.timeline.map((item, index) => (
                     <div
@@ -1184,6 +1262,154 @@ export default function AllSeasonsPopup({
                   </Button>
                 </div>
               </div>
+
+              {/* Eligibility Criteria */}
+              {formData.status === "upcoming" && (
+                <div className="space-y-4 bg-blue-500/10 p-4 rounded-lg border border-blue-500">
+                  <div className="border-b border-gray-700 pb-3">
+                    <h3 className="text-lg font-semibold text-gray-100">
+                      Eligibility Criteria
+                    </h3>
+                    <p className="text-sm text-gray-400">
+                      Define the eligibility criteria for participants.
+                    </p>
+                  </div>
+
+                  <div className="space-y-3">
+                    {formData.eligibilityCriteria.map((item, index) => (
+                      <div
+                        key={index}
+                        className="grid grid-cols-1 md:grid-cols-4 gap-3 p-4 bg-gray-800/50 rounded-lg border border-gray-600"
+                      >
+                        <Input
+                          label="Label"
+                          name={`eligibilityCriteria-label-${index}`}
+                          value={item.label}
+                          onChange={(e) =>
+                            updateEligibilityCriteria(index, "label", e.target.value)
+                          }
+                          placeholder="Criteria label"
+                          disabled={submitting}
+                        />
+                        <Input
+                          label="Value"
+                          name={`eligibilityCriteria-value-${index}`}
+                          value={item.value}
+                          onChange={(e) =>
+                            updateEligibilityCriteria(index, "value", e.target.value)
+                          }
+                          placeholder="Criteria value"
+                          disabled={submitting}
+                        />
+                        <Input
+                          label="Icon"
+                          name={`eligibilityCriteria-icon-${index}`}
+                          value={item.icon}
+                          onChange={(e) =>
+                            updateEligibilityCriteria(index, "icon", e.target.value)
+                          }
+                          placeholder="ri-icon-name"
+                          disabled={submitting}
+                        />
+                        <div className="flex items-end">
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => removeEligibilityCriteria(index)}
+                            disabled={
+                              submitting || formData.eligibilityCriteria.length === 1
+                            }
+                            className="w-full"
+                          >
+                            <i className="ri-delete-bin-line"></i>
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={addEligibilityCriteria}
+                      disabled={submitting}
+                      className="w-full"
+                    >
+                      <i className="ri-add-line mr-2"></i>
+                      Add Eligibility Criteria
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Audition Places */}
+              {formData.status === "upcoming" && (
+                <div className="space-y-4 bg-green-500/10 p-4 rounded-lg border border-green-500">
+                  <div className="border-b border-gray-700 pb-3">
+                    <h3 className="text-lg font-semibold text-gray-100">
+                      Audition Places
+                    </h3>
+                    <p className="text-sm text-gray-400">
+                      Specify the audition places and dates for the upcoming season.
+                    </p>
+                  </div>
+
+                  <div className="space-y-3">
+                    {formData.auditionPlaces.map((item, index) => (
+                      <div
+                        key={index}
+                        className="grid grid-cols-1 md:grid-cols-3 gap-3 p-4 bg-gray-800/50 rounded-lg border border-gray-600"
+                      >
+                        <Input
+                          label="Place"
+                          name={`auditionPlaces-place-${index}`}
+                          value={item.place}
+                          onChange={(e) =>
+                            updateAuditionPlaces(index, "place", e.target.value)
+                          }
+                          placeholder="Audition place"
+                          disabled={submitting}
+                        />
+                        <Input
+                          label="Date"
+                          name={`auditionPlaces-date-${index}`}
+                          type="date"
+                          value={item.date}
+                          onChange={(e) =>
+                            updateAuditionPlaces(index, "date", e.target.value)
+                          }
+                          disabled={submitting}
+                        />
+                        <div className="flex items-end">
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => removeAuditionPlaces(index)}
+                            disabled={
+                              submitting || formData.auditionPlaces.length === 1
+                            }
+                            className="w-full"
+                          >
+                            <i className="ri-delete-bin-line"></i>
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={addAuditionPlaces}
+                      disabled={submitting}
+                      className="w-full"
+                    >
+                      <i className="ri-add-line mr-2"></i>
+                      Add Audition Place
+                    </Button>
+                  </div>
+                </div>
+              )}
 
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row justify-between gap-3 pt-6 border-t border-gray-700">
