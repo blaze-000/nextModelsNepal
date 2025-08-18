@@ -43,11 +43,11 @@ export default function HireModel() {
             <span>Hire a </span>
             <div className="flex items-baseline gap-3 mt-2">
               <Image
-                src="/handshake.jpg"
+                src="/hire-a-model-title-image.jpg"
                 alt="Handshake"
                 width={160}
                 height={64}
-                className="h-16 w-40 rounded-full object-cover hidden md:flex border-stone-300 shadow-[-10px_8px_20px_10px_rgba(179,131,0,0.19)]"
+                className="h-16 w-40 rounded-full object-cover object-top hidden md:flex border-stone-300 shadow-[-10px_8px_20px_10px_rgba(179,131,0,0.19)]"
               />
               <span>Model</span>
             </div>
@@ -108,11 +108,11 @@ export default function HireModel() {
                   Explore
                 </h2>
                 <Image
-                  className="w-24 h-12 lg:w-36 lg:h-16 rounded-full border border-stone-300 mb-3"
-                  width={32}
+                  width={200}
                   height={0}
-                  src="/events_1.jpg"
+                  src="/find-a-face-title-image.jpg"
                   alt=""
+                  className="w-24 h-12 lg:w-36 lg:h-16 rounded-full border border-stone-300 mb-3 object-cover object-top"
                 />
                 <h2 className="text-white text-4xl lg:text-5xl font-light font-newsreader">
                   Models

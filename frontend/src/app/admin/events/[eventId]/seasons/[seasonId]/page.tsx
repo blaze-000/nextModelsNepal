@@ -15,6 +15,12 @@ import ContestantPopup, {
 import JuryPopup, { BackendJury } from "./jury/JuryPopup";
 import WinnerPopup, { BackendWinner } from "./winners/WinnerPopup";
 import SeasonPopup, { BackendSeason } from "../SeasonPopup";
+import EligibilityCriteriaPopup, {
+  BackendEligibilityCriteria,
+} from "./eligibility-criteria/EligibilityCriteriaPopup";
+import AuditionPlacesPopup, {
+  BackendAuditionPlace,
+} from "./audition-places/AuditionPlacesPopup";
 
 import Axios from "@/lib/axios-instance";
 import { normalizeImagePath } from "@/lib/utils";
@@ -58,7 +64,7 @@ interface Season {
   }>;
 }
 
-type TabKey = "overview" | "contestants" | "jury" | "winners";
+type TabKey = "overview" | "contestants" | "jury" | "winners" | "eligibility-criteria" | "audition-places";
 
 interface TabConfig {
   key: TabKey;
@@ -80,13 +86,15 @@ export default function SeasonDetailPage() {
   const [contestants, setContestants] = useState<BackendContestant[]>([]);
   const [jury, setJury] = useState<BackendJury[]>([]);
   const [winners, setWinners] = useState<BackendWinner[]>([]);
+  const [eligibilityCriteria, setEligibilityCriteria] = useState<BackendEligibilityCriteria[]>([]);
+  const [auditionPlaces, setAuditionPlaces] = useState<BackendAuditionPlace[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // Modal states
   const [deleteModal, setDeleteModal] = useState<{
     isOpen: boolean;
-    type: "contestant" | "jury" | "winner" | null;
+    type: "contestant" | "jury" | "winner" | "eligibility-criteria" | "audition-place" | null;
     id: string | null;
     name: string;
   }>({
@@ -125,12 +133,30 @@ export default function SeasonDetailPage() {
     winner: null,
   });
 
+  const [eligibilityCriteriaPopup, setEligibilityCriteriaPopup] = useState<{
+    isOpen: boolean;
+    criteria: BackendEligibilityCriteria | null;
+  }>({
+    isOpen: false,
+    criteria: null,
+  });
+
+  const [auditionPlacesPopup, setAuditionPlacesPopup] = useState<{
+    isOpen: boolean;
+    auditionPlace: BackendAuditionPlace | null;
+  }>({
+    isOpen: false,
+    auditionPlace: null,
+  });
+
   // Tab configuration
   const tabs: TabConfig[] = [
     { key: "overview", label: "Overview" },
     { key: "contestants", label: "Contestants", count: contestants.length },
     { key: "jury", label: "Jury", count: jury.length },
     { key: "winners", label: "Winners", count: winners.length },
+    { key: "eligibility-criteria", label: "Eligibility Criteria", count: eligibilityCriteria.length },
+    { key: "audition-places", label: "Audition Places", count: auditionPlaces.length },
   ];
 
   // Fetch data
@@ -195,12 +221,38 @@ export default function SeasonDetailPage() {
         setWinners(res.data.data || []);
       } catch (err) {
         console.error("Failed to fetch winners:", err);
+      }
+    };
+
+    fetchWinners();
+  }, [seasonId]);
+
+  useEffect(() => {
+    const fetchEligibilityCriteria = async () => {
+      try {
+        const res = await Axios.get(`/api/criteria/season/${seasonId}`);
+        setEligibilityCriteria(res.data.data || []);
+      } catch (err) {
+        console.error("Failed to fetch eligibility criteria:", err);
+      }
+    };
+
+    fetchEligibilityCriteria();
+  }, [seasonId]);
+
+  useEffect(() => {
+    const fetchAuditionPlaces = async () => {
+      try {
+        const res = await Axios.get(`/api/auditions/season/${seasonId}`);
+        setAuditionPlaces(res.data.data || []);
+      } catch (err) {
+        console.error("Failed to fetch audition places:", err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchWinners();
+    fetchAuditionPlaces();
   }, [seasonId]);
 
   // Handlers
@@ -228,6 +280,14 @@ export default function SeasonDetailPage() {
     setWinnerPopup({ isOpen: true, winner: null });
   };
 
+  const handleAddEligibilityCriteria = () => {
+    setEligibilityCriteriaPopup({ isOpen: true, criteria: null });
+  };
+
+  const handleAddAuditionPlace = () => {
+    setAuditionPlacesPopup({ isOpen: true, auditionPlace: null });
+  };
+
   const handleCloseContestantPopup = () => {
     setContestantPopup({ isOpen: false, contestant: null });
   };
@@ -238,6 +298,14 @@ export default function SeasonDetailPage() {
 
   const handleCloseWinnerPopup = () => {
     setWinnerPopup({ isOpen: false, winner: null });
+  };
+
+  const handleCloseEligibilityCriteriaPopup = () => {
+    setEligibilityCriteriaPopup({ isOpen: false, criteria: null });
+  };
+
+  const handleCloseAuditionPlacesPopup = () => {
+    setAuditionPlacesPopup({ isOpen: false, auditionPlace: null });
   };
 
   const handleContestantSuccess = () => {
@@ -282,6 +350,34 @@ export default function SeasonDetailPage() {
     fetchWinners();
   };
 
+  const handleEligibilityCriteriaSuccess = () => {
+    handleCloseEligibilityCriteriaPopup();
+    // Refresh eligibility criteria data
+    const fetchEligibilityCriteria = async () => {
+      try {
+        const res = await Axios.get(`/api/criteria/season/${seasonId}`);
+        setEligibilityCriteria(res.data.data || []);
+      } catch (err) {
+        console.error("Failed to fetch eligibility criteria:", err);
+      }
+    };
+    fetchEligibilityCriteria();
+  };
+
+  const handleAuditionPlacesSuccess = () => {
+    handleCloseAuditionPlacesPopup();
+    // Refresh audition places data
+    const fetchAuditionPlaces = async () => {
+      try {
+        const res = await Axios.get(`/api/auditions/season/${seasonId}`);
+        setAuditionPlaces(res.data.data || []);
+      } catch (err) {
+        console.error("Failed to fetch audition places:", err);
+      }
+    };
+    fetchAuditionPlaces();
+  };
+
   const handleDelete = async () => {
     if (!deleteModal.id || !deleteModal.type) return;
 
@@ -291,6 +387,8 @@ export default function SeasonDetailPage() {
         contestant: `/api/contestants/${deleteModal.id}`,
         jury: `/api/jury/${deleteModal.id}`,
         winner: `/api/winners/${deleteModal.id}`,
+        "eligibility-criteria": `/api/criteria/${deleteModal.id}`,
+        "audition-place": `/api/auditions/${deleteModal.id}`,
       };
 
       const response = await Axios.delete(endpoints[deleteModal.type]);
@@ -316,6 +414,18 @@ export default function SeasonDetailPage() {
               `/api/winners/season/${seasonId}`
             );
             setWinners(winnerRes.data.data || []);
+            break;
+          case "eligibility-criteria":
+            const criteriaRes = await Axios.get(
+              `/api/criteria/season/${seasonId}`
+            );
+            setEligibilityCriteria(criteriaRes.data.data || []);
+            break;
+          case "audition-place":
+            const auditionRes = await Axios.get(
+              `/api/auditions/season/${seasonId}`
+            );
+            setAuditionPlaces(auditionRes.data.data || []);
             break;
         }
       }
@@ -452,6 +562,58 @@ export default function SeasonDetailPage() {
     },
   ];
 
+  const eligibilityCriteriaColumns = [
+    {
+      key: "icon" as const,
+      label: "Icon",
+      render: (value: unknown) => {
+        const imagePath = String(value);
+        return (
+          <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-700">
+            <Image
+              src={normalizeImagePath(imagePath)}
+              alt="Criteria Icon"
+              width={48}
+              height={48}
+              className="w-full h-full object-cover"
+              unoptimized
+            />
+          </div>
+        );
+      },
+    },
+    {
+      key: "label" as const,
+      label: "Label",
+      render: (value: unknown) => String(value),
+    },
+    {
+      key: "value" as const,
+      label: "Value",
+      render: (value: unknown) => String(value),
+    },
+  ];
+
+  const auditionPlacesColumns = [
+    {
+      key: "place" as const,
+      label: "Place",
+      render: (value: unknown) => String(value),
+    },
+    {
+      key: "date" as const,
+      label: "Date",
+      render: (value: unknown) => {
+        const date = new Date(String(value));
+        return date.toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
+      },
+    },
+  ];
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -519,14 +681,14 @@ export default function SeasonDetailPage() {
             season.images && season.images.length > 0
               ? season.images[0]
               : season.titleImage
-              ? season.titleImage
-              : season.posterImage
-              ? season.posterImage
-              : season.image
-              ? season.image
-              : season.gallery && season.gallery.length > 0
-              ? season.gallery[0]
-              : null;
+                ? season.titleImage
+                : season.posterImage
+                  ? season.posterImage
+                  : season.image
+                    ? season.image
+                    : season.gallery && season.gallery.length > 0
+                      ? season.gallery[0]
+                      : null;
 
           return heroImage ? (
             <div className="relative h-80 lg:h-96 bg-gray-800 rounded-xl overflow-hidden">
@@ -545,22 +707,20 @@ export default function SeasonDetailPage() {
                   {/* Status Badge */}
                   <div className="flex items-center gap-3">
                     <span
-                      className={`px-4 py-2 rounded-full text-sm font-medium backdrop-blur-sm ${
-                        season.status === "completed"
-                          ? "bg-green-500/20 text-green-300 border border-green-500/40"
-                          : season.status === "ongoing"
+                      className={`px-4 py-2 rounded-full text-sm font-medium backdrop-blur-sm ${season.status === "completed"
+                        ? "bg-green-500/20 text-green-300 border border-green-500/40"
+                        : season.status === "ongoing"
                           ? "bg-gold-500/20 text-gold-300 border border-gold-500/40"
                           : "bg-blue-500/20 text-blue-300 border border-blue-500/40"
-                      }`}
+                        }`}
                     >
                       <i
-                        className={`mr-2 ${
-                          season.status === "completed"
-                            ? "ri-check-line"
-                            : season.status === "ongoing"
+                        className={`mr-2 ${season.status === "completed"
+                          ? "ri-check-line"
+                          : season.status === "ongoing"
                             ? "ri-play-line"
                             : "ri-time-line"
-                        }`}
+                          }`}
                       ></i>
                       {season.status.charAt(0).toUpperCase() +
                         season.status.slice(1)}
@@ -603,22 +763,20 @@ export default function SeasonDetailPage() {
                 </div>
                 <div className="flex items-center justify-center gap-4">
                   <span
-                    className={`px-4 py-2 rounded-full text-sm font-medium ${
-                      season.status === "completed"
-                        ? "bg-green-500/20 text-green-300 border border-green-500/40"
-                        : season.status === "ongoing"
+                    className={`px-4 py-2 rounded-full text-sm font-medium ${season.status === "completed"
+                      ? "bg-green-500/20 text-green-300 border border-green-500/40"
+                      : season.status === "ongoing"
                         ? "bg-gold-500/20 text-gold-300 border border-gold-500/40"
                         : "bg-blue-500/20 text-blue-300 border border-blue-500/40"
-                    }`}
+                      }`}
                   >
                     <i
-                      className={`mr-2 ${
-                        season.status === "completed"
-                          ? "ri-check-line"
-                          : season.status === "ongoing"
+                      className={`mr-2 ${season.status === "completed"
+                        ? "ri-check-line"
+                        : season.status === "ongoing"
                           ? "ri-play-line"
                           : "ri-time-line"
-                      }`}
+                        }`}
                     ></i>
                     {season.status.charAt(0).toUpperCase() +
                       season.status.slice(1)}
@@ -634,7 +792,7 @@ export default function SeasonDetailPage() {
         })()}
 
         {/* Statistics */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
           <div className="bg-background2 rounded-lg border border-gray-700 p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1">
@@ -700,6 +858,34 @@ export default function SeasonDetailPage() {
               </div>
             </div>
           </div>
+
+          <div className="bg-background2 rounded-lg border border-gray-700 p-4 sm:p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <p className="text-sm font-medium text-gray-400">Eligibility Criteria</p>
+                <p className="text-xl sm:text-2xl font-bold text-gray-100 mt-1">
+                  {eligibilityCriteria.length}
+                </p>
+              </div>
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-900/30 rounded-lg flex items-center justify-center">
+                <i className="ri-check-line text-purple-400 text-lg sm:text-xl" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-background2 rounded-lg border border-gray-700 p-4 sm:p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <p className="text-sm font-medium text-gray-400">Audition Places</p>
+                <p className="text-xl sm:text-2xl font-bold text-gray-100 mt-1">
+                  {auditionPlaces.length}
+                </p>
+              </div>
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-orange-900/30 rounded-lg flex items-center justify-center">
+                <i className="ri-map-pin-line text-orange-400 text-lg sm:text-xl" />
+              </div>
+            </div>
+          </div>
         </div>
       </motion.div>
 
@@ -710,21 +896,19 @@ export default function SeasonDetailPage() {
             <button
               key={tab.key}
               onClick={() => handleTabChange(tab.key)}
-              className={`py-4 px-1 border-b-2 font-semibold text-sm transition-all duration-200 ${
-                activeTab === tab.key
-                  ? "border-gold-500 text-gold-400"
-                  : "border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-600"
-              }`}
+              className={`py-4 px-1 border-b-2 font-semibold text-sm transition-all duration-200 ${activeTab === tab.key
+                ? "border-gold-500 text-gold-400"
+                : "border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-600"
+                }`}
             >
               <div className="flex items-center space-x-2">
                 <span>{tab.label}</span>
                 {tab.count !== undefined && (
                   <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      activeTab === tab.key
-                        ? "bg-gold-900/50 text-gold-300"
-                        : "bg-gray-800 text-gray-300"
-                    }`}
+                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${activeTab === tab.key
+                      ? "bg-gold-900/50 text-gold-300"
+                      : "bg-gray-800 text-gray-300"
+                      }`}
                   >
                     {tab.count}
                   </span>
@@ -840,18 +1024,16 @@ export default function SeasonDetailPage() {
                       </dt>
                       <dd className="text-sm">
                         <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            season.votingOpened
-                              ? "bg-green-100 "
-                              : " bg-gray-800 text-gray-300"
-                          }`}
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${season.votingOpened
+                            ? "bg-green-100 "
+                            : " bg-gray-800 text-gray-300"
+                            }`}
                         >
                           <i
-                            className={`mr-1.5 ${
-                              season.votingOpened
-                                ? "ri-play-circle-line"
-                                : "ri-pause-circle-line"
-                            }`}
+                            className={`mr-1.5 ${season.votingOpened
+                              ? "ri-play-circle-line"
+                              : "ri-pause-circle-line"
+                              }`}
                           ></i>
                           {season.votingOpened ? "Open" : "Closed"}
                         </span>
@@ -884,9 +1066,8 @@ export default function SeasonDetailPage() {
                         <div key={index} className="flex items-start space-x-3">
                           <div className="w-8 h-8 bg-gold-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
                             <i
-                              className={`${
-                                item.icon || "ri-calendar-line"
-                              } text-gold-500 text-sm`}
+                              className={`${item.icon || "ri-calendar-line"
+                                } text-gold-500 text-sm`}
                             ></i>
                           </div>
                           <div className="flex-1 min-w-0">
@@ -1052,6 +1233,90 @@ export default function SeasonDetailPage() {
             />
           </motion.div>
         )}
+
+        {activeTab === "eligibility-criteria" && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="bg-background2 rounded-lg border border-gray-700 overflow-hidden"
+          >
+            <div className="p-6 border-b border-gray-700">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h3 className="text-lg font-semibold text-foreground flex items-center">
+                    <i className="ri-check-line mr-2 text-gold-500"></i>
+                    Eligibility Criteria
+                  </h3>
+                  <p className="text-sm text-foreground/60 mt-1">
+                    Manage eligibility criteria for this season
+                  </p>
+                </div>
+                <Button variant="default" onClick={handleAddEligibilityCriteria}>
+                  <i className="ri-add-line mr-2"></i>
+                  Add Criteria
+                </Button>
+              </div>
+            </div>
+            <DataTable
+              data={eligibilityCriteria}
+              columns={eligibilityCriteriaColumns}
+              onEdit={(criteria) =>
+                setEligibilityCriteriaPopup({ isOpen: true, criteria })
+              }
+              onDelete={(criteria) =>
+                setDeleteModal({
+                  isOpen: true,
+                  type: "eligibility-criteria",
+                  id: criteria._id,
+                  name: criteria.label,
+                })
+              }
+            />
+          </motion.div>
+        )}
+
+        {activeTab === "audition-places" && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="bg-background2 rounded-lg border border-gray-700 overflow-hidden"
+          >
+            <div className="p-6 border-b border-gray-700">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h3 className="text-lg font-semibold text-foreground flex items-center">
+                    <i className="ri-map-pin-line mr-2 text-gold-500"></i>
+                    Audition Places
+                  </h3>
+                  <p className="text-sm text-foreground/60 mt-1">
+                    Manage audition places for this season
+                  </p>
+                </div>
+                <Button variant="default" onClick={handleAddAuditionPlace}>
+                  <i className="ri-add-line mr-2"></i>
+                  Add Audition Place
+                </Button>
+              </div>
+            </div>
+            <DataTable
+              data={auditionPlaces}
+              columns={auditionPlacesColumns}
+              onEdit={(auditionPlace) =>
+                setAuditionPlacesPopup({ isOpen: true, auditionPlace })
+              }
+              onDelete={(auditionPlace) =>
+                setDeleteModal({
+                  isOpen: true,
+                  type: "audition-place",
+                  id: auditionPlace._id,
+                  name: auditionPlace.place,
+                })
+              }
+            />
+          </motion.div>
+        )}
       </div>
 
       {/* Delete Confirmation Modal */}
@@ -1097,6 +1362,22 @@ export default function SeasonDetailPage() {
         winner={winnerPopup.winner}
         seasonId={seasonId}
         onSuccess={handleWinnerSuccess}
+      />
+
+      <EligibilityCriteriaPopup
+        isOpen={eligibilityCriteriaPopup.isOpen}
+        onClose={handleCloseEligibilityCriteriaPopup}
+        criteria={eligibilityCriteriaPopup.criteria}
+        seasonId={seasonId}
+        onSuccess={handleEligibilityCriteriaSuccess}
+      />
+
+      <AuditionPlacesPopup
+        isOpen={auditionPlacesPopup.isOpen}
+        onClose={handleCloseAuditionPlacesPopup}
+        auditionPlace={auditionPlacesPopup.auditionPlace}
+        seasonId={seasonId}
+        onSuccess={handleAuditionPlacesSuccess}
       />
     </div>
   );

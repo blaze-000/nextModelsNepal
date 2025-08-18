@@ -95,11 +95,13 @@ type UpcomingEventData = {
   description: string,
   notice: string[],
   eventId: { name: string, },
-  card: {
-    cardTitle: string,
-    index: string,
-    item: { criteriaTitle: string, criteria: string, criteriaIcon: string }[]
+  criteria: {
+    _id: string,
+    label: string,
+    icon: string,
+    value: string,
   }[],
+  auditions: { date: string, place: string }[],
   notice: string[],
   noticeName: string,
 };

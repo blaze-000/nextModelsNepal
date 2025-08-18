@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import Axios from "@/lib/axios-instance";
-import { normalizeImagePath } from "@/lib/utils";
+import { formatDate, normalizeImagePath } from "@/lib/utils";
 
 const UpcomingEventSection = () => {
   const [event, setEvent] = useState<UpcomingEventData | null>(null);
@@ -29,7 +29,7 @@ const UpcomingEventSection = () => {
   if (!success) return null; // Don't render this section if there is no event
 
   return (
-    <section className="bg-black-900 w-full">
+    <section className="bg-black-900 w-full overflow-x-hidden">
       <div className="max-w-7xl mx-auto px-6 py-16">
 
         {/* Header */}
@@ -111,7 +111,7 @@ const UpcomingEventSection = () => {
             </div>
 
             {/* Description - mobile */}
-            <div className="text-center lg:hidden">
+            <div className="text-center xl:hidden">
               <p className="text-white text-base font-light max-w-2xl mx-auto">
                 Next Models Nepal leads Nepal&rsquo;s fashion and entertainment scene—discovering talent, creating iconic events, and shaping industry trends.
               </p>
@@ -119,14 +119,14 @@ const UpcomingEventSection = () => {
           </div>
         </motion.div>
 
-        <div className="grid lg:grid-cols-[1fr_1.5fr] gap-20 items-center">
+        <div className="grid xl:grid-cols-[1fr_1.5fr] gap-20 items-center">
           {/* Image */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1, duration: 0.5 }}
-            className="relative mx-auto overflow-visible"
+            className="relative mx-auto"
           >
             <Image
               width={500}
@@ -149,24 +149,24 @@ const UpcomingEventSection = () => {
             transition={{ delay: 0.2, duration: 0.6 }}
             className="order-2 lg:order-2 space-y-8"
           >
-            <p className="hidden lg:block text-white text-md lg:text-lg font-light lead">
+            <p className="hidden xl:block text-white text-md lg:text-lg font-light lead">
               Next Models Nepal leads Nepal&rsquo;s fashion and entertainment scene—discovering talent, creating iconic events, and shaping industry trends.
             </p>
 
             {/* Eligibility */}
-            {/* <div className="bg-muted-background p-8 md:px-8 md:py-6 space-y-4">
+            <div className="bg-muted-background p-8 md:px-8 md:py-6 space-y-4">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-4 rounded-full border-2 border-white " />
                 <h4 className="text-white text-xl font-bold font-['Urbanist'] leading-loose tracking-tight">
-                  {event?.card[0].cardTitle}
+                  Eligibility Criteria
                 </h4>
               </div>
 
               <div className="flex justify-between flex-col lg:flex-row gap-4 space-y-8 md:space-y-0 lg:gap-0">
-                {event?.card[0].item.map((itm, index) => (
+                {event?.criteria.map((itm, index) => (
                   <div key={index} className="flex items-center gap-4 ">
                     <Image
-                      src={`${process.env.NEXT_PUBLIC_API_URL}/${itm.criteriaIcon}`}
+                      src={itm.icon ? normalizeImagePath(itm.icon) : "/default-fallback-image.png"}
                       alt=""
                       width={1}
                       height={0}
@@ -174,49 +174,118 @@ const UpcomingEventSection = () => {
                     />
                     <div>
                       <p className="text-zinc-300 text-sm font-medium font-urbanist leading-tight tracking-tight">
-                        {itm.criteriaTitle}
+                        {itm.label}
                       </p>
                       <p className="text-white text-nowrap text-sm font-semibold font-urbanist leading-loose tracking-tight">
-                        {itm.criteria}
+                        {itm.value}
                       </p>
                     </div>
                   </div>
                 ))}
               </div>
-            </div> */}
+            </div>
 
             {/* Auditions */}
-            {/* <div className="bg-muted-background p-8 md:px-8 md:py-6 space-y-4">
+            <div className="bg-muted-background p-8 md:px-8 md:py-6 space-y-4">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-8 h-4 rounded-full border-2 border-white" />
                 <h4 className="text-white text-xl font-bold leading-loose tracking-tight">
-                  {event?.card[1].cardTitle}
+                  Auditions
                 </h4>
               </div>
 
-              <div className="grid sm:grid-cols-2 gap-4">
-                {event?.card[1].item.map((audition, index) => (
+              {/* Mobile Layout - Grid (under xl) */}
+              <div className="grid sm:grid-cols-2 gap-4 xl:hidden">
+                {event?.auditions.map((audition, index) => (
                   <div
                     key={index}
                     className="bg-neutral-900 p-4 flex items-center gap-4"
                   >
                     <div className="w-7 h-7 bg-gold-500 rounded-full flex items-center justify-center">
-                      <span className="text-neutral-800 text-base font-semibold font-['Urbanist']">
+                      <span className="text-neutral-800 text-base font-semibold font-urbanist">
                         {index + 1}.
                       </span>
                     </div>
                     <div>
-                      <p className="text-zinc-300 text-sm font-medium font-['Urbanist']">
-                        {audition.criteriaTitle}
+                      <p className="text-zinc-300 text-sm font-medium font-urbanist">
+                        {formatDate(audition.date)}
                       </p>
-                      <p className="text-white text-sm font-semibold font-['Urbanist']">
-                        {audition.criteria}
+                      <p className="text-white text-sm font-semibold font-urbanist">
+                        {audition.place}
                       </p>
                     </div>
                   </div>
                 ))}
               </div>
-            </div> */}
+
+              {/* Desktop Layout - Horizontal Scrollable (xl and above) */}
+              <div className="hidden xl:block">
+                <div className="relative">
+                  <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 audition-scroll-container scroll-smooth">
+                    {event?.auditions.map((audition, index) => (
+                      <div
+                        key={index}
+                        className="flex-shrink-0 w-[calc(50%-8px)] bg-neutral-900 p-4 flex items-center gap-4"
+                      >
+                        <div className="w-7 h-7 bg-gold-500 rounded-full flex items-center justify-center">
+                          <span className="text-neutral-800 text-base font-semibold font-urbanist">
+                            {index + 1}.
+                          </span>
+                        </div>
+                        <div>
+                          <p className="text-zinc-300 text-sm font-medium font-urbanist">
+                            {formatDate(audition.date)}
+                          </p>
+                          <p className="text-white text-sm font-semibold font-urbanist">
+                            {audition.place}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Navigation Arrows - Only show if more than 2 auditions */}
+                  {event?.auditions && event.auditions.length > 2 && (
+                    <>
+                      <button
+                        onClick={() => {
+                          const container = document.querySelector('.audition-scroll-container') as HTMLElement;
+                          if (container) {
+                            // Scroll by exactly 2 card widths + gap
+                            const cardWidth = container.offsetWidth / 2; // Each card is 50% - 8px
+                            const gap = 16; // gap-4 = 16px
+                            container.scrollTo({
+                              left: container.scrollLeft - (cardWidth * 2) - gap,
+                              behavior: 'smooth'
+                            });
+                          }
+                        }}
+                        className="absolute left-0 top-1/2 -translate-y-3/5 -translate-x-4 w-8 h-8 bg-gray-800/80 hover:bg-gray-700/80 rounded-full flex items-center justify-center text-white transition-all duration-200 z-10"
+                      >
+                        <i className="ri-arrow-left-s-line"></i>
+                      </button>
+                      <button
+                        onClick={() => {
+                          const container = document.querySelector('.audition-scroll-container') as HTMLElement;
+                          if (container) {
+                            // Scroll by exactly 2 card widths + gap
+                            const cardWidth = container.offsetWidth / 2; // Each card is 50% - 8px
+                            const gap = 16; // gap-4 = 16px
+                            container.scrollTo({
+                              left: container.scrollLeft + (cardWidth * 2) + gap,
+                              behavior: 'smooth'
+                            });
+                          }
+                        }}
+                        className="absolute right-0 top-1/2 -translate-y-3/5 translate-x-4 w-8 h-8 bg-gray-800/80 hover:bg-gray-700/80 rounded-full flex items-center justify-center text-white transition-all duration-200 z-10"
+                      >
+                        <i className="ri-arrow-right-s-line"></i>
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
 
             {/* Notice */}
             <div className="space-y-3">
