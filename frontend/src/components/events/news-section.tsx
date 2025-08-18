@@ -1,32 +1,52 @@
 "use client";
 
 import Image from "next/image";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import ImageBox from "../molecules/image-box";
 import { Button } from "../ui/button";
 import SectionHeader from "../ui/section-header";
+import Axios from "@/lib/axios-instance";
+import Link from "next/link";
+import { normalizeImagePath } from "@/lib/utils";
+import Dropdown from "@/components/ui/Dropdown";
 
 export const NewsSection = () => {
-  const newsItems = [
-    {
-      id: 1,
-      image: "/news_1.jpg",
-      title:
-        "Bivash Bista and Neha Budha Crowned Winners of Model Hunt Nepal Season 9",
-      description:
-        "Our recent fashion show made headlines, showcasing Nepal's emerging talent pool in the modeling industry.",
-      link: "#",
-    },
-    {
-      id: 2,
-      image: "/news_1.jpg",
-      title: "Next Models Nepal Hosts Successful Fashion Week Event",
-      description:
-        "A spectacular showcase of emerging designers and models, setting new standards for the Nepalese fashion industry.",
-      link: "#",
-    },
-  ];
+  const [newsItems, setNewsItems] = useState<NewsItem[] | null>(null);
+  const [sortBy, setSortBy] = useState("Most Recent");
+  const sortOptions = ["Most Recent", "Oldest"];
+
+  const sortNews = (items: NewsItem[], sortType: string) => {
+    if (!items) return [];
+
+    return [...items].sort((a, b) => {
+      switch (sortType) {
+        case "Oldest":
+          return (
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+          );
+
+        case "Most Recent":
+        default:
+          return (
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
+      }
+    });
+  };
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const response = await Axios.get("/api/news");
+        console.log(response.data);
+        const sortedNews = sortNews(response.data.data, sortBy);
+        setNewsItems(sortedNews.slice(0, 2));
+      } catch (error) {
+        console.error("Error fetching news:", error);
+      }
+    })();
+  }, [sortBy]);
 
   return (
     <div className="w-full bg-background py-16 md:py-20">
@@ -43,11 +63,12 @@ export const NewsSection = () => {
             <SectionHeader title="News and Coverage" />
 
             <div className="pb-6">
-              <Button variant="outline" className="py-2">
-              <span>Sort By:</span>
-              <span>Most Recent</span>
-              <i className="ri-arrow-down-s-line text-lg" />
-            </Button>
+              <Dropdown
+                label="Sort By"
+                options={sortOptions}
+                selected={sortBy}
+                onSelect={setSortBy}
+              />
             </div>
           </div>
 
@@ -67,28 +88,29 @@ export const NewsSection = () => {
               </h3>
             </div>
 
-            <div className="flex flex-wrap gap-4 justify-center">
-              <Button variant="outline" className="py-2 min-w-0">
-                <span>Sort By:</span>
-                <span>Most Recent</span>
-                <i className="ri-arrow-down-s-line text-lg" />
-              </Button>
+            <div className="flex justify-center">
+              <Dropdown
+                label="Sort By"
+                options={sortOptions}
+                selected={sortBy}
+                onSelect={setSortBy}
+              />
             </div>
           </div>
         </motion.div>
 
         {/* News Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-6">
-          {newsItems.map((item, i) => (
+          {newsItems?.map((item, i) => (
             <motion.div
-              key={item.id}
-              initial={{ opacity: 0, y: 20 }}
+              key={item._id}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 * i }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.1 * i }}
             >
               <ImageBox
-                image={item.image}
+                image={normalizeImagePath(item.image)}
                 title={item.title}
                 desc={item.description}
                 link={item.link}
@@ -97,6 +119,22 @@ export const NewsSection = () => {
             </motion.div>
           ))}
         </div>
+
+        <motion.div
+          className="flex justify-center mt-10"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+        >
+          <Link
+            href="/events/news-press"
+            className="py-4 md:mb-8 lg:mb-0 rounded-full text-gold-500 text-base -tracking-tight font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer ml-auto"
+          >
+            <span className="underline underline-offset-4">View All News</span>
+            <i className="ri-arrow-right-up-line group-hover:scale-130 transition-transform duration-400 text-xl font-extralight" />
+          </Link>
+        </motion.div>
       </div>
     </div>
   );

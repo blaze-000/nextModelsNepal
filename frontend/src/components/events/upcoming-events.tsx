@@ -1,34 +1,64 @@
 "use client";
 
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "../ui/button";
 import SectionHeader from "../ui/section-header";
 import EventBox from "../molecules/event-box";
 import Dropdown from "../ui/Dropdown";
+import Axios from "@/lib/axios-instance";
+
+type UpcomingEvent = {
+  _id: string;
+  eventId: { _id: string; name: string; overview: string };
+  image: string;
+  slug: string;
+  year: string;
+  startDate: string;
+  latestEndedSeasonSlug: string;
+  description: string;
+  title: string;
+};
 
 export const UpcomingEvents = () => {
   const [sortBy, setSortBy] = useState("Most Recent");
-  const sortOptions = ["Popularity", "Most Recent", "Oldest"];
-  const newsItems = [
-    {
-      id: 1,
-      image: "/news_1.jpg",
-      title: "Mr Nepal",
-      description:
-        "Our recent fashion show made headlines, showcasing Nepal's emerging talent pool in the modeling industry.",
-      slug: "mr-nepal-2025",
-    },
-    {
-      id: 2,
-      image: "/news_1.jpg",
-      title: "Next Models Nepal ",
-      description:
-        "A spectacular showcase of emerging designers and models, setting new standards for the Nepalese fashion industry.",
-      slug: "next-models-nepal-2025",
-    },
-  ];
+  const [upcomingEvents, setUpcomingEvents] = useState<UpcomingEvent[] | null>(
+    null
+  );
+  const sortOptions = ["Most Recent", "Oldest"];
+  const sortEvents = (events: UpcomingEvent[], sortType: string) => {
+    if (!events) return [];
+
+    return [...events].sort((a, b) => {
+      switch (sortType) {
+        case "Oldest":
+          return (
+            new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+          );
+        case "Most Recent":
+        default:
+          return (
+            new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
+          );
+      }
+    });
+  };
+
+  const sortedEvents = sortEvents(upcomingEvents || [], sortBy);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await Axios.get("/api/season/upcoming");
+        const data = res.data;
+        console.log(data);
+        setUpcomingEvents(data.data);
+      } catch (err) {
+        console.log("Failed to fetch upcoming events", err);
+      }
+    })();
+  }, []);
 
   return (
     <div className="w-full bg-background py-16 md:py-20">
@@ -80,20 +110,20 @@ export const UpcomingEvents = () => {
 
         {/* News Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-6">
-          {newsItems.map((item, i) => (
+          {sortedEvents?.map((item) => (
             <motion.div
-              key={item.id}
+              key={item._id}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.1 * i }}
+              transition={{ duration: 0.5, delay: 0.2 }}
             >
               <EventBox
                 slug={item.slug}
                 image={item.image}
                 title={item.title}
                 desc={item.description}
-                buttonText="Visit News Source"
+                buttonText={`About ${item.title}`}
                 status="upcoming"
               />
             </motion.div>
