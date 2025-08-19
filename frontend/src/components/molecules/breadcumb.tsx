@@ -6,20 +6,15 @@ import { motion } from "framer-motion";
 
 const Breadcrumb: React.FC<BreadcrumbProps> = ({
   title,
+  searchText,
+  setSearchText,
   searchPlaceholder = "Search events, winners, judges",
-  onSearch,
   showSearch = true,
 }) => {
   const router = useRouter();
-  const [search, setSearch] = React.useState("");
 
   const handleBack = () => {
     router.back();
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearch(e.target.value);
-    if (onSearch) onSearch(e.target.value);
   };
 
   // Animation variants
@@ -72,8 +67,8 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
                   type="text"
                   className="w-full pl-12 pr-4 py-4 rounded-full bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-400 text-base"
                   placeholder={searchPlaceholder}
-                  value={search}
-                  onChange={handleInputChange}
+                  value={searchText}
+                  onChange={(e)=>setSearchText(e.target.value)}
                 />
               </div>
             </motion.div>
@@ -115,8 +110,8 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
                 type="text"
                 className="w-full pl-12 pr-4 py-3 rounded-full bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-400 text-sm"
                 placeholder={searchPlaceholder}
-                value={search}
-                onChange={handleInputChange}
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
               />
             </motion.div>
           )}

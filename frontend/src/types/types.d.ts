@@ -28,6 +28,7 @@ type EventType = {
   state: "ongoing" | "ended",
   manageBy: "self" | "partner",
   getTicketLink: string,
+
 }
 
 type LoopPoint = { target: () => number; index: number };
@@ -52,10 +53,13 @@ interface Testimonial {
 }
 
 interface BreadcrumbProps {
+  searchText: string,
+  setSearchText: (value: string) => void,
   title: string,
   searchPlaceholder?: string,
   showSearch?: boolean,
-  onSearch?: (value: string) => void,
+  setSearchText?: (value: string) => void,
+  searchText?: string,
 }
 
 interface Model {
@@ -127,7 +131,8 @@ type NewsItem = {
   type: "Interview" | "Feature" | "Announcement",
   year: string,
   image: string,
-  event: string | null,
+  event?: { _id: string, name: string },
+  createdAt: string,
 }
 
 type TimelineEvent = {

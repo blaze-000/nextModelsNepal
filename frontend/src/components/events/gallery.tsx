@@ -91,23 +91,20 @@ export const Gallery = () => {
             </div>
 
             <div className="flex flex-wrap justify-center space-x-4">
-              <div className="w-36">
-                <Dropdown
-                  label="Event"
-                  options={eventTypes}
-                  selected={selectedEvent}
-                  onSelect={setSelectedEvent}
-                />
-              </div>
-              <div className="w-28">
-                <Dropdown
-                  label="Year"
-                  options={years}
-                  selected={selectedYear}
-                  onSelect={setSelectedYear}
-                  maxHeight="500px"
-                />
-              </div>
+              <Dropdown
+                label="Event"
+                options={eventTypes}
+                selected={selectedEvent}
+                onSelect={setSelectedEvent}
+              />
+
+              <Dropdown
+                label="Year"
+                options={years}
+                selected={selectedYear}
+                onSelect={setSelectedYear}
+                maxHeight="500px"
+              />
             </div>
           </div>
         </motion.div>

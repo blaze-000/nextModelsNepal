@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import SectionHeader from "../ui/section-header";
 import EventBox from "../molecules/event-box";
 import Dropdown from "../ui/Dropdown";
+import Link from "next/link";
 
 export const PastEvents = () => {
   const [sortBy, setSortBy] = useState("Most Recent");
@@ -120,7 +121,7 @@ export const PastEvents = () => {
           </div>
 
           {/* Mobile Layout - Stacked */}
-          <div className="block md:hidden space-y-6">
+          <div className="block md:hidden space-y-6 pb-5 pt-5">
             <div className="flex items-center justify-center gap-2">
               <Image
                 src="/svg-icons/small_star.svg"
@@ -161,7 +162,7 @@ export const PastEvents = () => {
                 title={item.title}
                 desc={item.description}
                 slug={item.slug}
-                buttonText="Visit News Source"
+                buttonText={`About ${item.title}`}
               />
             </motion.div>
           ))}
@@ -169,10 +170,15 @@ export const PastEvents = () => {
 
         {/* See All Button */}
         <div className="hidden md:flex justify-end">
-          <button className="px-4 py-6 rounded-full text-gold-500 text-base -tracking-tight font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer">
-            <span className="underline">See All Past Events</span>
-            <i className="ri-arrow-right-up-line group-hover:scale-130 transition-transform duration-400 text-xl font-light" />
-          </button>
+          <Link
+            href="/events/past-events"
+            className="py-4 md:mb-8 lg:mb-0 rounded-full text-gold-500 text-base -tracking-tight font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer ml-auto"
+          >
+            <span className="underline underline-offset-4">
+              See All Past Events
+            </span>
+            <i className="ri-arrow-right-up-line group-hover:scale-130 transition-transform duration-400 text-xl font-extralight" />
+          </Link>
         </div>
       </div>
     </div>
