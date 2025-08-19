@@ -1,53 +1,61 @@
 "use client";
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { motion } from "framer-motion";
 import SectionHeader from "../ui/section-header";
 import EventBox from "../molecules/event-box";
 import Dropdown from "../ui/Dropdown";
 import Link from "next/link";
+import Axios from "@/lib/axios-instance";
+
+type PastEvents = {
+  _id: string;
+  eventId: { _id: string; name: string; overview: string };
+  image: string;
+  slug: string;
+  year: string;
+  startDate: string;
+  latestEndedSeasonSlug: string;
+};
 
 export const PastEvents = () => {
   const [sortBy, setSortBy] = useState("Most Recent");
+  const [pastEvents, setPastEvents] = useState<PastEvents[] | null>(null);
+  const sortOptions = ["Most Recent", "Oldest"];
+  const sortEvents = (events: PastEvents[], sortType: string) => {
+    if (!events) return [];
 
-  const sortOptions = ["Popularity", "Most Recent", "Oldest"];
+    return [...events].sort((a, b) => {
+      switch (sortType) {
+        case "Oldest":
+          return (
+            new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+          );
 
-  const newsItems = [
-    {
-      id: 1,
-      image: "/news_1.jpg",
-      title: "Mister. Nepal",
-      description:
-        "Our recent fashion show made headlines, showcasing Nepal's emerging talent pool in the modeling industry.",
-      slug: "mr-nepal-2025",
-    },
-    {
-      id: 2,
-      image: "/news_1.jpg",
-      title: "Miss Nepal Peace",
-      description:
-        "A spectacular showcase of emerging designers and models, setting new standards for the Nepalese fashion industry.",
-      slug: "miss-nepal-peace",
-    },
-    {
-      id: 3,
-      image: "/news_1.jpg",
-      title: "Mister. Nepal",
-      description:
-        "Our recent fashion show made headlines, showcasing Nepal's emerging talent pool in the modeling industry.",
-      slug: "mister-nepal",
-    },
-    {
-      id: 4,
-      image: "/news_1.jpg",
-      title: "Mr Nepal",
-      description:
-        "A spectacular showcase of emerging designers and models, setting new standards for the Nepalese fashion industry.",
-      slug: "mr-nepal",
-    },
-  ];
+        case "Most Recent":
+        default:
+          return (
+            new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
+          );
+      }
+    });
+  };
 
+  const sortedEvents = sortEvents(pastEvents || [], sortBy);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await Axios.get("/api/season/pastevents");
+        const data = res.data;
+        console.log(data);
+        setPastEvents(data.data);
+      } catch (err) {
+        console.log("Failed to fetch past events", err);
+      }
+    })();
+  }, []);
   return (
     <div className="w-full bg-background py-16 md:py-20">
       <div className="max-w-7xl mx-auto px-6">
@@ -148,9 +156,9 @@ export const PastEvents = () => {
 
         {/* News Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-6">
-          {newsItems.map((item) => (
+          {sortedEvents.map((item) => (
             <motion.div
-              key={item.id}
+              key={item._id}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: "easeOut" }}
@@ -159,10 +167,10 @@ export const PastEvents = () => {
               <EventBox
                 status="ended"
                 image={item.image}
-                title={item.title}
-                desc={item.description}
+                title={item.eventId.name}
+                desc={item.eventId.overview}
                 slug={item.slug}
-                buttonText={`About ${item.title}`}
+                buttonText={`About ${item.eventId.name}`}
               />
             </motion.div>
           ))}

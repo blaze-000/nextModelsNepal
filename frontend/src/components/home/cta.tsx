@@ -70,15 +70,15 @@ const CTASection = () => {
         </motion.div>
 
         {/* Background Glow only visible in phone view */}
-        <motion.div
+        {/* <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.5, duration: 0.4 }}
-          className="absolute bottom-1/10"
+          className="mdplus:hidden flex absolute top-1/3"
         >
-          <Image src="/runway/glow-on-floor.svg" alt="" width={400} height={0} />
-        </motion.div>
+          <Image src="/runway/circular-glow.svg" alt="" width={400} height={0}  className="w-200 h-200 object-cover"/>
+        </motion.div> */}
 
         {/* Content */}
         <motion.div

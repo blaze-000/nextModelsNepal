@@ -68,7 +68,11 @@ const Dropdown: React.FC<DropdownProps> = ({
             style={{ maxHeight }}
           >
             {[...options]
-              .sort((a, b) => a.localeCompare(b))
+              .sort((a, b) => {
+                if (a === "All") return -1;
+                if (b === "All") return 1;
+                return a.localeCompare(b);
+              })
               .map((option, idx, sortedOptions) => (
                 <React.Fragment key={option}>
                   <p
