@@ -25,7 +25,10 @@ export const createSeasonSchema = z.object({
       })
     )
     .optional(),
-
+  // Image fields are handled separately in the controller, not validated here
+  image: z.string().optional(),
+  posterImage: z.string().optional(),
+  gallery: z.array(z.string()).optional(),
 });
 
 export const updateSeasonSchema = createSeasonSchema.partial().extend({

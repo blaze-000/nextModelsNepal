@@ -58,7 +58,7 @@ interface SeasonFormData {
   timeline: Array<{
     label: string;
     datespan: string;
-    icon: string;
+    icon: File[];
   }>;
 }
 
@@ -86,7 +86,7 @@ const initialFormData: SeasonFormData = {
   image: [],
   posterImage: [],
   galleryImages: [],
-  timeline: [{ label: "", datespan: "", icon: "" }],
+  timeline: [{ label: "", datespan: "", icon: [] }],
 };
 
 const statusOptions = [
@@ -156,7 +156,10 @@ export default function SeasonPopup({
           image: [],
           posterImage: [],
           galleryImages: [],
-          timeline: season.timeline || [{ label: "", datespan: "", icon: "" }],
+          timeline: season.timeline ? season.timeline.map(item => ({
+            ...item,
+            icon: [] // Reset icon to empty file array when editing
+          })) : [{ label: "", datespan: "", icon: [] }],
         });
         setExistingGalleryImages(
           season.gallery
@@ -209,7 +212,7 @@ export default function SeasonPopup({
   const addTimelineItem = () => {
     setFormData((prev) => ({
       ...prev,
-      timeline: [...prev.timeline, { label: "", datespan: "", icon: "" }],
+      timeline: [...prev.timeline, { label: "", datespan: "", icon: [] }],
     }));
   };
 
@@ -223,7 +226,7 @@ export default function SeasonPopup({
   const updateTimelineItem = (
     index: number,
     field: keyof (typeof formData.timeline)[0],
-    value: string
+    value: string | File[]
   ) => {
     setFormData((prev) => ({
       ...prev,
@@ -418,10 +421,23 @@ export default function SeasonPopup({
 
       // Add timeline data
       const timelineData = formData.timeline.filter(
-        (item) => item.label.trim() || item.datespan.trim() || item.icon.trim()
+        (item) => item.label.trim() || item.datespan.trim() || item.icon.length > 0
       );
       if (timelineData.length > 0) {
-        formDataToSend.append("timeline", JSON.stringify(timelineData));
+        // Create timeline data without files for JSON (backend will process files separately)
+        const timelineDataForJson = timelineData.map(item => ({
+          label: item.label,
+          datespan: item.datespan,
+          icon: "" // Backend will set the correct path after processing files
+        }));
+        formDataToSend.append("timeline", JSON.stringify(timelineDataForJson));
+
+        // Add timeline icon files
+        timelineData.forEach((item, index) => {
+          if (item.icon.length > 0) {
+            formDataToSend.append(`timelineIcon_${index}`, item.icon[0]);
+          }
+        });
       }
 
       // Add images only if they are selected
@@ -437,8 +453,23 @@ export default function SeasonPopup({
         formDataToSend.append("gallery", image);
       });
 
+      // When editing, include which existing gallery images to retain so backend can delete removed ones
+      if (isEditing) {
+        const retain = existingGalleryImages
+          .map((url) => {
+            // Extract the original path from the normalized URL
+            const baseUrl = process.env.NEXT_PUBLIC_API_URL || "";
+            const originalPath = url.replace(baseUrl, "");
+            return originalPath;
+          })
+          .filter(Boolean) as string[];
+        formDataToSend.append("retainGallery", JSON.stringify(retain));
+      }
+
       const url = isEditing ? `/api/season/${season!._id}` : "/api/season";
       const method = isEditing ? "patch" : "post";
+
+
 
       const response = await Axios[method](url, formDataToSend, {
         headers: {
@@ -1007,14 +1038,18 @@ export default function SeasonPopup({
                         placeholder="Date range"
                         disabled={submitting}
                       />
-                      <Input
+                      <PhotoUpload
                         label="Icon"
                         name={`timeline-icon-${index}`}
-                        value={item.icon}
-                        onChange={(e) =>
-                          updateTimelineItem(index, "icon", e.target.value)
+                        onImageChange={(files: File[]) =>
+                          updateTimelineItem(index, "icon", files)
                         }
-                        placeholder="ri-icon-name"
+                        selectedFiles={item.icon}
+                        error={errors[`timeline-icon-${index}`]}
+                        mode="single"
+                        maxFiles={1}
+                        maxFileSize={2}
+                        acceptedTypes={["image/*", "image/svg+xml"]}
                         disabled={submitting}
                       />
                       <div className="flex items-end">

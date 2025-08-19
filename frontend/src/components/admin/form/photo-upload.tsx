@@ -16,8 +16,8 @@ interface PhotoUploadProps {
   fixedSlots?: number;
   existingImages?: string[];
   onImageChange?:
-    | ((index: number, file: File | null) => void)
-    | ((files: File[]) => void);
+  | ((index: number, file: File | null) => void)
+  | ((files: File[]) => void);
   onRemoveExisting?: (index: number) => void;
   className?: string;
   disabled?: boolean;
@@ -42,7 +42,7 @@ const PhotoUpload = ({
 
   const supportedFormats = acceptedTypes
     .join(", ")
-    .replace("image/*", "JPG, PNG, WEBP");
+    .replace("image/*", "JPG, PNG, WEBP, SVG");
 
   // Helper function to handle removing items
   const handleRemove = (index: number) => {
@@ -93,10 +93,24 @@ const PhotoUpload = ({
       (file) =>
         acceptedTypes.some((type) =>
           type === "image/*"
-            ? file.type.startsWith("image/")
+            ? file.type.startsWith("image/") || file.type === "image/svg+xml"
             : file.type === type
         ) && file.size <= maxFileSize * 1024 * 1024
     );
+
+    // Show error for invalid files
+    const invalidFiles = files.filter(
+      (file) =>
+        !acceptedTypes.some((type) =>
+          type === "image/*"
+            ? file.type.startsWith("image/") || file.type === "image/svg+xml"
+            : file.type === type
+        ) || file.size > maxFileSize * 1024 * 1024
+    );
+
+    if (invalidFiles.length > 0) {
+      toast.error(`Invalid files: ${invalidFiles.map(f => f.name).join(', ')}. Only image files (including SVG) up to ${maxFileSize}MB are allowed.`);
+    }
 
     if (mode === "fixed" && onImageChange) {
       // Fixed mode uses (index, file) callback
@@ -148,10 +162,24 @@ const PhotoUpload = ({
       (file) =>
         acceptedTypes.some((type) =>
           type === "image/*"
-            ? file.type.startsWith("image/")
+            ? file.type.startsWith("image/") || file.type === "image/svg+xml"
             : file.type === type
         ) && file.size <= maxFileSize * 1024 * 1024
     );
+
+    // Show error for invalid files
+    const invalidFiles = files.filter(
+      (file) =>
+        !acceptedTypes.some((type) =>
+          type === "image/*"
+            ? file.type.startsWith("image/") || file.type === "image/svg+xml"
+            : file.type === type
+        ) || file.size > maxFileSize * 1024 * 1024
+    );
+
+    if (invalidFiles.length > 0) {
+      toast.error(`Invalid files: ${invalidFiles.map(f => f.name).join(', ')}. Only image files (including SVG) up to ${maxFileSize}MB are allowed.`);
+    }
 
     if (mode === "fixed" && onImageChange) {
       // Fixed mode uses (index, file) callback
@@ -197,10 +225,9 @@ const PhotoUpload = ({
   };
 
   const getContainerClasses = (isActive = false) =>
-    `bg-muted-background border-2 border-dashed rounded-lg transition-colors ${
-      isActive
-        ? "border-gold-400 bg-gold-500/10"
-        : "border-gray-600 hover:border-gray-500"
+    `bg-muted-background border-2 border-dashed rounded-lg transition-colors ${isActive
+      ? "border-gold-400 bg-gold-500/10"
+      : "border-gray-600 hover:border-gray-500"
     }`;
 
   // Common remove button
@@ -218,11 +245,10 @@ const PhotoUpload = ({
         e.stopPropagation();
         onClick();
       }}
-      className={`absolute ${
-        size === "small"
-          ? "top-1 right-1 w-4 h-4 text-xs"
-          : "top-2 right-2 w-6 h-6 text-sm"
-      } 
+      className={`absolute ${size === "small"
+        ? "top-1 right-1 w-4 h-4 text-xs"
+        : "top-2 right-2 w-6 h-6 text-sm"
+        } 
         bg-red-500 text-white rounded-full flex items-center justify-center 
         hover:bg-red-600 transition-colors z-10 shadow-lg hover:shadow-xl`}
       title="Remove image"
@@ -236,7 +262,7 @@ const PhotoUpload = ({
     return (
       <div className={`w-full ${className}`}>
         <label className="block mb-4 text-sm font-medium text-gray-200">
-          {label} 
+          {label}
         </label>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -330,8 +356,8 @@ const PhotoUpload = ({
         <div
           className={`w-full text-gray-100 px-4 py-8 outline-none 
             ${getContainerClasses(
-              isDragActive
-            )} flex flex-col items-center justify-center min-h-[200px]`}
+            isDragActive
+          )} flex flex-col items-center justify-center min-h-[200px]`}
           onDragEnter={(e) => handleDragEvents(e, "enter")}
           onDragLeave={(e) => handleDragEvents(e, "leave")}
           onDragOver={(e) => handleDragEvents(e, "over")}
@@ -385,8 +411,8 @@ const PhotoUpload = ({
               {isDragActive
                 ? "Drop your image here"
                 : hasNewFile || hasExistingImage
-                ? "Change image"
-                : "Drag or upload your image here"}
+                  ? "Change image"
+                  : "Drag or upload your image here"}
             </p>
             <p className="text-sm text-gray-400">
               Supported formats: {supportedFormats} (Max {maxFileSize}MB)
@@ -403,15 +429,15 @@ const PhotoUpload = ({
   return (
     <div className={`w-full ${className}`}>
       <label className="block mb-4 text-sm font-medium text-gray-200">
-        {label} 
+        {label}
       </label>
 
       {/* File Input Area with existing and new images */}
       <div
         className={`w-full text-gray-100 px-4 py-6 outline-none 
           ${getContainerClasses(
-            isDragActive
-          )} flex flex-col items-center justify-center min-h-[120px]`}
+          isDragActive
+        )} flex flex-col items-center justify-center min-h-[120px]`}
         onDragEnter={(e) => handleDragEvents(e, "enter")}
         onDragLeave={(e) => handleDragEvents(e, "leave")}
         onDragOver={(e) => handleDragEvents(e, "over")}
@@ -468,7 +494,7 @@ const PhotoUpload = ({
                       onClick={() => handleRemove(index)}
                       size="small"
                     />
-                   
+
                   </div>
                 ) : null
               )}

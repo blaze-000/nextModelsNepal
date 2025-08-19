@@ -24,23 +24,16 @@ interface Event {
 interface Season {
   _id: string;
   eventId: string;
-  name: string;
   year: number;
-  description: string;
   startDate: string;
   endDate: string;
-  status: "upcoming" | "ongoing" | "completed";
-  images: string[];
-  createdAt: string;
-  updatedAt: string;
-  // Additional fields for BackendSeason compatibility
+  status: "upcoming" | "ongoing" | "ended";
   image?: string;
   slug?: string;
   pricePerVote?: number;
   auditionFormDeadline?: string;
   votingOpened?: boolean;
   votingEndDate?: string;
-  titleImage?: string;
   posterImage?: string;
   gallery?: string[];
   notice?: string[];
@@ -49,6 +42,8 @@ interface Season {
     datespan: string;
     icon: string;
   }>;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export default function SeasonsPage() {
@@ -263,10 +258,10 @@ export default function SeasonsPage() {
             >
               {/* Season Image */}
               <div className="relative h-48 bg-gray-800">
-                {season.images && season.images.length > 0 ? (
+                {season.image ? (
                   <Image
-                    src={normalizeImagePath(season.images[0])}
-                    alt={season.name}
+                    src={normalizeImagePath(season.image)}
+                    alt={`Season ${season.year}`}
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-300"
                     unoptimized
@@ -280,7 +275,7 @@ export default function SeasonsPage() {
                 {/* Status Badge */}
                 <div className="absolute top-3 right-3">
                   <span
-                    className={`px-2 py-1 rounded-full text-xs font-medium ${season.status === "completed"
+                    className={`px-2 py-1 rounded-full text-xs font-medium ${season.status === "ended"
                       ? "bg-green-500/20 text-green-400 border border-green-500/30"
                       : season.status === "ongoing"
                         ? "bg-blue-500/20 text-blue-400 border border-blue-500/30"
@@ -297,7 +292,7 @@ export default function SeasonsPage() {
               <div className="p-4 lg:p-6">
                 <div className="flex items-start justify-between mb-3">
                   <h3 className="text-base lg:text-lg font-semibold text-gray-100 line-clamp-1 flex-1">
-                    {season.name}
+                    Season {season.year}
                   </h3>
                   <span className="text-sm text-gold-400 font-medium ml-2">
                     {season.year}
@@ -305,7 +300,7 @@ export default function SeasonsPage() {
                 </div>
 
                 <p className="text-xs lg:text-sm text-gray-400 mb-4 line-clamp-2">
-                  {season.description}
+                  {season.slug || `Season ${season.year}`}
                 </p>
 
                 {/* Date Range */}
@@ -387,7 +382,7 @@ export default function SeasonsPage() {
         onClose={closeDeleteModal}
         onConfirm={handleDeleteSeason}
         title="Delete Season"
-        message={`Are you sure you want to delete "${deleteModal.season?.name}"? This action cannot be undone and will also delete all associated contestants, jury members, and winners.`}
+        message={`Are you sure you want to delete "Season ${deleteModal.season?.year}"? This action cannot be undone and will also delete all associated contestants, jury members, and winners.`}
         isDeleting={deleting}
       />
     </div>

@@ -1,5 +1,3 @@
-"use client";
-
 import Image from "next/image";
 import Timeline from "../molecules/timeline";
 import EventCard from "../molecules/event-card";
@@ -102,7 +100,7 @@ const EventsSection = () => {
                 <EventCard
                   title={event.eventName}
                   slug={event.season.slug}
-                  date={event.season.startDate}
+                  date={`${formatDate(event.season.startDate)} to ${formatDate(event.season.endDate)}`}
                   overview={event.overview}
                   coverImage={event.coverImage}
                   state={event.season.status}

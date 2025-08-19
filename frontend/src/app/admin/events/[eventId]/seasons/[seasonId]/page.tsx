@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
@@ -21,6 +21,7 @@ import EligibilityCriteriaPopup, {
 import AuditionPlacesPopup, {
   BackendAuditionPlace,
 } from "./audition-places/AuditionPlacesPopup";
+import SponsorPopup, { BackendSponsor } from "./sponsors/SponsorPopup";
 
 import Axios from "@/lib/axios-instance";
 import { normalizeImagePath } from "@/lib/utils";
@@ -64,7 +65,7 @@ interface Season {
   }>;
 }
 
-type TabKey = "overview" | "contestants" | "jury" | "winners" | "eligibility-criteria" | "audition-places";
+type TabKey = "overview" | "contestants" | "jury" | "winners" | "eligibility-criteria" | "audition-places" | "sponsors";
 
 interface TabConfig {
   key: TabKey;
@@ -88,13 +89,14 @@ export default function SeasonDetailPage() {
   const [winners, setWinners] = useState<BackendWinner[]>([]);
   const [eligibilityCriteria, setEligibilityCriteria] = useState<BackendEligibilityCriteria[]>([]);
   const [auditionPlaces, setAuditionPlaces] = useState<BackendAuditionPlace[]>([]);
+  const [sponsors, setSponsors] = useState<BackendSponsor[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // Modal states
   const [deleteModal, setDeleteModal] = useState<{
     isOpen: boolean;
-    type: "contestant" | "jury" | "winner" | "eligibility-criteria" | "audition-place" | null;
+    type: "contestant" | "jury" | "winner" | "eligibility-criteria" | "audition-place" | "sponsor" | null;
     id: string | null;
     name: string;
   }>({
@@ -149,6 +151,18 @@ export default function SeasonDetailPage() {
     auditionPlace: null,
   });
 
+  const [sponsorPopup, setSponsorPopup] = useState<{
+    isOpen: boolean;
+    sponsor: BackendSponsor | null;
+  }>({
+    isOpen: false,
+    sponsor: null,
+  });
+
+  // Scroll position management
+  const scrollPositionRef = useRef<number>(0);
+  const tabContentRef = useRef<HTMLDivElement>(null);
+
   // Tab configuration
   const tabs: TabConfig[] = [
     { key: "overview", label: "Overview" },
@@ -157,6 +171,7 @@ export default function SeasonDetailPage() {
     { key: "winners", label: "Winners", count: winners.length },
     { key: "eligibility-criteria", label: "Eligibility Criteria", count: eligibilityCriteria.length },
     { key: "audition-places", label: "Audition Places", count: auditionPlaces.length },
+    { key: "sponsors", label: "Sponsors", count: sponsors.length },
   ];
 
   // Fetch data
@@ -247,16 +262,32 @@ export default function SeasonDetailPage() {
         setAuditionPlaces(res.data.data || []);
       } catch (err) {
         console.error("Failed to fetch audition places:", err);
-      } finally {
-        setLoading(false);
       }
     };
 
     fetchAuditionPlaces();
   }, [seasonId]);
 
+  useEffect(() => {
+    const fetchSponsors = async () => {
+      try {
+        const res = await Axios.get(`/api/sponsors/season/${seasonId}?limit=1000`);
+        setSponsors(res.data.data || []);
+      } catch (err) {
+        console.error("Failed to fetch sponsors:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSponsors();
+  }, [seasonId]);
+
   // Handlers
   const handleTabChange = (tab: TabKey) => {
+    // Store current scroll position
+    scrollPositionRef.current = window.scrollY;
+
     const newSearchParams = new URLSearchParams(searchParams.toString());
     newSearchParams.set("tab", tab);
     router.push(
@@ -288,6 +319,10 @@ export default function SeasonDetailPage() {
     setAuditionPlacesPopup({ isOpen: true, auditionPlace: null });
   };
 
+  const handleAddSponsor = () => {
+    setSponsorPopup({ isOpen: true, sponsor: null });
+  };
+
   const handleCloseContestantPopup = () => {
     setContestantPopup({ isOpen: false, contestant: null });
   };
@@ -306,6 +341,10 @@ export default function SeasonDetailPage() {
 
   const handleCloseAuditionPlacesPopup = () => {
     setAuditionPlacesPopup({ isOpen: false, auditionPlace: null });
+  };
+
+  const handleCloseSponsorPopup = () => {
+    setSponsorPopup({ isOpen: false, sponsor: null });
   };
 
   const handleContestantSuccess = () => {
@@ -378,6 +417,20 @@ export default function SeasonDetailPage() {
     fetchAuditionPlaces();
   };
 
+  const handleSponsorSuccess = () => {
+    handleCloseSponsorPopup();
+    // Refresh sponsors data
+    const fetchSponsors = async () => {
+      try {
+        const res = await Axios.get(`/api/sponsors/season/${seasonId}?limit=1000`);
+        setSponsors(res.data.data || []);
+      } catch (err) {
+        console.error("Failed to fetch sponsors:", err);
+      }
+    };
+    fetchSponsors();
+  };
+
   const handleDelete = async () => {
     if (!deleteModal.id || !deleteModal.type) return;
 
@@ -389,6 +442,7 @@ export default function SeasonDetailPage() {
         winner: `/api/winners/${deleteModal.id}`,
         "eligibility-criteria": `/api/criteria/${deleteModal.id}`,
         "audition-place": `/api/auditions/${deleteModal.id}`,
+        sponsor: `/api/sponsors/${deleteModal.id}`,
       };
 
       const response = await Axios.delete(endpoints[deleteModal.type]);
@@ -427,6 +481,12 @@ export default function SeasonDetailPage() {
             );
             setAuditionPlaces(auditionRes.data.data || []);
             break;
+          case "sponsor":
+            const sponsorRes = await Axios.get(
+              `/api/sponsors/season/${seasonId}?limit=1000`
+            );
+            setSponsors(sponsorRes.data.data || []);
+            break;
         }
       }
     } catch (error) {
@@ -451,6 +511,16 @@ export default function SeasonDetailPage() {
       console.error("Failed to refresh season:", err);
     }
   };
+
+  // Restore scroll position when tab content changes
+  useEffect(() => {
+    if (scrollPositionRef.current > 0 && tabContentRef.current) {
+      const timer = setTimeout(() => {
+        window.scrollTo(0, scrollPositionRef.current);
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [activeTab]);
 
   // Table columns
   const contestantColumns = [
@@ -611,6 +681,33 @@ export default function SeasonDetailPage() {
           day: "numeric",
         });
       },
+    },
+  ];
+
+  const sponsorColumns = [
+    {
+      key: "image" as const,
+      label: "Logo",
+      render: (value: unknown) => {
+        const imagePath = String(value);
+        return (
+          <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-700">
+            <Image
+              src={normalizeImagePath(imagePath)}
+              alt="Sponsor"
+              width={48}
+              height={48}
+              className="w-full h-full object-cover"
+              unoptimized
+            />
+          </div>
+        );
+      },
+    },
+    {
+      key: "name" as const,
+      label: "Name",
+      render: (value: unknown) => String(value),
     },
   ];
 
@@ -792,7 +889,7 @@ export default function SeasonDetailPage() {
         })()}
 
         {/* Statistics */}
-        <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-7 gap-4">
           <div className="bg-background2 rounded-lg border border-gray-700 p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1">
@@ -886,6 +983,20 @@ export default function SeasonDetailPage() {
               </div>
             </div>
           </div>
+
+          <div className="bg-background2 rounded-lg border border-gray-700 p-4 sm:p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <p className="text-sm font-medium text-gray-400">Sponsors</p>
+                <p className="text-xl sm:text-2xl font-bold text-gray-100 mt-1">
+                  {sponsors.length}
+                </p>
+              </div>
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-teal-900/30 rounded-lg flex items-center justify-center">
+                <i className="ri-bank-card-line text-teal-400 text-lg sm:text-xl" />
+              </div>
+            </div>
+          </div>
         </div>
       </motion.div>
 
@@ -920,7 +1031,7 @@ export default function SeasonDetailPage() {
       </div>
 
       {/* Tab Content */}
-      <div className="mt-6">
+      <div className="mt-6" ref={tabContentRef}>
         {activeTab === "overview" && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -1317,6 +1428,48 @@ export default function SeasonDetailPage() {
             />
           </motion.div>
         )}
+
+        {activeTab === "sponsors" && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="bg-background2 rounded-lg border border-gray-700 overflow-hidden"
+          >
+            <div className="p-6 border-b border-gray-700">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h3 className="text-lg font-semibold text-foreground flex items-center">
+                    <i className="ri-bank-card-line mr-2 text-gold-500"></i>
+                    Sponsors
+                  </h3>
+                  <p className="text-sm text-foreground/60 mt-1">
+                    Manage sponsors for this season
+                  </p>
+                </div>
+                <Button variant="default" onClick={handleAddSponsor}>
+                  <i className="ri-add-line mr-2"></i>
+                  Add Sponsor
+                </Button>
+              </div>
+            </div>
+            <DataTable
+              data={sponsors}
+              columns={sponsorColumns}
+              onEdit={(sponsor) =>
+                setSponsorPopup({ isOpen: true, sponsor })
+              }
+              onDelete={(sponsor) =>
+                setDeleteModal({
+                  isOpen: true,
+                  type: "sponsor",
+                  id: sponsor._id,
+                  name: sponsor.name,
+                })
+              }
+            />
+          </motion.div>
+        )}
       </div>
 
       {/* Delete Confirmation Modal */}
@@ -1378,6 +1531,14 @@ export default function SeasonDetailPage() {
         auditionPlace={auditionPlacesPopup.auditionPlace}
         seasonId={seasonId}
         onSuccess={handleAuditionPlacesSuccess}
+      />
+
+      <SponsorPopup
+        isOpen={sponsorPopup.isOpen}
+        onClose={handleCloseSponsorPopup}
+        sponsor={sponsorPopup.sponsor}
+        seasonId={seasonId}
+        onSuccess={handleSponsorSuccess}
       />
     </div>
   );

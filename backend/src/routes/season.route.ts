@@ -8,12 +8,7 @@ const router = Router();
 // Create season under an event (with file uploads)
 router.post("/",
     verifyAdminToken,
-    upload.fields([
-        { name: 'image', maxCount: 1 },
-        { name: 'titleImage', maxCount: 1 },
-        { name: 'posterImage', maxCount: 1 },
-        { name: 'gallery', maxCount: 100 } // Added gallery with max 100 images
-    ]),
+    upload.any(), // Allow any field names for timeline icons
     seasonController.createSeason
 );
 
@@ -32,15 +27,13 @@ router.get("/event/:eventId", seasonController.getSeasonsByEvent);
 // Get season by ID
 router.get("/:id", seasonController.getSeasonById);
 
+// Get season by slug
+router.get("/slug/:slug", seasonController.getSeasonBySlug);
+
 // Update season (with file uploads)
 router.patch("/:id",
     verifyAdminToken,
-    upload.fields([
-        { name: 'image', maxCount: 1 },
-        { name: 'titleImage', maxCount: 1 },
-        { name: 'posterImage', maxCount: 1 },
-        { name: 'gallery', maxCount: 10 } // Added gallery with max 10 images
-    ]),
+    upload.any(), // Allow any field names for timeline icons
     seasonController.updateSeason
 );
 

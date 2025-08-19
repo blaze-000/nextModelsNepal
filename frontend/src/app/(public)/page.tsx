@@ -12,7 +12,7 @@ import Testimonials from "@/components/home/testimonials";
 import OurPartners from "@/components/home/our-partners";
 
 export default function Home() {
-  
+
 
   return (
     <main>

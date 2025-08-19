@@ -12,13 +12,22 @@ import path from "path";
 const deleteImageFiles = (imagePaths: string[]) => {
   imagePaths.forEach((imagePath) => {
     if (imagePath) {
-      const fullPath = path.join(
-        process.cwd(),
-        "uploads",
-        path.basename(imagePath)
-      );
+      // Handle both relative and absolute paths
+      let filename = imagePath;
+      if (imagePath.startsWith('/uploads/')) {
+        filename = path.basename(imagePath);
+      } else if (imagePath.includes('/')) {
+        filename = path.basename(imagePath);
+      }
+
+      const fullPath = path.join(process.cwd(), "uploads", filename);
+
       if (fs.existsSync(fullPath)) {
-        fs.unlinkSync(fullPath);
+        try {
+          fs.unlinkSync(fullPath);
+        } catch (error) {
+          console.error("Error deleting file:", error);
+        }
       }
     }
   });
@@ -82,28 +91,88 @@ export const createSeason = async (req: Request, res: Response) => {
     }
 
     // Check if required image was uploaded
-    if (!req.files || !(req.files as any).image) {
+    const files = req.files as any;
+    if (!files || (Array.isArray(files) && !files.find(f => f.fieldname === 'image')) || (!Array.isArray(files) && !files.image)) {
       return res.status(400).json({
         success: false,
         message: "Main image is required",
       });
     }
 
-    // Get file paths
-    const image = (req.files as any).image[0].path;
-    const posterImage = (req.files as any).posterImage
-      ? (req.files as any).posterImage[0].path
-      : undefined;
-
-    // Process gallery images
+    // Get file paths - handle both array and object formats
+    let image: string;
+    let posterImage: string | undefined;
     const galleryImages: string[] = [];
-    if ((req.files as any).gallery) {
-      const galleryFiles = Array.isArray((req.files as any).gallery)
-        ? (req.files as any).gallery
-        : [(req.files as any).gallery];
+    let processedTimeline = validatedData.timeline;
+
+    if (Array.isArray(files)) {
+      // Handle array format from upload.any()
+      const imageFile = files.find(f => f.fieldname === 'image');
+      if (imageFile) {
+        image = `/uploads/${path.basename(imageFile.path)}`;
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: "Main image is required",
+        });
+      }
+
+      const posterFile = files.find(f => f.fieldname === 'posterImage');
+      if (posterFile) {
+        posterImage = `/uploads/${path.basename(posterFile.path)}`;
+      }
+
+      // Process gallery images
+      const galleryFiles = files.filter(f => f.fieldname === 'gallery');
       galleryFiles.forEach((file: any) => {
-        galleryImages.push(file.path);
+        galleryImages.push(`/uploads/${path.basename(file.path)}`);
       });
+
+      // Process timeline icon files
+      let processedTimeline = validatedData.timeline;
+      if (validatedData.timeline && Array.isArray(validatedData.timeline)) {
+        processedTimeline = validatedData.timeline.map((item, index) => {
+          const timelineIconFile = files.find(f => f.fieldname === `timelineIcon_${index}`);
+          if (timelineIconFile) {
+            return {
+              ...item,
+              icon: `/uploads/${path.basename(timelineIconFile.path)}`
+            };
+          }
+          return item;
+        });
+      }
+    } else {
+      // Handle object format (fallback)
+      image = `/uploads/${path.basename(files.image[0].path)}`;
+      posterImage = files.posterImage
+        ? `/uploads/${path.basename(files.posterImage[0].path)}`
+        : undefined;
+
+      // Process gallery images
+      if (files.gallery) {
+        const galleryFiles = Array.isArray(files.gallery)
+          ? files.gallery
+          : [files.gallery];
+        galleryFiles.forEach((file: any) => {
+          galleryImages.push(`/uploads/${path.basename(file.path)}`);
+        });
+      }
+
+      // Process timeline icon files
+      let processedTimeline = validatedData.timeline;
+      if (validatedData.timeline && Array.isArray(validatedData.timeline)) {
+        processedTimeline = validatedData.timeline.map((item, index) => {
+          const timelineIconKey = `timelineIcon_${index}`;
+          if (files[timelineIconKey]) {
+            return {
+              ...item,
+              icon: `/uploads/${path.basename(files[timelineIconKey][0].path)}`
+            };
+          }
+          return item;
+        });
+      }
     }
 
     // Create season with file paths
@@ -112,6 +181,7 @@ export const createSeason = async (req: Request, res: Response) => {
       image,
       ...(posterImage && { posterImage }),
       ...(galleryImages.length > 0 && { gallery: galleryImages }),
+      ...(processedTimeline && { timeline: processedTimeline }),
     };
 
     const season = await SeasonModel.create(seasonData);
@@ -291,6 +361,39 @@ export const getSeasonById = async (req: Request, res: Response) => {
 };
 
 /**
+ * Get Season by Slug
+ */
+export const getSeasonBySlug = async (req: Request, res: Response) => {
+  try {
+    const { slug } = req.params;
+
+    if (!slug || typeof slug !== 'string') {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid season slug" });
+    }
+
+    const season = await SeasonModel.findOne({ slug })
+      .populate("eventId") // Populate parent event with all details
+      .populate("winners")
+      .populate("jury")
+      .populate("sponsors")
+
+    if (!season) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Season not found" });
+    }
+
+    res.json({ success: true, data: season });
+  } catch (error) {
+    console.error("Get season by slug error:", error);
+    res.status(500).json({ success: false, message: "Failed to fetch season" });
+  }
+};
+
+
+/**
  * Update Season by ID
  */
 export const updateSeason = async (req: Request, res: Response) => {
@@ -309,6 +412,7 @@ export const updateSeason = async (req: Request, res: Response) => {
         .status(404)
         .json({ success: false, message: "Season not found" });
     }
+
 
     // Parse JSON fields from FormData
     const requestData = { ...req.body };
@@ -341,63 +445,125 @@ export const updateSeason = async (req: Request, res: Response) => {
     // Handle image uploads
     const updateData: any = { ...validatedData };
 
-    if (req.files) {
-      const files = req.files as any;
+    // Ensure image field is always included in update data
+    if (existingSeason.image) {
+      updateData.image = existingSeason.image;
+    }
 
-      // Update only the images that were uploaded and delete old ones
-      if (files.image) {
-        if (existingSeason.image) {
-          deleteImageFiles([existingSeason.image]);
-        }
-        updateData.image = files.image[0].path;
+    // Gallery images: retain/delete + append new
+    // Accept retainGallery as JSON array of existing gallery paths to keep
+    let retainGallery: string[] | undefined;
+    try {
+      if (typeof (req.body as any).retainGallery === "string") {
+        retainGallery = JSON.parse((req.body as any).retainGallery);
+      } else if (Array.isArray((req.body as any).retainGallery)) {
+        retainGallery = (req.body as any).retainGallery as string[];
       }
+    } catch (_) {
+      retainGallery = undefined;
+    }
 
-      if (files.posterImage) {
-        if (existingSeason.posterImage) {
-          deleteImageFiles([existingSeason.posterImage]);
-        }
-        updateData.posterImage = files.posterImage[0].path;
-      }
-
-      // Gallery images: retain/delete + append new
-      // Accept retainGallery as JSON array of existing gallery paths to keep
-      let retainGallery: string[] | undefined;
-      try {
-        if (typeof (req.body as any).retainGallery === "string") {
-          retainGallery = JSON.parse((req.body as any).retainGallery);
-        } else if (Array.isArray((req.body as any).retainGallery)) {
-          retainGallery = (req.body as any).retainGallery as string[];
-        }
-      } catch (_) {
-        retainGallery = undefined;
-      }
-
-      // Strictly match model controller logic for gallery images
+    // Handle gallery images (even when no new files are uploaded)
+    if (retainGallery !== undefined) {
       let images = [...(existingSeason.gallery || [])];
 
       // Handle retainGallery (same as retainImages in model)
-      if (retainGallery) {
-        const toDelete = images.filter((img) => !retainGallery.includes(img));
-        if (toDelete.length) deleteImageFiles(toDelete);
-        images = retainGallery;
-      }
+      const toDelete = images.filter((img) => !retainGallery.includes(img));
+      if (toDelete.length) deleteImageFiles(toDelete);
+      images = retainGallery;
 
       // Append any newly uploaded gallery images
-      if (files.gallery) {
-        const newImages = Array.isArray(files.gallery)
-          ? files.gallery.map(
-            (file: any) => `/uploads/${path.basename(file.path)}`
-          )
-          : [`/uploads/${path.basename(files.gallery.path)}`];
-        images = [...images, ...newImages];
+      if (req.files) {
+        const files = req.files as any;
+        if (Array.isArray(files)) {
+          const galleryFiles = files.filter(f => f.fieldname === 'gallery');
+          const newImages = galleryFiles.map((file: any) => `/uploads/${path.basename(file.path)}`);
+          images = [...images, ...newImages];
+        } else if (files.gallery) {
+          const newImages = Array.isArray(files.gallery)
+            ? files.gallery.map((file: any) => `/uploads/${path.basename(file.path)}`)
+            : [`/uploads/${path.basename(files.gallery.path)}`];
+          images = [...images, ...newImages];
+        }
       }
 
       updateData.gallery = images;
     }
 
+    if (req.files) {
+      const files = req.files as any;
+
+      // Handle files from upload.any() which returns an array
+      if (Array.isArray(files) && files.length > 0) {
+        // Find the main image file
+        const imageFile = files.find(f => f.fieldname === 'image');
+        if (imageFile) {
+          if (existingSeason.image) {
+            deleteImageFiles([existingSeason.image]);
+          }
+          updateData.image = `/uploads/${path.basename(imageFile.path)}`;
+        }
+      } else if (files.image && files.image.length > 0) {
+        // Fallback for object format
+        if (existingSeason.image) {
+          deleteImageFiles([existingSeason.image]);
+        }
+        updateData.image = `/uploads/${path.basename(files.image[0].path)}`;
+      }
+
+      // Handle poster image
+      if (Array.isArray(files)) {
+        const posterFile = files.find(f => f.fieldname === 'posterImage');
+        if (posterFile) {
+          if (existingSeason.posterImage) {
+            deleteImageFiles([existingSeason.posterImage]);
+          }
+          updateData.posterImage = `/uploads/${path.basename(posterFile.path)}`;
+        }
+      } else if (files.posterImage) {
+        if (existingSeason.posterImage) {
+          deleteImageFiles([existingSeason.posterImage]);
+        }
+        updateData.posterImage = `/uploads/${path.basename(files.posterImage[0].path)}`;
+      }
+    }
+
+    // Process timeline icon files
+    if (validatedData.timeline && Array.isArray(validatedData.timeline)) {
+      const processedTimeline = validatedData.timeline.map((item, index) => {
+        if (req.files) {
+          const files = req.files as any;
+          if (Array.isArray(files)) {
+            const timelineIconFile = files.find(f => f.fieldname === `timelineIcon_${index}`);
+            if (timelineIconFile) {
+              // Delete old timeline icon if it exists
+              if (existingSeason.timeline && existingSeason.timeline[index] && existingSeason.timeline[index].icon) {
+                deleteImageFiles([existingSeason.timeline[index].icon]);
+              }
+              return {
+                ...item,
+                icon: `/uploads/${path.basename(timelineIconFile.path)}`
+              };
+            }
+          } else if (files[`timelineIcon_${index}`]) {
+            // Delete old timeline icon if it exists
+            if (existingSeason.timeline && existingSeason.timeline[index] && existingSeason.timeline[index].icon) {
+              deleteImageFiles([existingSeason.timeline[index].icon]);
+            }
+            return {
+              ...item,
+              icon: `/uploads/${path.basename(files[`timelineIcon_${index}`][0].path)}`
+            };
+          }
+        }
+        return item;
+      });
+      updateData.timeline = processedTimeline;
+    }
+
     const updatedSeason = await SeasonModel.findByIdAndUpdate(id, updateData, {
       new: true,
-      runValidators: true,
+      runValidators: false, // Disable validators for updates since we handle validation manually
     });
 
     if (!updatedSeason) {
@@ -405,7 +571,6 @@ export const updateSeason = async (req: Request, res: Response) => {
         .status(404)
         .json({ success: false, message: "Season not found" });
     }
-
     res.json({ success: true, data: updatedSeason });
   } catch (error) {
     if (error instanceof mongoose.Error.ValidationError) {

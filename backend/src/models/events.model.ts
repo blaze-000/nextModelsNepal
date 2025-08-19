@@ -29,7 +29,7 @@ const seasonSchema = new Schema({
     endDate: { type: Date, required: true },
     slug: { type: String, required: true, unique: true },
     getTicketLink: { type: String },
-    pricePerVote: { type: Number, required: true },
+    pricePerVote: { type: Number },
     posterImage: { type: String },
     gallery: [{ type: String }],
     notice: [{ type: String }],
@@ -132,7 +132,7 @@ const winnerSchema = new Schema({
 const jurySchema = new Schema({
     seasonId: { type: Schema.Types.ObjectId, ref: "Season", required: true },
     name: { type: String, required: true },
-    designation: { type: String },
+    designation: { type: String, default: "Jury" },
     image: { type: String, required: true }
 });
 

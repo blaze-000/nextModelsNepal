@@ -1,5 +1,3 @@
-"use client";
-
 import { motion } from "framer-motion";
 import { Button } from "../ui/button";
 import Image from "next/image";
