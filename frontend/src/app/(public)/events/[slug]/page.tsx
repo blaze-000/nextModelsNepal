@@ -1,86 +1,20 @@
 "use client";
-import React from "react";
-// import { useParams } from "next/navigation";
+import React, { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import ModelGrid from "@/components/molecules/model-grid";
-import PartnerScroller from "@/components/molecules/scroller";
 import SectionHeader from "@/components/ui/section-header";
 import MasonryGallery from "@/components/molecules/masonary-gallery";
+import Axios from "@/lib/axios-instance";
+import { normalizeImagePath } from "@/lib/utils";
+import WinnerGrid from "@/components/molecules/winners-grid";
+import JuryGrid from "@/components/molecules/jury-grid";
 
 export default function EventDetails() {
-  // const { slug } = useParams();
+  const { slug } = useParams();
 
-  const partners = [
-    { name: "1", image: "/partners/img1.png" },
-    { name: "2", image: "/partners/img2.png" },
-    { name: "3", image: "/partners/img3.png" },
-    { name: "4", image: "/partners/img4.png" },
-    { name: "5", image: "/partners/img5.png" },
-    { name: "6", image: "/partners/img6.png" },
-    { name: "7", image: "/partners/img7.png" },
-    { name: "8", image: "/partners/img8.png" },
-    { name: "9", image: "/partners/img9.png" },
-  ];
+  const [data, setData] = useState<SeasonDetails | null>(null);
 
-  const winnerImages = [
-    "/handshake.jpg",
-    "/events_1.jpg",
-    "/mr-nepal-2025-poster-1.jpg",
-    "/mr-nepal-2025-poster-1.jpg",
-    "/handshake.jpg",
-    "/events_1.jpg",
-    "/events_1.jpg",
-    "/mr-nepal-2025-poster-1.jpg",
-    "/mr-nepal-2025-poster-1.jpg",
-    "/handshake.jpg",
-    "/events_1.jpg",
-  ];
-
-  const models = [
-    {
-      tag: "Winner",
-      name: "Monika Adhikary",
-      designation: "Miss Nepal Peace 2024",
-      image: "/bro_1.png",
-      link: "https://nextmodelnepal.com/models/monika",
-    },
-    {
-      tag: "1st Runner Up",
-      name: "Anisha Parajuli",
-      designation: "Miss Nepal Peace",
-      image: "/bro_1.png",
-      link: "https://nextmodelnepal.com/models/anisha",
-    },
-    {
-      tag: "2nd Runner Up",
-      name: "Pala Regmi",
-      designation: "Miss Nepal Peace",
-      image: "/bro_1.png",
-      link: "https://nextmodelnepal.com/models/pala",
-    },
-    {
-      tag: "Nurse With a purpose",
-      name: "Monika Thapa Magar",
-      designation: "Miss Nepal Peace",
-      image: "/bro_1.png",
-      link: "https://nextmodelnepal.com/models/monikathapa",
-    },
-    {
-      tag: "2nd Runner Up",
-      name: "Pala Regmi",
-      designation: "Miss Nepal Peace",
-      image: "/bro_1.png",
-      link: "https://nextmodelnepal.com/models/pala",
-    },
-    {
-      tag: "Nurse With a purpose",
-      name: "Monika Thapa Magar",
-      designation: "Miss Nepal Peace",
-      image: "/bro_1.png",
-      link: "https://nextmodelnepal.com/models/monikathapa",
-    },
-  ];
 
   const timelineData = [
     {
@@ -111,13 +45,21 @@ export default function EventDetails() {
     viewport: { once: true, amount: 0.6 },
   };
 
+  useEffect(() => {
+    (async () => {
+      const res = await Axios.get(`/api/season/slug/${slug}`);
+      const data = res.data;
+      setData(data.data);
+    })();
+  }, [slug]);
+
   return (
     <main>
       {/* Hero image and text */}
       <motion.section
         {...fadeInUp}
         className="h-[40vh] md:h-[80vh] bg-black bg-cover bg-center relative"
-        style={{ backgroundImage: "url('/events_1.jpg')" }}
+        style={{ backgroundImage: `url('${normalizeImagePath(data?.eventId.coverImage)}')` }}
       >
         {/* Gradient mask */}
         <div className="hidden md:flex absolute inset-0 bg-gradient-to-r from-black via-black/80 to-black/20" />
@@ -126,12 +68,12 @@ export default function EventDetails() {
         {/* Texts Desktop */}
         <div className="max-w-7xl mx-auto relative z-10 hidden md:flex flex-col justify-center h-full px-6">
           <h2 className="text-8xl font-newsreader text-primary font-extralight tracking-tighter leading-tighter">
-            <span>Miss Nepal</span>
+            <span>{data?.eventId.name.split(" ").slice(0, -1).join(" ")}</span>
             <div className="flex items-baseline gap-3 mt-2">
-              <span>Peace</span>
+              <span>{data?.eventId.name.split(" ").slice(-1)}</span>
               <Image
-                src="/handshake.jpg"
-                alt="Handshake"
+                src={normalizeImagePath(data?.eventId.titleImage)}
+                alt=""
                 width={160}
                 height={64}
                 className="h-16 w-40 rounded-full object-cover hidden md:flex border-stone-300 shadow-[-10px_8px_20px_10px_rgba(179,131,0,0.19)]"
@@ -139,7 +81,7 @@ export default function EventDetails() {
             </div>
           </h2>
           <p className="mt-2 text-2xl max-w-lg text-white font-light">
-            DEDICATED TO NURSING FRATERNITY
+            {data?.eventId.subtitle}
           </p>
         </div>
       </motion.section>
@@ -148,9 +90,9 @@ export default function EventDetails() {
       <motion.section {...fadeInUp} className="flex md:hidden py-30 bg-black">
         <div className="text-center px-6">
           <h2 className="text-6xl font-newsreader text-primary font-extralight tracking-tighter leading-tight pb-8">
-            Miss Nepal
+            {data?.eventId.name}
           </h2>
-          <p>DEDICATED TO NURSING FRATERNITY</p>
+          <p>{data?.eventId.subtitle}</p>
         </div>
       </motion.section>
 
@@ -160,11 +102,11 @@ export default function EventDetails() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             <div className="lg:order-2 flex justify-center items-end">
               <Image
-                src="/events/miss_nepal.png"
+                src={normalizeImagePath(data?.image)}
                 alt="Event Overview"
                 width={400}
                 height={400}
-                className="w-full max-w-md h-auto rounded-lg shadow-md object-cover ml-auto"
+                className="w-full max-w-md h-auto rounded-lg object-cover ml-auto"
               />
             </div>
             <div className="lg:order-1 flex flex-col justify-end gap-10">
@@ -181,14 +123,7 @@ export default function EventDetails() {
                 </h3>
               </div>
               <p className="text-base font-light leading-relaxed">
-                Miss Nepal Peace is a national beauty pageant exclusively for
-                nursing students and professionals, promoting the theme
-                &rdquo;Empowered Women, Strong Nation.&rdquo; Organized by Next
-                Models Nepal and supported by the Nepal Breast Cancer
-                Foundation, it aims to empower women in healthcare through
-                training, leadership, and public service. Winners earn
-                scholarships, cash prizes, and chances to represent Nepal
-                internationally.
+                {data?.eventId.overview}
               </p>
             </div>
           </div>
@@ -199,9 +134,7 @@ export default function EventDetails() {
       <section className="w-full bg-[#100D08] pb-12 mdplus:pt-12">
         <div className="max-w-7xl mx-auto px-6">
           <h3 className="text-6xl font-newsreader text-white text-center tracking-tighter">
-            Celebrating the strength, compassion, and leadership of women in
-            healthcare — because empowered nurses nurture a nation&rsquo;s
-            well-being.
+            {data?.eventId.quote}
           </h3>
         </div>
       </section>
@@ -213,8 +146,8 @@ export default function EventDetails() {
             {/* Image */}
             <div className="flex justify-center lg:justify-start pr-20">
               <Image
-                src="/events_1.jpg"
-                alt="Purpose Image"
+                src={normalizeImagePath(data?.eventId.purposeImage)}
+                alt="Purpose"
                 width={581}
                 height={645}
                 className="w-full h-full max-w-md lg:max-w-full object-cover"
@@ -225,14 +158,7 @@ export default function EventDetails() {
             <div className="flex flex-col">
               <SectionHeader title="Purpose" />
               <p className="text-base font-light leading-relaxed">
-                Miss Nepal Peace is a national beauty pageant exclusively for
-                nursing students and professionals, promoting the theme
-                &rdquo;Empowered Women, Strong Nation.&rdquo; Organized by Next
-                Models Nepal and supported by the Nepal Breast Cancer
-                Foundation, it aims to empower women in healthcare through
-                training, leadership, and public service. Winners earn
-                scholarships, cash prizes, and chances to represent Nepal
-                internationally.
+                {data?.eventId.purpose}
               </p>
             </div>
           </div>
@@ -244,10 +170,7 @@ export default function EventDetails() {
         <div className="max-w-7xl mx-auto px-6">
           <SectionHeader title="Event Timeline" centered />
           <div className="text-base text-center flex item-center justify-center mx-auto max-w-3xl">
-            A journey designed to elevate you. From auditions to the grand
-            finale, each phase of this event is crafted to help you grow, gain
-            exposure, and shine. It&rsquo;s more than a timeline—it&rsquo;s your
-            path to becoming the next standout name in modeling.
+            {data?.eventId.timelineSubtitle}
           </div>
         </div>
       </section>
@@ -259,9 +182,8 @@ export default function EventDetails() {
           {timelineData.map((item, index) => (
             <div key={index} className="relative flex justify-center flex-1">
               <div
-                className={`absolute ${
-                  item.position === "up" ? "top-[-160px]" : "top-[40px]"
-                } w-100 pt-6 px-6 pb-8 bg-muted-background shadow-md overflow-hidden`}
+                className={`absolute ${item.position === "up" ? "top-[-160px]" : "top-[40px]"
+                  } w-100 pt-6 px-6 pb-8 bg-muted-background shadow-md overflow-hidden`}
               >
                 <div className="flex items-start gap-3">
                   <i className={`${item.icon} text-xl text-gold-500`}></i>
@@ -274,13 +196,13 @@ export default function EventDetails() {
                     </h3>
                   </div>
                 </div>
-                {/* Crown SVG - only show on 3rd card */}
-                {index === 2 && (
+                {/* Crown SVG - only show on last card */}
+                {index === timelineData.length - 1 && (
                   <div className="absolute right-0 -bottom-3">
                     <Image
                       width={100}
                       height={0}
-                      src="/crown.svg"
+                      src="/svg-icons/crown.svg"
                       alt="Crown"
                       className="w-24 h-24"
                     />
@@ -297,50 +219,50 @@ export default function EventDetails() {
         </div>
       </section>
 
-      {/* Big Event Timeline Title */}
-      <div className="w-full relative bg-background2 overflow-hidden flex items-center justify-center">
-        <h2 className="text-stone-800 text-center text-[120px] md:text-[160px] lg:text-[200px] font-bold font-newsreader whitespace-nowrap transform scale-x-[1.2]">
-          Event Timeline
-        </h2>
+      {/* Big Event Timeline Text with continuous scroll */}
+      <div className="w-full relative bg-background2 overflow-hidden flex items-center select-none">
+        <div className="marquee-wrapper">
+          <div className="marquee-text text-[#0e0e0e] font-semibold tracking-tighter font-newsreader text-[140px] md:text-[180px] lg:text-[250px]">
+            Event Timeline Event Timeline Event Timeline
+          </div>
+          <div className="marquee-text text-[#0e0e0e] font-semibold tracking-tighter font-newsreader text-[140px] md:text-[180px] lg:text-[250px]">
+            Event Timeline Event Timeline Event Timeline
+          </div>
+        </div>
       </div>
 
-      {/* Winners from 2024 */}
+      {/* Winners from <YEAR> */}
       <section className="w-full bg-background2 py-16 md:py-2">
         <div className="max-w-7xl mx-auto px-6">
-          <SectionHeader title="Winners from 2024" />
-          <ModelGrid models={models.slice(0, 4)}>
-            {(model) => (
+          <SectionHeader title={`Winners from ${data?.year}`} />
+          <WinnerGrid winners={data?.winners}>
+            {(winner) => (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: 0.1 }}
               >
-                {model.tag && (
+                {winner.rank && (
                   <div
-                    className={`${
-                      model.tag.toLowerCase() === "winner"
-                        ? "text-gold-500"
-                        : "text-white"
-                    } text-base font-bold flex items-center gap-1 pb-2`}
+                    className={`text-base font-bold flex items-center gap-1 pb-2 text-primary`}
                   >
                     <i
-                      className={`ri-vip-crown-line text-base ${
-                        model.tag === "Winner" ? "text-gold-500" : "text-white"
-                      }`}
+                      className={`ri-vip-crown-line text-base ${winner.rank === "Winner" ? "text-gold-500" : "hidden"
+                        }`}
                     />
-                    {model.tag}
+                    {winner.rank}
                   </div>
                 )}
                 <h4 className="text-white text-[22px] font-medium font-newsreader leading-5 tracking-tight">
-                  {model.name}
+                  {winner.name}
                 </h4>
                 <p className="text-white text-base font-light tracking-wider">
-                  {model.designation}
+                  {data?.eventId.name}{" "}{data?.year}
                 </p>
               </motion.div>
             )}
-          </ModelGrid>
+          </WinnerGrid>
         </div>
       </section>
 
@@ -348,8 +270,8 @@ export default function EventDetails() {
       <section className="w-full bg-background2 py-16 md:py-20">
         <div className="max-w-7xl mx-auto px-6">
           <SectionHeader title="Juries for Miss Nepal Peace 2024" />
-          <ModelGrid models={models}>
-            {(model) => (
+          <JuryGrid winners={data?.jury}>
+            {(jury) => (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -357,14 +279,14 @@ export default function EventDetails() {
                 transition={{ duration: 0.5, delay: 0.1 }}
               >
                 <h4 className="text-white text-[22px] font-medium font-newsreader leading-5 tracking-tight">
-                  {model.name}
+                  {jury.name}
                 </h4>
                 <p className="text-white text-base font-light tracking-wider">
-                  {model.designation}
+                  {jury.designation}
                 </p>
               </motion.div>
             )}
-          </ModelGrid>
+          </JuryGrid>
         </div>
       </section>
 
@@ -374,7 +296,7 @@ export default function EventDetails() {
           <SectionHeader title="Gallery" />
 
           {/* Gallery using the reusable component */}
-          <MasonryGallery images={winnerImages} />
+          <MasonryGallery images={data?.gallery?.map((image) => normalizeImagePath(image)) || []} />
         </div>
       </section>
 
@@ -390,15 +312,27 @@ export default function EventDetails() {
             className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8"
           />
           <motion.div
+            className="flex flex-wrap items-center gap-8"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
             viewport={{ once: true }}
           >
-            <PartnerScroller partners={partners} speed={200} />
+            {data?.sponsors.map((item, index) => (
+              <Image
+                key={index}
+                src={normalizeImagePath(item.image)}
+                alt={item.image}
+                width={120}
+                height={56}
+                className="object-contain h-16"
+              />
+            ))}
           </motion.div>
         </div>
       </section>
+
+
     </main>
   );
 }

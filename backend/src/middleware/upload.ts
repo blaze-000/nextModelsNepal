@@ -9,6 +9,16 @@ const storage = multer.diskStorage({
   }
 });
 
-const upload = multer({ storage });
+const upload = multer({
+  storage,
+  fileFilter: (req, file, cb) => {
+    // Accept images and SVG files
+    if (file.mimetype.startsWith('image/') || file.mimetype === 'image/svg+xml') {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed'));
+    }
+  }
+});
 
 export default upload;

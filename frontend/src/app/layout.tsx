@@ -1,8 +1,8 @@
 import "./globals.css";
-import { Urbanist, Newsreader } from "next/font/google";
-import TopLoader from "nextjs-toploader";
 import "remixicon/fonts/remixicon.css";
+import TopLoader from "nextjs-toploader";
 import { Toaster } from "sonner";
+import { Urbanist, Newsreader } from "next/font/google";
 import { AuthProvider } from "@/context/authContext";
 
 const urbanist = Urbanist({
@@ -39,8 +39,7 @@ export default function RootLayout({
       className={`${urbanist.variable} ${newsreader.variable} scroll-smooth`}
     >
       <body className="bg-background text-foreground antialiased font-urbanist">
-        <TopLoader showSpinner={false} color="#a06d06" height={1.2} />
-
+        <TopLoader showSpinner={false} color="#a06d06" height={1.9} />
         <Toaster
           position="top-right"
           offset="80px"
@@ -50,4 +49,4 @@ export default function RootLayout({
       </body>
     </html>
   );
-}
+};

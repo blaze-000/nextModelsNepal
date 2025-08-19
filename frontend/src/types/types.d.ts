@@ -78,6 +78,33 @@ interface ModelGridProps {
   children: (model: Model) => React.ReactNode,
 }
 
+interface Winner {
+  _id: string,
+  seasonId: string,
+  rank: string,
+  name: string,
+  image: string,
+  rank: string,
+  slug?: string,
+}
+
+interface WinnerGridProps {
+  winners: Winner[] | undefined,
+  children: (winner: Winner) => React.ReactNode,
+}
+
+interface Jury {
+  _id: string,
+  name: string,
+  image: string,
+  designation: string,
+}
+
+interface JuryGridProps {
+  winners: Jury[] | undefined,
+  children: (winner: Jury) => React.ReactNode,
+}
+
 interface TimelineProps {
   position?: "left" | "right",
   title?: string,
@@ -147,4 +174,39 @@ type TimelineEvent = {
     getTicketLink?: string,
     slug: string,
   }
+}
+
+type SeasonDetails = {
+  _id: string,
+  eventId: {
+    name: string,
+    overview: string,
+    titleImage: string,
+    coverImage: string,
+    subtitle: string,
+    quote: string,
+    purpose: string,
+    purposeImage: string,
+    timelineSubtitle: string,
+    managedBy: "self" | "partner",
+  },
+  year: number,
+  image: string,
+  // status: "ongoing" | "ended",
+  startDate: string,
+  votingOpened: boolean,
+  endDate: string,
+  slug: string,
+  gallery: string[],
+  notice: string[],
+  timeline: {
+    label: string,
+    datespan: string,
+    icon: string,
+    _id: string,
+  }[]
+  getTicketLink: string,
+  winners: Winner[],
+  jury: Jury[],
+  sponsors: { _id: string, seasonId: string, image: string }[],
 }
