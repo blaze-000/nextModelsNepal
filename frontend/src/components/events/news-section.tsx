@@ -4,7 +4,6 @@ import Image from "next/image";
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import ImageBox from "../molecules/image-box";
-import { Button } from "../ui/button";
 import SectionHeader from "../ui/section-header";
 import Axios from "@/lib/axios-instance";
 import Link from "next/link";

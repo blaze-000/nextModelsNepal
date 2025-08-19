@@ -1,76 +1,28 @@
 "use client";
-import React, { useCallback, useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 import type { EmblaCarouselType } from "embla-carousel";
 import EventCard from "../molecules/event-card";
 import { motion } from "framer-motion";
+import Axios from "@/lib/axios-instance";
+import { formatDate } from "@/lib/utils";
 
 const TWEEN_FACTOR_BASE = 0.52;
 
 const numberWithinRange = (number: number, min: number, max: number): number =>
   Math.min(Math.max(number, min), max);
 
-const events: EventType[] = [
-  {
-    id: "miss-nepal-peace-2024",
-    title: "Miss Nepal Peace",
-    slug: "miss-nepal-peace-2024",
-    startDate: "2024-07-19",
-    endDate: "2024-09-06",
-    briefInfo:
-      "Miss Nepal Peace is a pageant for honest, celebrating their role in care and peace while empowering them to represent Nepal on global stage.",
-    imageSrc: "/events_1.jpg",
-    state: "ongoing",
-    managedBy: "self",
-    getTicketLink: "https://example.com/tickets",
-    aboutLink: "https://example.com/about",
-  },
-  {
-    id: "fashion-week-2024",
-    title: "Nepal Fashion",
-    slug: "fashion-week-2024",
-    startDate: "2024-08-15",
-    endDate: "2024-08-20",
-    briefInfo:
-      "A spectacular showcase of Nepalese fashion talent, bringing together designers, models, and fashion enthusiasts from across the region.",
-    imageSrc: "/events_1.jpg",
-    state: "ended",
-    managedBy: "partner",
-    getTicketLink: "https://example.com/fashion-tickets",
-    aboutLink: "https://example.com/fashion-about",
-  },
-  {
-    id: "miss-nepal-peace-2024-2",
-    title: "Miss Nepal Peace",
-    slug: "miss-nepal-peace-2024-2",
-    startDate: "2024-07-19",
-    endDate: "2024-09-06",
-    briefInfo:
-      "Miss Nepal Peace is a pageant for honest, celebrating their role in care and peace while empowering them to represent Nepal on global stage.",
-    imageSrc: "/events_1.jpg",
-    state: "ongoing",
-    managedBy: "self",
-    getTicketLink: "https://example.com/tickets",
-    aboutLink: "https://example.com/about",
-  },
-  {
-    id: "fashion-week-2024-2",
-    title: "Nepal Fashion",
-    slug: "fashion-week-2024-2",
-    startDate: "2024-08-15",
-    endDate: "2024-08-20",
-    briefInfo:
-      "A spectacular showcase of Nepalese fashion talent, bringing together designers, models, and fashion enthusiasts from across the region.",
-    imageSrc: "/events_1.jpg",
-    state: "ended",
-    managedBy: "partner",
-    getTicketLink: "https://example.com/fashion-tickets",
-    aboutLink: "https://example.com/fashion-about",
-  },
-];
-
 const EventHero = () => {
+  const [events, SetEvents] = useState<TimelineEvent[] | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      const res = await Axios.get("/api/events/timeline");
+      const data = res.data;
+      SetEvents(data.data);
+    })();
+  }, []);
   const [emblaRef, emblaApi] = useEmblaCarousel(
     {
       loop: true,
@@ -175,14 +127,24 @@ const EventHero = () => {
       >
         <div className="embla px-[10%]" ref={emblaRef}>
           <div className="embla__container flex">
-            {events.map((event) => (
+            {events?.map((event) => (
               <div
                 className="embla__slide"
                 style={{ flex: "0 0 85%" }}
-                key={event.id}
+                key={event.eventName}
               >
                 <div className="embla__slide__scale transition-transform duration-200 ease-out">
-                  <EventCard {...event} />
+                  <EventCard
+                  title={event.eventName}
+                  slug={event.season.slug}
+                  date={`${formatDate(event.season.startDate)} to ${formatDate(event.season.endDate)}`}
+                  overview={event.overview}
+                  coverImage={event.coverImage}
+                  state={event.season.status}
+                  manageBy={event.managedBy}
+                  getTicketLink={event.season.getTicketLink}
+                  timelinePosition={false}
+                />
                 </div>
               </div>
             ))}

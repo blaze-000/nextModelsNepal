@@ -8,6 +8,7 @@ import EventBox from "@/components/molecules/event-box";
 import Axios from "@/lib/axios-instance";
 import { normalizeImagePath } from "@/lib/utils";
 import Dropdown from "@/components/ui/Dropdown";
+import Image from "next/image";
 
 type UpcomingEvent = {
   _id: string;
@@ -19,8 +20,9 @@ type UpcomingEvent = {
   latestEndedSeasonSlug: string;
 };
 
-export default function UpcomingEvents() {
+export default function UpcomingEvent() {
   const [sortBy, setSortBy] = useState("Most Recent");
+  const [searchText, setSearchText] = useState("");
   const [upcomingEvents, setUpcomingEvents] = useState<UpcomingEvent[] | null>(
     null
   );
@@ -29,7 +31,13 @@ export default function UpcomingEvents() {
   const sortEvents = (events: UpcomingEvent[], sortType: string) => {
     if (!events) return [];
 
-    return [...events].sort((a, b) => {
+    const filtered = events.filter((event) =>
+      event.eventId.name.toLowerCase().includes(searchText.toLowerCase()) ||
+      (event.eventId.overview &&
+        event.eventId.overview.toLowerCase().includes(searchText.toLowerCase()))
+    );
+
+    return [...filtered].sort((a, b) => {
       switch (sortType) {
         case "Oldest":
           return (
@@ -63,12 +71,15 @@ export default function UpcomingEvents() {
     <>
       <Breadcrumb
         title="Upcoming Events"
+        searchText={searchText}
+        setSearchText={setSearchText}
         searchPlaceholder="Search upcoming Events"
       />
       <div className="w-full bg-background py-4 md:py-20">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="flex justify-center mb-10">
-            <div className="w-full max-w-xs">
+          <div className="flex flex-wrap  justify-center gap-5 px-2 mb-6">
+           
+          
               <Dropdown
                 label="Sort By"
                 options={sortOptions}
@@ -76,7 +87,25 @@ export default function UpcomingEvents() {
                 onSelect={setSortBy}
               />
             </div>
-          </div>
+            {searchText !== "" && (
+                        <div className="flex ">
+                          <Image
+                            src="/svg-icons/small_star.svg"
+                            alt=""
+                            height={20}
+                            width={20}
+                            className="inline-block mr-2 h-5 w-5 bg-cover"
+                          />
+            
+                          <p className=" text-2xl pb-5  font-newsreader">
+                            Searching for:{" "}
+                            <span className="text-gold-500">
+                              &ldquo;{searchText}&rdquo;
+                            </span>
+                          </p>
+                        </div>
+                      )}
+
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-6">
             {sortedEvents?.map((item) => (

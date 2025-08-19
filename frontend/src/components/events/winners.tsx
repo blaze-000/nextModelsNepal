@@ -88,7 +88,7 @@ export const Winners = () => {
           </div>
 
           {/* Mobile Layout */}
-          
+
           <div className="block md:hidden space-y-4">
             {/* Title - Centered */}
             <div className="flex items-center justify-center gap-2">
@@ -106,7 +106,7 @@ export const Winners = () => {
             </div>
 
             {/* Mobile Dropdowns */}
-            <div className="flex flex-wrap justify-center gap-4">
+            <div className="flex flex-wrap justify-center gap-4 pb-10 pt-5">
               <Dropdown
                 label="Event"
                 options={eventTypes}

@@ -8,6 +8,7 @@ import SectionHeader from "../ui/section-header";
 import EventBox from "../molecules/event-box";
 import Dropdown from "../ui/Dropdown";
 import Axios from "@/lib/axios-instance";
+import Link from "next/link";
 
 type UpcomingEvent = {
   _id: string;
@@ -17,8 +18,6 @@ type UpcomingEvent = {
   year: string;
   startDate: string;
   latestEndedSeasonSlug: string;
-  description: string;
-  title: string;
 };
 
 export const UpcomingEvents = () => {
@@ -52,8 +51,8 @@ export const UpcomingEvents = () => {
       try {
         const res = await Axios.get("/api/season/upcoming");
         const data = res.data;
-        console.log(data);
-        setUpcomingEvents(data.data);
+        console.log(data.data);
+        setUpcomingEvents(data.data.slice(0, 2));
       } catch (err) {
         console.log("Failed to fetch upcoming events", err);
       }
@@ -84,7 +83,7 @@ export const UpcomingEvents = () => {
 
           {/* Mobile Layout */}
           <div className="block md:hidden space-y-4 px-2">
-            <div className="flex items-center justify-center gap-2">
+            <div className="flex items-center justify-center gap-2 pb-5">
               <Image
                 src="/svg-icons/small_star.svg"
                 alt=""
@@ -93,17 +92,18 @@ export const UpcomingEvents = () => {
                 sizes="100vw"
                 className="w-4 h-4 rounded-full"
               />
-              <h3 className="text-white text-xl font-normal font-newsreader">
+              <h3 className="text-white text-xl font-normal font-newsreader ">
                 Upcoming Events
               </h3>
             </div>
 
-            <div className="flex flex-wrap gap-4 justify-center">
-              <Button variant="outline" className="py-2 min-w-0">
-                <span>Sort By:</span>
-                <span>Most Recent</span>
-                <i className="ri-arrow-down-s-line text-lg" />
-              </Button>
+            <div className="flex justify-center pb-5">
+              <Dropdown
+                label="Sort By"
+                options={sortOptions}
+                selected={sortBy}
+                onSelect={setSortBy}
+              />
             </div>
           </div>
         </motion.div>
@@ -119,11 +119,11 @@ export const UpcomingEvents = () => {
               transition={{ duration: 0.5, delay: 0.2 }}
             >
               <EventBox
-                slug={item.slug}
+                slug={item.latestEndedSeasonSlug}
                 image={item.image}
-                title={item.title}
-                desc={item.description}
-                buttonText={`About ${item.title}`}
+                title={item.eventId.name}
+                desc={item.eventId.overview}
+                buttonText={`About ${item.eventId.name}`}
                 status="upcoming"
               />
             </motion.div>
@@ -138,10 +138,15 @@ export const UpcomingEvents = () => {
           transition={{ duration: 0.5, delay: 0.2 }}
           className="flex justify-end mt-8"
         >
-          <button className="px-4 py-4 rounded-full text-gold-500 text-base -tracking-tight font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer">
-            <span className="underline">See All Upcoming Events</span>
-            <i className="ri-arrow-right-up-line group-hover:scale-130 transition-transform duration-400 text-xl font-light" />
-          </button>
+          <Link
+            href="/events/upcoming-events"
+            className="py-4 md:mb-8 lg:mb-0 rounded-full text-gold-500 text-base -tracking-tight font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer ml-auto"
+          >
+            <span className="underline underline-offset-4">
+              See All Upcoming events
+            </span>
+            <i className="ri-arrow-right-up-line group-hover:scale-130 transition-transform duration-400 text-xl font-extralight" />
+          </Link>
         </motion.div>
       </div>
     </div>
