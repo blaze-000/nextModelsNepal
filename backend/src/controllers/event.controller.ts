@@ -342,3 +342,251 @@ export const getEventsForTimeline = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: "Failed to fetch events for timeline" });
   }
 };
+
+/**
+ * Get All Past Events
+ * Returns events with only one season that has status "ended" with the latest year
+ */
+export const getAllPastEvents = async (req: Request, res: Response) => {
+  try {
+    // Get all events with their seasons populated, sorted by year descending
+    const events = await EventModel.find()
+      .populate({
+        path: "seasons",
+        select: "status year slug endDate",
+        options: { sort: { year: -1 } } // Sort by year descending
+      });
+
+    // Filter events that have at least one season with status "ended"
+    const eventsWithEndedSeasons = events.filter(event => {
+      if (!event.seasons || event.seasons.length === 0) {
+        return false;
+      }
+
+      // Check if any season has "ended" status
+      return (event.seasons as any[]).some((season: any) => season.status === "ended");
+    });
+
+    // Process each event to get only the latest ended season
+    const pastEvents = eventsWithEndedSeasons.map(event => {
+      const seasons = (event.seasons as any[]) || [];
+
+      // Find the season with status "ended" and the latest year
+      const endedSeasons = seasons.filter((season: any) => season.status === "ended");
+
+      if (endedSeasons.length === 0) {
+        return null;
+      }
+
+      // Get the season with the latest year (already sorted by year descending)
+      const latestEndedSeason = endedSeasons[0];
+
+      return {
+        name: event.name,
+        overview: event.overview,
+        season: {
+          year: latestEndedSeason.year,
+          slug: latestEndedSeason.slug,
+          endDate: latestEndedSeason.endDate
+        }
+      };
+    }).filter(event => event !== null); // Remove null events
+
+    res.json({
+      success: true,
+      data: pastEvents
+    });
+  } catch (error) {
+    console.error("Get all past events error:", error);
+    res.status(500).json({ success: false, message: "Failed to fetch past events" });
+  }
+};
+
+/**
+ * Get All Past Winners
+ * Returns winners with rank, name, parent season's year, and grandparent event's name
+ */
+export const getAllPastWinners = async (req: Request, res: Response) => {
+  try {
+    // Import WinnerModel and SeasonModel
+    const { WinnerModel, SeasonModel } = await import("../models/events.model");
+
+    // Get all winners with their parent season and grandparent event populated
+    const winners = await WinnerModel.find()
+      .populate({
+        path: "seasonId",
+        select: "year status eventId",
+        populate: {
+          path: "eventId",
+          select: "name"
+        }
+      });
+
+    // Filter winners from seasons with status "ended"
+    const pastWinners = winners.filter(winner => {
+      const season = winner.seasonId as any;
+      return season && season.status === "ended";
+    });
+
+    // Format the response data
+    const formattedWinners = pastWinners.map(winner => {
+      const season = winner.seasonId as any;
+      const event = season?.eventId as any;
+
+      return {
+        rank: winner.rank,
+        name: winner.name,
+        year: season?.year,
+        eventName: event?.name
+      };
+    });
+
+    // Sort by year descending, then by rank ascending
+    const sortedWinners = formattedWinners.sort((a, b) => {
+      // First sort by year descending (newest first)
+      if (a.year !== b.year) {
+        return b.year - a.year;
+      }
+
+      // Then sort by rank ascending
+      const rankOrder = {
+        "Winner": 1,
+        "1st Runner Up": 2,
+        "2nd Runner Up": 3,
+        "3rd Runner Up": 4,
+        "4th Runner Up": 5,
+        "5th Runner Up": 6
+      };
+
+      const aRankOrder = rankOrder[a.rank as keyof typeof rankOrder] || 999;
+      const bRankOrder = rankOrder[b.rank as keyof typeof rankOrder] || 999;
+
+      return aRankOrder - bRankOrder;
+    });
+
+    res.json({
+      success: true,
+      data: sortedWinners
+    });
+  } catch (error) {
+    console.error("Get all past winners error:", error);
+    res.status(500).json({ success: false, message: "Failed to fetch past winners" });
+  }
+};
+
+/**
+ * Get Latest Gallery
+ * Returns gallery of the season with status "ended" and most recent endDate
+ * Also returns list of events with ended seasons and their years
+ */
+export const getLatestGallery = async (req: Request, res: Response) => {
+  try {
+    // Import SeasonModel
+    const { SeasonModel } = await import("../models/events.model");
+
+    // Get the season with status "ended" and most recent endDate
+    const latestEndedSeason = await SeasonModel.findOne({ status: "ended" })
+      .populate({
+        path: "eventId",
+        select: "name"
+      })
+      .sort({ endDate: -1 });
+
+    // Get all events with their seasons to find events with ended seasons
+    const events = await EventModel.find()
+      .populate({
+        path: "seasons",
+        select: "year status",
+        match: { status: "ended" }
+      });
+
+    // Filter events that have at least one ended season and format the data
+    const eventsWithEndedSeasons = events
+      .filter(event => event.seasons && event.seasons.length > 0)
+      .map(event => {
+        const endedSeasons = (event.seasons as any[]).filter(season => season.status === "ended");
+        const years = endedSeasons.map(season => season.year).sort((a, b) => b - a); // Sort years descending
+
+        return {
+          eventId: event._id,
+          eventName: event.name,
+          years: years
+        };
+      });
+
+    // Prepare response data
+    const responseData = {
+      latestGallery: latestEndedSeason ? {
+        eventId: (latestEndedSeason.eventId as any)._id,
+        eventName: (latestEndedSeason.eventId as any).name,
+        year: latestEndedSeason.year,
+        gallery: latestEndedSeason.gallery || []
+      } : null,
+      eventsWithEndedSeasons: eventsWithEndedSeasons
+    };
+
+    res.json({
+      success: true,
+      data: responseData
+    });
+  } catch (error) {
+    console.error("Get latest gallery error:", error);
+    res.status(500).json({ success: false, message: "Failed to fetch latest gallery" });
+  }
+};
+
+/**
+ * Get Gallery by Event and Year
+ * Returns gallery for a specific event and season year
+ */
+export const getGalleryByEventAndYear = async (req: Request, res: Response) => {
+  try {
+    const { eventId, year } = req.params;
+
+    // Validate eventId format
+    if (!mongoose.Types.ObjectId.isValid(eventId)) {
+      return res.status(400).json({ success: false, message: "Invalid event ID format" });
+    }
+
+    // Validate year format
+    const yearNum = parseInt(year);
+    if (isNaN(yearNum)) {
+      return res.status(400).json({ success: false, message: "Invalid year format" });
+    }
+
+    // Import SeasonModel
+    const { SeasonModel } = await import("../models/events.model");
+
+    // Find the season with the specified eventId and year
+    const season = await SeasonModel.findOne({
+      eventId: eventId,
+      year: yearNum,
+      status: "ended"
+    }).populate({
+      path: "eventId",
+      select: "name"
+    });
+
+    if (!season) {
+      return res.status(404).json({
+        success: false,
+        message: "Season not found for the specified event and year"
+      });
+    }
+
+    const responseData = {
+      eventId: (season.eventId as any)._id,
+      eventName: (season.eventId as any).name,
+      year: season.year,
+      gallery: season.gallery || []
+    };
+
+    res.json({
+      success: true,
+      data: responseData
+    });
+  } catch (error) {
+    console.error("Get gallery by event and year error:", error);
+    res.status(500).json({ success: false, message: "Failed to fetch gallery" });
+  }
+};

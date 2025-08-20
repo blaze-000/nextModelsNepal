@@ -3,7 +3,7 @@ import nodemailer from "nodemailer";
 import { Request, Response } from "express";
 import { AppModel } from "../models/appForm.model";
 import { appModelSchema } from "../validations/appForm.validation";
-import { EventModel } from "../models/events.model";
+import { EventModel, SeasonModel } from "../models/events.model";
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -13,6 +13,8 @@ export const createAppForm = async (req: Request, res: Response) => {
     try {
         // Debug: Log request details
         console.log("Request body keys:", Object.keys(req.body));
+        console.log("Request body:", req.body);
+        console.log("Languages field:", req.body.languages);
         console.log("Request files:", req.files);
 
         // Ensure Multer files exist
@@ -28,30 +30,30 @@ export const createAppForm = async (req: Request, res: Response) => {
         const imagePaths = files.map(file => file.path);
         console.log("Image paths extracted:", imagePaths);
 
-        // Get event ID from request body (optional)
-        const { eventId } = req.body;
-        let eventName = "";
-
-        // Only fetch event if eventId is provided
-        if (eventId) {
-            const event = await EventModel.findById(eventId);
-            if (!event) {
-                return res.status(404).json({
-                    success: false,
-                    message: "Event not found with the provided ID.",
-                });
-            }
-            eventName = event.name;
-        }
+        // Get event from request body (optional)
+        const { event } = req.body;
+        const eventName = event || "";
 
         // Prepare data for validation (without images)
         const dataToValidate = {
             ...req.body,
             event: eventName,
             weight: Number(req.body.weight),
-            languages: Array.isArray(req.body.languages)
-                ? req.body.languages
-                : req.body.languages?.split(",").map((lang: string) => lang.trim()),
+            languages: (() => {
+                try {
+                    if (Array.isArray(req.body.languages)) {
+                        return req.body.languages;
+                    }
+                    if (typeof req.body.languages === 'string') {
+                        const parsed = JSON.parse(req.body.languages);
+                        return Array.isArray(parsed) ? parsed : [req.body.languages];
+                    }
+                    return [];
+                } catch (error) {
+                    console.error('Error parsing languages:', error);
+                    return req.body.languages ? [req.body.languages] : [];
+                }
+            })(),
         };
 
         // Parse and validate incoming data (without images)
@@ -527,3 +529,30 @@ export const deleteAppFormById = async (req: Request, res: Response) => {
         });
     }
 };
+
+// Get Upcoming Info
+export const getUpcomingInfo = async (req: Request, res: Response) => {
+    try {
+        const upcomingInfo = await SeasonModel.find({ status: "upcoming" })
+            .select("year _id")
+            .populate({
+                path: "eventId",
+                select: "name"
+            })
+            .populate("auditions")
+            .populate("criteria");
+
+        return res.status(200).json({
+            success: true,
+            message: "Upcoming info retrieved successfully.",
+            data: upcomingInfo,
+        });
+    }
+    catch (error: any) {
+        console.error("Error Getting upcoming info:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Failed to get upcoming info.",
+        });
+    }
+}

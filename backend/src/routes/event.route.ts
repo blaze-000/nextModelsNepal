@@ -18,6 +18,10 @@ router.post("/",
 
 router.get("/", eventController.getEvents);
 router.get("/timeline", eventController.getEventsForTimeline);
+router.get("/past-events", eventController.getAllPastEvents);
+router.get("/past-winners", eventController.getAllPastWinners);
+router.get("/gallery/latest", eventController.getLatestGallery);
+router.get("/gallery/:eventId/:year", eventController.getGalleryByEventAndYear);
 router.get("/:id", eventController.getEventById);
 
 // Use multer middleware for the update route

@@ -3,6 +3,7 @@
 @theme {
   --breakpoint-mdplus: 925px;
   --breakpoint-xs: 375px;
+  --breakpoint-p400:400px;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -137,6 +138,7 @@ input:-webkit-autofill {
   0% {
     transform: translateX(0);
   }
+
   100% {
     transform: translateX(-50%);
   }
@@ -144,11 +146,13 @@ input:-webkit-autofill {
 
 .marquee-wrapper {
   display: flex;
-  width: 200%; /* contains 2 copies of the text */
+  width: 200%;
+  /* contains 2 copies of the text */
   animation: marquee 40s linear infinite;
 }
 
 .marquee-text {
-  flex: 0 0 50%; /* each takes half of wrapper */
+  flex: 0 0 50%;
+  /* each takes half of wrapper */
   white-space: nowrap;
 }

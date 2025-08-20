@@ -11,6 +11,7 @@ type eventboxprops = {
   buttonText: string;
   status: "upcoming" | "ended";
   slug: string;
+  seasonId?: string;
   className?: string;
 };
 
@@ -21,6 +22,7 @@ const EventBox = ({
   desc,
   buttonText,
   status,
+  seasonId,
 }: eventboxprops) => {
   return (
     <article className="h-full bg-stone-900 flex flex-col justify-between overflow-hidden hover:bg-stone-800 transition-colors duration-300 p-6 md:p-6">
@@ -52,7 +54,7 @@ const EventBox = ({
           {/* CTA Button */}
           {status === "upcoming" && (
             <div className="flex gap-4">
-              <Link href={`/events/${slug}`}>
+              <Link href={`/become-a-model?seasonId=${seasonId}`}>
                 <Button variant="default">Apply Now</Button>
               </Link>
 

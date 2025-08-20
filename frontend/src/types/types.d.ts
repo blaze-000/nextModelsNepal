@@ -120,6 +120,7 @@ type HeroData = {
 }
 
 type UpcomingEventData = {
+  _id: string,
   image: string,
   posterImage: string,
   year: string,
@@ -189,6 +190,10 @@ type SeasonDetails = {
     purposeImage: string,
     timelineSubtitle: string,
     managedBy: "self" | "partner",
+    seasons: {
+      year: number,
+      slug: string,
+    }[]
   },
   year: number,
   image: string,

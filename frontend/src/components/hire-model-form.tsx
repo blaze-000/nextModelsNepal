@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { Spinner } from "@geist-ui/react";
 import { motion } from "framer-motion";
 import ModelDropdown from "./ui/modelDropdown";
-import { validateEmail } from "@/lib/utils";
+import { validateEmail, validatePhone } from "@/lib/utils";
 import Axios from "@/lib/axios-instance";
 
 interface Model {
@@ -123,11 +123,11 @@ const HireModelForm = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     setErrors({});
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleModelChange = (modelName: string) => {
-    setErrors({});
     const selectedModel = models.find(model => model.name === modelName);
     setFormData((prev) => ({
       ...prev,
@@ -145,7 +145,25 @@ const HireModelForm = () => {
     if (formData.email && !validateEmail(formData.email))
       newErrors.email = "Invalid email";
     if (!formData.phone.trim()) newErrors.phone = "Phone is required";
+    if (formData.phone && !validatePhone(formData.phone))
+      newErrors.phone = "Invalid phone number";
     if (!formData.date.trim()) newErrors.date = "Date is required";
+    if (formData.date.trim()) {
+      const selectedDate = new Date(formData.date);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Reset time to start of day for accurate comparison
+
+      // Calculate 6 months from now
+      const maxDate = new Date();
+      maxDate.setMonth(maxDate.getMonth() + 6);
+      maxDate.setHours(23, 59, 59, 999); // Set to end of day
+
+      if (selectedDate < today) {
+        newErrors.date = "Date cannot be in the past";
+      } else if (selectedDate > maxDate) {
+        newErrors.date = "Date cannot be more than 6 months in the future";
+      }
+    }
     if (!formData.message.trim()) newErrors.message = "Message is required";
 
     if (Object.keys(newErrors).length) {
@@ -273,7 +291,7 @@ const HireModelForm = () => {
             <InputField
               label="Email"
               name="email"
-              type="email"
+              type="text"
               value={formData.email}
               onChange={handleChange}
               placeholder="e.g. johndoe@example.com"

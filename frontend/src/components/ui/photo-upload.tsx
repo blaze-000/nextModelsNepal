@@ -109,31 +109,42 @@ const PhotoUpload = ({
         onDrop={handleDrop}
       >
         {/* Photo Preview Grid */}
-        {selectedFiles.length > 0 && (
-          <div className="mb-6 w-full">
-            <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-10 gap-2">
-              {selectedFiles.map((file, index) => (
-                <div key={index} className="relative group aspect-square">
-                  <Image
-                    src={URL.createObjectURL(file)}
-                    alt={`Preview ${index + 1}`}
-                    width={80}
-                    height={80}
-                    className="w-full h-full object-cover rounded border-2 border-gray-600"
-                    unoptimized
-                  />
-                  <button
-                    type="button"
-                    onClick={() => onRemoveFile(index)}
-                    className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600 transition-colors"
-                  >
-                    ×
-                  </button>
+        <div className="mb-6 w-full">
+          <div className="flex gap-2 justify-center">
+            {selectedFiles.map((file, index) => (
+              <div key={index} className="relative group aspect-square w-18 h-18">
+                <Image
+                  src={URL.createObjectURL(file)}
+                  alt={`Preview ${index + 1}`}
+                  width={80}
+                  height={80}
+                  className="w-full h-full object-cover rounded border-2 border-gray-600"
+                  unoptimized
+                />
+                <button
+                  type="button"
+                  onClick={() => onRemoveFile(index)}
+                  className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600 transition-colors"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+
+            {/* Add Button */}
+            {!isMaxReached && (
+              <label
+                htmlFor={name}
+                className="aspect-square border-2 border-dashed border-primary text-primary flex items-center justify-center rounded cursor-pointer hover:bg-primary/10 transition-colors h-18 w-18"
+              >
+                <div className="text-center">
+                  <div className="text-2xl font-bold mb-1">+</div>
+                  <div className="text-xs">Add</div>
                 </div>
-              ))}
-            </div>
+              </label>
+            )}
           </div>
-        )}
+        </div>
 
         {/* File Input */}
         <input

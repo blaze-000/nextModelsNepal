@@ -2,8 +2,12 @@
 import BecomeModelForm from "@/components/become-model-form";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { useSearchParams } from "next/navigation";
 
 export default function BecomeModel() {
+  const searchParams = useSearchParams();
+  const seasonIdParam = searchParams.get('seasonId');
+
   return (
     <main>
       {/* Hero image and text */}
@@ -57,7 +61,7 @@ export default function BecomeModel() {
           </p>
         </div>
       </motion.section>
-      <BecomeModelForm />
+      <BecomeModelForm prefillSeasonId={seasonIdParam} />
     </main>
   );
 }

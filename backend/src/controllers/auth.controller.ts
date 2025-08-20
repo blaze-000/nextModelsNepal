@@ -10,10 +10,6 @@ export const login = async (req: Request, res: Response) => {
     try {
         const { email, password } = req.body;
 
-        console.log('Request body:', req.body);
-        console.log('Email:', email);
-        console.log('Password provided:', !!password); // Shows true/false without exposing password
-
         // Check if email and password are provided
         if (!email || !password) {
             return res.status(400).json({ message: "Email and password are required" });
@@ -27,8 +23,6 @@ export const login = async (req: Request, res: Response) => {
         if (!admin.password) {
             return res.status(500).json({ message: "Admin account error" });
         }
-        console.log('Admin password exists:', !!admin?.password);
-
 
         const valid = await bcrypt.compare(password, admin.password);
         if (!valid) return res.status(401).json({ message: "Invalid credentials" });
@@ -113,7 +107,6 @@ export const changePassword = async (req: Request, res: Response) => {
         return res.status(500).json({ message: "Server error" });
     }
 };
-
 
 
 export const logout = (req: Request, res: Response) => {
