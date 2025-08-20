@@ -307,12 +307,16 @@ const UpcomingEventSection = () => {
             {/* Buttons */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-4">
               <div className="flex space-x-4">
-                <Button variant="default" className="text-base">
-                  Apply Now
-                </Button>
-                <Button variant="default" className="text-base bg-white">
-                  Get Tickets
-                </Button>
+                <Link href={`/become-a-model?seasonId=${event?._id}`}>
+                  <Button variant="default" className="text-base">
+                    Apply Now
+                  </Button>
+                </Link>
+                <Link href="https://www.esewa.com.np">
+                  <Button variant="default" className="text-base bg-white">
+                    Get Tickets
+                  </Button>
+                </Link>
               </div>
 
               <Link

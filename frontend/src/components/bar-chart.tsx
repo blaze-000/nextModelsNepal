@@ -73,7 +73,7 @@ export default function BarChart({ topThree }: CustomBarChartProps) {
             className="w-20 xs:w-24 sm:w-36 lg:w-44 overflow-hidden bg-no-repeat bg-top transition-all duration-500 responsive-bar"
             style={{
               '--bar-height': `${leftHeight}px`,
-              backgroundImage: `url('/bar.svg')`,
+              backgroundImage: `url('/svg-icons/bar.svg')`,
               backgroundSize: '100% auto',
             } as React.CSSProperties
             } />
@@ -101,7 +101,7 @@ export default function BarChart({ topThree }: CustomBarChartProps) {
             className="w-20 xs:w-24 sm:w-36 lg:w-44 overflow-hidden bg-no-repeat bg-top transition-all duration-500 responsive-bar"
             style={{
               '--bar-height': `${centerHeight}px`,
-              backgroundImage: `url('/bar.svg')`,
+              backgroundImage: `url('/svg-icons/bar.svg')`,
               backgroundSize: '100% auto',
             } as React.CSSProperties
             } />
@@ -129,7 +129,7 @@ export default function BarChart({ topThree }: CustomBarChartProps) {
             className="w-20 xs:w-24 sm:w-36 lg:w-44 overflow-hidden bg-no-repeat bg-top transition-all duration-500 responsive-bar"
             style={{
               '--bar-height': `${rightHeight}px`,
-              backgroundImage: `url('/bar.svg')`,
+              backgroundImage: `url('/svg-icons/bar.svg')`,
               backgroundSize: '100% auto',
             } as React.CSSProperties
             } />

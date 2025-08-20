@@ -131,14 +131,21 @@ export const createSeason = async (req: Request, res: Response) => {
       // Process timeline icon files
       let processedTimeline = validatedData.timeline;
       if (validatedData.timeline && Array.isArray(validatedData.timeline)) {
+        console.log("Processing timeline for create:", validatedData.timeline);
+        console.log("Files received:", files);
+
         processedTimeline = validatedData.timeline.map((item, index) => {
+          console.log(`Processing timeline item ${index}:`, item);
           const timelineIconFile = files.find(f => f.fieldname === `timelineIcon_${index}`);
+          console.log(`Timeline icon file for index ${index}:`, timelineIconFile);
+
           if (timelineIconFile) {
             return {
               ...item,
               icon: `/uploads/${path.basename(timelineIconFile.path)}`
             };
           }
+          console.log(`Final timeline item ${index}:`, item);
           return item;
         });
       }
@@ -361,7 +368,7 @@ export const getSeasonById = async (req: Request, res: Response) => {
 };
 
 /**
- * Get Season by Slug
+ * Get Season by Slug : It only returns ended seasons of the event and its event details
  */
 export const getSeasonBySlug = async (req: Request, res: Response) => {
   try {
@@ -373,8 +380,15 @@ export const getSeasonBySlug = async (req: Request, res: Response) => {
         .json({ success: false, message: "Invalid season slug" });
     }
 
-    const season = await SeasonModel.findOne({ slug })
-      .populate("eventId") // Populate parent event with all details
+    const season = await SeasonModel.findOne({ slug, status: "ended" })
+      .populate({
+        path: "eventId",
+        populate: {
+          path: "seasons",
+          select: "year slug",
+          match: { status: "ended" }
+        }
+      }) // Populate parent event with all details and its ended children's year and slug
       .populate("winners")
       .populate("jury")
       .populate("sponsors")
@@ -530,11 +544,17 @@ export const updateSeason = async (req: Request, res: Response) => {
 
     // Process timeline icon files
     if (validatedData.timeline && Array.isArray(validatedData.timeline)) {
+      console.log("Processing timeline for update:", validatedData.timeline);
+      console.log("Files received:", req.files);
+
       const processedTimeline = validatedData.timeline.map((item, index) => {
+        console.log(`Processing timeline item ${index}:`, item);
+
         if (req.files) {
           const files = req.files as any;
           if (Array.isArray(files)) {
             const timelineIconFile = files.find(f => f.fieldname === `timelineIcon_${index}`);
+            console.log(`Timeline icon file for index ${index}:`, timelineIconFile);
             if (timelineIconFile) {
               // Delete old timeline icon if it exists
               if (existingSeason.timeline && existingSeason.timeline[index] && existingSeason.timeline[index].icon) {
@@ -556,6 +576,7 @@ export const updateSeason = async (req: Request, res: Response) => {
             };
           }
         }
+        console.log(`Final timeline item ${index}:`, item);
         return item;
       });
       updateData.timeline = processedTimeline;

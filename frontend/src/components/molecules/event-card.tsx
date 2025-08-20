@@ -48,7 +48,7 @@ const EventCard: FC<EventCardProps> = ({
               src={normalizeImagePath(coverImage)}
               alt={title}
               fill
-              className="w-full h-full object-cover object-top group-hover:scale-102 transition-transform duration-300"
+              className="w-full h-full object-cover object-center group-hover:scale-102 transition-transform duration-300"
             />
             <div className="absolute bottom-6 left-4">
               <span

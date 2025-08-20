@@ -188,7 +188,7 @@ export default function SeasonPopup({
     setFormData(initialFormData);
     setErrors({});
     setExistingGalleryImages([]);
-    setCurrentStep(1);
+    // Don't reset currentStep here - let the useEffect handle it when modal reopens
     onClose();
   };
 
@@ -238,12 +238,14 @@ export default function SeasonPopup({
 
   // For editing, skip step 1 since status can't be changed
   useEffect(() => {
-    if (isEditing) {
-      setCurrentStep(2);
-    } else {
-      setCurrentStep(1);
+    if (isOpen) {
+      if (isEditing) {
+        setCurrentStep(2);
+      } else {
+        setCurrentStep(1);
+      }
     }
-  }, [isEditing]);
+  }, [isOpen, isEditing]);
 
   const handleInputChange = (
     e: React.ChangeEvent<
@@ -424,12 +426,23 @@ export default function SeasonPopup({
         (item) => item.label.trim() || item.datespan.trim() || item.icon.length > 0
       );
       if (timelineData.length > 0) {
-        // Create timeline data without files for JSON (backend will process files separately)
-        const timelineDataForJson = timelineData.map(item => ({
-          label: item.label,
-          datespan: item.datespan,
-          icon: "" // Backend will set the correct path after processing files
-        }));
+        // Create timeline data for JSON
+        const timelineDataForJson = timelineData.map((item, index) => {
+          // If editing and no new icon file is uploaded, preserve the existing icon path
+          if (isEditing && season && season.timeline && season.timeline[index] && item.icon.length === 0) {
+            return {
+              label: item.label,
+              datespan: item.datespan,
+              icon: season.timeline[index].icon // Preserve existing icon path
+            };
+          }
+          // For new uploads or new seasons, set empty string (backend will process files)
+          return {
+            label: item.label,
+            datespan: item.datespan,
+            icon: ""
+          };
+        });
         formDataToSend.append("timeline", JSON.stringify(timelineDataForJson));
 
         // Add timeline icon files
@@ -438,6 +451,14 @@ export default function SeasonPopup({
             formDataToSend.append(`timelineIcon_${index}`, item.icon[0]);
           }
         });
+
+        // Debug logging
+        console.log("Timeline data being sent:", timelineDataForJson);
+        console.log("Timeline files being sent:", timelineData.map((item, index) => ({
+          index,
+          hasFile: item.icon.length > 0,
+          fileName: item.icon.length > 0 ? item.icon[0].name : null
+        })));
       }
 
       // Add images only if they are selected
@@ -509,6 +530,7 @@ export default function SeasonPopup({
 
   return (
     <Modal
+      key={season?._id || 'new'} // Force re-render when season changes
       isOpen={isOpen}
       onClose={handleClose}
       title={isEditing ? "Edit Season" : "Add New Season"}
@@ -567,10 +589,11 @@ export default function SeasonPopup({
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form key={`form-${season?._id || 'new'}`} onSubmit={handleSubmit} className="space-y-6">
           {/* Step 1: Status Selection */}
           {currentStep === 1 && !isEditing && (
             <motion.div
+              key="step1"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
@@ -671,6 +694,7 @@ export default function SeasonPopup({
           {/* Step 2: Season Details */}
           {currentStep === 2 && (
             <motion.div
+              key="step2"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}

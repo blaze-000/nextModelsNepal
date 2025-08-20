@@ -4,7 +4,7 @@ export const appModelSchema = z.object({
     name: z.string().min(1, { message: "Name is required" }),
     phone: z
         .string()
-        .regex(/^(\+?[0-9]{1,4}\s?)?[0-9]{7,15}$/, {
+        .regex(/^(\+\d{1,3}[- ]?)?\d{6,15}$/, {
             message: "Invalid mobile number"
         }),
     country: z.string().min(1, { message: "Country is required" }),
@@ -13,7 +13,7 @@ export const appModelSchema = z.object({
     email: z.string().email({ message: "Invalid email address" }),
 
     age: z.string().min(1, { message: "Age is required" }),
-    languages: z.array(z.string()).nonempty({ message: "At least one language is required" }),
+    languages: z.array(z.string()).min(1, { message: "At least one language is required" }),
     gender: z.enum(["Male", "Female"]).optional(),
     occupation: z.string().min(1, { message: "Occupation is required" }),
 

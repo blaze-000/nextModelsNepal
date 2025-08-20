@@ -1,32 +1,39 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { toast } from "sonner";
 import { Spinner } from "@geist-ui/react";
+import { Spinner as SPINNER } from '@/components/ui/spinner'
 import { motion } from "framer-motion";
 import PhotoUpload from "./ui/photo-upload";
-import TagsInput from "./admin/form/tagInput";
-import { validateEmail } from "@/lib/utils";
+import { validateEmail, formatDate, normalizeImagePath, validatePhone } from "@/lib/utils";
 import Axios from "@/lib/axios-instance";
+import Image from "next/image";
 
-const activityOptions = [
-  { value: "fashion-show", label: "Fashion Show" },
-  { value: "photoshoot", label: "Photoshoot" },
-  { value: "commercial", label: "Commercial" },
-  { value: "runway", label: "Runway" },
-  { value: "print", label: "Print" },
-  { value: "tv-film", label: "TV/Film" },
-];
+// Types for upcoming events data
+interface Audition {
+  _id: string;
+  place: string;
+  date: string;
+}
 
-const locationOptions = [
-  { value: "new-york", label: "New York" },
-  { value: "los-angeles", label: "Los Angeles" },
-  { value: "london", label: "London" },
-  { value: "paris", label: "Paris" },
-  { value: "milan", label: "Milan" },
-  { value: "tokyo", label: "Tokyo" },
-  { value: "online", label: "Online" },
-];
+interface Criteria {
+  _id: string;
+  label: string;
+  value: string;
+  icon: string;
+}
+
+interface UpcomingEvent {
+  _id: string;
+  eventId: {
+    _id: string;
+    name: string;
+  };
+  year: number;
+  criteria: Criteria[];
+  auditions: Audition[];
+}
 
 // Reusable Input Component
 const InputField = ({
@@ -75,6 +82,7 @@ const SelectField = ({
   placeholder,
   error,
   required = true,
+  disabled = false,
 }: {
   label: string;
   name: string;
@@ -84,6 +92,7 @@ const SelectField = ({
   placeholder?: string;
   error?: string;
   required?: boolean;
+  disabled?: boolean;
 }) => (
   <div className="w-full">
     <label className="block mb-4 md:mb-2 text-sm md:text-base font-medium">
@@ -93,7 +102,8 @@ const SelectField = ({
       name={name}
       value={value}
       onChange={onChange}
-      className="w-full bg-muted-background text-gray-100 px-6 md:px-6 py-4 md:py-6 outline-none rounded"
+      disabled={disabled}
+      className="w-full bg-muted-background text-gray-100 px-6 md:px-6 py-4 md:py-6 outline-none rounded disabled:opacity-50 disabled:cursor-not-allowed"
     >
       <option value="" disabled>
         {placeholder || "Select an option"}
@@ -141,7 +151,7 @@ const TextareaField = ({
   </div>
 );
 
-const BecomeModelForm = () => {
+const BecomeModelForm = ({ prefillSeasonId }: { prefillSeasonId?: string | null }) => {
   const [formData, setFormData] = useState({
     // Personal Information
     name: "",
@@ -151,7 +161,7 @@ const BecomeModelForm = () => {
     ethnicity: "",
     email: "",
     age: "",
-    languages: [] as string[],
+    languages: "",
     gender: "",
     occupation: "",
     // Physical Attributes
@@ -160,8 +170,8 @@ const BecomeModelForm = () => {
     hairColor: "",
     eyeColor: "",
     // Event Information
-    event: "",
-    auditionPlace: "", // Changed from auditionLocation to auditionPlace
+    event: "", // Store formatted event string (name + year)
+    auditionPlace: "", // Store formatted audition string (place + date)
     // Additional Information
     weight: "",
     parentsName: "",
@@ -171,17 +181,107 @@ const BecomeModelForm = () => {
     temporaryAddress: "",
     hobbies: "",
     talents: "",
-    heardFrom: "", // Changed from howDoYouKnow to heardFrom
-    additionalMessage: "", // Changed from somethingElse to additionalMessage
+    heardFrom: "",
+    additionalMessage: "",
   });
 
+  // State for upcoming events data
+  const [upcomingEvents, setUpcomingEvents] = useState<UpcomingEvent[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedEvent, setSelectedEvent] = useState<UpcomingEvent | null>(null);
+
   const [errors, setErrors] = useState<
-    Partial<
-      Omit<typeof formData, "languages"> & { languages: string; photos: string }
-    >
+    Partial<typeof formData & { photos: string }>
   >({});
+  const [generalError, setGeneralError] = useState<string | null>(null);
   const [isSending, setIsSending] = useState(false);
   const [selectedPhotos, setSelectedPhotos] = useState<File[]>([]);
+
+  // Fetch upcoming events on component mount
+  useEffect(() => {
+    const fetchUpcomingEvents = async () => {
+      try {
+        setLoading(true);
+        const response = await Axios.get("/api/app-form/upcoming-info");
+        if (response.data.success) {
+          setUpcomingEvents(response.data.data);
+        } else {
+          toast.error("Failed to load upcoming events");
+        }
+      } catch (error) {
+        console.error("Error fetching upcoming events:", error);
+        toast.error("Failed to load upcoming events");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUpcomingEvents();
+  }, []);
+
+  // Update event field when prefillSeasonId changes
+  useEffect(() => {
+    if (prefillSeasonId) {
+      // Fetch season details to get event name and year
+      const fetchSeasonDetails = async () => {
+        try {
+          const response = await Axios.get(`/api/season/${prefillSeasonId}`);
+          if (response.data.success) {
+            const seasonData = response.data.data;
+            // Check if eventId is populated (object) or just an ID (string)
+            const eventName = typeof seasonData.eventId === 'object'
+              ? seasonData.eventId.name
+              : 'Event'; // Fallback if not populated
+            const eventString = `${eventName} ${seasonData.year}`;
+            setFormData(prev => ({
+              ...prev,
+              event: eventString
+            }));
+
+            // Also set the selectedEvent state to match the pre-filled event
+            // We need to wait for upcomingEvents to be loaded first
+            if (upcomingEvents.length > 0) {
+              const matchingEvent = upcomingEvents.find(event =>
+                `${event.eventId.name} ${event.year}` === eventString
+              );
+              if (matchingEvent) {
+                setSelectedEvent(matchingEvent);
+              }
+            }
+          }
+        } catch (error) {
+          console.error("Error fetching season details:", error);
+        }
+      };
+
+      fetchSeasonDetails();
+    }
+  }, [prefillSeasonId, upcomingEvents]);
+
+  // Handle case when upcomingEvents loads after prefillSeasonId is already set
+  useEffect(() => {
+    if (prefillSeasonId && upcomingEvents.length > 0 && !selectedEvent) {
+      // Try to find the matching event in the upcoming events list
+      const matchingEvent = upcomingEvents.find(event =>
+        event._id === prefillSeasonId
+      );
+      if (matchingEvent) {
+        setSelectedEvent(matchingEvent);
+      }
+    }
+  }, [upcomingEvents, prefillSeasonId, selectedEvent]);
+
+  // Generate event options from API data
+  const eventOptions = upcomingEvents.map(event => ({
+    value: `${event.eventId.name} ${event.year}`,
+    label: `${event.eventId.name} ${event.year}`
+  }));
+
+  // Generate audition place options based on selected event
+  const auditionPlaceOptions = selectedEvent?.auditions.map(audition => ({
+    value: audition._id,
+    label: `${audition.place} - ${formatDate(audition.date)}`
+  })) || [];
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -189,12 +289,27 @@ const BecomeModelForm = () => {
     >
   ) => {
     setErrors({});
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  };
+    setGeneralError(null);
+    const { name, value } = e.target;
 
-  const handleLanguagesChange = (newLanguages: string[]) => {
-    setErrors({});
-    setFormData((prev) => ({ ...prev, languages: newLanguages }));
+    // Handle event selection
+    if (name === "event") {
+      const selectedEventData = upcomingEvents.find(event => `${event.eventId.name} ${event.year}` === value);
+      setSelectedEvent(selectedEventData || null);
+      // Reset audition place when event changes
+      setFormData(prev => ({
+        ...prev,
+        event: value,
+        auditionPlace: ""
+      }));
+    } else if (name === "auditionPlace") {
+      // Handle audition place selection - set formatted string
+      const audition = selectedEvent?.auditions.find(aud => aud._id === value);
+      const auditionString = audition ? `${audition.place} - ${formatDate(audition.date)}` : "";
+      setFormData(prev => ({ ...prev, auditionPlace: auditionString }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -231,16 +346,18 @@ const BecomeModelForm = () => {
     // Required fields validation
     if (!formData.name.trim()) newErrors.name = "Name is required";
     if (!formData.email.trim()) newErrors.email = "Email is required";
-    if (formData.email && !validateEmail(formData.email))
+    if (!validateEmail(formData.email))
       newErrors.email = "Invalid email";
     if (!formData.phone.trim()) newErrors.phone = "Phone is required";
+    if (!validatePhone(formData.phone))
+      newErrors.phone = "Invalid phone number";
     if (!formData.country.trim()) newErrors.country = "Country is required";
     if (!formData.city.trim()) newErrors.city = "City is required";
     if (!formData.ethnicity.trim())
       newErrors.ethnicity = "Ethnicity is required";
     if (!formData.age) newErrors.age = "Age is required";
-    if (!formData.languages.length)
-      (newErrors as any).languages = "At least one language is required";
+    if (!formData.languages.trim())
+      newErrors.languages = "At least one language is required";
     if (!formData.gender) newErrors.gender = "Gender is required";
     if (!formData.occupation.trim())
       newErrors.occupation = "Occupation is required";
@@ -256,6 +373,8 @@ const BecomeModelForm = () => {
       newErrors.parentsName = "Parent's name is required";
     if (!formData.parentsMobile.trim())
       newErrors.parentsMobile = "Parent's mobile is required";
+    if (!validatePhone(formData.parentsMobile))
+      newErrors.parentsMobile = "Invalid phone number";
     if (!formData.permanentAddress.trim())
       newErrors.permanentAddress = "Permanent address is required";
     if (!formData.temporaryAddress.trim())
@@ -263,6 +382,7 @@ const BecomeModelForm = () => {
 
     if (Object.keys(newErrors).length) {
       setErrors(newErrors as any);
+      setGeneralError("Validate your inputs!!");
       return;
     }
 
@@ -273,12 +393,12 @@ const BecomeModelForm = () => {
 
       // Add all form fields
       Object.entries(formData).forEach(([key, value]) => {
-        // Handle languages field (convert to array)
-        if (key === "languages") {
-          // Append each language as a separate field
-          (value as string[]).forEach((lang) => {
-            formDataToSend.append("languages", lang);
-          });
+        if (key === 'languages') {
+          // Convert languages string to array and send as JSON string
+          const languagesArray = value.split(',').map((lang: string) => lang.trim()).filter((lang: string) => lang);
+          console.log('Languages input:', value);
+          console.log('Languages array:', languagesArray);
+          formDataToSend.append('languages', JSON.stringify(languagesArray));
         } else {
           formDataToSend.append(key, value as string);
         }
@@ -307,7 +427,7 @@ const BecomeModelForm = () => {
         ethnicity: "",
         email: "",
         age: "",
-        languages: [],
+        languages: "",
         gender: "",
         occupation: "",
         dressSize: "",
@@ -327,6 +447,8 @@ const BecomeModelForm = () => {
         heardFrom: "",
         additionalMessage: "",
       });
+
+      setSelectedEvent(null);
 
       setSelectedPhotos([]);
       setErrors({}); // Reset errors
@@ -383,7 +505,7 @@ const BecomeModelForm = () => {
   return (
     <section className="w-full py-16 md:py-16 flex flex-col items-center text-white font-urbanist">
       <div className="max-w-7xl px-6 mx-auto">
-        {/* Header - Original title and subtitle kept unchanged */}
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -400,9 +522,7 @@ const BecomeModelForm = () => {
             </h1>
           </div>
           <p className="text-sm md:text-base leading-relaxed font-normal px-2 tracking-wider text-center md:text-end md:w-1/2">
-            Ready to make it big in modeling? Our tailored training and industry
-            expertise will propel you to the top. Your journey to becoming a top
-            model begins here.
+            Ready to make it big in modeling? Our tailored training and industry expertise will propel you to the top. Your journey to becoming a top model begins here.
           </p>
         </motion.div>
 
@@ -488,7 +608,7 @@ const BecomeModelForm = () => {
             />
           </motion.div>
 
-          {/* Row 3: Ethnicity, Email */}
+          {/* Row 3: Email, Languages */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -497,25 +617,25 @@ const BecomeModelForm = () => {
             className="flex flex-col md:flex-row gap-6"
           >
             <InputField
-              label="Ethnicity"
-              name="ethnicity"
-              value={formData.ethnicity}
-              onChange={handleChange}
-              placeholder="e.g. Caucasian"
-              error={errors.ethnicity}
-            />
-            <InputField
               label="Email"
               name="email"
-              type="email"
+              type="text"
               value={formData.email}
               onChange={handleChange}
               placeholder="e.g. johndoe@example.com"
               error={errors.email}
             />
+            <InputField
+              label="Languages"
+              name="languages"
+              value={formData.languages}
+              onChange={handleChange}
+              placeholder="e.g. English, Nepali, Hindi"
+              error={errors.languages}
+            />
           </motion.div>
 
-          {/* Row 4: Age, Languages, Gender, Occupation */}
+          {/* Row 4: Age, Ethnicity, Gender, Occupation */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -532,13 +652,13 @@ const BecomeModelForm = () => {
               placeholder="Select your age"
               error={errors.age}
             />
-            <TagsInput
-              label="Languages"
-              name="languages"
-              values={formData.languages}
-              onChange={handleLanguagesChange}
-              placeholder="Type language and press Enter"
-              error={errors.languages}
+            <InputField
+              label="Ethnicity"
+              name="ethnicity"
+              value={formData.ethnicity}
+              onChange={handleChange}
+              placeholder="e.g. Caucasian"
+              error={errors.ethnicity}
             />
             <SelectField
               label="Gender"
@@ -610,25 +730,70 @@ const BecomeModelForm = () => {
             viewport={{ once: true }}
             className="flex flex-col md:flex-row gap-6"
           >
-            <SelectField
-              label="Select Event (optional)"
-              name="event"
-              value={formData.event}
-              onChange={handleChange}
-              options={activityOptions}
-              placeholder="Select an event"
-              required={false} // Made optional
-            />
-            <SelectField
-              label="Where do you want to give your audition? (optional)"
-              name="auditionPlace"
-              value={formData.auditionPlace}
-              onChange={handleChange}
-              options={locationOptions}
-              placeholder="Select location"
-              required={false} // Made optional
-            />
+            {loading ? (
+              <div className="w-full flex justify-center items-center py-8">
+                <SPINNER color="#ffaa00" size={19} />
+                <span className="ml-2">Loading events...</span>
+              </div>
+            ) : (
+              <>
+                <SelectField
+                  label="Select Event (optional)"
+                  name="event"
+                  value={formData.event}
+                  onChange={handleChange}
+                  options={eventOptions}
+                  placeholder="Select an upcoming event"
+                  required={false}
+                />
+                <SelectField
+                  label="Audition Place (optional)"
+                  name="auditionPlace"
+                  value={formData.auditionPlace}
+                  onChange={handleChange}
+                  options={auditionPlaceOptions}
+                  placeholder={selectedEvent ? "Select audition place" : "Select an event first"}
+                  required={false}
+                  disabled={!selectedEvent}
+                />
+              </>
+            )}
           </motion.div>
+
+          {/* Event Criteria Display */}
+          {selectedEvent && selectedEvent.criteria.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              viewport={{ once: true }}
+              className="bg-muted-background p-6 rounded-lg border border-gray-700"
+            >
+              <h3 className="text-lg font-semibold text-gold-500 mb-4">
+                Event Criteria for {selectedEvent.eventId.name} {selectedEvent.year}
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {selectedEvent.criteria.map((criterion) => (
+                  <div key={criterion._id} className="flex items-center gap-3 p-3 bg-background">
+                    <div className="w-8 h-8 flex items-center justify-center">
+                      <Image
+                        src={normalizeImagePath(criterion.icon)}
+                        alt={criterion.label}
+                        height={50}
+                        width={50}
+                        className="w-5 h-5 object-contain"
+                      />
+                      <i className="ri-check-line text-black text-sm hidden"></i>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-white">{criterion.label}</p>
+                      <p className="text-xs text-gray-400">{criterion.value}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
 
           {/* Row 9: Weight in KG's, Parent's Name */}
           <motion.div
@@ -641,6 +806,7 @@ const BecomeModelForm = () => {
             <InputField
               label="Weight in KG's"
               name="weight"
+              type="number"
               value={formData.weight}
               onChange={handleChange}
               placeholder="e.g. XX"
@@ -751,7 +917,7 @@ const BecomeModelForm = () => {
             viewport={{ once: true }}
           >
             <TextareaField
-              label="How did you hear about us?"
+              label="How did you hear about us/the event?"
               name="heardFrom"
               value={formData.heardFrom}
               onChange={handleChange}
@@ -768,7 +934,7 @@ const BecomeModelForm = () => {
             viewport={{ once: true }}
           >
             <TextareaField
-              label="Additional Message"
+              label="Want to say something else?"
               name="additionalMessage"
               value={formData.additionalMessage}
               onChange={handleChange}
@@ -783,8 +949,9 @@ const BecomeModelForm = () => {
             whileInView={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
-            className="flex gap-4 flex-col md:flex-row items-end justify-end sm:items-end mt-6"
+            className="flex gap-4 flex-col items-end justify-end sm:items-end mt-6"
           >
+            {generalError && <p className="text-red-500 mr-6 text-sm mt-1">{generalError}</p>}
             <Button
               variant="default"
               type="submit"

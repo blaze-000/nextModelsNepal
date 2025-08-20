@@ -39,7 +39,7 @@ const HeroSection = () => {
                 Next Models Nepal
               </span>
             </div>
-            {/* Main Title with Badge */}
+            {/* Nepal's No.1 <Image> Modeling Agency <box> */}
             <div className="space-y-2 text-5xl xs:text-6xl md:text-7xl lg:text-8xl">
               <div>
                 <span className="text-white font-extralight font-newsreader tracking-tighter">
@@ -49,19 +49,17 @@ const HeroSection = () => {
                   No.1
                 </span>
               </div>
-              <div className="flex items-center md:items-baseline gap-2">
+              <div className="flex items-center gap-4 pt-4">
                 {/* Badge image with soft layered shadow */}
                 <div className=" relative">
-                  {data?.titleImage && (
                     <Image
-                      src={normalizeImagePath(data.titleImage)}
+                      src={normalizeImagePath(data?.titleImage)}
                       alt=""
                       priority
                       width={160}
                       height={64}
-                      className="w-40 h-16 rounded-full object-cover border border-stone-300 shadow-[-10px_8px_20px_10px_rgba(179,131,0,0.19)]"
+                      className="w-20 p400:w-24 sm:w-40 h-16 rounded-full object-cover border border-stone-300 shadow-[-10px_8px_20px_10px_rgba(179,131,0,0.19)]"
                     />
-                  )}
                 </div>
                 {/* Label */}
                 <span className="text-white font-extralight font-newsreader tracking-tighter leading-px">
