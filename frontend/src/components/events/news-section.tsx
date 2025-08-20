@@ -87,7 +87,7 @@ export const NewsSection = () => {
               </h3>
             </div>
 
-            <div className="flex justify-center">
+            <div className="flex justify-center pb-10 pt-5">
               <Dropdown
                 label="Sort By"
                 options={sortOptions}

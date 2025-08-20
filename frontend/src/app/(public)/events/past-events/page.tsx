@@ -8,38 +8,43 @@ import { motion } from "framer-motion";
 import Axios from "@/lib/axios-instance";
 import { normalizeImagePath } from "@/lib/utils";
 import Dropdown from "@/components/ui/Dropdown";
+import Image from "next/image";
 
 type PastEvents = {
   _id: string;
-  eventId: { _id: string; name: string; overview: string };
+  name: string;
+  overview: string;
+  season: { endDate: string };
   image: string;
   slug: string;
-  year: string;
-  startDate: string;
+  year: number;
   latestEndedSeasonSlug: string;
 };
 
 export default function PastEvents() {
   const [sortBy, setSortBy] = useState("Most Recent");
   const [pastEvents, setPastEvents] = useState<PastEvents[] | null>(null);
+  const [searchText, setSearchText] = useState("");
   const sortOptions = ["Most Recent", "Oldest"];
 
   const sortEvents = (events: PastEvents[], sortType: string) => {
     if (!events) return [];
 
-    return [...events].sort((a, b) => {
-      switch (sortType) {
-        case "Oldest":
-          return (
-            new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
-          );
+    const filtered = events.filter((event) => {
+      const nameMatch = event.name
+        ?.toLowerCase()
+        .includes(searchText.toLowerCase());
+      const overviewMatch = event.overview
+        ?.toLowerCase()
+        .includes(searchText.toLowerCase());
+      return nameMatch || overviewMatch;
+    });
 
-        case "Most Recent":
-        default:
-          return (
-            new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
-          );
-      }
+    return [...filtered].sort((a, b) => {
+      const dateA = new Date(a.season.endDate).getTime();
+      const dateB = new Date(b.season.endDate).getTime();
+
+      return sortType === "Oldest" ? dateA - dateB : dateB - dateA;
     });
   };
 
@@ -48,7 +53,7 @@ export default function PastEvents() {
   useEffect(() => {
     (async () => {
       try {
-        const res = await Axios.get("/api/season/pastevents");
+        const res = await Axios.get("/api/events/past-events");
         const data = res.data;
         console.log(data);
         setPastEvents(data.data);
@@ -60,11 +65,16 @@ export default function PastEvents() {
 
   return (
     <>
-      <Breadcrumb title="Past Events" searchPlaceholder="Search past events" />
+      <Breadcrumb
+        title="Past Events"
+        searchText={searchText}
+        setSearchText={setSearchText}
+        searchPlaceholder="Search Past Events"
+      />
 
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex flex-col md:flex-row justify-between mt-5 items-center mb-10">
-          <h2 className="hidden md:block text-xl md:text-3xl font-Newsreader mb-4 md:mb-0 md:ml-12">
+          <h2 className="hidden md:block text-xl md:text-3xl font-newsreader mb-4 md:mb-0 md:ml-12">
             Events
           </h2>
           <div className="w-full md:w-50 flex justify-center md:justify-end mr-0 md:mr-12">
@@ -76,7 +86,22 @@ export default function PastEvents() {
             />
           </div>
         </div>
+        {searchText !== "" && (
+          <div className="flex ">
+            <Image
+              src="/svg-icons/small_star.svg"
+              alt=""
+              height={20}
+              width={20}
+              className="inline-block mr-2 h-5 w-5 bg-cover"
+            />
 
+            <p className=" text-2xl pb-5  font-newsreader">
+              Searching for:{" "}
+              <span className="text-gold-500">&ldquo;{searchText}&rdquo;</span>
+            </p>
+          </div>
+        )}
         <div className="hidden md:grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-6">
           {sortedEvents?.map((item) => (
             <motion.div
@@ -89,9 +114,9 @@ export default function PastEvents() {
               <EventBox
                 slug={item.latestEndedSeasonSlug}
                 image={normalizeImagePath(item.image)}
-                title={item.eventId.name}
-                desc={item.eventId.overview}
-                buttonText={`About ${item.eventId.name}`}
+                title={item.name}
+                desc={item.overview}
+                buttonText={`About ${item.name}`}
                 status="ended"
               />
             </motion.div>

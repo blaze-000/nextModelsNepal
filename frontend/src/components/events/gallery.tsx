@@ -75,7 +75,7 @@ export const Gallery = () => {
           </div>
 
           {/* Mobile Layout */}
-          <div className="block md:hidden space-y-4">
+          <div className="block md:hidden space-y-4 pb-10 ">
             <div className="flex items-center justify-center gap-2">
               <Image
                 src="/svg-icons/small_star.svg"
@@ -90,7 +90,7 @@ export const Gallery = () => {
               </h3>
             </div>
 
-            <div className="flex flex-wrap justify-center space-x-4">
+            <div className="flex flex-wrap justify-center space-x-4 pt-5">
               <Dropdown
                 label="Event"
                 options={eventTypes}
