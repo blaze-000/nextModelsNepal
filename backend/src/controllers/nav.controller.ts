@@ -20,7 +20,7 @@ export const getVotingState = async (req: Request, res: Response) => {
             success: true,
             data: nav
         });
-    } catch (error) {
+    } catch (error: any) {
         res.status(500).json({
             success: false,
             message: "Failed to fetch navigation settings",
