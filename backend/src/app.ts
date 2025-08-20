@@ -34,6 +34,8 @@ import auditionsRoutes from "./routes/audition.route";
 import contestantRoutes from "./routes/contestant.route";
 import criteriaRoutes from "./routes/criteria.route";
 import newsletterRoutes from "./routes/newsletter.route";
+import paymentRoutes from "./routes/payment.route";
+
 const app = express();
 
 app.use(cookieParser());
@@ -101,6 +103,7 @@ app.use("/api/hire-model", hireRoutes);
 app.use("/api/app-form", appRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/newsletter", newsletterRoutes);
+app.use("/api/fonepay", paymentRoutes);
 
 // Global error handler for Multer errors
 app.use((error: any, req: Request, res: Response, next: NextFunction) => {

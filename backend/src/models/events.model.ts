@@ -112,11 +112,45 @@ seasonSchema.post("findOneAndDelete", async function (doc) {
 /** Contestant Schema */
 const contestantSchema = new Schema({
     seasonId: { type: Schema.Types.ObjectId, ref: "Season", required: true },
+    uniqueId: { type: String, unique: true },
     name: { type: String, required: true },
     intro: { type: String, required: true },
     gender: { type: String, required: true, enum: ["Male", "Female"] },
     address: { type: String, required: true },
-    image: { type: String, required: true }
+    image: { type: String, required: true },
+    votes: {type: Number, default: 0}
+});
+
+// Counter model to track uniqueId sequences
+const memberCounterSchema = new mongoose.Schema({
+    name: { type: String, required: true, unique: true },
+    seq: { type: Number, default: 0 },
+});
+
+// Pre-save middleware to generate uniqueId dynamically
+contestantSchema.pre("save", async function (next) {
+    const member = this as any;
+
+    if (!member.isNew) return next();
+
+    const prefix = `NMN`; // e.g., "R-NMN"
+
+    try {
+        // Use the prefix as the counter name for separate counters per participants
+        const counter = await MemberCounterModel.findOneAndUpdate(
+            { name: prefix },
+            { $inc: { seq: 1 } },
+            { new: true, upsert: true }
+        );
+
+        const paddedSeq = String(counter.seq).padStart(4, "0"); // e.g., "0001"
+        member.uniqueId = `${prefix}-${paddedSeq}`; // e.g., "R-NMN-0001"
+
+        next();
+    } catch (err: any) {
+        console.error('Error in member pre-save middleware:', err);
+        next(err);
+    }
 });
 
 /** Winner Schema */
@@ -162,6 +196,7 @@ const auditionSchema = new Schema({
 export const EventModel = mongoose.model("Event", eventSchema);
 export const SeasonModel = mongoose.model("Season", seasonSchema);
 export const ContestantModel = mongoose.model("Contestant", contestantSchema);
+const MemberCounterModel = mongoose.model("MemberCounter", memberCounterSchema);
 export const WinnerModel = mongoose.model("Winner", winnerSchema);
 export const JuryModel = mongoose.model("Jury", jurySchema);
 export const SponsorModel = mongoose.model("Sponsor", sponsorSchema);
