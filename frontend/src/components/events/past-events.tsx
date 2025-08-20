@@ -8,9 +8,12 @@ import EventBox from "../molecules/event-box";
 import Dropdown from "../ui/Dropdown";
 import Link from "next/link";
 import Axios from "@/lib/axios-instance";
+import { normalizeImagePath } from "@/lib/utils";
 
 type PastEvents = {
   _id: string;
+  name: string;
+  overview: string;
   eventId: { _id: string; name: string; overview: string };
   image: string;
   slug: string;
@@ -47,10 +50,10 @@ export const PastEvents = () => {
   useEffect(() => {
     (async () => {
       try {
-        const res = await Axios.get("/api/season/pastevents");
+        const res = await Axios.get("/api/events/past-events");
         const data = res.data;
         console.log(data);
-        setPastEvents(data.data);
+        setPastEvents(data.data.slice(0, 4));
       } catch (err) {
         console.log("Failed to fetch past events", err);
       }
@@ -166,11 +169,11 @@ export const PastEvents = () => {
             >
               <EventBox
                 status="ended"
-                image={item.image}
-                title={item.eventId.name}
-                desc={item.eventId.overview}
+                image={normalizeImagePath(item.image)}
+                title={item.name}
+                desc={item.overview}
                 slug={item.slug}
-                buttonText={`About ${item.eventId.name}`}
+                buttonText={`About ${item.name}`}
               />
             </motion.div>
           ))}
