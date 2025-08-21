@@ -4,7 +4,7 @@ import TopLoader from "nextjs-toploader";
 import { Toaster } from "sonner";
 import { Urbanist, Newsreader } from "next/font/google";
 import { AuthProvider } from "@/context/authContext";
-
+import LenisProvider from "@/components/lenisprovider";
 
 const urbanist = Urbanist({
   subsets: ["latin"],
@@ -37,17 +37,15 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${urbanist.variable} ${newsreader.variable} scroll-smooth`}
+      className={`${urbanist.variable} ${newsreader.variable} `}
     >
       <body className="bg-background text-foreground antialiased font-urbanist">
         <TopLoader showSpinner={false} color="#a06d06" height={1.9} />
-        <Toaster
-          position="top-right"
-          offset="80px"
-          richColors
-        />
-        <AuthProvider>{children}</AuthProvider>
+        <Toaster position="top-right" offset="80px" richColors />
+        <AuthProvider>
+          <LenisProvider>{children}</LenisProvider>
+        </AuthProvider>
       </body>
     </html>
   );
-};
+}
