@@ -46,10 +46,12 @@ export default function ModelDetailsPage() {
                 {model?.intro}
               </p>
               <div className="flex items-center gap-4 mt-4">
-                <Button variant="default">
-                  <span>Hire {model?.name.split(" ")[0]}</span> {/* First name only */}
-                  <i className="ri-arrow-right-up-line ml-2" />
-                </Button>
+                <Link href={`/models?modelId=${model?._id}`}>
+                  <Button variant="default">
+                    <span>Hire {model?.name.split(" ")[0]}</span> {/* First name only */}
+                    <i className="ri-arrow-right-up-line ml-2" />
+                  </Button>
+                </Link>
                 <Link
                   href="/contact"
                   className="px-4 py-4 rounded-full text-gold-500 text-base -tracking-tight font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer"
@@ -103,10 +105,12 @@ export default function ModelDetailsPage() {
             {model?.intro}
           </p>
           <div className="flex flex-col items-center gap-4 mt-8">
-            <Button variant="default" className="w-full max-w-xs">
-              <span>Hire {model?.name.split(" ")[0]}</span>
-              <i className="ri-arrow-right-up-line ml-2" />
-            </Button>
+            <Link href={`/models?modelId=${model?._id}`} className="w-full max-w-xs">
+              <Button variant="default" className="w-full max-w-xs">
+                <span>Hire {model?.name.split(" ")[0]}</span>
+                <i className="ri-arrow-right-up-line ml-2" />
+              </Button>
+            </Link>
             <Link
               href="/#"
               className="px-4 py-4 rounded-full text-gold-500 text-base -tracking-tight font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer"

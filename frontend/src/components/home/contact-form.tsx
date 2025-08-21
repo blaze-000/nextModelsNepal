@@ -143,7 +143,7 @@ const ContactForm = () => {
             </h1>
           </div>
 
-          <p className="text-sm md:text-base leading-relaxed font-normal px-2 tracking-wider text-center md:text-end md:w-1/2">
+          <p className="text-sm md:text-base leading-relaxed font-light px-2 tracking-wider text-center md:text-end md:w-1/2">
             Ready to make it big in modeling? Our tailored training and industry
             expertise will propel you to the top. Your journey to becoming a top
             model begins here.

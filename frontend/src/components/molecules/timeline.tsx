@@ -32,7 +32,7 @@ const Timeline: React.FC<TimelineProps> = ({
           isLeft ? "left-8 md:left-8" : "right-8 md:right-8 text-right"
         }`}
       >
-        <h3 className="text-white text-xl md:text-2xl font-newsreader font-medium tracking-tight whitespace-nowrap">
+        <h3 id={`${title==="Events by Next Models Nepal"?"ongoing-events":""}`} className="text-white text-xl md:text-2xl font-newsreader font-medium tracking-tight whitespace-nowrap">
           {title}
         </h3>
       </div>

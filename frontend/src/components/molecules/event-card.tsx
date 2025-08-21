@@ -63,7 +63,7 @@ const EventCard: FC<EventCardProps> = ({
             <h2 className="text-white text-3xl font-newsreader tracking-tighter font-normal">
               {title}
             </h2>
-            <p className="text-white text-xs font-semibold pb-3">{formatDate(date)}</p>
+            <p className="text-white text-xs font-semibold pb-3">{date}</p>
             <p className="text-white text-sm font-light tracking-wider pr-4 mb-4 line-clamp-3">
               {overview}
             </p>

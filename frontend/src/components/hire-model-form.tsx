@@ -86,11 +86,14 @@ const TextareaField = ({
   </div>
 );
 
-const HireModelForm = () => {
-  const [models, setModels] = useState<Model[]>([]);
-  const [loading, setLoading] = useState(true);
+interface HireModelFormProps {
+  preSelectedModelId?: string | null;
+  models: Model[];
+}
+
+const HireModelForm = ({ preSelectedModelId, models }: HireModelFormProps) => {
   const [formData, setFormData] = useState({
-    selectedModelId: "",
+    selectedModelId: preSelectedModelId || "",
     selectedModelName: "",
     email: "",
     phone: "",
@@ -101,23 +104,21 @@ const HireModelForm = () => {
   const [errors, setErrors] = useState<Partial<typeof formData>>({});
   const [isSending, setIsSending] = useState(false);
 
-  // Fetch models from API
-  useEffect(() => {
-    const fetchModels = async () => {
-      try {
-        setLoading(true);
-        const response = await Axios.get("/api/models");
-        setModels(response.data.data || []);
-      } catch (error) {
-        console.error("Error fetching models:", error);
-        toast.error("Failed to load models");
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    fetchModels();
-  }, []);
+
+  // Update form data when models are loaded and there's a pre-selected model
+  useEffect(() => {
+    if (models.length > 0 && preSelectedModelId) {
+      const selectedModel = models.find(model => model._id === preSelectedModelId);
+      if (selectedModel) {
+        setFormData(prev => ({
+          ...prev,
+          selectedModelId: preSelectedModelId,
+          selectedModelName: selectedModel.name
+        }));
+      }
+    }
+  }, [models, preSelectedModelId]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -223,17 +224,7 @@ const HireModelForm = () => {
     }));
   };
 
-  if (loading) {
-    return (
-      <section className="w-full bg-background2 py-16 md:py-16 flex flex-col items-center text-white font-urbanist">
-        <div className="max-w-7xl px-8 md:px-6">
-          <div className="flex justify-center items-center h-64">
-            <Spinner />
-          </div>
-        </div>
-      </section>
-    );
-  }
+
 
   return (
     <section className="w-full bg-background2 py-16 md:py-16 flex flex-col items-center text-white font-urbanist">
