@@ -27,19 +27,20 @@ interface SocialApiResponse {
 const Footer: FC = (): ReactNode => {
   const [socialData, setSocialData] = useState<SocialData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // const [error, setError] = useState<string | null>(null);
   const currentYear: number = new Date().getFullYear();
 
   useEffect(() => {
     const fetchSocialData = async () => {
       try {
-        setLoading(true);
+        // setLoading(true);
         const response = await Axios.get<SocialApiResponse>('/api/social');
         if (response.data.success && response.data.social.length > 0) {
           setSocialData(response.data.social[0]);
+          setLoading(false);
         }
       } catch (err) {
-        setError('Failed to fetch social data');
+        // setError('Failed to fetch social data');
         console.error('Error fetching social data:', err);
       } finally {
         setLoading(false);
@@ -205,7 +206,7 @@ const Footer: FC = (): ReactNode => {
               <h3 className="text-base font-semibold">Contact</h3>
               <ul className="flex flex-col gap-4">
                 {/* Fixed phone number handling for array */}
-                {socialData?.phone && socialData.phone.length > 0 ? (
+                {socialData?.phone && socialData.phone.length > 0 && (
                   socialData.phone.map((phoneNumber, index) => (
                     <li key={index}>
                       <Link 
@@ -219,18 +220,6 @@ const Footer: FC = (): ReactNode => {
                       </Link>
                     </li>
                   ))
-                ) : (
-                  <li>
-                    <Link 
-                      href="tel:+9779819686790" 
-                      className="group/phone hover:text-gold-400"
-                    >
-                      <i className="w-5 h-5 text-white flex-shrink-0 ri-phone-line group-hover/phone:text-gold-400 mr-3" />
-                      <span className="text-base font-light transition-colors">
-                        9819686790
-                      </span>
-                    </Link>
-                  </li>
                 )}
                 
                 <li>
