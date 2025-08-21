@@ -549,6 +549,14 @@ export default function SeasonDetailPage() {
       render: (value: unknown) => String(value),
     },
     {
+      key: "status" as const,
+      label: "Status",
+      render: (value: unknown) => {
+        if (value === null || value === undefined) return "No";
+        return String(value);
+      },
+    },
+    {
       key: "gender" as const,
       label: "Gender",
       render: (value: unknown) => String(value),
