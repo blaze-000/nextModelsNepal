@@ -118,7 +118,8 @@ const contestantSchema = new Schema({
     gender: { type: String, required: true, enum: ["Male", "Female"] },
     address: { type: String, required: true },
     image: { type: String, required: true },
-    votes: {type: Number, default: 0}
+    votes: { type: Number, default: 0 },
+    status: { type: String, default: "Not Eliminated" }
 });
 
 // Counter model to track uniqueId sequences
