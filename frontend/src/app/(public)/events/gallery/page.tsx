@@ -32,6 +32,10 @@ export default function Gallery() {
   const [latestGallery, setLatestGallery] = useState<string[]>([]);
   const [filteredImages, setFilteredImages] = useState<string[]>([]);
   const [years, setYears] = useState<string[]>([]);
+  const [latestEventData, setLatestEventData] = useState<{
+    eventName: string;
+    year: number;
+  } | null>(null);
   const [eventTypes, setEventTypes] = useState<string[]>([]);
   const [eventMap, setEventMap] = useState<{ [label: string]: string }>({});
   const [searchText, setSearchText] = useState("");
@@ -47,6 +51,10 @@ export default function Gallery() {
 
         setLatestGallery(data.latestGallery.gallery);
         setFilteredImages(data.latestGallery.gallery);
+        setLatestEventData({
+          eventName: data.latestGallery.eventName,
+          year: data.latestGallery.year,
+        });
 
         // Extract + sort years (latest first)
         const allYears = [
@@ -128,7 +136,9 @@ export default function Gallery() {
                   ? Object.keys(eventMap).find(
                       (k) => eventMap[k] === selectedEvent
                     ) || ""
-                  : "Latest"
+                  : latestEventData
+                  ? `${latestEventData.eventName} `
+                  : ""
               }
               onSelect={(label) => setSelectedEvent(eventMap[label] || "")}
             />
@@ -136,7 +146,10 @@ export default function Gallery() {
             <Dropdown
               label="Year"
               options={years}
-              selected={selectedYear || "Latest"}
+              selected={
+                selectedYear ||
+                (latestEventData ? String(latestEventData.year) : "")
+              }
               onSelect={setSelectedYear}
               maxHeight="180px"
             />

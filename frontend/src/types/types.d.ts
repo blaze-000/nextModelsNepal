@@ -80,11 +80,11 @@ interface ModelGridProps {
 
 interface Winner {
   _id: string,
-  seasonId: string,
-  rank: string,
+  eventName: string,
   name: string,
   image: string,
   rank: string,
+  year: number,
   slug?: string,
 }
 
