@@ -1,4 +1,4 @@
-import React from "react";
+import type React from "react";
 import Image from "next/image";
 import ModelGrid from "../molecules/model-grid";
 import { motion } from "framer-motion";

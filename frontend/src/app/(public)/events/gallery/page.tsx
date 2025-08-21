@@ -1,7 +1,8 @@
 "use client";
 
 import Breadcrumb from "@/components/molecules/breadcumb";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import type React from "react";
 import MasonryGallery from "@/components/molecules/masonary-gallery";
 import Dropdown from "@/components/ui/Dropdown";
 import { motion } from "framer-motion";

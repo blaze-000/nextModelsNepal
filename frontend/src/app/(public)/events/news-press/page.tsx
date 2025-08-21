@@ -2,7 +2,8 @@
 
 import ImageBox from "@/components/molecules/image-box";
 import Breadcrumb from "@/components/molecules/breadcumb";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+
 import { motion } from "framer-motion";
 import Axios from "@/lib/axios-instance";
 import Dropdown from "@/components/ui/Dropdown";
@@ -29,7 +30,7 @@ export default function NewsPress() {
         const data: NewsItem[] = res.data.data;
         setNewItems(data);
 
-        console.log(data)
+        console.log(data);
 
         // Type Options
         setSortOptions([

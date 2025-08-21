@@ -2,6 +2,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { toast } from "sonner";
+import type React from "react";
 
 interface PhotoUploadProps {
   label: string;

@@ -1,4 +1,6 @@
 import { useState } from "react";
+import type React from "react";
+
 
 interface TagsInputProps {
   label: string;

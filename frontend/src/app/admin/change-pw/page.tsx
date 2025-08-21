@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import type React from "react";
 import Axios from "@/lib/axios-instance";
 import { toast } from "sonner";
 import { isAxiosError } from "axios";

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import type React from "react";
 import { Button } from "./ui/button";
 import { toast } from "sonner";
 import { Spinner } from "@geist-ui/react";

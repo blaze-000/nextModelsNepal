@@ -5,6 +5,7 @@ import { Toaster } from "sonner";
 import { Urbanist, Newsreader } from "next/font/google";
 import { AuthProvider } from "@/context/authContext";
 
+
 const urbanist = Urbanist({
   subsets: ["latin"],
   weight: ["200", "300", "400", "600", "700"],

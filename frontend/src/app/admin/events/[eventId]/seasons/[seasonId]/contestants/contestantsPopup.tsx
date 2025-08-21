@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import type React from "react";
 import { toast } from "sonner";
 
 import Modal from "@/components/admin/Modal";

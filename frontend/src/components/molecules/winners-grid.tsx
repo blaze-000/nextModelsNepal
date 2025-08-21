@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import type React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { normalizeImagePath } from "@/lib/utils";
@@ -9,7 +9,7 @@ const WinnerGrid: React.FC<WinnerGridProps> = ({ winners, children }) => {
     <div className="space-y-8">
       {/* Desktop Grid */}
       <div className="hidden xl:grid lg:grid-cols-4 gap-6 ">
-        {winners?.map((winner: Winner , index: number) => (
+        {winners?.map((winner: Winner, index: number) => (
           <div
             key={index}
             className="relative bg-white overflow-hidden group transition-transform"
@@ -57,7 +57,7 @@ const WinnerGrid: React.FC<WinnerGridProps> = ({ winners, children }) => {
               </div>
               {winner.slug && (
                 <Link
-                    href={`/models/${winner.slug}`}
+                  href={`/models/${winner.slug}`}
                   className="absolute bottom-5 right-3"
                 >
                   <i className="w-6 h-6 text-gold-400 rounded ri-arrow-right-up-line text-2xl font-light" />

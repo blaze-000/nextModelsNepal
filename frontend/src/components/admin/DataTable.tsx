@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import React from "react";
-
+import type React from "react";
 interface Column<T> {
   key: keyof T | string;
   label: string;
