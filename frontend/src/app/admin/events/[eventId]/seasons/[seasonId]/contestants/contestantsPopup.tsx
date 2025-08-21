@@ -20,6 +20,7 @@ export interface BackendContestant {
   intro: string;
   gender: "Male" | "Female" | "Other";
   address: string;
+  status: string;
   image: string;
   createdAt: string;
   updatedAt: string;
@@ -30,6 +31,7 @@ interface ContestantFormData {
   intro: string;
   gender: "Male" | "Female" | "Other";
   address: string;
+  status: string;
   image: File[];
 }
 
@@ -46,6 +48,7 @@ const initialFormData: ContestantFormData = {
   intro: "",
   gender: "Male",
   address: "",
+  status: "Not Eliminated",
   image: [],
 };
 
@@ -53,6 +56,11 @@ const genderOptions = [
   { value: "Male", label: "Male" },
   { value: "Female", label: "Female" },
   { value: "Other", label: "Other" },
+];
+
+const statusOptions = [
+  { value: "Eliminated", label: "Eliminated" },
+  { value: "Not Eliminated", label: "Not Eliminated" },
 ];
 
 export default function ContestantPopup({
@@ -77,6 +85,7 @@ export default function ContestantPopup({
           intro: contestant.intro,
           gender: contestant.gender,
           address: contestant.address,
+          status: contestant.status,
           image: [],
         });
       } else {
@@ -151,6 +160,7 @@ export default function ContestantPopup({
       formDataToSend.append("intro", formData.intro);
       formDataToSend.append("gender", formData.gender);
       formDataToSend.append("address", formData.address);
+      formDataToSend.append("status", formData.status);
 
       // Add image only if it is selected
       if (formData.image.length > 0) {
@@ -177,7 +187,7 @@ export default function ContestantPopup({
       } else {
         throw new Error(
           response.data.message ||
-            `Failed to ${isEditing ? "update" : "create"} contestant`
+          `Failed to ${isEditing ? "update" : "create"} contestant`
         );
       }
     } catch (error: unknown) {
@@ -185,9 +195,8 @@ export default function ContestantPopup({
         `Failed to ${isEditing ? "update" : "create"} contestant:`,
         error
       );
-      let errorMessage = `Failed to ${
-        isEditing ? "update" : "create"
-      } contestant`;
+      let errorMessage = `Failed to ${isEditing ? "update" : "create"
+        } contestant`;
       if (error && typeof error === "object" && "response" in error) {
         const axiosError = error as {
           response?: { data?: { message?: string } };
@@ -214,6 +223,16 @@ export default function ContestantPopup({
             <h3 className="text-lg font-semibold text-gray-100">
               Contestant Information
             </h3>
+            <Select
+              label="status"
+              name="status"
+              value={formData.status}
+              onChange={handleInputChange}
+              options={statusOptions}
+              required
+              error={errors.status}
+              disabled={submitting}
+            />
             <p className="text-sm text-gray-400">
               Enter the contestant&apos;s details and information.
             </p>
