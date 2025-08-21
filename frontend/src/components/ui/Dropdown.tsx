@@ -46,7 +46,7 @@ const Dropdown: React.FC<DropdownProps> = ({
   return (
     <div className="relative inline-block text-left" ref={dropdownRef}>
       {/* Button */}
-      <div className="pb-3">
+      <div className="pb-5">
         <Button
           variant="outline"
           onClick={() => setOpen(!open)}
@@ -61,7 +61,7 @@ const Dropdown: React.FC<DropdownProps> = ({
 
       {/* Dropdown List */}
       {open && (
-        <div className="absolute right-0 -mt-1 bg-[#12110D] z-50 rounded-md shadow-lg overflow-hidden">
+        <div className="absolute right-0 -mt-1 bg-[#1E1E1E] z-10  rounded shadow-lg hover:text-gold-500 overflow-hidden">
           <div
             ref={contentRef}
             className="overflow-y-auto"

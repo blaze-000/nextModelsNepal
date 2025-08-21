@@ -12,7 +12,7 @@ export interface GalleryImage {
 }
 
 export interface MasonryGalleryProps {
-  images: GalleryImage[] | string[];
+  images?: GalleryImage[] | string[];
   className?: string;
   imageClassName?: string;
   containerClassName?: string;
@@ -29,7 +29,7 @@ export interface MasonryGalleryProps {
 }
 
 const MasonryGallery: React.FC<MasonryGalleryProps> = ({
-  images,
+  images = [],
   className = "",
   imageClassName = "",
   containerClassName = "max-w-7xl mx-auto px-6",
