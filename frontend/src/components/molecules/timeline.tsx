@@ -1,4 +1,5 @@
 import Image from "next/image";
+import type React from "react";
 
 const Timeline: React.FC<TimelineProps> = ({
   position = "left",
@@ -32,7 +33,12 @@ const Timeline: React.FC<TimelineProps> = ({
           isLeft ? "left-8 md:left-8" : "right-8 md:right-8 text-right"
         }`}
       >
-        <h3 id={`${title==="Events by Next Models Nepal"?"ongoing-events":""}`} className="text-white text-xl md:text-2xl font-newsreader font-medium tracking-tight whitespace-nowrap">
+        <h3
+          id={`${
+            title === "Events by Next Models Nepal" ? "ongoing-events" : ""
+          }`}
+          className="text-white text-xl md:text-2xl font-newsreader font-medium tracking-tight whitespace-nowrap"
+        >
           {title}
         </h3>
       </div>
@@ -45,9 +51,7 @@ const Timeline: React.FC<TimelineProps> = ({
       ></div>
 
       {/* Event Cards Container */}
-      <div className="space-y-20 md:space-y-24 py-8">
-        {children}
-        </div>
+      <div className="space-y-20 md:space-y-24 py-8">{children}</div>
     </div>
   );
 };

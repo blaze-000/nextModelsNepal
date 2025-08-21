@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -108,7 +109,9 @@ const ContactDetail = () => {
       {/* Header */}
       <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-primary font-newsreader">Contact Message Details</h1>
+          <h1 className="text-3xl font-bold text-primary font-newsreader">
+            Contact Message Details
+          </h1>
           <p className="text-foreground/70 mt-2">
             Received on {formatDate(contact.createdAt)}
           </p>
@@ -146,7 +149,9 @@ const ContactDetail = () => {
         {/* Left Column - Contact Information */}
         <div className="lg:col-span-1">
           <div className="bg-background2 rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold text-foreground mb-4">Contact Information</h2>
+            <h2 className="text-xl font-semibold text-foreground mb-4">
+              Contact Information
+            </h2>
             <div className="space-y-4">
               <div>
                 <p className="text-sm text-foreground/50">Name</p>
@@ -185,7 +190,9 @@ const ContactDetail = () => {
         {/* Right Column - Message */}
         <div className="lg:col-span-2">
           <div className="bg-background2 rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold text-foreground mb-6">Message</h2>
+            <h2 className="text-xl font-semibold text-foreground mb-6">
+              Message
+            </h2>
 
             <div className="bg-muted-background rounded-lg p-6">
               <div className="whitespace-pre-wrap text-foreground leading-relaxed">
@@ -197,7 +204,7 @@ const ContactDetail = () => {
               <Button
                 onClick={() => {
                   const mailtoLink = `mailto:${contact.email}?subject=Re: ${contact.subject}`;
-                  window.open(mailtoLink, '_blank');
+                  window.open(mailtoLink, "_blank");
                 }}
                 className="bg-gold-500 hover:bg-gold-600 text-white"
               >

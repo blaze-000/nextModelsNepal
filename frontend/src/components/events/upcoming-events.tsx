@@ -1,9 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
+import type React from "react";
 import { motion } from "framer-motion";
-import { Button } from "../ui/button";
 import SectionHeader from "../ui/section-header";
 import EventBox from "../molecules/event-box";
 import Dropdown from "../ui/Dropdown";

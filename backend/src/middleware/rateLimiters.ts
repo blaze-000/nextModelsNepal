@@ -21,4 +21,15 @@ export const appFormLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+export const paymentLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000, // 10 minutes
+  max: 10, // limit each IP to 10 payment-related requests per 10 minutes
+  message: {
+    success: false,
+    message: 'Too many payment requests from this IP, please try again later.',
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 

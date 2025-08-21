@@ -4,20 +4,20 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import ModelGrid from "@/components/molecules/model-grid";
 import { useEffect, useState } from "react";
+import type React from "react";
 import Axios from "@/lib/axios-instance";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-
 
 export default function HireModel() {
   const [femaleModels, setFemaleModels] = useState<Model[]>([]);
   const [maleModels, setMaleModels] = useState<Model[]>([]);
   const searchParams = useSearchParams();
-  const preSelectedModelId = searchParams.get('modelId');
+  const preSelectedModelId = searchParams.get("modelId");
 
   useEffect(() => {
     (async () => {
-      const res = await Axios.get('/api/models');
+      const res = await Axios.get("/api/models");
       const data = res.data.data;
       console.log(data);
       setFemaleModels(data.filter((model: Model) => model.gender === "Female"));

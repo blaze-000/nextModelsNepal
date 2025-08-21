@@ -1,5 +1,7 @@
 "use client";
 
+
+import type React from "react";
 interface CheckboxProps {
   label: string;
   name: string;

@@ -1,5 +1,4 @@
-import express from 'express';
-import { Request, Response, NextFunction } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import path from 'path';
 import multer from 'multer';
 import helmet from 'helmet';
@@ -36,6 +35,7 @@ import criteriaRoutes from "./routes/criteria.route";
 import newsletterRoutes from "./routes/newsletter.route";
 import paymentRoutes from "./routes/payment.route";
 import socialRoute from "./routes/social.route";
+import { metricsHandler } from './utils/metrics';
 
 const app = express();
 
@@ -106,6 +106,9 @@ app.use("/api/auth", authRoutes);
 app.use("/api/newsletter", newsletterRoutes);
 app.use("/api/fonepay", paymentRoutes);
 app.use("/api/social", socialRoute);
+
+// Metrics endpoint (returns Prometheus metrics when enabled)
+app.get('/metrics', metricsHandler);
 
 // Global error handler for Multer errors
 app.use((error: any, req: Request, res: Response, next: NextFunction) => {

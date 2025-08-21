@@ -108,7 +108,6 @@ export const changePassword = async (req: Request, res: Response) => {
     }
 };
 
-
 export const logout = (req: Request, res: Response) => {
     try {
         // Clear token cookie
@@ -132,7 +131,6 @@ export const logout = (req: Request, res: Response) => {
         return res.status(500).json({ message: "Server error" });
     }
 };
-
 
 export const init = async (_req: Request, res: Response) => {
     try {
@@ -165,15 +163,3 @@ export const register = async (req: Request, res: Response) => {
         res.status(500).json({ message: "Internal Server error" });
     }
 };
-
-export const deleteAdmin = async (req: Request, res: Response) => {
-    try {
-        const admin = await AdminModel.findOne();
-        if (!admin) return res.status(404).json({ message: "Admin not found" });
-
-        await admin.deleteOne();
-        res.json({ message: "Admin deleted successfully" });
-    } catch (err) {
-        res.status(500).json({ message: "Server error" });
-    }
-}

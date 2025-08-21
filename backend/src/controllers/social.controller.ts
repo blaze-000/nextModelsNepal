@@ -1,11 +1,10 @@
 import { socialModel } from "../models/social.model";
 import { Request, Response } from "express";
+import { socialSchema, updateSocialSchema } from "../validations/social.validation";
 
 export const createSocial = async (req: Request, res: Response) => {
     try {
-        const data = req.body;
-        if(!data) return res.status(400).send("All field are required.");
-
+        const data = socialSchema.parse(req.body);
         const { instagram, x, fb, linkdln, mail, location, phone } = data;
 
         // Only one social document should exist. If one exists, update it instead of creating a new one.
@@ -21,7 +20,7 @@ export const createSocial = async (req: Request, res: Response) => {
         }
 
         const social = await socialModel.create({ instagram, x, fb, linkdln, mail, location, phone });
-        if(!social) return res.status(400).send("Failed to save social data.");
+        if (!social) return res.status(400).send("Failed to save social data.");
         res.status(201).json({ success: true, social, message: "Social created" });
 
     } catch (error: any) {
@@ -51,7 +50,7 @@ export const getAllSocial = async (req: Request, res: Response) => {
 export const getSocialById = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
-        const social = await  socialModel.findById(id);
+        const social = await socialModel.findById(id);
         if (!social) return res.status(404).json({ success: false, message: "Invalid social id." });
 
         res.status(201).json({ success: true, message: "Social data deleted successfully.", social });
@@ -68,7 +67,8 @@ export const getSocialById = async (req: Request, res: Response) => {
 export const updateSocialById = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
-        const { instagram, x, fb, linkdln, mail, location, phone } = req.body;
+        const data = updateSocialSchema.parse(req.body);
+        const { instagram, x, fb, linkdln, mail, location, phone } = data;
 
         const updatedSocial = await socialModel.findByIdAndUpdate(
             id,
@@ -97,7 +97,7 @@ export const deleteSocialById = async (req: Request, res: Response) => {
         const social = await socialModel.findByIdAndDelete(id);
         if (!social) return res.status(404).json({ success: false, message: "Invalid social id." });
 
-        res.status(201).json({ success: true, message: "Social data deleted successfully."});
+        res.status(201).json({ success: true, message: "Social data deleted successfully." });
     } catch (error: any) {
         console.error(error.message);
         res.status(500).json({

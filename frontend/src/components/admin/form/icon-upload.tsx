@@ -1,6 +1,7 @@
 "use client";
 import Image from "next/image";
 import { useState } from "react";
+import type React from "react";
 
 interface IconUploadProps {
   label: string;
