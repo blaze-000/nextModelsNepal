@@ -1,5 +1,3 @@
-"use client";
-
 import HeroSection from "@/components/home/hero";
 import ValuesSection from "@/components/home/value";
 import EventsSection from "@/components/home/event";

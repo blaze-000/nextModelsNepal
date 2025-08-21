@@ -434,10 +434,13 @@ export const getAllPastWinners = async (req: Request, res: Response) => {
       const event = season?.eventId as any;
 
       return {
+        _id: winner._id,
         rank: winner.rank,
         name: winner.name,
         year: season?.year,
-        eventName: event?.name
+        eventName: event?.name,
+        image: winner.image,
+        slug: winner.slug
       };
     });
 

@@ -534,6 +534,38 @@ export default function EventDetails() {
           </motion.div>
         </div>
       </motion.section>
+
+      {/* More <Event's name> Events */}
+      <motion.section
+        {...fadeInUp}
+        className="w-full bg-background2 py-16 pb-24"
+      >
+        <div className="max-w-7xl mx-auto px-6 relative">
+          <div className="flex">
+            <SectionHeader title={`More ${data?.eventId.name} Events`} />
+          </div>
+
+          <Dropdown
+            options={data?.eventId.seasons.map((season) => season.year.toString()) || []}
+            label="Year "
+            selected={data?.year?.toString() || ""}
+            onSelect={handleYearChange}
+            maxHeight="200px"
+          />
+          <div className="absolute  top-full left-64 hidden md:flex">
+            <Image
+              src="/svg-icons/bent-arrow.svg"
+              alt=""
+              width={50}
+              height={20}
+              className="w-24 h-[20px] object-cover"
+            />
+            <p className="max-w-3xs px-6">Select a year to view the
+              event details for that year</p>
+          </div>
+        </div>
+
+      </motion.section>
     </main>
   );
 };

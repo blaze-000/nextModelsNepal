@@ -17,7 +17,7 @@ export default function AdminInit() {
   useEffect(() => {
     (async () => {
       try {
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        // await new Promise(resolve => setTimeout(resolve, 2000));
         const res = await Axios.get('/api/auth/init');
         const data: boolean = res.data.message;
         setSuperAdminExists(data);
@@ -67,7 +67,7 @@ function SignUpForm() {
 
     try {
       setIsSubmitting(true);
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // await new Promise(resolve => setTimeout(resolve, 2000));
       await Axios.post("/api/auth/register", { email: email.trim(), password });
       setEmail("");
       setPassword("");

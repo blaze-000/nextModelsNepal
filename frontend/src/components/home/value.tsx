@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import { motion } from "framer-motion";
 
@@ -51,15 +53,13 @@ const ValuesSection = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: (index + 1) * 0.1 }}
-                className={`relative text-center ${
-                  isEven ? "text-right items-end" : "text-left items-start"
-                } flex flex-col`}
+                className={`relative text-center ${isEven ? "text-right items-end" : "text-left items-start"
+                  } flex flex-col`}
               >
                 {/* Background Number */}
                 <div
-                  className={`absolute -inset-8 flex items-start pointer-events-none ${
-                    isEven ? "justify-end" : "justify-start"
-                  }`}
+                  className={`absolute -inset-8 flex items-start pointer-events-none ${isEven ? "justify-end" : "justify-start"
+                    }`}
                 >
                   <span className="font-newsreader text-[8rem] font-bold text-neutral-700/40 leading-none tracking-tighter select-none">
                     {feature.number}
@@ -69,11 +69,10 @@ const ValuesSection = () => {
                 {/* Content */}
                 <div className="relative z-10 flex flex-col gap-2 px-6 -mt-2 items-start">
                   <div
-                    className={`flex items-center gap-3 ${
-                      isEven
+                    className={`flex items-center gap-3 ${isEven
                         ? "justify-end flex-row-reverse"
                         : "justify-start"
-                    }`}
+                      }`}
                   >
                     <Image src="/svg-icons/star.svg" alt="Star" width={48} height={48} />
                     <div className="flex flex-col">

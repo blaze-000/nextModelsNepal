@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import Timeline from "../molecules/timeline";
 import EventCard from "../molecules/event-card";

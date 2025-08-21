@@ -4,18 +4,17 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "./ui/button";
-import Axios from "@/lib/axios-instance";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function Header() {
+export default function Header({ showVoting, selfEvents, partnerEvents }: { showVoting: boolean, selfEvents: NavEventType[], partnerEvents: NavEventType[] }) {
   const [showEventsDropdown, setShowEventsDropdown] = useState<boolean>(false);
   const [showEventsCentralDropdown, setShowEventsCentralDropdown] =
     useState<boolean>(false);
-  const [selfEvents, setSelfEvents] = useState<NavEventType[] | null>(null);
-  const [partnersEvents, setPartnersEvents] = useState<NavEventType[] | null>(
-    null
-  );
-  const [showVoting, setShowVoting] = useState<boolean>(true);
+  // const [selfEvents, setSelfEvents] = useState<NavEventType[] | null>(null);
+  // const [partnersEvents, setPartnersEvents] = useState<NavEventType[] | null>(
+  //   null
+  // );
+  // const [showVoting, setShowVoting] = useState<boolean>(true);
 
   // Mobile view states
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
@@ -67,19 +66,19 @@ export default function Header() {
     setShowEventsCentralDropdown(false);
   };
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await Axios("/api/nav/info");
-        const data = res.data;
-        setShowVoting(data.data.showVoting);
-        setSelfEvents(data.data.selfEvents);
-        setPartnersEvents(data.data.partnerEvents);
-      } catch {
-        console.log("Nav info fetch failed");
-      }
-    })();
-  }, []);
+  // useEffect(() => {
+  //   (async () => {
+  //     try {
+  //       const res = await Axios("/api/nav/info");
+  //       const data = res.data;
+  //       setShowVoting(data.data.showVoting);
+  //       setSelfEvents(data.data.selfEvents);
+  //       setPartnersEvents(data.data.partnerEvents);
+  //     } catch {
+  //       console.log("Nav info fetch failed");
+  //     }
+  //   })();
+  // }, []);
 
   // Handle click outside to close dropdowns
   useEffect(() => {
@@ -147,7 +146,7 @@ export default function Header() {
       <div className="space-y-4">
         <h4 className="text-xs">Managed Events</h4>
         <div className="flex flex-col gap-3 text-sm">
-          {partnersEvents?.map((item) => (
+          {partnerEvents.map((item) => (
             <Link
               key={item.label}
               href={`/events/${item.slug}`}

@@ -9,7 +9,7 @@ import Axios from "@/lib/axios-instance";
 import WinnerGrid from "../molecules/winners-grid";
 import { Spinner } from "../ui/spinner";
 
-export const Winners = () => {
+export const Winners = ({ searchText }: { searchText: string }) => {
   const [selectedYear, setSelectedYear] = useState("All");
   const [selectedEvent, setSelectedEvent] = useState("All Events");
   const [winners, setWinners] = useState<Winner[]>([]);
@@ -21,17 +21,18 @@ export const Winners = () => {
         setLoading(true);
         const res = await Axios.get("/api/events/past-winners");
         const data = res.data;
-        console.log(data);
-        setWinners(data.data.slice(0,4) || []);
+        console.log("Winners data:", data);
+        // Show all winners when searching, otherwise limit to 4
+        setWinners(searchText ? data.data : data.data.slice(0, 4) || []);
       } catch (err) {
         console.log("Failed to fetch winners data", err);
       } finally {
         setLoading(false);
       }
     })();
-  }, []);
+  }, [searchText]);
 
-  
+
   const years = useMemo(() => {
     const uniqueYears = [...new Set(winners.map(winner => winner.year))].sort((a, b) => b - a);
     return ["All", ...uniqueYears.map(year => year.toString())];
@@ -42,9 +43,27 @@ export const Winners = () => {
     return ["All Events", ...uniqueEvents];
   }, [winners]);
 
-  
+
   const filteredWinners = useMemo(() => {
     let filtered = [...winners];
+
+    // Filter by search text
+    if (searchText) {
+      console.log("Filtering winners with search text:", searchText);
+      console.log("Available winners:", winners);
+      filtered = filtered.filter(winner => {
+        const nameMatch = winner.name?.toLowerCase().includes(searchText.toLowerCase());
+        const eventMatch = winner.eventName?.toLowerCase().includes(searchText.toLowerCase());
+        const yearMatch = winner.year?.toString().includes(searchText);
+        const rankMatch = winner.rank?.toLowerCase().includes(searchText.toLowerCase());
+
+        const matches = nameMatch || eventMatch || yearMatch || rankMatch;
+        console.log(`Winner ${winner.name}: nameMatch=${nameMatch}, eventMatch=${eventMatch}, yearMatch=${yearMatch}, rankMatch=${rankMatch}, matches=${matches}`);
+
+        return matches;
+      });
+      console.log("Filtered winners:", filtered);
+    }
 
     // Filter by year
     if (selectedYear !== "All") {
@@ -56,33 +75,38 @@ export const Winners = () => {
       filtered = filtered.filter(winner => winner.eventName === selectedEvent);
     }
 
-  
+
     filtered.sort((a, b) => {
       if (a.year !== b.year) {
         return b.year - a.year;
       }
-      
-      
+
+
       const rankOrder = { "Winner": 1, "1st Runner Up": 2, "2nd Runner Up": 3 };
       const aRank = rankOrder[a.rank as keyof typeof rankOrder] || 4;
       const bRank = rankOrder[b.rank as keyof typeof rankOrder] || 4;
-      
+
       return aRank - bRank;
     });
 
     return filtered;
-  }, [winners, selectedYear, selectedEvent]);
+  }, [winners, selectedYear, selectedEvent, searchText]);
 
   if (loading) {
     return (
       <div className="w-full bg-background py-16 md:py-20">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center text-white">
-            <Spinner size={100} color="#ffaa00"/>
+            <Spinner size={100} color="#ffaa00" />
           </div>
         </div>
       </div>
     );
+  }
+
+  // Don't render the section if searching and no results
+  if (searchText && filteredWinners.length === 0) {
+    return null;
   }
 
   return (
@@ -167,16 +191,14 @@ export const Winners = () => {
               >
                 {winner.rank && (
                   <div
-                    className={`${
-                      winner.rank.toLowerCase() === "winner"
-                        ? "text-gold-500"
-                        : "text-white"
-                    } text-base font-bold flex items-center gap-1 pb-2`}
+                    className={`${winner.rank.toLowerCase() === "winner"
+                      ? "text-gold-500"
+                      : "text-white"
+                      } text-base font-bold flex items-center gap-1 pb-2`}
                   >
                     <i
-                      className={`ri-vip-crown-line text-base ${
-                        winner.rank === "Winner" ? "text-gold-500" : "text-white"
-                      }`}
+                      className={`ri-vip-crown-line text-base ${winner.rank === "Winner" ? "text-gold-500" : "text-white"
+                        }`}
                     />
                     {winner.rank}
                   </div>
