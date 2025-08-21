@@ -21,7 +21,9 @@ export default async function Layout({ children }: { children: ReactNode }) {
         partnerEvents={data.partnerEvents}
       />
       {children}
-      <Footer />
+      <Footer 
+      events={[...data.selfEvents, ...data.partnerEvents]}
+      />
     </>
   );
 };

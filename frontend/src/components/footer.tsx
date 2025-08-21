@@ -13,7 +13,7 @@ interface SocialData {
   x: string;
   fb: string;
   linkdln: string;
-  phone: string[]; 
+  phone: string[];
   mail: string;
   location: string;
   __v: number;
@@ -24,8 +24,9 @@ interface SocialApiResponse {
   social: SocialData[];
 }
 
-const Footer: FC = (): ReactNode => {
+const Footer = ({ events }: { events: NavEventType[] }): ReactNode => {
   const [socialData, setSocialData] = useState<SocialData | null>(null);
+  // const [events, setEvents] = useState<NavEvent[]>([]);
   const [loading, setLoading] = useState(true);
   // const [error, setError] = useState<string | null>(null);
   const currentYear: number = new Date().getFullYear();
@@ -33,15 +34,12 @@ const Footer: FC = (): ReactNode => {
   useEffect(() => {
     const fetchSocialData = async () => {
       try {
-        // setLoading(true);
-        const response = await Axios.get<SocialApiResponse>('/api/social');
+        const response = await Axios.get<SocialApiResponse>("/api/social");
         if (response.data.success && response.data.social.length > 0) {
           setSocialData(response.data.social[0]);
-          setLoading(false);
         }
       } catch (err) {
-        // setError('Failed to fetch social data');
-        console.error('Error fetching social data:', err);
+        console.error("Error fetching social data:", err);
       } finally {
         setLoading(false);
       }
@@ -56,13 +54,8 @@ const Footer: FC = (): ReactNode => {
     { label: "Services", href: "/apply" },
     { label: "Contact", href: "/contact" }
   ];
-  
-  const events = [
-    { label: "Mr. Nepal", slug: "mr-nepal" },
-    { label: "Miss. Nepal Peace", slug: "miss-nepal-peace" },
-    { label: "Models Hunt Nepal", slug: "models-hunt-nepal" },
-    { label: "Miss Nepal Earth", slug: "miss-nepal-earth" },
-  ];
+
+  // events will be populated from /api/nav/info
 
   // Variants
   const container = {
@@ -183,7 +176,7 @@ const Footer: FC = (): ReactNode => {
               <h3 className="text-base font-semibold">Events</h3>
               <nav>
                 <ul className="space-y-4 flex flex-col">
-                  {events.map((event) => (
+                  {(events || []).map((event) => (
                     <li key={event.label}>
                       <Link
                         href={`events/${event.slug}`}
@@ -209,8 +202,8 @@ const Footer: FC = (): ReactNode => {
                 {socialData?.phone && socialData.phone.length > 0 && (
                   socialData.phone.map((phoneNumber, index) => (
                     <li key={index}>
-                      <Link 
-                        href={`tel:+977${phoneNumber.replace(/\D/g, '')}`} 
+                      <Link
+                        href={`tel:+977${phoneNumber.replace(/\D/g, '')}`}
                         className="group/phone hover:text-gold-400"
                       >
                         <i className="w-5 h-5 text-white flex-shrink-0 ri-phone-line group-hover/phone:text-gold-400 mr-3" />
@@ -221,10 +214,10 @@ const Footer: FC = (): ReactNode => {
                     </li>
                   ))
                 )}
-                
+
                 <li>
-                  <Link 
-                    href={`mailto:${socialData?.mail || 'info@nextmodelsnepal.com'}`} 
+                  <Link
+                    href={`mailto:${socialData?.mail || 'info@nextmodelsnepal.com'}`}
                     className="group/mail"
                   >
                     <i className="w-5 h-5 text-white flex-shrink-0 ri-mail-line group-hover/mail:text-gold-400 mr-3" />
