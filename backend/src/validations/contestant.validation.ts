@@ -6,6 +6,7 @@ export const createContestantSchema = z.object({
   intro: z.string().min(1, "Intro is required"),
   gender: z.enum(["Male", "Female"]),
   address: z.string().min(1, "Address is required"),
+  status: z.string()
   // Image will be handled separately as a file upload
 });
 

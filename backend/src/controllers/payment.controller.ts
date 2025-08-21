@@ -5,6 +5,8 @@ import { buildPaymentRequest, buildRedirectUrl, verifyReturnDv, verifyTransactio
 import { paymentSchema } from '../validations/payment.validation';
 import { FonepayRequestParams } from '../types/payment';
 import { ContestantModel } from '../models/events.model';
+import mongoose from 'mongoose';
+import { incMetric } from '../utils/metrics';
 
 // 1) Create Payment Session
 export const payment = async (req: Request, res: Response) => {
@@ -127,6 +129,11 @@ export const returnPayment = async (req: Request, res: Response) => {
     const payment = await Payment.findOne({ prn: prnToSearch });
     if (!payment) return res.status(404).send("Unknown PRN");
 
+    // Idempotency: if we've already verified this payment successfully, short-circuit
+    if (payment.status === 'success' && payment.apiVerificationStatus === 'success') {
+      return res.status(200).send(`Payment ${payment.status}. Thank you.`);
+    }
+
     const { contestant } = payment;
     const isContestant = await ContestantModel.findById({ _id: contestant });
 
@@ -136,12 +143,18 @@ export const returnPayment = async (req: Request, res: Response) => {
       return res.status(400).send("PID mismatch");
     }
 
-    const dvOk = verifyReturnDv(query);
-    if (!dvOk) {
-      payment.status = "error";
-      payment.responseDv = String(query.DV || "");
-      await payment.save();
-      return res.status(400).send("DV mismatch");
+    const dvResult = verifyReturnDv(query);
+  if (!dvResult.ok) {
+      // If verifyReturnDv skipped (missing fields), continue to server-to-server verification,
+      // otherwise treat as a DV mismatch.
+      if (!dvResult.skipped) {
+    payment.status = "error";
+    payment.responseDv = String(query.DV || "");
+    await payment.save();
+    incMetric('dv_mismatch');
+    return res.status(400).send("DV mismatch");
+      }
+      // else skipped: log and continue (S2S will be authoritative)
     }
 
     // Save preliminary return fields
@@ -163,29 +176,75 @@ export const returnPayment = async (req: Request, res: Response) => {
       amount: payment.p_amt || payment.amount.toFixed(2),
     };
 
-    const apiRes = await verifyTransactionServerToServer(body);
+    let apiRes;
+    try {
+      apiRes = await verifyTransactionServerToServer(body);
+    } catch (err: any) {
+      console.error('S2S verification failed:', err?.message || err);
+      payment.apiResponse = { error: String(err?.message || err) };
+      payment.apiVerificationStatus = 'failed';
+      payment.status = 'pending';
+      await payment.save();
+      incMetric('s2s_fail');
+      return res.status(502).send('Failed to verify transaction with gateway');
+    }
 
     payment.apiResponse = apiRes.data;
     const payStatus = String(apiRes?.data?.paymentStatus || "").toLowerCase();
+    const remoteAmount = String(apiRes?.data?.purchaseAmount || apiRes?.data?.purchaseAmount || "").trim();
+
+    // Validate amount matches expected amount to avoid tampering
+    const expectedAmount = payment.amount.toFixed(2);
+    if (remoteAmount && remoteAmount !== expectedAmount) {
+      // Amount mismatch: flag and don't credit
+      payment.status = 'error';
+      payment.apiVerificationStatus = 'failed';
+      await payment.save();
+      incMetric('amount_mismatch');
+      return res.status(400).send('Amount mismatch');
+    }
 
     if (payStatus === "success") {
-      payment.status = "success";
-      payment.apiVerificationStatus = "success";
-      await payment.save();
+      // Use a Mongo transaction to atomically mark payment success and credit votes
+      const session = await mongoose.startSession();
+      session.startTransaction();
+      try {
+        const updated = await Payment.findOneAndUpdate(
+          { _id: payment._id, apiVerificationStatus: { $ne: 'success' } },
+          { $set: { status: 'success', apiVerificationStatus: 'success', apiResponse: apiRes.data } },
+          { new: true, session }
+        );
 
-      // Credit votes to contestant
-      await ContestantModel.findByIdAndUpdate(payment.contestant, {
-        $inc: { votes: payment.vote },
-      });
+        if (updated) {
+          await ContestantModel.findByIdAndUpdate(payment.contestant, { $inc: { votes: payment.vote } }, { session });
+          await session.commitTransaction();
+          incMetric('s2s_success');
+        } else {
+          // nothing to do (maybe already processed)
+          await session.abortTransaction();
+          incMetric('replay_attempt');
+        }
+      } catch (txErr) {
+        console.error('Transaction error:', txErr);
+        await session.abortTransaction();
+        payment.status = 'error';
+        payment.apiVerificationStatus = 'failed';
+        await payment.save();
+        incMetric('tx_fail');
+      } finally {
+        session.endSession();
+      }
 
     } else if (payStatus === "failed") {
       payment.status = "failed";
       payment.apiVerificationStatus = "failed";
       await payment.save();
+      incMetric('s2s_failed_status');
     } else {
       payment.status = "pending";
       payment.apiVerificationStatus = "pending";
       await payment.save();
+      incMetric('s2s_pending_status');
     }
 
     return res.send(`Payment ${payment.status}. Thank you.`);
