@@ -27,8 +27,8 @@ export function buildPaymentRequest(params: {
         CRN: 'NPR',
         DT: formatFonepayDate(),
         RI: params.ri?.slice(0, 160) || 'Payment',
-        R1: params.r1?.slice(0, 50) || 'N/A',
-        R2: params.r2?.slice(0, 50) || 'N/A',
+        R1: params.r1?.slice(0, 50) || '',
+        R2: params.r2?.slice(0, 50) || '',
         MD: 'P',
     };
 

@@ -33,6 +33,12 @@ export const menuItems: MenuSection[] = [
         href: "/admin/hero",
       },
       {
+        id: "social",
+        label: "Social Section",
+        icon: "ri-share-line",
+        href: "/admin/social",
+      },
+      {
         id: "nav",
         label: "Navbar Settings",
         icon: "ri-file-list-3-line",
