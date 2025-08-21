@@ -13,7 +13,7 @@ import Image from "next/image";
 type PastEvents = {
   _id: string;
   name: string;
-  overview: string;
+  overview?: string;
   season: { endDate: string };
   image: string;
   slug: string;
@@ -55,7 +55,7 @@ export default function PastEvents() {
       try {
         const res = await Axios.get("/api/events/past-events");
         const data = res.data;
-        console.log(data);
+        console.log("Past Events:", data.data);
         setPastEvents(data.data);
       } catch (err) {
         console.log("Failed to fetch past events", err);
@@ -69,10 +69,11 @@ export default function PastEvents() {
         title="Past Events"
         searchText={searchText}
         setSearchText={setSearchText}
-        searchPlaceholder="Search Past Events"
+        searchPlaceholder="Search past events"
       />
 
       <div className="max-w-7xl mx-auto px-6">
+        {/* Sort Dropdown */}
         <div className="flex flex-col md:flex-row justify-between mt-5 items-center mb-10">
           <h2 className="hidden md:block text-xl md:text-3xl font-newsreader mb-4 md:mb-0 md:ml-12">
             Events
@@ -86,8 +87,10 @@ export default function PastEvents() {
             />
           </div>
         </div>
+
+        {/* Search indicator */}
         {searchText !== "" && (
-          <div className="flex ">
+          <div className="flex items-center mb-6">
             <Image
               src="/svg-icons/small_star.svg"
               alt=""
@@ -95,13 +98,14 @@ export default function PastEvents() {
               width={20}
               className="inline-block mr-2 h-5 w-5 bg-cover"
             />
-
-            <p className=" text-2xl pb-5  font-newsreader">
+            <p className="text-2xl font-newsreader">
               Searching for:{" "}
               <span className="text-gold-500">&ldquo;{searchText}&rdquo;</span>
             </p>
           </div>
         )}
+
+        {/* Events List */}
         <div className="hidden md:grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-6">
           {sortedEvents?.map((item) => (
             <motion.div
@@ -115,7 +119,7 @@ export default function PastEvents() {
                 slug={item.latestEndedSeasonSlug}
                 image={normalizeImagePath(item.image)}
                 title={item.name}
-                desc={item.overview}
+                desc={item.overview || ""}
                 buttonText={`About ${item.name}`}
                 status="ended"
               />

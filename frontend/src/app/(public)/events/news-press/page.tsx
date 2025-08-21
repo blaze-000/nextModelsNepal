@@ -29,6 +29,8 @@ export default function NewsPress() {
         const data: NewsItem[] = res.data.data;
         setNewItems(data);
 
+        console.log(data)
+
         // Type Options
         setSortOptions([
           "All",
@@ -37,7 +39,7 @@ export default function NewsPress() {
 
         // Year Options
         setYears([
-          "All", 
+          "All",
           ...Array.from(new Set(data.map((item) => String(item.year)))).sort(
             (a, b) => Number(b) - Number(a)
           ),
