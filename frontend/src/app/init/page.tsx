@@ -2,6 +2,7 @@
 
 import Axios from "@/lib/axios-instance";
 import { useEffect, useState } from "react";
+import type React from "react";
 import { Button } from "@/components/ui/button";
 import { Spinner } from '@geist-ui/react';
 import { Spinner as SPINNER } from "@/components/ui/spinner";
@@ -22,7 +23,7 @@ export default function AdminInit() {
         const data: boolean = res.data.message;
         setSuperAdminExists(data);
       } catch {
-        toast.error("Try again later.");
+        // toast.error("Try again later.");
       } finally {
         setLoading(false);
       }

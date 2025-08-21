@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect } from "react";
+import  { useState, useRef, useEffect } from "react";
+import type React from "react";
 
 interface SelectOption {
   value: string;

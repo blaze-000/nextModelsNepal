@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import type React from "react";
 
 import "remixicon/fonts/remixicon.css";
 import Header from "../../components/admin/layout/Header";

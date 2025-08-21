@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import type React from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 
@@ -133,8 +134,8 @@ export const Gallery = () => {
                         (k) => eventMap[k] === selectedEvent
                       ) || ""
                     : latestEventData
-                      ? `${latestEventData.eventName} `
-                      : ""
+                    ? `${latestEventData.eventName} `
+                    : ""
                 }
                 onSelect={(label) => setSelectedEvent(eventMap[label] || "")}
               />
@@ -142,7 +143,10 @@ export const Gallery = () => {
               <Dropdown
                 label="Year"
                 options={years}
-                selected={selectedYear || (latestEventData ? String(latestEventData.year) : "")}
+                selected={
+                  selectedYear ||
+                  (latestEventData ? String(latestEventData.year) : "")
+                }
                 onSelect={setSelectedYear}
                 maxHeight="180px"
               />

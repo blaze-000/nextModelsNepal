@@ -1,5 +1,6 @@
 "use client";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import  { useCallback, useEffect, useRef, useState } from "react";
+import type React from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 import type { EmblaCarouselType } from "embla-carousel";

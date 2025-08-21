@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import type React from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 
@@ -89,7 +89,7 @@ const MasonryGallery: React.FC<MasonryGalleryProps> = ({
       }}
     >
       <div
-        className={`relative overflow-hidden rounded-lg bg-gray-200 transition-all duration-300 hover:shadow-lg ${imageClassName}`}
+        className={`relative overflow-hidden  bg-gray-200 transition-all duration-300 hover:shadow-lg ${imageClassName}`}
         style={
           {
             transform: `scale(1)`,

@@ -3,7 +3,8 @@
 import { Winners } from "@/components/events/winners";
 import EventBox from "@/components/molecules/event-box";
 import Breadcrumb from "@/components/molecules/breadcumb";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import type React from "react";
 import { motion } from "framer-motion";
 import Axios from "@/lib/axios-instance";
 import { normalizeImagePath } from "@/lib/utils";
@@ -16,7 +17,7 @@ type PastEvents = {
   overview?: string;
   season: { year: number; endDate: string; slug: string };
   image: string;
-  
+
   latestEndedSeasonSlug: string;
 };
 

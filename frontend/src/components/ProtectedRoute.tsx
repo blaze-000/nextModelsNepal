@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import type React from "react";
 import { useRouter } from "next/navigation";
 import useAuth from "@/hooks/useAuth";
 import { Spinner } from "@geist-ui/react";

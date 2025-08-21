@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import type React from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 
@@ -68,7 +68,7 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
                   className="w-full pl-12 pr-4 py-4 rounded-full bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-400 text-base"
                   placeholder={searchPlaceholder}
                   value={searchText}
-                  onChange={(e)=>setSearchText(e.target.value)}
+                  onChange={(e) => setSearchText(e.target.value)}
                 />
               </div>
             </motion.div>
@@ -115,7 +115,6 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
               />
             </motion.div>
           )}
-
         </motion.div>
       </div>
     </div>

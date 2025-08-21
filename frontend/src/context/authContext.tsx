@@ -1,5 +1,6 @@
 "use client";
 import Cookies from 'js-cookie';
+import type React from "react";
 import { createContext, ReactNode, useEffect, useState } from "react";
 
 export const authContext = createContext<AuthContextType | undefined>(undefined);

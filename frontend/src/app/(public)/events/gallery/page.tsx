@@ -1,13 +1,14 @@
 "use client";
 
 import Breadcrumb from "@/components/molecules/breadcumb";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import type React from "react";
 import MasonryGallery from "@/components/molecules/masonary-gallery";
 import Dropdown from "@/components/ui/Dropdown";
 import { motion } from "framer-motion";
 import Axios from "@/lib/axios-instance";
 import { normalizeImagePath } from "@/lib/utils";
-import Image from "next/image";
+
 
 type EndedEvent = {
   eventId: string;
@@ -38,7 +39,6 @@ export default function Gallery() {
   } | null>(null);
   const [eventTypes, setEventTypes] = useState<string[]>([]);
   const [eventMap, setEventMap] = useState<{ [label: string]: string }>({});
-  const [searchText, setSearchText] = useState("");
 
   // Fetch initial gallery + available events/years
   useEffect(() => {
@@ -113,12 +113,7 @@ export default function Gallery() {
 
   return (
     <>
-      <Breadcrumb
-        title="Events Highlights Gallery"
-        searchText={searchText}
-        setSearchText={setSearchText}
-        searchPlaceholder="Search events highlights"
-      />
+      <Breadcrumb title="Events Highlights Gallery" showSearch={false} />
 
       <div className="max-w-7xl mx-auto px-6">
         <motion.div
@@ -154,24 +149,8 @@ export default function Gallery() {
               maxHeight="180px"
             />
           </div>
-          {searchText !== "" && (
-            <div className="flex ">
-              <Image
-                src="/svg-icons/small_star.svg"
-                alt=""
-                height={20}
-                width={20}
-                className="inline-block mr-2 h-5 w-5 bg-cover"
-              />
 
-              <p className=" text-2xl pb-5  font-newsreader">
-                Searching for:{" "}
-                <span className="text-gold-500">
-                  &ldquo;{searchText}&rdquo;
-                </span>
-              </p>
-            </div>
-          )}
+          
         </motion.div>
 
         {filteredImages.length > 0 ? (

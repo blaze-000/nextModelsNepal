@@ -1,5 +1,9 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import {useState, useEffect} from "react";
+
+import type React from "react";
+
+
 import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Image from "next/image";
@@ -61,7 +65,7 @@ export default function EventDetails() {
         } else {
           setError(responseData.message || "Season not found");
         }
-      } catch (err: any) {
+      } catch (err:any) {
         console.error("Error fetching season:", err);
         if (err.response?.data?.message === "Season not found") {
           setError("Season not found");

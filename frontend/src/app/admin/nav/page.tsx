@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import  { useState, useEffect } from "react";
+import type React from "react";
 import { toast } from "sonner";
 import PageHeader from "@/components/admin/PageHeader";
 import Axios from "@/lib/axios-instance";

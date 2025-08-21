@@ -1,7 +1,8 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import type React from "react";
 import SectionHeader from "@/components/ui/section-header";
 import MasonryGallery from "@/components/molecules/masonary-gallery";
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,6 @@ import Axios from "@/lib/axios-instance";
 import { normalizeImagePath } from "@/lib/utils";
 
 export default function ModelDetailsPage() {
-
   const { slug } = useParams();
   const [model, setModel] = useState<Model | null>(null);
 
@@ -35,20 +35,22 @@ export default function ModelDetailsPage() {
               {/* Back Button */}
               <button className="text-gold-500 hover:text-white transition-colors flex items-center gap-1 cursor-pointer">
                 <i className="ri-arrow-left-line text-lg" />
-                <Link href="/models" className="underline underline-offset-2 text-base font-medium tracking-tight">
+                <Link
+                  href="/models"
+                  className="underline underline-offset-2 text-base font-medium tracking-tight"
+                >
                   back
                 </Link>
               </button>
               <h2 className="text-[84px] font-newsreader text-primary font-extralight tracking-tighter leading-tighter">
                 <span>{model?.name}</span>
               </h2>
-              <p className=" text-base text-white font-light">
-                {model?.intro}
-              </p>
+              <p className=" text-base text-white font-light">{model?.intro}</p>
               <div className="flex items-center gap-4 mt-4">
                 <Link href={`/models?modelId=${model?._id}`}>
                   <Button variant="default">
-                    <span>Hire {model?.name.split(" ")[0]}</span> {/* First name only */}
+                    <span>Hire {model?.name.split(" ")[0]}</span>{" "}
+                    {/* First name only */}
                     <i className="ri-arrow-right-up-line ml-2" />
                   </Button>
                 </Link>
@@ -101,11 +103,12 @@ export default function ModelDetailsPage() {
           <h2 className="text-5xl font-newsreader text-primary font-extralight tracking-tighter leading-tighter pb-8">
             {model?.name}
           </h2>
-          <p className="text-lg px-3">
-            {model?.intro}
-          </p>
+          <p className="text-lg px-3">{model?.intro}</p>
           <div className="flex flex-col items-center gap-4 mt-8">
-            <Link href={`/models?modelId=${model?._id}`} className="w-full max-w-xs">
+            <Link
+              href={`/models?modelId=${model?._id}`}
+              className="w-full max-w-xs"
+            >
               <Button variant="default" className="w-full max-w-xs">
                 <span>Hire {model?.name.split(" ")[0]}</span>
                 <i className="ri-arrow-right-up-line ml-2" />
@@ -115,9 +118,7 @@ export default function ModelDetailsPage() {
               href="/#"
               className="px-4 py-4 rounded-full text-gold-500 text-base -tracking-tight font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer"
             >
-              <span className="underline underline-offset-4">
-                Contact Us
-              </span>
+              <span className="underline underline-offset-4">Contact Us</span>
               <i className="ri-arrow-right-up-line group-hover:scale-130 transition-transform duration-400 text-xl font-extralight" />
             </Link>
           </div>
@@ -130,7 +131,11 @@ export default function ModelDetailsPage() {
           <SectionHeader title="Gallery" />
 
           {/* Gallery using the reusable component */}
-          <MasonryGallery images={model?.images.map((image) => normalizeImagePath(image)) || []} />
+          <MasonryGallery
+            images={
+              model?.images.map((image) => normalizeImagePath(image)) || []
+            }
+          />
         </div>
       </section>
     </main>
