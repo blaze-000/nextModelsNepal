@@ -9,6 +9,7 @@ import EventBox from "../molecules/event-box";
 import Dropdown from "../ui/Dropdown";
 import Axios from "@/lib/axios-instance";
 import Link from "next/link";
+import { normalizeImagePath } from "@/lib/utils";
 
 type UpcomingEvent = {
   _id: string;
@@ -20,7 +21,7 @@ type UpcomingEvent = {
   latestEndedSeasonSlug: string;
 };
 
-export const UpcomingEvents = () => {
+export const UpcomingEvents = ({ searchText }: { searchText: string }) => {
   const [sortBy, setSortBy] = useState("Most Recent");
   const [upcomingEvents, setUpcomingEvents] = useState<UpcomingEvent[] | null>(
     null
@@ -29,7 +30,18 @@ export const UpcomingEvents = () => {
   const sortEvents = (events: UpcomingEvent[], sortType: string) => {
     if (!events) return [];
 
-    return [...events].sort((a, b) => {
+    // Filter events based on search text
+    const filtered = events.filter((event) => {
+      if (!searchText) return true;
+
+      const nameMatch = event.eventId.name?.toLowerCase().includes(searchText.toLowerCase());
+      const overviewMatch = event.eventId.overview?.toLowerCase().includes(searchText.toLowerCase());
+      const yearMatch = event.year?.toString().includes(searchText);
+
+      return nameMatch || overviewMatch || yearMatch;
+    });
+
+    return [...filtered].sort((a, b) => {
       switch (sortType) {
         case "Oldest":
           return (
@@ -52,12 +64,18 @@ export const UpcomingEvents = () => {
         const res = await Axios.get("/api/season/upcoming");
         const data = res.data;
         console.log(data.data);
-        setUpcomingEvents(data.data.slice(0, 2));
+        // Show all upcoming events when searching, otherwise limit to 2
+        setUpcomingEvents(searchText ? data.data : data.data.slice(0, 2));
       } catch (err) {
         console.log("Failed to fetch upcoming events", err);
       }
     })();
-  }, []);
+  }, [searchText]);
+
+  // Don't render the section if searching and no results
+  if (searchText && sortedEvents.length === 0) {
+    return null;
+  }
 
   return (
     <div className="w-full bg-background py-16 md:py-20">
@@ -109,45 +127,52 @@ export const UpcomingEvents = () => {
         </motion.div>
 
         {/* News Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-6">
-          {sortedEvents?.map((item) => (
-            <motion.div
-              key={item._id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-              <EventBox
-                slug={item.latestEndedSeasonSlug}
-                image={item.image}
-                title={item.eventId.name}
-                desc={item.eventId.overview}
-                buttonText={`About ${item.eventId.name}`}
-                status="upcoming"
-              />
-            </motion.div>
-          ))}
-        </div>
+        {sortedEvents.length > 0 && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-6">
+            {sortedEvents?.map((item) => (
+              <motion.div
+                key={item._id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
+                <EventBox
+                  slug={item.latestEndedSeasonSlug}
+                  image={normalizeImagePath(item.image)}
+                  title={item.eventId.name}
+                  desc={item.eventId.overview}
+                  buttonText={`About ${item.eventId.name}`}
+                  status="upcoming"
+                  seasonId={item._id}
+                />
+              </motion.div>
+            ))}
+          </div>
+        )}
+
+
 
         {/* See All Button */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="flex justify-end mt-8"
-        >
-          <Link
-            href="/events/upcoming-events"
-            className="py-4 md:mb-8 lg:mb-0 rounded-full text-gold-500 text-base -tracking-tight font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer ml-auto"
+        {!searchText && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="flex justify-end mt-8"
           >
-            <span className="underline underline-offset-4">
-              See All Upcoming events
-            </span>
-            <i className="ri-arrow-right-up-line group-hover:scale-130 transition-transform duration-400 text-xl font-extralight" />
-          </Link>
-        </motion.div>
+            <Link
+              href="/events/upcoming-events"
+              className="py-4 md:mb-8 lg:mb-0 rounded-full text-gold-500 text-base -tracking-tight font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer ml-auto"
+            >
+              <span className="underline underline-offset-4">
+                See All Upcoming events
+              </span>
+              <i className="ri-arrow-right-up-line group-hover:scale-130 transition-transform duration-400 text-xl font-extralight" />
+            </Link>
+          </motion.div>
+        )}
       </div>
     </div>
   );

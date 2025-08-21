@@ -5,8 +5,17 @@ import type React from 'react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { validateEmail } from '@/lib/utils';
-import Axios from '@/lib/axios-instance';
-import { isAxiosError } from 'axios';
+import Axios from "@/lib/axios-instance";
+
+// API Function
+const subscribeToNewsletter = async (email: string) => {
+  const response = await Axios.post("/api/newsletter", { email });
+  return response.data;
+};
+
+interface NewsletterBoxProps {
+  className?: string;
+}
 
 export default function NewsLetterBox() {
   const [email, setEmail] = useState('');
@@ -15,34 +24,35 @@ export default function NewsLetterBox() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim()) {
+    const trimmedEmail = email.trim();
+
+    if (!trimmedEmail) {
       setError('Email is required.');
       return;
     }
-    if (!validateEmail(email)) {
+    if (!validateEmail(trimmedEmail)) {
       setError('Enter a valid email address.');
       return;
     }
 
     try {
       setIsSubmitting(true);
-      await Axios.post('/api/newsletter', { email });
-      toast.success('Thank you for subscribing!');
-      setEmail('');
-    } catch (error) {
-      if (isAxiosError(error)) {
-        const errorMessage = error.response?.data.message || 'Something went wrong. Please try again.';
-        if (errorMessage.includes("already subscribed")) {
-          toast.success(errorMessage);
-          setEmail('');
-          return;
-        }
-        toast.error(errorMessage);
+      const response = await subscribeToNewsletter(trimmedEmail);
+      if (response.success) {
+        toast.success('Thank you for subscribing!');
+        setEmail('');
+      } else {
+        toast.error(response.message || 'Something went wrong. Please try again.');
       }
-      else {
-        console.error('Subscription error:', error);
-        toast.error('Something went wrong. Please try again.');
+    } catch (error: any) {
+      console.error('Subscription error:', error);
+      const errorMessage = error.response?.data?.message || 'Something went wrong. Please try again.';
+      if (errorMessage.includes("already subscribed")) {
+        toast.success(errorMessage);
+        setEmail('');
+        return;
       }
+      toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }

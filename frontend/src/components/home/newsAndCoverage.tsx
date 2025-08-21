@@ -1,3 +1,5 @@
+"use client";
+
 import { motion } from "framer-motion";
 import ImageBox from "../molecules/image-box";
 import { useEffect, useState } from "react";
