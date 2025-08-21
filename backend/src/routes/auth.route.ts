@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { register, login, changePassword, init, deleteAdmin, logout } from "../controllers/auth.controller";
+import { register, login, changePassword, init, logout } from "../controllers/auth.controller";
 import { verifyAdminToken } from "../middleware/auth.middleware";
 
 const authRoutes = Router();
@@ -9,7 +9,6 @@ authRoutes
     .patch("/change-password", verifyAdminToken, changePassword)
     .post("/logout", logout)
     .post("/register", register)
-    .get('/delete', deleteAdmin)
     .get("/init", init);
 
 export default authRoutes;
