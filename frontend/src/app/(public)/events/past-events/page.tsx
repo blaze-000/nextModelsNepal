@@ -14,10 +14,9 @@ type PastEvents = {
   _id: string;
   name: string;
   overview?: string;
-  season: { endDate: string };
+  season: { year: number; endDate: string; slug: string };
   image: string;
-  slug: string;
-  year: number;
+  
   latestEndedSeasonSlug: string;
 };
 
@@ -31,7 +30,7 @@ export default function PastEvents() {
     if (!events) return [];
 
     const filtered = events.filter((event) => {
-      const nameMatch = event.name
+      const nameMatch = `${event.name} ${event.season.year}`
         ?.toLowerCase()
         .includes(searchText.toLowerCase());
       const overviewMatch = event.overview
@@ -116,7 +115,7 @@ export default function PastEvents() {
               viewport={{ once: true, amount: 0.1 }}
             >
               <EventBox
-                slug={item.latestEndedSeasonSlug}
+                slug={item.season.slug}
                 image={normalizeImagePath(item.image)}
                 title={item.name}
                 desc={item.overview || ""}
