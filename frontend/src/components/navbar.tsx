@@ -213,10 +213,10 @@ export default function Header() {
       initial={{ y: -80, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
-      className="w-full bg-background2"
+      className="w-full bg-background2 relative z-40"
     >
       <div className="max-w-7xl mx-auto px-6 flex justify-between items-center pt-2.5 pb-1">
-        <div>
+        <Link href="/">
           <Image
             src="/logo.png"
             alt="logo"
@@ -225,7 +225,7 @@ export default function Header() {
             className="flex items-center"
             priority
           />
-        </div>
+        </Link>
 
         {/* Desktop Navbar */}
         <div className="mdplus:flex justify-between items-center gap-16 hidden relative">
@@ -249,11 +249,9 @@ export default function Header() {
               >
                 Events
                 <i
-                  className={`ri-arrow-drop-${
-                    showEventsDropdown ? "up" : "down"
-                  }-line transition-all duration-200 ease-in-out ${
-                    showEventsDropdown ? "rotate-180" : ""
-                  }`}
+                  className={`ri-arrow-drop-${showEventsDropdown ? "up" : "down"
+                    }-line transition-all duration-200 ease-in-out ${showEventsDropdown ? "rotate-180" : ""
+                    }`}
                 />
               </button>
 
@@ -282,11 +280,9 @@ export default function Header() {
                 className="cursor-pointer"
               >
                 <i
-                  className={`ri-arrow-drop-${
-                    showEventsCentralDropdown ? "up" : "down"
-                  }-line transition-all duration-200 ease-in-out ${
-                    showEventsCentralDropdown ? "rotate-180" : ""
-                  }`}
+                  className={`ri-arrow-drop-${showEventsCentralDropdown ? "up" : "down"
+                    }-line transition-all duration-200 ease-in-out ${showEventsCentralDropdown ? "rotate-180" : ""
+                    }`}
                 />
               </button>
 
@@ -354,9 +350,8 @@ export default function Header() {
           )}
           <button
             role="button"
-            className={`${
-              isMobileMenuOpen ? "ri-close-line" : "ri-menu-line"
-            } text-3xl text-foreground/90 cursor-pointer`}
+            className={`${isMobileMenuOpen ? "ri-close-line" : "ri-menu-line"
+              } text-3xl text-foreground/90 cursor-pointer`}
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           />
         </div>
@@ -370,7 +365,7 @@ export default function Header() {
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: -20, opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="mdplus:hidden bg-background2 border-t border-t-foreground/40 border-b border-b-foreground/20"
+            className="mdplus:hidden absolute top-full left-0 right-0 z-50 bg-background2 border-t border-t-foreground/40 border-b border-b-foreground/20 shadow-lg"
           >
             <div className="px-6 py-4 flex flex-col gap-3 divide-y-[1px] divide-foreground/20">
               {/* Home */}
@@ -390,11 +385,9 @@ export default function Header() {
                 >
                   <span>Events</span>
                   <i
-                    className={`ri-arrow-${
-                      mobileEventsDropdownOpen ? "up" : "down"
-                    }-s-line text-lg transition-transform duration-200 ${
-                      mobileEventsDropdownOpen ? "rotate-180" : ""
-                    }`}
+                    className={`ri-arrow-${mobileEventsDropdownOpen ? "up" : "down"
+                      }-s-line text-lg transition-transform duration-200 ${mobileEventsDropdownOpen ? "rotate-180" : ""
+                      }`}
                   />
                 </button>
 
@@ -428,11 +421,9 @@ export default function Header() {
                     className="ml-2 flex-1 text-right"
                   >
                     <i
-                      className={`ri-arrow-${
-                        mobileEventsCentralDropdownOpen ? "up" : "down"
-                      }-s-line text-lg transition-transform duration-200 ${
-                        mobileEventsCentralDropdownOpen ? "rotate-180" : ""
-                      }`}
+                      className={`ri-arrow-${mobileEventsCentralDropdownOpen ? "up" : "down"
+                        }-s-line text-lg transition-transform duration-200 ${mobileEventsCentralDropdownOpen ? "rotate-180" : ""
+                        }`}
                     />
                   </button>
                 </div>

@@ -8,13 +8,18 @@ import { normalizeImagePath } from "@/lib/utils";
 
 const HeroSection = () => {
   const [data, setData] = useState<HeroData | null>(null);
+  const [upcoming, setUpcoming] = useState<boolean>(false);
+  const [ongoing, setOngoing] = useState<boolean>(false);
 
   useEffect(() => {
     (async () => {
       try {
         const res = await Axios.get("/api/hero");
         const data = res.data;
+        console.log(data);
         setData(data.data[0]);
+        setUpcoming(data.upcoming);
+        setOngoing(data.ongoing);
       } catch (err) {
         console.log(err);
       }
@@ -52,14 +57,14 @@ const HeroSection = () => {
               <div className="flex items-center gap-4 pt-4">
                 {/* Badge image with soft layered shadow */}
                 <div className=" relative">
-                    <Image
-                      src={normalizeImagePath(data?.titleImage)}
-                      alt=""
-                      priority
-                      width={160}
-                      height={64}
-                      className="w-20 p400:w-24 sm:w-40 h-16 rounded-full object-cover border border-stone-300 shadow-[-10px_8px_20px_10px_rgba(179,131,0,0.19)]"
-                    />
+                  <Image
+                    src={normalizeImagePath(data?.titleImage)}
+                    alt=""
+                    priority
+                    width={160}
+                    height={64}
+                    className="w-20 p400:w-24 sm:w-40 h-16 rounded-full object-cover border border-stone-300 shadow-[-10px_8px_20px_10px_rgba(179,131,0,0.19)]"
+                  />
                 </div>
                 {/* Label */}
                 <span className="text-white font-extralight font-newsreader tracking-tighter leading-px">
@@ -88,7 +93,7 @@ const HeroSection = () => {
                 </Button>
               </Link>
               <Link
-                href="/events/upcoming-events"
+                href={upcoming ? "/events/upcoming-events" : ongoing ? "/#ongoing-events" : "/events/past-events"}
                 className="px-4 py-4 md:mb-8 lg:mb-0 rounded-full text-gold-500 text-base -tracking-tight font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer"
               >
                 <span className="underline underline-offset-4">

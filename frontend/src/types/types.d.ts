@@ -127,6 +127,7 @@ type UpcomingEventData = {
   description: string,
   notice: string[],
   eventId: { name: string, },
+  getTicketLink: string,
   criteria: {
     _id: string,
     label: string,

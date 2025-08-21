@@ -24,41 +24,28 @@ export default function EventDetails() {
     initial: { opacity: 0, y: 20 },
     whileInView: { opacity: 1, y: 0 },
     transition: { duration: 0.6 },
-    viewport: { once: true, amount: 0.6 },
+    viewport: { once: true, amount: 0.2 },
   };
 
   const fadeInLeft = {
     initial: { opacity: 0, x: -30 },
     whileInView: { opacity: 1, x: 0 },
     transition: { duration: 0.6 },
-    viewport: { once: true, amount: 0.6 },
+    viewport: { once: true, amount: 0.2 },
   };
 
   const fadeInRight = {
     initial: { opacity: 0, x: 30 },
     whileInView: { opacity: 1, x: 0 },
     transition: { duration: 0.6 },
-    viewport: { once: true, amount: 0.6 },
-  };
-
-  const scaleIn = {
-    initial: { opacity: 0, scale: 0.9 },
-    whileInView: { opacity: 1, scale: 1 },
-    transition: { duration: 0.6 },
-    viewport: { once: true, amount: 0.6 },
-  };
-
-  const staggerContainer = {
-    initial: { opacity: 0 },
-    whileInView: { opacity: 1 },
-    transition: { duration: 0.6, staggerChildren: 0.1 },
-    viewport: { once: true, amount: 0.6 },
+    viewport: { once: true, amount: 0.2 },
   };
 
   const staggerItem = {
     initial: { opacity: 0, y: 20 },
     whileInView: { opacity: 1, y: 0 },
     transition: { duration: 0.5 },
+    viewport: { once: true, amount: 0.2 },
   };
 
   useEffect(() => {
@@ -141,13 +128,16 @@ export default function EventDetails() {
           <p className="mt-2 text-2xl max-w-lg text-white font-light mb-8">
             {data?.eventId.subtitle}
           </p>
-          <Dropdown
-            options={data?.eventId.seasons.map((season) => season.year.toString()) || []}
-            label="Year "
-            selected={data?.year?.toString() || ""}
-            onSelect={handleYearChange}
-            maxHeight="200px"
-          />
+          <div>
+            <Dropdown
+              options={data?.eventId.seasons.map((season) => season.year.toString()) || []}
+              label="Year "
+              selected={data?.year?.toString() || ""}
+              onSelect={handleYearChange}
+              maxHeight="200px"
+            />
+          </div>
+
         </div>
       </motion.section>
 
@@ -343,8 +333,7 @@ export default function EventDetails() {
       </motion.section>
 
       {/* Mobile Timeline Visual */}
-      <motion.section
-        {...fadeInUp}
+      <section
         className="xl:hidden flex w-full bg-background2 overflow-hidden pt-40 pb-20"
       >
         <div className="flex flex-col justify-center gap-36 w-full z-10 relative max-w-7xl mx-auto ml-6 mr-3 mb-36">
@@ -355,7 +344,7 @@ export default function EventDetails() {
               className="relative flex justify-center flex-1"
               initial={{ opacity: 0, x: -50 }}
               whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.2 }}
+              transition={{ duration: 0.6, delay: index * 0.04 }}
               viewport={{ once: true, amount: 0.6 }}
             >
               <div className="w-full py-6 px-6 mx-6 sm:mx-12 bg-muted-background shadow-md relative overflow-hidden">
@@ -398,7 +387,7 @@ export default function EventDetails() {
             </motion.div>
           ))}
         </div>
-      </motion.section>
+      </section>
 
 
       {/* Big Event Timeline Text with continuous scroll */}
@@ -489,28 +478,15 @@ export default function EventDetails() {
       </motion.section>
 
       {/* Gallery */}
-      <motion.section
-        {...fadeInUp}
+      <section
         className="w-full bg-background2 py-16 md:py-20"
       >
         <div className="max-w-7xl mx-auto px-6">
-          <motion.div
-            {...staggerItem}
-            className="flex flex-start items-start"
-          >
-            <SectionHeader title={`Highlights from ${data?.year}`} />
-          </motion.div>
+          <SectionHeader title={`Highlights from ${data?.year}`} />
           {/* Gallery using the reusable component */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            viewport={{ once: true, amount: 0.6 }}
-          >
-            <MasonryGallery images={data?.gallery?.map((image) => normalizeImagePath(image)) || []} />
-          </motion.div>
+          <MasonryGallery images={data?.gallery?.map((image) => normalizeImagePath(image)) || []} />
         </div>
-      </motion.section>
+      </section>
 
       {/* Sponsors */}
       <motion.section
@@ -543,7 +519,7 @@ export default function EventDetails() {
                 key={index}
                 initial={{ opacity: 0, scale: 0.8 }}
                 whileInView={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
                 viewport={{ once: true }}
               >
                 <Image

@@ -206,7 +206,7 @@ const BecomeModelForm = ({ prefillSeasonId }: { prefillSeasonId?: string | null 
         if (response.data.success) {
           setUpcomingEvents(response.data.data);
         } else {
-          toast.error("Failed to load upcoming events");
+          // toast.error("Failed to load upcoming events");
         }
       } catch (error) {
         console.error("Error fetching upcoming events:", error);
@@ -221,55 +221,25 @@ const BecomeModelForm = ({ prefillSeasonId }: { prefillSeasonId?: string | null 
 
   // Update event field when prefillSeasonId changes
   useEffect(() => {
-    if (prefillSeasonId) {
-      // Fetch season details to get event name and year
-      const fetchSeasonDetails = async () => {
-        try {
-          const response = await Axios.get(`/api/season/${prefillSeasonId}`);
-          if (response.data.success) {
-            const seasonData = response.data.data;
-            // Check if eventId is populated (object) or just an ID (string)
-            const eventName = typeof seasonData.eventId === 'object'
-              ? seasonData.eventId.name
-              : 'Event'; // Fallback if not populated
-            const eventString = `${eventName} ${seasonData.year}`;
-            setFormData(prev => ({
-              ...prev,
-              event: eventString
-            }));
-
-            // Also set the selectedEvent state to match the pre-filled event
-            // We need to wait for upcomingEvents to be loaded first
-            if (upcomingEvents.length > 0) {
-              const matchingEvent = upcomingEvents.find(event =>
-                `${event.eventId.name} ${event.year}` === eventString
-              );
-              if (matchingEvent) {
-                setSelectedEvent(matchingEvent);
-              }
-            }
-          }
-        } catch (error) {
-          console.error("Error fetching season details:", error);
-        }
-      };
-
-      fetchSeasonDetails();
-    }
-  }, [prefillSeasonId, upcomingEvents]);
-
-  // Handle case when upcomingEvents loads after prefillSeasonId is already set
-  useEffect(() => {
-    if (prefillSeasonId && upcomingEvents.length > 0 && !selectedEvent) {
-      // Try to find the matching event in the upcoming events list
-      const matchingEvent = upcomingEvents.find(event =>
-        event._id === prefillSeasonId
+    if (prefillSeasonId && upcomingEvents.length > 0) {
+      // Find the matching season in the upcoming events list by season ID
+      const matchingSeason = upcomingEvents.find(season =>
+        season._id === prefillSeasonId
       );
-      if (matchingEvent) {
-        setSelectedEvent(matchingEvent);
+
+      if (matchingSeason) {
+        // Set the form data with the event name and year
+        const eventString = `${matchingSeason.eventId.name} ${matchingSeason.year}`;
+        setFormData(prev => ({
+          ...prev,
+          event: eventString
+        }));
+
+        // Set the selected event
+        setSelectedEvent(matchingSeason);
       }
     }
-  }, [upcomingEvents, prefillSeasonId, selectedEvent]);
+  }, [prefillSeasonId, upcomingEvents]);
 
   // Generate event options from API data
   const eventOptions = upcomingEvents.map(event => ({
@@ -367,7 +337,6 @@ const BecomeModelForm = ({ prefillSeasonId }: { prefillSeasonId?: string | null 
     if (!formData.hairColor.trim())
       newErrors.hairColor = "Hair color is required";
     if (!formData.eyeColor.trim()) newErrors.eyeColor = "Eye color is required";
-    // Event and auditionPlace are optional - removed validation
     if (!formData.weight.trim()) newErrors.weight = "Weight is required";
     if (!formData.parentsName.trim())
       newErrors.parentsName = "Parent's name is required";
@@ -630,7 +599,7 @@ const BecomeModelForm = ({ prefillSeasonId }: { prefillSeasonId?: string | null 
               name="languages"
               value={formData.languages}
               onChange={handleChange}
-              placeholder="e.g. English, Nepali, Hindi"
+              placeholder="e.g. Nepali, English, Hindi"
               error={errors.languages}
             />
           </motion.div>

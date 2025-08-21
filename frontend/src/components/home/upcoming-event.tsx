@@ -312,7 +312,7 @@ const UpcomingEventSection = () => {
                     Apply Now
                   </Button>
                 </Link>
-                <Link href="https://www.esewa.com.np">
+                <Link href={event?.getTicketLink || ""}>
                   <Button variant="default" className="text-base bg-white">
                     Get Tickets
                   </Button>

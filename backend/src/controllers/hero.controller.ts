@@ -27,6 +27,17 @@ export const getHeroItem = async (_req: Request, res: Response) => {
   try {
     const heroItems = await HeroModel.find();
 
+    // Check for upcoming and ongoing events
+    const { SeasonModel } = await import("../models/events.model");
+
+    // Check if there are any upcoming events
+    const upcomingEventsCount = await SeasonModel.countDocuments({ status: "upcoming" });
+    const hasUpcomingEvents = upcomingEventsCount > 0;
+
+    // Check if there are any ongoing events
+    const ongoingEventsCount = await SeasonModel.countDocuments({ status: "ongoing" });
+    const hasOngoingEvents = ongoingEventsCount > 0;
+
     return res.status(200).json({
       success: true,
       message:
@@ -34,6 +45,8 @@ export const getHeroItem = async (_req: Request, res: Response) => {
           ? "Hero items retrieved successfully."
           : "No hero items found.",
       data: heroItems,
+      upcoming: hasUpcomingEvents,
+      ongoing: hasOngoingEvents,
     });
   } catch (error: any) {
     console.error("Error fetching Hero items:", error.message);

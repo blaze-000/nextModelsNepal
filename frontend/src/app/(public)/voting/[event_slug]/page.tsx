@@ -108,7 +108,7 @@ export default function EventVoting() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.6}}
+                transition={{ duration: 0.6 }}
                 className="space-y-4 mx-auto"
               >
                 <Image
