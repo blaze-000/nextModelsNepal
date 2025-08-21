@@ -1,13 +1,14 @@
 "use client";
 
 import Breadcrumb from "@/components/molecules/breadcumb";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import type React from "react";
 import MasonryGallery from "@/components/molecules/masonary-gallery";
 import Dropdown from "@/components/ui/Dropdown";
 import { motion } from "framer-motion";
 import Axios from "@/lib/axios-instance";
 import { normalizeImagePath } from "@/lib/utils";
-import Image from "next/image";
+
 
 type EndedEvent = {
   eventId: string;
@@ -32,9 +33,12 @@ export default function Gallery() {
   const [latestGallery, setLatestGallery] = useState<string[]>([]);
   const [filteredImages, setFilteredImages] = useState<string[]>([]);
   const [years, setYears] = useState<string[]>([]);
+  const [latestEventData, setLatestEventData] = useState<{
+    eventName: string;
+    year: number;
+  } | null>(null);
   const [eventTypes, setEventTypes] = useState<string[]>([]);
   const [eventMap, setEventMap] = useState<{ [label: string]: string }>({});
-  const [searchText, setSearchText] = useState("");
 
   // Fetch initial gallery + available events/years
   useEffect(() => {
@@ -47,6 +51,10 @@ export default function Gallery() {
 
         setLatestGallery(data.latestGallery.gallery);
         setFilteredImages(data.latestGallery.gallery);
+        setLatestEventData({
+          eventName: data.latestGallery.eventName,
+          year: data.latestGallery.year,
+        });
 
         // Extract + sort years (latest first)
         const allYears = [
@@ -105,12 +113,7 @@ export default function Gallery() {
 
   return (
     <>
-      <Breadcrumb
-        title="Events Highlights Gallery"
-        searchText={searchText}
-        setSearchText={setSearchText}
-        searchPlaceholder="Search events highlights"
-      />
+      <Breadcrumb title="Events Highlights Gallery" showSearch={false} />
 
       <div className="max-w-7xl mx-auto px-6">
         <motion.div
@@ -128,7 +131,9 @@ export default function Gallery() {
                   ? Object.keys(eventMap).find(
                       (k) => eventMap[k] === selectedEvent
                     ) || ""
-                  : "Latest"
+                  : latestEventData
+                  ? `${latestEventData.eventName} `
+                  : ""
               }
               onSelect={(label) => setSelectedEvent(eventMap[label] || "")}
             />
@@ -136,29 +141,16 @@ export default function Gallery() {
             <Dropdown
               label="Year"
               options={years}
-              selected={selectedYear || "Latest"}
+              selected={
+                selectedYear ||
+                (latestEventData ? String(latestEventData.year) : "")
+              }
               onSelect={setSelectedYear}
               maxHeight="180px"
             />
           </div>
-          {searchText !== "" && (
-            <div className="flex ">
-              <Image
-                src="/svg-icons/small_star.svg"
-                alt=""
-                height={20}
-                width={20}
-                className="inline-block mr-2 h-5 w-5 bg-cover"
-              />
 
-              <p className=" text-2xl pb-5  font-newsreader">
-                Searching for:{" "}
-                <span className="text-gold-500">
-                  &ldquo;{searchText}&rdquo;
-                </span>
-              </p>
-            </div>
-          )}
+          
         </motion.div>
 
         {filteredImages.length > 0 ? (

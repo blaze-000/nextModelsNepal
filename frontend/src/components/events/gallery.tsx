@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import type React from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 
@@ -33,6 +34,10 @@ export const Gallery = () => {
   const [latestGallery, setLatestGallery] = useState<string[]>([]);
   const [filteredImages, setFilteredImages] = useState<string[]>([]);
   const [years, setYears] = useState<string[]>([]);
+  const [latestEventData, setLatestEventData] = useState<{
+    eventName: string;
+    year: number;
+  } | null>(null);
 
   const [eventTypes, setEventTypes] = useState<string[]>([]);
   const [eventMap, setEventMap] = useState<{ [label: string]: string }>({});
@@ -48,6 +53,10 @@ export const Gallery = () => {
 
         setLatestGallery(data.latestGallery.gallery);
         setFilteredImages(data.latestGallery.gallery);
+        setLatestEventData({
+          eventName: data.latestGallery.eventName,
+          year: data.latestGallery.year,
+        });
 
         // Years
         const allYears = [
@@ -124,7 +133,9 @@ export const Gallery = () => {
                     ? Object.keys(eventMap).find(
                         (k) => eventMap[k] === selectedEvent
                       ) || ""
-                    : "Latest"
+                    : latestEventData
+                    ? `${latestEventData.eventName} `
+                    : ""
                 }
                 onSelect={(label) => setSelectedEvent(eventMap[label] || "")}
               />
@@ -132,7 +143,10 @@ export const Gallery = () => {
               <Dropdown
                 label="Year"
                 options={years}
-                selected={selectedYear || "Latest"}
+                selected={
+                  selectedYear ||
+                  (latestEventData ? String(latestEventData.year) : "")
+                }
                 onSelect={setSelectedYear}
                 maxHeight="180px"
               />

@@ -1,29 +1,30 @@
 "use client";
 import { useState, useEffect } from "react";
+import type React from "react";
 import { toast } from "sonner";
 import PageHeader from "@/components/admin/PageHeader";
 import Axios from "@/lib/axios-instance";
 import { Button } from "@/components/ui/button";
 
 interface SocialData {
-    _id?: string;
-    instagram: string;
-    x: string;
-    fb: string;
-    linkdln: string;
-    phone: string[];
-    mail: string;
-    location: string;
+  _id?: string;
+  instagram: string;
+  x: string;
+  fb: string;
+  linkdln: string;
+  phone: string[];
+  mail: string;
+  location: string;
 }
 
 const initialState: SocialData = {
-    instagram: "https://www.instagram.com/",
-    x: "https://x.com/",
-    fb: "https://www.facebook.com/",
-    linkdln: "https://www.linkedin.com/",
-    phone: [],
-    mail: "",
-    location: "",
+  instagram: "https://www.instagram.com/",
+  x: "https://x.com/",
+  fb: "https://www.facebook.com/",
+  linkdln: "https://www.linkedin.com/",
+  phone: [],
+  mail: "",
+  location: "",
 };
 
 export default function SocialAdminPage() {
@@ -127,14 +128,23 @@ export default function SocialAdminPage() {
             const msg = 'Failed to save social settings';
             toast.error(msg);
         } finally {
-            setSubmitting(false);
+            setSubmitting(false);  
         }
-    };
+      }
+    } catch (err) {
+      console.error("Save error", err);
+      toast.error("Failed to save social settings");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
-    return (
-        <div className="max-w-3xl mx-auto space-y-6 p-6">
-            <PageHeader title="Social Settings" description="Manage social links and contact info for the site footer." />
-
+  return (
+    <div className="max-w-3xl mx-auto space-y-6 p-6">
+      <PageHeader
+        title="Social Settings"
+        description="Manage social links and contact info for the site footer."
+      />
             <form onSubmit={handleSubmit} className="space-y-4 bg-muted-background rounded border border-gray-700 p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <label className="flex flex-col">
@@ -216,12 +226,13 @@ export default function SocialAdminPage() {
                     </label>
                 </div>
 
-                <div className="flex items-center justify-end">
-                    <Button type="submit" disabled={submitting || loading}>
-                        {submitting ? "Saving..." : "Save"}
-                    </Button>
-                </div>
-            </form>
+
+        <div className="flex items-center justify-end">
+          <Button type="submit" disabled={submitting || loading}>
+            {submitting ? "Saving..." : "Save"}
+          </Button>
         </div>
-    );
+      </form>
+    </div>
+  );
 }

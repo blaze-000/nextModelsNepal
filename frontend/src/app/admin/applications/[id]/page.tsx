@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -7,6 +8,7 @@ import { Spinner } from "@geist-ui/react";
 import Axios from "@/lib/axios-instance";
 import { normalizeImagePath } from "@/lib/utils";
 import Link from "next/link";
+import type React from "react";
 
 interface Application {
   _id: string;
@@ -88,7 +90,7 @@ const ApplicationDetail = () => {
       fetchApplication();
     }
   }, [id]);
-  console.log(application?.images)
+  console.log(application?.images);
 
   // Format date for display
   const formatDate = (dateString: string) => {
@@ -132,7 +134,9 @@ const ApplicationDetail = () => {
       {/* Header */}
       <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Application Details</h1>
+          <h1 className="text-3xl font-bold text-foreground">
+            Application Details
+          </h1>
           <p className="text-foreground/70 mt-2">
             Submitted on {formatDate(application.createdAt)}
           </p>
@@ -170,10 +174,15 @@ const ApplicationDetail = () => {
         {/* Left Column - Photos */}
         <div className="lg:col-span-1">
           <div className="bg-background2 rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold text-foreground mb-4">Photos</h2>
+            <h2 className="text-xl font-semibold text-foreground mb-4">
+              Photos
+            </h2>
             <div className="grid grid-cols-2 gap-4">
               {application?.images.map((image, index) => (
-                <div key={index} className=" overflow-hidden bg-muted-background">
+                <div
+                  key={index}
+                  className=" overflow-hidden bg-muted-background"
+                >
                   <img
                     src={normalizeImagePath(image)}
                     alt={`Application photo ${index + 1}`}
@@ -188,12 +197,16 @@ const ApplicationDetail = () => {
         {/* Right Column - Details */}
         <div className="lg:col-span-2">
           <div className="bg-background2 rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold text-foreground mb-6">Application Information</h2>
+            <h2 className="text-xl font-semibold text-foreground mb-6">
+              Application Information
+            </h2>
 
             <div className="space-y-8">
               {/* Personal Information */}
               <div>
-                <h3 className="text-lg font-medium text-gold-500 mb-3">Personal Information</h3>
+                <h3 className="text-lg font-medium text-gold-500 mb-3">
+                  Personal Information
+                </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm text-foreground/50">Full Name</p>
@@ -213,7 +226,9 @@ const ApplicationDetail = () => {
                   </div>
                   <div>
                     <p className="text-sm text-foreground/50">Gender</p>
-                    <p className="text-foreground">{application.gender || "Not specified"}</p>
+                    <p className="text-foreground">
+                      {application.gender || "Not specified"}
+                    </p>
                   </div>
                   <div>
                     <p className="text-sm text-foreground/50">Ethnicity</p>
@@ -225,14 +240,18 @@ const ApplicationDetail = () => {
                   </div>
                   <div>
                     <p className="text-sm text-foreground/50">Languages</p>
-                    <p className="text-foreground">{application.languages.join(", ")}</p>
+                    <p className="text-foreground">
+                      {application.languages.join(", ")}
+                    </p>
                   </div>
                 </div>
               </div>
 
               {/* Physical Attributes */}
               <div>
-                <h3 className="text-lg font-medium text-gold-500 mb-3">Physical Attributes</h3>
+                <h3 className="text-lg font-medium text-gold-500 mb-3">
+                  Physical Attributes
+                </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm text-foreground/50">Dress Size</p>
@@ -259,41 +278,59 @@ const ApplicationDetail = () => {
 
               {/* Event Information */}
               <div>
-                <h3 className="text-lg font-medium text-gold-500 mb-3">Event Information</h3>
+                <h3 className="text-lg font-medium text-gold-500 mb-3">
+                  Event Information
+                </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm text-foreground/50">Event</p>
-                    <p className="text-foreground">{application.event || "Not specified"}</p>
+                    <p className="text-foreground">
+                      {application.event || "Not specified"}
+                    </p>
                   </div>
                   <div>
                     <p className="text-sm text-foreground/50">Audition Place</p>
-                    <p className="text-foreground">{application.auditionPlace || "Not specified"}</p>
+                    <p className="text-foreground">
+                      {application.auditionPlace || "Not specified"}
+                    </p>
                   </div>
                 </div>
               </div>
 
               {/* Parents Information */}
               <div>
-                <h3 className="text-lg font-medium text-gold-500 mb-3">Parents Information</h3>
+                <h3 className="text-lg font-medium text-gold-500 mb-3">
+                  Parents Information
+                </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm text-foreground/50">Parent's Name</p>
                     <p className="text-foreground">{application.parentsName}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-foreground/50">Parent's Mobile</p>
-                    <p className="text-foreground">{application.parentsMobile}</p>
+                    <p className="text-sm text-foreground/50">
+                      Parent's Mobile
+                    </p>
+                    <p className="text-foreground">
+                      {application.parentsMobile}
+                    </p>
                   </div>
                   <div>
-                    <p className="text-sm text-foreground/50">Parent's Occupation</p>
-                    <p className="text-foreground">{application.parentsOccupation || "Not specified"}</p>
+                    <p className="text-sm text-foreground/50">
+                      Parent's Occupation
+                    </p>
+                    <p className="text-foreground">
+                      {application.parentsOccupation || "Not specified"}
+                    </p>
                   </div>
                 </div>
               </div>
 
               {/* Address Information */}
               <div>
-                <h3 className="text-lg font-medium text-gold-500 mb-3">Address Information</h3>
+                <h3 className="text-lg font-medium text-gold-500 mb-3">
+                  Address Information
+                </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm text-foreground/50">Country</p>
@@ -304,19 +341,29 @@ const ApplicationDetail = () => {
                     <p className="text-foreground">{application.city}</p>
                   </div>
                   <div className="md:col-span-2">
-                    <p className="text-sm text-foreground/50">Permanent Address</p>
-                    <p className="text-foreground">{application.permanentAddress}</p>
+                    <p className="text-sm text-foreground/50">
+                      Permanent Address
+                    </p>
+                    <p className="text-foreground">
+                      {application.permanentAddress}
+                    </p>
                   </div>
                   <div className="md:col-span-2">
-                    <p className="text-sm text-foreground/50">Temporary Address</p>
-                    <p className="text-foreground">{application.temporaryAddress}</p>
+                    <p className="text-sm text-foreground/50">
+                      Temporary Address
+                    </p>
+                    <p className="text-foreground">
+                      {application.temporaryAddress}
+                    </p>
                   </div>
                 </div>
               </div>
 
               {/* Additional Information */}
               <div>
-                <h3 className="text-lg font-medium text-gold-500 mb-3">Additional Information</h3>
+                <h3 className="text-lg font-medium text-gold-500 mb-3">
+                  Additional Information
+                </h3>
                 <div className="space-y-4">
                   <div>
                     <p className="text-sm text-foreground/50">Hobbies</p>
@@ -330,14 +377,20 @@ const ApplicationDetail = () => {
                   )}
                   {application.heardFrom && (
                     <div>
-                      <p className="text-sm text-foreground/50">How did you hear about us?</p>
+                      <p className="text-sm text-foreground/50">
+                        How did you hear about us?
+                      </p>
                       <p className="text-foreground">{application.heardFrom}</p>
                     </div>
                   )}
                   {application.additionalMessage && (
                     <div>
-                      <p className="text-sm text-foreground/50">Additional Message</p>
-                      <p className="text-foreground">{application.additionalMessage}</p>
+                      <p className="text-sm text-foreground/50">
+                        Additional Message
+                      </p>
+                      <p className="text-foreground">
+                        {application.additionalMessage}
+                      </p>
                     </div>
                   )}
                 </div>

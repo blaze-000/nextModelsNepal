@@ -61,7 +61,7 @@ const Dropdown: React.FC<DropdownProps> = ({
 
       {/* Dropdown List */}
       {open && (
-        <div className="absolute right-0 -mt-1 bg-[#1E1E1E] z-10  rounded shadow-lg hover:text-gold-500 overflow-hidden">
+        <div className="absolute right-0 -mt-1 bg-[#1E1E1E] z-10   shadow-lg hover:text-gold-500 overflow-hidden">
           <div
             ref={contentRef}
             className="overflow-y-auto"
@@ -80,8 +80,8 @@ const Dropdown: React.FC<DropdownProps> = ({
                       onSelect(option);
                       setOpen(false);
                     }}
-                    className={`relative px-4 py-2 text-sm text-white text-center cursor-pointer ${
-                      selected === option ? "text-gold-500" : ""
+                    className={`relative px-4 py-2 text-sm text-white hover:text-gold-500 text-end cursor-pointer ${
+                      selected === option ? "" : ""
                     }`}
                   >
                     {option}

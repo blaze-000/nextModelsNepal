@@ -1,7 +1,8 @@
 "use client";
 
 import Breadcrumb from "@/components/molecules/breadcumb";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import type React from "react";
 import { motion } from "framer-motion";
 import EventBox from "@/components/molecules/event-box";
 import Axios from "@/lib/axios-instance";
@@ -30,10 +31,13 @@ export default function UpcomingEvent() {
   const sortEvents = (events: UpcomingEvent[], sortType: string) => {
     if (!events) return [];
 
-    const filtered = events.filter((event) =>
-      event.eventId.name.toLowerCase().includes(searchText.toLowerCase()) ||
-      (event.eventId.overview &&
-        event.eventId.overview.toLowerCase().includes(searchText.toLowerCase()))
+    const filtered = events.filter(
+      (event) =>
+        event.eventId.name.toLowerCase().includes(searchText.toLowerCase()) ||
+        (event.eventId.overview &&
+          event.eventId.overview
+            .toLowerCase()
+            .includes(searchText.toLowerCase()))
     );
 
     return [...filtered].sort((a, b) => {
@@ -77,7 +81,6 @@ export default function UpcomingEvent() {
       <div className="w-full bg-background py-4 md:py-20">
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex flex-wrap  justify-center gap-5 px-2 mb-6">
-
             <Dropdown
               label="Sort By"
               options={sortOptions}
@@ -103,7 +106,6 @@ export default function UpcomingEvent() {
               </p>
             </div>
           )}
-
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-6">
             {sortedEvents?.map((item) => (

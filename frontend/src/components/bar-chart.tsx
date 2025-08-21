@@ -1,6 +1,7 @@
 "use client";
 
 import Image from 'next/image';
+import type React from "react";
 import { motion } from "framer-motion";
 
 type Contestant = {

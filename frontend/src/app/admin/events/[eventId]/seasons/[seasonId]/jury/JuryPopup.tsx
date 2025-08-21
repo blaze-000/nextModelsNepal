@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-
+import type React from "react";
 import Modal from "@/components/admin/Modal";
 import Input from "@/components/admin/form/input";
 import PhotoUpload from "@/components/admin/form/photo-upload";

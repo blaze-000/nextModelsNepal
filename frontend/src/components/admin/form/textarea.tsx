@@ -1,5 +1,6 @@
 "use client";
 
+import type React from "react";
 interface TextareaProps {
   label: string;
   name: string;
