@@ -43,7 +43,7 @@ export default function SubscribedEmailsPopup({ isOpen, onClose }: SubscribedEma
       setLoading(true);
       const response = await getNewsletterSubscribers();
       setSubscribers(response.data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error fetching subscribers:", error);
       toast.error("Failed to load subscribers");
     } finally {
@@ -59,7 +59,7 @@ export default function SubscribedEmailsPopup({ isOpen, onClose }: SubscribedEma
       await deleteNewsletterSubscription(subscriber._id);
       setSubscribers(subscribers.filter(s => s._id !== subscriber._id));
       toast.success("Subscriber deleted successfully");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error deleting subscriber:", error);
       toast.error("Failed to delete subscriber");
     }

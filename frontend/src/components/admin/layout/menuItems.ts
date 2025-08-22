@@ -3,6 +3,7 @@ export interface MenuItem {
   label: string;
   icon: string;
   href: string;
+  badge?: string;
 }
 
 export interface MenuSection {

@@ -77,9 +77,9 @@ export default function SeasonDetailPage() {
   const params = useParams();
   const searchParams = useSearchParams();
   const router = useRouter();
-  const eventId = params.eventId as string;
-  const seasonId = params.seasonId as string;
-  const activeTab = (searchParams.get("tab") as TabKey) || "overview";
+  const eventId = params?.eventId as string;
+  const seasonId = params?.seasonId as string;
+  const activeTab = (searchParams?.get("tab") as TabKey) || "overview";
 
   // State
   const [event, setEvent] = useState<Event | null>(null);
@@ -288,7 +288,7 @@ export default function SeasonDetailPage() {
     // Store current scroll position
     scrollPositionRef.current = window.scrollY;
 
-    const newSearchParams = new URLSearchParams(searchParams.toString());
+    const newSearchParams = new URLSearchParams(searchParams?.toString() || '');
     newSearchParams.set("tab", tab);
     router.push(
       `/admin/events/${eventId}/seasons/${seasonId}?${newSearchParams.toString()}`

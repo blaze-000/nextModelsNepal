@@ -19,10 +19,7 @@ const deleteSentNewsletter = async (id: string) => {
   return response.data;
 };
 
-const getNewsletterSubscribers = async () => {
-  const response = await Axios.get("/api/newsletter/all");
-  return response.data;
-};
+
 
 interface SentNewsletter {
   _id: string;
@@ -55,7 +52,7 @@ const NewsletterPage = () => {
       setLoading(true);
       const response = await getSentNewsletters();
       setSentNewsletters(response.data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error fetching sent newsletters:", error);
       toast.error("Failed to load newsletter history");
     } finally {
@@ -72,7 +69,7 @@ const NewsletterPage = () => {
       await deleteSentNewsletter(newsletter._id);
       setSentNewsletters(sentNewsletters.filter(n => n._id !== newsletter._id));
       toast.success("Newsletter record deleted successfully");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error deleting newsletter record:", error);
       toast.error("Failed to delete newsletter record");
     }

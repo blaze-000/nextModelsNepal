@@ -12,7 +12,8 @@ import Axios from "@/lib/axios-instance";
 import { normalizeImagePath } from "@/lib/utils";
 
 export default function ModelDetailsPage() {
-  const { slug } = useParams();
+  const params = useParams();
+  const slug = params?.slug as string;
   const [model, setModel] = useState<Model | null>(null);
 
   useEffect(() => {

@@ -22,7 +22,7 @@ export default function NavSettingsPage() {
         } else {
           setShowVoting(false);
         }
-      } catch (error) {
+      } catch {
         toast.error("Failed to fetch voting state from database.");
       } finally {
         setLoading(false);
@@ -40,7 +40,7 @@ export default function NavSettingsPage() {
     try {
       await Axios.post("/api/nav", { showVoting });
       toast.success("Settings saved successfully!");
-    } catch (error) {
+      } catch {
       toast.error("Failed to save settings");
     } finally {
       setSubmitting(false);

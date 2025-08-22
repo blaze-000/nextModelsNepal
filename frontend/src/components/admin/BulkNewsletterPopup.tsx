@@ -127,9 +127,9 @@ export default function BulkNewsletterPopup({ isOpen, onClose, onSuccess }: Bulk
       } else {
         throw new Error(response.message);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error sending bulk newsletter:", error);
-      const errorMessage = error.response?.data?.message || "Failed to send bulk newsletter";
+      const errorMessage = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to send bulk newsletter";
       toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);

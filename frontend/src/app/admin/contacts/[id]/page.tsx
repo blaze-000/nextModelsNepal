@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -18,28 +18,28 @@ interface Contact {
   createdAt: string;
 }
 
-const ContactDetail = () => {
+export default function ContactDetails() {
   const params = useParams();
   const router = useRouter();
   const [contact, setContact] = useState<Contact | null>(null);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
-  const id = params.id as string;
+  const id = params?.id as string;
 
   // Fetch contact details
-  const fetchContact = async () => {
+  const fetchContact = useCallback(async () => {
     try {
       setLoading(true);
       const response = await Axios.get(`/api/contact/${id}`);
       setContact(response.data.data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error fetching contact:", error);
       toast.error("Failed to load contact details");
       router.push("/admin/contacts");
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, router]);
 
   // Delete contact
   const handleDelete = async () => {
@@ -52,7 +52,7 @@ const ContactDetail = () => {
       await Axios.delete(`/api/contact/${id}`);
       toast.success("Contact message deleted successfully");
       router.push("/admin/contacts");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error deleting contact:", error);
       toast.error("Failed to delete contact message");
     } finally {
@@ -230,5 +230,3 @@ const ContactDetail = () => {
     </div>
   );
 };
-
-export default ContactDetail;

@@ -49,7 +49,7 @@ interface Season {
 export default function SeasonsPage() {
   const params = useParams();
   const router = useRouter();
-  const eventId = params.eventId as string;
+  const eventId = params?.eventId as string;
 
   // State
   const [event, setEvent] = useState<Event | null>(null);

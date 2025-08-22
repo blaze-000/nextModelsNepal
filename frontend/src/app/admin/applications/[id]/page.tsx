@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -9,6 +9,7 @@ import Axios from "@/lib/axios-instance";
 import { normalizeImagePath } from "@/lib/utils";
 import Link from "next/link";
 import type React from "react";
+import Image from "next/image";
 
 interface Application {
   _id: string;
@@ -42,28 +43,28 @@ interface Application {
   createdAt: string;
 }
 
-const ApplicationDetail = () => {
+export default function ApplicationDetails() {
   const params = useParams();
   const router = useRouter();
   const [application, setApplication] = useState<Application | null>(null);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
-  const id = params.id as string;
+  const id = params?.id as string;
 
   // Fetch application details
-  const fetchApplication = async () => {
+  const fetchApplication = useCallback(async () => {
     try {
       setLoading(true);
       const response = await Axios.get(`/api/app-form/${id}`);
       setApplication(response.data.data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error fetching application:", error);
       toast.error("Failed to load application details");
       router.push("/admin");
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, router]);
 
   // Delete application
   const handleDelete = async () => {
@@ -76,7 +77,7 @@ const ApplicationDetail = () => {
       await Axios.delete(`/api/app-form/${id}`);
       toast.success("Application deleted successfully");
       router.push("/admin");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error deleting application:", error);
       toast.error("Failed to delete application");
     } finally {
@@ -181,12 +182,13 @@ const ApplicationDetail = () => {
               {application?.images.map((image, index) => (
                 <div
                   key={index}
-                  className=" overflow-hidden bg-muted-background"
+                  className="relative overflow-hidden bg-muted-background"
                 >
-                  <img
+                  <Image
                     src={normalizeImagePath(image)}
                     alt={`Application photo ${index + 1}`}
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
                   />
                 </div>
               ))}
@@ -304,12 +306,12 @@ const ApplicationDetail = () => {
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <p className="text-sm text-foreground/50">Parent's Name</p>
+                    <p className="text-sm text-foreground/50">Parent&apos;s Name</p>
                     <p className="text-foreground">{application.parentsName}</p>
                   </div>
                   <div>
                     <p className="text-sm text-foreground/50">
-                      Parent's Mobile
+                      Parent&apos;s Mobile
                     </p>
                     <p className="text-foreground">
                       {application.parentsMobile}
@@ -317,7 +319,7 @@ const ApplicationDetail = () => {
                   </div>
                   <div>
                     <p className="text-sm text-foreground/50">
-                      Parent's Occupation
+                      Parent&apos;s Occupation
                     </p>
                     <p className="text-foreground">
                       {application.parentsOccupation || "Not specified"}
@@ -402,5 +404,3 @@ const ApplicationDetail = () => {
     </div>
   );
 };
-
-export default ApplicationDetail;
