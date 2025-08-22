@@ -33,7 +33,7 @@ export default function HireModel() {
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         viewport={{ once: true, amount: 0.6 }}
-        className="h-[40vh] md:h-[80vh] bg-black bg-cover bg-center relative"
+        className="h-[40vh] md:h-[60vh] xl:h-[80vh] bg-black bg-cover bg-center relative"
         style={{ backgroundImage: "url('/events_1.jpg')" }}
       >
         {/* Gradient mask */}
@@ -82,6 +82,8 @@ export default function HireModel() {
         </div>
       </motion.section>
 
+
+      <div className="flex flex-col-reverse mdplus:flex-col">
       <HireModelForm
         preSelectedModelId={preSelectedModelId}
         models={[...femaleModels, ...maleModels]}
@@ -100,10 +102,10 @@ export default function HireModel() {
             {/* Mobile Title */}
             <div className="md:hidden flex flex-col gap-2">
               <h2 className="text-white text-4xl font-light font-newsreader">
-                Find a Face
+                Explore Models
               </h2>
               <h2 className="text-gold-500 text-5xl font-light tracking-tight font-newsreader">
-                For Your Brand!
+                Find a face for Your Brand!
               </h2>
             </div>
 
@@ -218,6 +220,7 @@ export default function HireModel() {
           </div>
         </div>
       </section>
+      </div>
     </main>
   );
 }

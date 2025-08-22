@@ -21,6 +21,12 @@ router.get("/upcoming", seasonController.getAllUpcomingEvents);
 // Get earliest upcoming event
 router.get("/earliest-upcoming", seasonController.getEarliestUpcomingEvent);
 
+// Get all events that are opened for voting
+router.get("/voting", seasonController.getVotingEvents);
+
+// Get details of a voting season
+router.get("/voting/:slug", seasonController.getVotingSeasonDetails);
+
 // Get seasons by event ID
 router.get("/event/:eventId", seasonController.getSeasonsByEvent);
 
