@@ -48,7 +48,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-background2 flex">
+      <div className="min-h-screen bg-background2 flex admin-layout">
         {/* Sidebar */}
         <Sidebar
           isCollapsed={isSidebarCollapsed}
@@ -71,7 +71,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           />
 
           {/* Page Content */}
-          <main className="flex-1 overflow-auto bg-background">
+          <main className="flex-1 overflow-y-auto bg-background">
             <div className="p-4 lg:p-6">{children}</div>
           </main>
         </div>
