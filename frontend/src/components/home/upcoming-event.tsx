@@ -78,8 +78,8 @@ const UpcomingEventSection = () => {
               <div className="text-5xl font-light font-newsreader tracking-tighter text-primary mb-1 mt-2">
                 Presenting,
               </div>
-              <div className="text-5xl font-light font-newsreader tracking-tighter text-gold-500 mb-4">
-                {event?.eventId.name} {" "} {event?.year}
+                <div className="text-5xl font-light font-newsreader tracking-tighter text-gold-500 mb-4">
+                {event?.eventId?.name || ""} {" "} {event?.year || ""}
               </div>
             </div>
 
@@ -108,7 +108,7 @@ const UpcomingEventSection = () => {
                 <span>Fashion Event.</span>
               </div>
               <div className="text-6xl font-light font-newsreader tracking-tighter text-gold-500 mb-4">
-                Presenting, {event?.eventId.name} {" "} {event?.year}
+                Presenting, {event?.eventId?.name || ""} {" "} {event?.year || ""}
               </div>
             </div>
 
@@ -165,7 +165,7 @@ const UpcomingEventSection = () => {
               </div>
 
               <div className="flex justify-between flex-col lg:flex-row gap-4 space-y-8 md:space-y-0 lg:gap-0">
-                {event?.criteria.map((itm, index) => (
+                {(event?.criteria || []).map((itm, index) => (
                   <div key={index} className="flex items-center gap-4 ">
                     <Image
                       src={itm.icon ? normalizeImagePath(itm.icon) : "/default-fallback-image.png"}
@@ -198,7 +198,7 @@ const UpcomingEventSection = () => {
 
               {/* Mobile Layout - Grid (under xl) */}
               <div className="grid sm:grid-cols-2 gap-4 xl:hidden">
-                {event?.auditions.map((audition, index) => (
+                {(event?.auditions || []).map((audition, index) => (
                   <div
                     key={index}
                     className="bg-neutral-900 p-4 flex items-center gap-4"
@@ -224,7 +224,7 @@ const UpcomingEventSection = () => {
               <div className="hidden xl:block">
                 <div className="relative">
                   <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 audition-scroll-container scroll-smooth">
-                    {event?.auditions.map((audition, index) => (
+                    {(event?.auditions || []).map((audition, index) => (
                       <div
                         key={index}
                         className="flex-shrink-0 w-[calc(50%-8px)] bg-neutral-900 p-4 flex items-center gap-4"
@@ -247,7 +247,7 @@ const UpcomingEventSection = () => {
                   </div>
 
                   {/* Navigation Arrows - Only show if more than 2 auditions */}
-                  {event?.auditions && event.auditions.length > 2 && (
+                  {(event?.auditions || []).length > 2 && (
                     <>
                       <button
                         onClick={() => {
@@ -295,7 +295,7 @@ const UpcomingEventSection = () => {
                 {event?.noticeName}
               </p>
               <div className="space-y-2">
-                {event?.notice.map((item, index) => (
+                {(event?.notice || []).map((item, index) => (
                   <p
                     key={index}
                     className="text-white text-sm font-light font-urbanist">
