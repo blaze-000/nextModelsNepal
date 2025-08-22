@@ -8,5 +8,6 @@ export default function LenisProvider({
   children: React.ReactNode;
 }) {
   useLenis();
+
   return <>{children}</>;
 }
