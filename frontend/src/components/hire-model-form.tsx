@@ -19,7 +19,7 @@ interface Model {
   slug: string;
   coverImage: string;
   images: string[];
-  index: number;
+  index?: number;
 }
 
 // Reusable Input Component
@@ -203,9 +203,9 @@ const HireModelForm = ({ preSelectedModelId, models }: HireModelFormProps) => {
       } else {
         throw new Error(response.data.message || "Failed to submit request");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error submitting hire request:", error);
-      toast.error(error.response?.data?.message || "Failed to submit request. Please try again.");
+      toast.error((error as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to submit request. Please try again.");
     } finally {
       setIsSending(false);
     }

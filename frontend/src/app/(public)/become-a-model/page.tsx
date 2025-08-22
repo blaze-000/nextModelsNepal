@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 
 export default function BecomeModel() {
   const searchParams = useSearchParams();
-  const seasonIdParam = searchParams.get('seasonId');
+  const seasonIdParam = searchParams?.get('seasonId');
 
   return (
     <main>

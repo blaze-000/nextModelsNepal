@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import type React from "react";
 import { motion } from "framer-motion";
 import SectionHeader from "../ui/section-header";
@@ -8,7 +8,7 @@ import EventBox from "../molecules/event-box";
 import Dropdown from "../ui/Dropdown";
 import Link from "next/link";
 import Axios from "@/lib/axios-instance";
-import { normalizeImagePath } from "@/lib/utils";
+
 
 type PastEvents = {
   _id: string;

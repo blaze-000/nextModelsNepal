@@ -2,7 +2,7 @@ import Image from "next/image";
 import { Button } from "../ui/button";
 import type { FC } from "react";
 import Link from "next/link";
-import { formatDate, normalizeImagePath } from "@/lib/utils";
+import { normalizeImagePath } from "@/lib/utils";
 
 const EventCard: FC<EventCardProps> = ({
   title,

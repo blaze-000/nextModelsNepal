@@ -31,7 +31,7 @@ export default function ChangePasswordPage() {
 
     try {
       setIsSubmitting(true);
-      const res = await Axios.patch("/api/auth/change-password", {
+      await Axios.patch("/api/auth/change-password", {
         oldPassword,
         newPassword,
       });

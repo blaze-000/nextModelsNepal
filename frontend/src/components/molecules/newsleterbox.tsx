@@ -13,9 +13,7 @@ const subscribeToNewsletter = async (email: string) => {
   return response.data;
 };
 
-interface NewsletterBoxProps {
-  className?: string;
-}
+
 
 export default function NewsLetterBox() {
   const [email, setEmail] = useState('');
@@ -44,9 +42,9 @@ export default function NewsLetterBox() {
       } else {
         toast.error(response.message || 'Something went wrong. Please try again.');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Subscription error:', error);
-      const errorMessage = error.response?.data?.message || 'Something went wrong. Please try again.';
+      const errorMessage = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Something went wrong. Please try again.';
       if (errorMessage.includes("already subscribed")) {
         toast.success(errorMessage);
         setEmail('');

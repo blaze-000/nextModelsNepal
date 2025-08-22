@@ -351,7 +351,7 @@ const BecomeModelForm = ({ prefillSeasonId }: { prefillSeasonId?: string | null 
       newErrors.temporaryAddress = "Temporary address is required";
 
     if (Object.keys(newErrors).length) {
-      setErrors(newErrors as any);
+      setErrors(newErrors as Partial<typeof formData & { photos: string }>);
       setGeneralError("Validate your inputs!!");
       return;
     }
@@ -422,38 +422,48 @@ const BecomeModelForm = ({ prefillSeasonId }: { prefillSeasonId?: string | null 
 
       setSelectedPhotos([]);
       setErrors({}); // Reset errors
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Submission error:", error);
 
       // Extract error message from the response
       let errorMessage = "Failed to submit. Try again later.";
 
-      if (error.response) {
+      const errorObj = error as {
+        response?: {
+          data?: {
+            message?: string;
+            error?: string | { message?: string; errors?: Array<{ message?: string }> }
+          }
+        };
+        request?: unknown;
+        message?: string
+      };
+      if (errorObj.response) {
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
-        if (error.response.data && error.response.data.message) {
-          errorMessage = error.response.data.message;
-        } else if (error.response.data && error.response.data.error) {
+        if (errorObj.response.data && errorObj.response.data.message) {
+          errorMessage = errorObj.response.data.message;
+        } else if (errorObj.response.data && errorObj.response.data.error) {
           // Handle ZodError or other structured errors
-          if (typeof error.response.data.error === "string") {
-            errorMessage = error.response.data.error;
-          } else if (error.response.data.error.message) {
-            errorMessage = error.response.data.error.message;
+          if (typeof errorObj.response.data.error === "string") {
+            errorMessage = errorObj.response.data.error;
+          } else if (errorObj.response.data.error.message) {
+            errorMessage = errorObj.response.data.error.message;
           } else if (
-            error.response.data.error.errors &&
-            error.response.data.error.errors.length > 0
+            errorObj.response.data.error.errors &&
+            errorObj.response.data.error.errors.length > 0
           ) {
             // Handle ZodError structure
-            const firstError = error.response.data.error.errors[0];
+            const firstError = errorObj.response.data.error.errors[0];
             errorMessage = firstError.message || "Invalid form data";
           }
         }
-      } else if (error.request) {
+      } else if (errorObj.request) {
         // The request was made but no response was received
         errorMessage = "No response from server. Please check your connection.";
       } else {
         // Something happened in setting up the request that triggered an Error
-        errorMessage = error.message || "Failed to submit. Try again later.";
+        errorMessage = errorObj.message || "Failed to submit. Try again later.";
       }
 
       toast.error(errorMessage);

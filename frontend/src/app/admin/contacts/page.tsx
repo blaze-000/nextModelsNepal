@@ -27,7 +27,7 @@ const ContactPage = () => {
       setLoading(true);
       const response = await Axios.get("/api/contact");
       setContacts(response.data.data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error fetching contacts:", error);
       toast.error("Failed to load contacts");
     } finally {
@@ -44,7 +44,7 @@ const ContactPage = () => {
       await Axios.delete(`/api/contact/${contact._id}`);
       setContacts(contacts.filter(c => c._id !== contact._id));
       toast.success("Contact deleted successfully");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error deleting contact:", error);
       toast.error("Failed to delete contact");
     }
