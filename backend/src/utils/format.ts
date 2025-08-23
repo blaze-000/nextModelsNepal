@@ -1,10 +1,17 @@
-import dayjs from 'dayjs';
+import dayjs from "dayjs";
 
-// MM/DD/YYYY
+// Format m/d/Y for Fonepay - based on official sample (single digit months/days allowed)
 export function formatFonepayDate(d: Date = new Date()) {
-  return dayjs(d).format("MM/DD/YYYY");
+  // Use current Nepal time in m/d/Y format (matching FonePay sample)
+  const nepalTime = new Date(d.getTime() + (5.75 * 60 * 60 * 1000)); // UTC+5:45 for Nepal
+  const month = nepalTime.getMonth() + 1; // No padding - single digit OK
+  const day = nepalTime.getDate(); // No padding - single digit OK  
+  const year = nepalTime.getFullYear();
+  const formatted = `${month}/${day}/${year}`;
+  console.log("Formatted date for FonePay (m/d/Y format):", formatted);
+  return formatted;
 }
 
-export function formatAmount(v: number) {
-  return v.toFixed(2);
+export function formatAmount(n: number): string {
+  return n.toFixed(2);
 }
