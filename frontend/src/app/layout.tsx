@@ -35,10 +35,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html
-      lang="en"
-      className={`${urbanist.variable} ${newsreader.variable} `}
-    >
+    <html lang="en" className={`${urbanist.variable} ${newsreader.variable} `}>
       <body className="bg-background text-foreground antialiased font-urbanist">
         <TopLoader showSpinner={false} color="#a06d06" height={1.9} />
         <Toaster position="top-right" offset="80px" richColors />

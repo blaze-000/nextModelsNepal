@@ -1,5 +1,5 @@
 "use client";
-import {useState, useEffect} from "react";
+import { useState, useEffect } from "react";
 
 import type React from "react";
 
@@ -16,9 +16,11 @@ import JuryGrid from "@/components/molecules/jury-grid";
 import Dropdown from "@/components/ui/Dropdown";
 import NotFound from "@/app/not-found";
 import { Spinner } from "@/components/ui/spinner";
+import { isAxiosError } from "axios";
 
 export default function EventDetails() {
-  const { slug } = useParams();
+  const params = useParams();
+  const slug = params?.slug as string;
   const [data, setData] = useState<SeasonDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -65,13 +67,18 @@ export default function EventDetails() {
         } else {
           setError(responseData.message || "Season not found");
         }
-      } catch (err:any) {
+      } catch (err: unknown) {
         console.error("Error fetching season:", err);
-        if (err.response?.data?.message === "Season not found") {
-          setError("Season not found");
+        if (isAxiosError(err)) {
+          if (err.response?.data?.message === "Season not found") {
+            setError("Season not found");
+          } else {
+            setError("Failed to load season data");
+          }
         } else {
           setError("Failed to load season data");
         }
+
       } finally {
         setLoading(false);
       }

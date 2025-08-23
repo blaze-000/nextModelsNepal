@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import type React from "react";
 import { toast } from "sonner";
-import { motion } from "framer-motion";
+
 
 import Modal from "@/components/admin/Modal";
 import { Button } from "@/components/ui/button";

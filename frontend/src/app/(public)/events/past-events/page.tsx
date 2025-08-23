@@ -128,7 +128,7 @@ export default function PastEvents() {
         </div>
 
         {/* Winners always visible */}
-        <Winners />
+        <Winners searchText={searchText} />
       </div>
     </>
   );

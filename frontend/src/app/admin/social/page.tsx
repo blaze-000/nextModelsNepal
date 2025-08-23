@@ -123,7 +123,7 @@ export default function SocialAdminPage() {
                     toast.error("Failed to save social settings");
                 }
             }
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error("Save error", err);
             const msg = 'Failed to save social settings';
             toast.error(msg);

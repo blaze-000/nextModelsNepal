@@ -28,31 +28,34 @@ export default function Events() {
         // Check past events
         const pastRes = await Axios.get('/api/events/past-events');
         const pastEvents = pastRes.data.data || [];
-        const pastHasResults = pastEvents.some((event: any) => {
-          const nameMatch = event.name?.toLowerCase().includes(searchText.toLowerCase());
-          const overviewMatch = event.overview?.toLowerCase().includes(searchText.toLowerCase());
-          const yearMatch = event.season?.year?.toString().includes(searchText);
+        const pastHasResults = pastEvents.some((event: Record<string, unknown>) => {
+          const nameMatch = typeof event.name === 'string' && event.name.toLowerCase().includes(searchText.toLowerCase());
+          const overviewMatch = typeof event.overview === 'string' && event.overview.toLowerCase().includes(searchText.toLowerCase());
+          const yearMatch = typeof event.season === 'object' && event.season !== null &&
+            typeof (event.season as Record<string, unknown>).year !== 'undefined' &&
+            String((event.season as Record<string, unknown>).year).includes(searchText);
           return nameMatch || overviewMatch || yearMatch;
         });
 
         // Check winners
         const winnersRes = await Axios.get('/api/events/past-winners');
         const winners = winnersRes.data.data || [];
-        const winnersHasResults = winners.some((winner: any) => {
-          const nameMatch = winner.name?.toLowerCase().includes(searchText.toLowerCase());
-          const eventMatch = winner.eventName?.toLowerCase().includes(searchText.toLowerCase());
-          const yearMatch = winner.year?.toString().includes(searchText);
-          const rankMatch = winner.rank?.toLowerCase().includes(searchText.toLowerCase());
+        const winnersHasResults = winners.some((winner: Record<string, unknown>) => {
+          const nameMatch = typeof winner.name === 'string' && winner.name.toLowerCase().includes(searchText.toLowerCase());
+          const eventMatch = typeof winner.eventName === 'string' && winner.eventName.toLowerCase().includes(searchText.toLowerCase());
+          const yearMatch = typeof winner.year !== 'undefined' && String(winner.year).includes(searchText);
+          const rankMatch = typeof winner.rank === 'string' && winner.rank.toLowerCase().includes(searchText.toLowerCase());
           return nameMatch || eventMatch || yearMatch || rankMatch;
         });
 
         // Check upcoming events
         const upcomingRes = await Axios.get('/api/season/upcoming');
         const upcomingEvents = upcomingRes.data.data || [];
-        const upcomingHasResults = upcomingEvents.some((event: any) => {
-          const nameMatch = event.eventId?.name?.toLowerCase().includes(searchText.toLowerCase());
-          const overviewMatch = event.eventId?.overview?.toLowerCase().includes(searchText.toLowerCase());
-          const yearMatch = event.year?.toString().includes(searchText);
+        const upcomingHasResults = upcomingEvents.some((event: Record<string, unknown>) => {
+          const eventId = event.eventId as Record<string, unknown> | undefined;
+          const nameMatch = typeof eventId?.name === 'string' && eventId.name.toLowerCase().includes(searchText.toLowerCase());
+          const overviewMatch = typeof eventId?.overview === 'string' && eventId.overview.toLowerCase().includes(searchText.toLowerCase());
+          const yearMatch = typeof event.year !== 'undefined' && String(event.year).includes(searchText);
           return nameMatch || overviewMatch || yearMatch;
         });
 
@@ -105,7 +108,7 @@ export default function Events() {
       {searchText && !hasResults && (
         <div className="max-w-7xl mx-auto px-6 py-16">
           <div className="text-center text-white">
-            <p className="text-xl">No results found for "{searchText}"</p>
+            <p className="text-xl">No results found for &ldquo;{searchText}&rdquo;</p>
             <p className="text-lg mt-2 text-gray-400">Try searching for different keywords</p>
           </div>
         </div>

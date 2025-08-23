@@ -26,7 +26,7 @@ const HireRequestsPage = () => {
       setLoading(true);
       const res = await Axios.get("/api/hire-model");
       setHires(res.data.data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error fetching hire requests:", error);
       toast.error("Failed to load hire requests");
     } finally {
@@ -40,7 +40,7 @@ const HireRequestsPage = () => {
       await Axios.delete(`/api/hire-model/${item._id}`);
       setHires((prev) => prev.filter((h) => h._id !== item._id));
       toast.success("Hire request deleted successfully");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error deleting hire request:", error);
       toast.error("Failed to delete hire request");
     }

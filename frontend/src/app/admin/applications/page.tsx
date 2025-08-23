@@ -20,7 +20,7 @@ interface Application {
 const AdminDashboard = () => {
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+
 
   // Fetch all applications
   const fetchApplications = async () => {
@@ -28,7 +28,7 @@ const AdminDashboard = () => {
       setLoading(true);
       const response = await Axios.get("/api/app-form");
       setApplications(response.data.data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error fetching applications:", error);
       toast.error("Failed to load applications");
     } finally {
@@ -42,15 +42,12 @@ const AdminDashboard = () => {
       return;
     }
     try {
-      setDeletingId(id);
       await Axios.delete(`/api/app-form/${id}`);
       setApplications(applications.filter(app => app._id !== id));
       toast.success("Application deleted successfully");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error deleting application:", error);
       toast.error("Failed to delete application");
-    } finally {
-      setDeletingId(null);
     }
   };
 

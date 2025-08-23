@@ -65,7 +65,7 @@ interface Season {
 export default function EventDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const eventId = params.eventId as string;
+  const eventId = params?.eventId as string;
 
   // State
   const [event, setEvent] = useState<Event | null>(null);
@@ -295,18 +295,16 @@ export default function EventDetailPage() {
                 {/* Management Badge */}
                 <div className="flex items-center gap-3">
                   <span
-                    className={`px-4 py-2 rounded-full text-sm font-medium backdrop-blur-sm ${
-                      event.managedBy === "self"
+                    className={`px-4 py-2 rounded-full text-sm font-medium backdrop-blur-sm ${event.managedBy === "self"
                         ? "bg-green-500/20 text-green-300 border border-green-500/40"
                         : "bg-blue-500/20 text-blue-300 border border-blue-500/40"
-                    }`}
+                      }`}
                   >
                     <i
-                      className={`mr-2 ${
-                        event.managedBy === "self"
+                      className={`mr-2 ${event.managedBy === "self"
                           ? "ri-user-settings-line"
                           : "ri-team-line"
-                      }`}
+                        }`}
                     ></i>
                     {event.managedBy === "self"
                       ? "Self Managed"
@@ -406,11 +404,10 @@ export default function EventDetailPage() {
             {/* Quote Accordion Item */}
             {event.quote && (
               <div
-                className={`border border-gold-900/20 rounded-lg overflow-hidden ${
-                  isAccordionItemOpen("quote")
+                className={`border border-gold-900/20 rounded-lg overflow-hidden ${isAccordionItemOpen("quote")
                     ? "bg-muted-background"
                     : "bg-background2"
-                }`}
+                  }`}
               >
                 <button
                   onClick={() => toggleAccordionItem("quote")}
@@ -426,9 +423,8 @@ export default function EventDetailPage() {
                       </span>
                     </div>
                     <i
-                      className={`ri-arrow-${
-                        isAccordionItemOpen("quote") ? "up" : "down"
-                      }-s-line text-foreground/60 transition-transform`}
+                      className={`ri-arrow-${isAccordionItemOpen("quote") ? "up" : "down"
+                        }-s-line text-foreground/60 transition-transform`}
                     ></i>
                   </div>
                 </button>
@@ -452,11 +448,10 @@ export default function EventDetailPage() {
 
             {/* Purpose Accordion Item */}
             <div
-              className={`border border-gold-900/20 rounded-lg overflow-hidden ${
-                isAccordionItemOpen("purpose")
+              className={`border border-gold-900/20 rounded-lg overflow-hidden ${isAccordionItemOpen("purpose")
                   ? "bg-muted-background"
                   : "bg-background2"
-              }`}
+                }`}
             >
               <button
                 onClick={() => toggleAccordionItem("purpose")}
@@ -472,9 +467,8 @@ export default function EventDetailPage() {
                     </span>
                   </div>
                   <i
-                    className={`ri-arrow-${
-                      isAccordionItemOpen("purpose") ? "up" : "down"
-                    }-s-line text-foreground/60 transition-transform`}
+                    className={`ri-arrow-${isAccordionItemOpen("purpose") ? "up" : "down"
+                      }-s-line text-foreground/60 transition-transform`}
                   ></i>
                 </div>
               </button>
@@ -511,11 +505,10 @@ export default function EventDetailPage() {
             {/* Timeline Accordion Item */}
             {event.timelineSubtitle && (
               <div
-                className={`border border-gold-900/20 rounded-lg overflow-hidden ${
-                  isAccordionItemOpen("timeline")
+                className={`border border-gold-900/20 rounded-lg overflow-hidden ${isAccordionItemOpen("timeline")
                     ? "bg-muted-background"
                     : "bg-background2"
-                }`}
+                  }`}
               >
                 <button
                   onClick={() => toggleAccordionItem("timeline")}
@@ -531,9 +524,8 @@ export default function EventDetailPage() {
                       </span>
                     </div>
                     <i
-                      className={`ri-arrow-${
-                        isAccordionItemOpen("timeline") ? "up" : "down"
-                      }-s-line text-foreground/60 transition-transform`}
+                      className={`ri-arrow-${isAccordionItemOpen("timeline") ? "up" : "down"
+                        }-s-line text-foreground/60 transition-transform`}
                     ></i>
                   </div>
                 </button>
@@ -617,14 +609,14 @@ export default function EventDetailPage() {
                       season.images && season.images.length > 0
                         ? season.images[0]
                         : season.titleImage
-                        ? season.titleImage
-                        : season.posterImage
-                        ? season.posterImage
-                        : season.image
-                        ? season.image
-                        : season.gallery && season.gallery.length > 0
-                        ? season.gallery[0]
-                        : null;
+                          ? season.titleImage
+                          : season.posterImage
+                            ? season.posterImage
+                            : season.image
+                              ? season.image
+                              : season.gallery && season.gallery.length > 0
+                                ? season.gallery[0]
+                                : null;
 
                     return imageSource ? (
                       <Image
@@ -644,13 +636,12 @@ export default function EventDetailPage() {
                   {/* Status Badge */}
                   <div className="absolute top-3 right-3">
                     <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium border ${
-                        season.status === "completed"
+                      className={`px-2 py-1 rounded-full text-xs font-medium border ${season.status === "completed"
                           ? "bg-green-500/20 text-green-400 border-green-500/30"
                           : season.status === "ongoing"
-                          ? "bg-gold-500/20 text-gold-400 border-gold-500/30"
-                          : "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
-                      }`}
+                            ? "bg-gold-500/20 text-gold-400 border-gold-500/30"
+                            : "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
+                        }`}
                     >
                       {season.status.charAt(0).toUpperCase() +
                         season.status.slice(1)}
