@@ -1,40 +1,107 @@
 "use client";
 
-import  { useState } from 'react';
+import { useState } from 'react';
 import type React from "react";
-// import { useParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { createPayment, createPaymentForm, type PaymentRequest } from '@/lib/payment.service';
+import { toast } from 'sonner'; // Add toast for notifications
 
 const contestant = {
   name: "Bishesh Khadgi",
-  id: 12345678,
+  id: "676db123456789012345678a", // This should be a real MongoDB ObjectId
   intro: 'This bio is supposed to be a simple introduction to the following model: bishesh khadgi, Young 21 y/o lad fit and tall, now i hope the bio is enough.',
 }
 const PRICE_PER_VOTE = 100;
 
 const PAYMENT_METHODS = [
-  { name: "eSewa", icon: '/esewa.png' },
-  { name: "Khalti", icon: '/khalti.png' }
+  { name: "FonePay", icon: '/fonepay.png', id: 'fonepay' },
+  { name: "eSewa", icon: '/esewa.png', id: 'esewa' },
+  { name: "Khalti", icon: '/khalti.png', id: 'khalti' }
 ];
 
 const paymentLinks: Record<string, string> = {
   eSewa: "/payment/esewa",
   Khalti: "/payment/khalti",
+  FonePay: "#" // FonePay will use redirect URL
 };
 
 const ModelVoting: React.FC = () => {
+  const params = useParams();
   const [votes, setVotes] = useState(5);
   const [showModal, setShowModal] = useState(false);
   const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   const handleVoteChange = (increment: boolean) => {
     if (increment) {
       setVotes(votes + 5);
     } else if (votes > 0) {
       setVotes(votes - 5);
+    }
+  };
+
+  const handleFonepayPayment = async () => {
+    if (!selectedMethod || selectedMethod !== 'fonepay') return;
+    
+    setIsProcessingPayment(true);
+    try {
+      // Create payment request following PHP sample structure
+      const paymentData: PaymentRequest = {
+        amount: votes * PRICE_PER_VOTE,
+        vote: votes,
+        contestant: contestant.id, // MongoDB ObjectId
+        description: `Vote for ${contestant.name} - ${votes} votes`,
+        r1: '1',
+        r2: '2'
+      };
+
+      console.log('Creating FonePay payment:', paymentData);
+      const response = await createPayment(paymentData);
+      console.log('Payment response:', response);
+
+      // Show success message
+      toast.success(`Payment session created! PRN: ${response.prn}`);
+      
+      // Close modal
+      setShowModal(false);
+      
+      // Create and submit form like PHP sample with auto-submission
+      // PHP: window.setTimeout(function() { document.getElementById("payment-form").submit(); }, 2500);
+      const form = createPaymentForm(response.redirectUrl, true);
+      
+      // Show user feedback
+      toast.info('Redirecting to FonePay payment gateway...', {
+        duration: 3000
+      });
+      
+    } catch (error: any) {
+      console.error('Payment creation failed:', error);
+      toast.error(error.message || 'Failed to create payment');
+    } finally {
+      setIsProcessingPayment(false);
+    }
+  };
+
+  const handlePaymentMethodSelection = async () => {
+    if (!selectedMethod) {
+      toast.warning('Please select a payment method');
+      return;
+    }
+
+    // Handle FonePay
+    if (selectedMethod === 'fonepay') {
+      await handleFonepayPayment();
+      return;
+    }
+
+    // Handle other payment methods (existing logic)
+    const link = paymentLinks[selectedMethod];
+    if (link && link !== '#') {
+      window.location.href = link;
     }
   };
 
@@ -167,8 +234,12 @@ const ModelVoting: React.FC = () => {
                   {PAYMENT_METHODS.map(item => (
                     <div
                       key={item.name}
-                      onClick={() => setSelectedMethod(item.name)}
-                      className={`cursor-pointer w-[45%] border py-2 px-4 rounded-md ${selectedMethod === item.name ? 'border-primary ring-1 ring-primary' : 'border-stone-600'}`}
+                      onClick={() => setSelectedMethod(item.id)}
+                      className={`cursor-pointer w-[45%] border py-2 px-4 rounded-md transition-all ${
+                        selectedMethod === item.id 
+                          ? 'border-primary ring-1 ring-primary bg-primary/5' 
+                          : 'border-stone-600 hover:border-stone-400'
+                      }`}
                     >
                       <Image
                         src={item.icon}
@@ -182,14 +253,39 @@ const ModelVoting: React.FC = () => {
                 </div>
               </div>
 
-              <Link href={selectedMethod ? paymentLinks[selectedMethod] : "#"} className="flex mt-4 pointer-events-auto"
-                title={!selectedMethod ? "Select payment" : ""}
-              >
-                <Button variant="default" disabled={!selectedMethod}>
-                  Continue
-                  <i className='ri-arrow-right-up-line' />
-                </Button>
-              </Link>
+              <div className="flex mt-4">
+                {selectedMethod === 'fonepay' ? (
+                  <Button 
+                    variant="default" 
+                    disabled={!selectedMethod || isProcessingPayment}
+                    onClick={handlePaymentMethodSelection}
+                    className="w-full"
+                  >
+                    {isProcessingPayment ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Processing Payment...
+                      </>
+                    ) : (
+                      <>
+                        Pay with FonePay
+                        <i className='ri-arrow-right-up-line ml-2' />
+                      </>
+                    )}
+                  </Button>
+                ) : (
+                  <Link 
+                    href={selectedMethod ? paymentLinks[selectedMethod] : "#"} 
+                    className="flex mt-4 pointer-events-auto w-full"
+                    title={!selectedMethod ? "Select payment" : ""}
+                  >
+                    <Button variant="default" disabled={!selectedMethod} className="w-full">
+                      Continue
+                      <i className='ri-arrow-right-up-line ml-2' />
+                    </Button>
+                  </Link>
+                )}
+              </div>
             </motion.div>
           </div>
         )}

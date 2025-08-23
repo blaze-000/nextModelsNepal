@@ -1,18 +1,15 @@
 import crypto from "crypto";
+const secretKey = process.env.FONEPAY_DEV_SECRET_KEY as string;
 
-export function hmacSha512Hex(key: string, data: string) {
-  // Ensure key is treated as UTF-8 string for FonePay compatibility
+export function hmacSha512Hex(data: string, key: string = secretKey): string {
+  // Create HMAC with SHA512 using the key
   const hmac = crypto.createHmac("sha512", key);
-  hmac.update(data, 'utf8');
-  const result = hmac.digest("hex");
-  
-  console.log('HMAC Debug:', {
-    keyLength: key.length,
-    dataLength: data.length,
-    resultLength: result.length
-  });
-  
-  return result;
+
+  // Update with the data to be hashed
+  hmac.update(data);
+
+  // Return the hexadecimal digest
+  return hmac.digest("hex");
 }
 
 export function safeEqualHex(a: string, b: string) {
