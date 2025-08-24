@@ -13,7 +13,7 @@ import { Spinner } from "../ui/spinner";
 export const Winners = ({ searchText }: { searchText: string }) => {
   const [selectedYear, setSelectedYear] = useState("All");
   const [selectedEvent, setSelectedEvent] = useState("All Events");
-  const [winners, setWinners] = useState<Winner[]>([]);
+  const [allWinners, setAllWinners] = useState<Winner[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -23,8 +23,8 @@ export const Winners = ({ searchText }: { searchText: string }) => {
         const res = await Axios.get("/api/events/past-winners");
         const data = res.data;
         console.log("Winners data:", data);
-        // Show all winners when searching, otherwise limit to 4
-        setWinners(searchText ? data.data : data.data.slice(0, 4) || []);
+        // Always store all winners; we'll limit to 4 only for default view
+        setAllWinners(data.data || []);
       } catch (err) {
         console.log("Failed to fetch winners data", err);
       } finally {
@@ -35,23 +35,23 @@ export const Winners = ({ searchText }: { searchText: string }) => {
 
 
   const years = useMemo(() => {
-    const uniqueYears = [...new Set(winners.map(winner => winner.year))].sort((a, b) => b - a);
+    const uniqueYears = [...new Set(allWinners.map(winner => winner.year))].sort((a, b) => b - a);
     return ["All", ...uniqueYears.map(year => year.toString())];
-  }, [winners]);
+  }, [allWinners]);
 
   const events = useMemo(() => {
-    const uniqueEvents = [...new Set(winners.map(winner => winner.eventName))].sort();
+    const uniqueEvents = [...new Set(allWinners.map(winner => winner.eventName))].sort();
     return ["All Events", ...uniqueEvents];
-  }, [winners]);
+  }, [allWinners]);
 
 
   const filteredWinners = useMemo(() => {
-    let filtered = [...winners];
+    let filtered = [...allWinners];
 
     // Filter by search text
     if (searchText) {
       console.log("Filtering winners with search text:", searchText);
-      console.log("Available winners:", winners);
+      console.log("Available winners:", allWinners);
       filtered = filtered.filter(winner => {
         const nameMatch = winner.name?.toLowerCase().includes(searchText.toLowerCase());
         const eventMatch = winner.eventName?.toLowerCase().includes(searchText.toLowerCase());
@@ -91,7 +91,13 @@ export const Winners = ({ searchText }: { searchText: string }) => {
     });
 
     return filtered;
-  }, [winners, selectedYear, selectedEvent, searchText]);
+  }, [allWinners, selectedYear, selectedEvent, searchText]);
+
+  // Limit to 4 only for the default view (no search, all filters)
+  const displayedWinners = useMemo(() => {
+    const isDefaultView = !searchText && selectedYear === "All" && selectedEvent === "All Events";
+    return isDefaultView ? filteredWinners.slice(0, 4) : filteredWinners;
+  }, [filteredWinners, searchText, selectedYear, selectedEvent]);
 
   if (loading) {
     return (
@@ -181,8 +187,8 @@ export const Winners = ({ searchText }: { searchText: string }) => {
         </motion.div>
 
         {/* Winner Grid */}
-        {filteredWinners.length > 0 ? (
-          <WinnerGrid winners={filteredWinners}>
+        {displayedWinners.length > 0 ? (
+          <WinnerGrid winners={displayedWinners}>
             {(winner) => (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
