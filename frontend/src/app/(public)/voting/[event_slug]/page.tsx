@@ -2,29 +2,56 @@
 
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-// import { useParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import Axios from "@/lib/axios-instance";
+import { Spinner } from "@/components/ui/spinner";
+import { normalizeImagePath } from "@/lib/utils";
+import { useCart } from "@/context/cartContext";
+import VotingCartPopup from "@/components/molecules/voting-cart-popup";
+import { toast } from "sonner";
 
-const EVENT_DETAILS = {
-  name: "Miss Nepal Peace",
-  image: "/events/miss_nepal.png",
-  contestants: [
-    { id: 1, name: "", image: "/contestant_1.jpg" },
-    { id: 2, name: "", image: "/contestant_2.jpg" },
-    { id: 3, name: "", image: "/contestant_1.jpg" },
-    { id: 4, name: "", image: "/contestant_2.jpg" },
-    { id: 5, name: "", image: "/contestant_1.jpg" },
-    { id: 6, name: "", image: "/contestant_2.jpg" },
-    { id: 7, name: "", image: "/contestant_1.jpg" },
-    { id: 8, name: "", image: "/contestant_2.jpg" },
-    { id: 9, name: "", image: "/contestant_1.jpg" },
-    { id: 10, name: "", image: "/contestant_2.jpg" },
-  ]
+type VotingEventDetails = {
+  eventName: string;
+  image: string;
+  pricePerVote: number;
+  _id: string; // This is the season ID
+  contestants: {
+    _id: string,
+    name: string,
+    image: string,
+    address: string,
+    status: "Eliminated" | "Not Eliminated",
+    uniqueId: string,
+  }[];
 }
 
+
 export default function EventVoting() {
-  // const { event_slug } = useParams();
+  const { event_slug } = useParams() as { event_slug: string };
+  const [eventDetails, setEventDetails] = useState<VotingEventDetails | null>(null);
+  const [loading, setLoading] = useState(true);
+  const { addToCart, removeFromCart, isInCart, getTotalVotes } = useCart();
+
+  useEffect(() => {
+    (async () => {
+      const response = await Axios.get(`/api/season/voting/${event_slug}`);
+      const data = response.data;
+      setEventDetails(data.data);
+      setLoading(false);
+    })();
+  }, [event_slug]);
+
+  if (loading) {
+    return (
+      <div className="h-[100vh] flex items-center justify-center">
+        <Spinner color="#ffaa00" size={50} />
+      </div>
+    );
+  }
+
   return (
     <main>
       {/* Hero Section */}
@@ -38,8 +65,11 @@ export default function EventVoting() {
             transition={{ duration: 0.6 }}
             className="space-y-5 order-2 mdplus:order-1 text-center mdplus:text-left"
           >
-            <h1 className="font-newsreader text-5xl mdplus:text-8xl font-light flex tracking-tighter px-4 ">
-              <span>{EVENT_DETAILS.name}<i className="text-primary"> Voting</i></span>
+            <h1 className="font-newsreader text-5xl mdplus:text-8xl font-light tracking-tighter px-4 ">
+              <p>
+                {eventDetails?.eventName}
+                <i className="text-primary"> Voting</i>
+              </p>
             </h1>
 
             <p className="text-primary text-sm">
@@ -55,7 +85,7 @@ export default function EventVoting() {
               </Link>
 
               <Link
-                href={"#"}
+                href={`/voting/${event_slug}/leaderboard`}
                 className="px-4 py-4 rounded-full text-gold-500 text-base tracking-tight font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer"
               >
                 <span className="underline underline-offset-4 text-nowrap">View Leaderboard</span>
@@ -72,8 +102,8 @@ export default function EventVoting() {
             className="order-1 mdplus:order-2"
           >
             <Image
-              src={EVENT_DETAILS.image}
-              alt={EVENT_DETAILS.name}
+              src={normalizeImagePath(eventDetails?.image)}
+              alt={eventDetails?.eventName ?? ""}
               width={500}
               height={0}
             />
@@ -102,9 +132,9 @@ export default function EventVoting() {
           </motion.h2>
 
           <div className="grid xs:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-y-8 gap-x-4">
-            {EVENT_DETAILS?.contestants?.map((contestant) => (
+            {eventDetails?.contestants?.map((contestant) => (
               <motion.div
-                key={contestant.id}
+                key={contestant._id}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -112,7 +142,7 @@ export default function EventVoting() {
                 className="space-y-4 mx-auto"
               >
                 <Image
-                  src={contestant.image}
+                  src={normalizeImagePath(contestant.image)}
                   alt={contestant.name}
                   width={292}
                   height={365}
@@ -120,19 +150,46 @@ export default function EventVoting() {
                 />
 
                 <div className="flex justify-end gap-4 items-center pb-2 pr-1">
-                  <button className="border-primary border-[2px] rounded-full w-12 h-12 cursor-pointer">
-                    <i className="ri-shopping-cart-2-line text-primary text-xl" />
+                  <button
+                    onClick={() => {
+                      if (isInCart(eventDetails?._id || '', contestant._id)) {
+                        // Remove from cart
+                        removeFromCart(eventDetails?._id || '', contestant._id);
+                        toast.success(`${contestant.name} removed from cart!`);
+                      } else {
+                        // Add to cart
+                        addToCart(
+                          eventDetails?._id || '',
+                          contestant._id,
+                          5
+                        );
+                        toast.success(`${contestant.name} added to cart!`);
+                      }
+                    }}
+                    className={`border-primary border-[2px] rounded-full w-12 h-12 cursor-pointer transition-colors ${isInCart(eventDetails?._id || '', contestant._id)
+                      ? 'bg-primary text-black' : ''}`}
+                  >
+                    <i className="ri-shopping-cart-2-line text-xl" />
                   </button>
-                  <Button variant="default" className="px-6 mdplus:px-12">
-                    Vote
-                    <i className="ri-arrow-right-up-line hidden md:flex" />
-                  </Button>
+                  <Link href={`/voting/${event_slug}/${contestant._id}`}>
+                    <Button variant="default" className="px-6 mdplus:px-12">
+                      Vote
+                      <i className="ri-arrow-right-up-line hidden md:flex" />
+                    </Button>
+                  </Link>
                 </div>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
+
+      {/* Cart Popup */}
+      {eventDetails && getTotalVotes(eventDetails._id) > 0 && (
+        <div className="sticky bottom-0 left-0 right-0 z-50">
+          <VotingCartPopup seasonId={eventDetails._id} pricePerVote={eventDetails.pricePerVote} />
+        </div>
+      )}
     </main>
   );
 };

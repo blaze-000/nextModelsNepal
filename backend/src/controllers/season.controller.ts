@@ -775,8 +775,8 @@ export const getVotingEvents = async (req: Request, res: Response) => {
       const eventData = season.eventId as any; // Type assertion for populated field
       return {
         eventName: eventData.name,
-        titleImage: eventData.titleImage,
-        seasonSlug: season.slug
+        image: season.image,
+        slug: season.slug
       };
     });
 
