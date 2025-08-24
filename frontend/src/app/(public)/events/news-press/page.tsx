@@ -83,6 +83,24 @@ export default function NewsPress() {
 
       <div className="w-full bg-background py-4 md:py-20">
         <div className="max-w-7xl mx-auto px-6">
+          {searchText !== "" && (
+            <div className="flex items-center mb-6">
+              <Image
+                src="/svg-icons/small_star.svg"
+                alt=""
+                height={20}
+                width={20}
+                className="inline-block mr-2 h-5 w-5 bg-cover"
+              />
+
+              <p className="text-xl sm:text-2xl font-newsreader">
+                Searching for:{" "}
+                <span className="text-gold-500">
+                  &ldquo;{searchText}&rdquo;
+                </span>
+              </p>
+            </div>
+          )}
           <div className="flex flex-wrap  justify-center gap-5 px-2 mb-6">
             <Dropdown
               label="Type"
@@ -102,28 +120,11 @@ export default function NewsPress() {
               selected={selectedYear}
               onSelect={setSelectedYear}
               maxHeight="180px"
+              widthFit={true}
             />
           </div>
 
           {/* showing  search  results  for ... */}
-          {searchText !== "" && (
-            <div className="flex ">
-              <Image
-                src="/svg-icons/small_star.svg"
-                alt=""
-                height={20}
-                width={20}
-                className="inline-block mr-2 h-5 w-5 bg-cover"
-              />
-
-              <p className=" text-2xl pb-5  font-newsreader">
-                Searching for:{" "}
-                <span className="text-gold-500">
-                  &ldquo;{searchText}&rdquo;
-                </span>
-              </p>
-            </div>
-          )}
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-6">
             {filteredNews
