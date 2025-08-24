@@ -16,20 +16,22 @@ export const payment = async (req: Request, res: Response) => {
       return res.status(400).json(parsed.error);
     }
 
-    const { contestant, vote, amount, prn, description, r1, r2 } = parsed.data;
+    const { contestant_Id, vote, amount, prn, purpose, r1, r2 } = parsed.data;
     const actualPrn = prn ?? `prn_${Date.now()}`;
 
-    const isExists = await ContestantModel.findById(contestant);
+    const isExists = await ContestantModel.findById(contestant_Id);
     if (!isExists) {
       return res.status(404).send("Invalid contestant id.");
     }
 
     const payment = await Payment.create({
       prn: actualPrn,
-      contestant,
+      contestant_Id,
+      contestant_Name: isExists.name,
       vote,
-      amount,
       currency: 'NPR',
+      amount,
+      purpose,
       pid: fonepay.pid,
       status: 'created',
       r1: r1 || '',
@@ -37,12 +39,11 @@ export const payment = async (req: Request, res: Response) => {
     });
 
     const ruAbsolute = `${app.baseUrl}/api/fonepay/payment/return`;
-    
+
     const requestParams = buildPaymentRequest({
       prn: actualPrn,
       amount,
       ruAbsolute,
-      ri: '',  // Empty as per FonePay specification
       r1: payment.r1!,
       r2: payment.r2!,
     });
@@ -52,9 +53,9 @@ export const payment = async (req: Request, res: Response) => {
     payment.dt = requestParams.DT;
     payment.md = requestParams.MD;
     await payment.save();
-    
+
     const redirectUrl = buildRedirectUrl(requestParams);
-    
+
     return res.json({
       prn: actualPrn,
       redirectUrl
@@ -98,10 +99,10 @@ export const getAllPayment = async (req: Request, res: Response) => {
   res.status(200).json({ message: "successfully get payment:", payments });
 }
 
-   
+
 export const returnPayment = async (req: Request, res: Response) => {
   try {
-    
+
     const query = { ...(req.query as any), ...(req.body as any) };
     const { PRN } = query;
 
@@ -119,7 +120,7 @@ export const returnPayment = async (req: Request, res: Response) => {
 
     const payment = await Payment.findOne({ prn: prnToSearch });
     if (!payment) {
-      
+
       // Fallback: Search for recent payments (last 10 minutes) with similar amount
       const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
       const recentPayments = await Payment.find({
@@ -127,11 +128,9 @@ export const returnPayment = async (req: Request, res: Response) => {
         status: 'created',
         amount: query.P_AMT ? parseFloat(query.P_AMT) : undefined
       }).sort({ createdAt: -1 }).limit(5);
-      
-      console.log('🔍 Found recent payments:', recentPayments.map(p => ({ prn: p.prn, amount: p.amount })));
-      
+
+
       if (recentPayments.length === 0) {
-        console.log('💀 No recent payments found for fallback');
         return res.status(404).json({
           message: "Unknown PRN - No recent payments found",
           isSuccess: false,
@@ -139,11 +138,10 @@ export const returnPayment = async (req: Request, res: Response) => {
           suggestion: "Please create a new payment"
         });
       }
-      
+
       // Use the most recent payment as fallback
       const fallbackPayment = recentPayments[0];
-      console.log('🔄 Using fallback payment:', fallbackPayment.prn);
-      
+
       return res.status(404).json({
         message: "Unknown PRN",
         isSuccess: false,
@@ -163,13 +161,13 @@ export const returnPayment = async (req: Request, res: Response) => {
       });
     }
 
-    const { contestant } = payment;
-    const isContestant = await ContestantModel.findById(contestant);
+    const { contestant_Id } = payment;
+    const isContestant = await ContestantModel.findById(contestant_Id);
     if (!isContestant) {
       return res.status(404).json({
         message: "Invalid Contestant Id.",
         isSuccess: false,
-        contestant: contestant
+        contestant: contestant_Id
       });
     }
 
@@ -186,8 +184,7 @@ export const returnPayment = async (req: Request, res: Response) => {
     const paymentSuccess = String(query.PS || "").toLowerCase() === "true";
     const responseCode = String(query.RC || "");
 
-    if (!paymentSuccess || responseCode === "failed") {
-      console.log('❌ Payment failed at FonePay gateway');
+    if (!paymentSuccess || (responseCode !== "successful" && responseCode !== "00" && responseCode === "failed")) {
       payment.status = "failed";
       payment.ps = String(query.PS ?? "");
       payment.rc = String(query.RC ?? "");
@@ -240,29 +237,67 @@ export const returnPayment = async (req: Request, res: Response) => {
       }
     }
 
-    if (paymentSuccess && responseCode === "00") {
+    if (paymentSuccess && (responseCode === "successful" || responseCode === "00")) {
+      // Store return parameters
+      payment.ps = String(query.PS ?? "");
+      payment.rc = String(query.RC ?? "");
+      payment.uid = String(query.UID ?? "");
+      payment.bc = String(query.BC ?? "");
+      payment.ini = String(query.INI ?? "");
+      payment.p_amt = String(query["P_AMT"] ?? "");
+      payment.r_amt = String(query["R_AMT"] ?? "");
+      payment.responseDv = String(query.DV || "");
+      
+      // CRITICAL: Validate amount matches expected amount for votes
+      const paidAmount = parseFloat(query["P_AMT"] || "0");
+      const expectedAmount = payment.vote * 1; // votes × 1 NPR per vote
+      
+      if (Math.abs(paidAmount - expectedAmount) > 0.01) { // Allow 1 paisa tolerance
+        payment.status = "error";
+        await payment.save();
+        return res.status(400).json({
+          message: "Amount manipulation detected",
+          isSuccess: false,
+          paidAmount: paidAmount,
+          expectedAmount: expectedAmount,
+          votes: payment.vote,
+          error: "Payment amount does not match expected amount for votes"
+        });
+      }
+      
       if (fonepay.mode === "dev") {
         payment.status = "success";
         payment.apiVerificationStatus = "skipped";
         await payment.save();
 
-        await ContestantModel.findByIdAndUpdate(payment.contestant, { $inc: { votes: payment.vote } });
+        await ContestantModel.findByIdAndUpdate(payment.contestant_Id, { $inc: { votes: payment.vote } });
 
         return res.status(200).json({
           message: "Payment successful. Thank you!",
           isSuccess: true,
           status: "success",
           prn: payment.prn,
+          contestant_Id: payment.contestant_Id,
+          contestant_Name: payment.contestant_Name,
           amount: payment.amount,
           votes: payment.vote,
-          contestant: payment.contestant,
           mode: "development",
           environment: "NBQM Sandbox",
           timestamp: new Date().toISOString()
         });
       }
+      // Continue to S2S verification for live mode or proceed without S2S
     } else {
+      // Payment actually failed
       payment.status = "failed";
+      payment.ps = String(query.PS ?? "");
+      payment.rc = String(query.RC ?? "");
+      payment.uid = String(query.UID ?? "");
+      payment.bc = String(query.BC ?? "");
+      payment.ini = String(query.INI ?? "");
+      payment.p_amt = String(query["P_AMT"] ?? "");
+      payment.r_amt = String(query["R_AMT"] ?? "");
+      payment.responseDv = String(query.DV || "");
       await payment.save();
 
       return res.status(200).json({
@@ -283,6 +318,47 @@ export const returnPayment = async (req: Request, res: Response) => {
     try {
       apiRes = await verifyTransactionServerToServer(body);
     } catch (err: any) {
+      // If S2S fails but payment was successful from FonePay redirect, treat as success
+      if (paymentSuccess && (responseCode === "successful" || responseCode === "00")) {
+        // CRITICAL: Validate amount matches expected amount for votes
+        const paidAmount = parseFloat(query["P_AMT"] || "0");
+        const expectedAmount = payment.vote * 1; // votes × 1 NPR per vote
+        
+        if (Math.abs(paidAmount - expectedAmount) > 0.01) { // Allow 1 paisa tolerance
+          payment.status = "error";
+          await payment.save();
+          return res.status(400).json({
+            message: "Amount manipulation detected",
+            isSuccess: false,
+            paidAmount: paidAmount,
+            expectedAmount: expectedAmount,
+            votes: payment.vote,
+            error: "Payment amount does not match expected amount for votes"
+          });
+        }
+        
+        payment.status = "success";
+        payment.apiVerificationStatus = "skipped";
+        await payment.save();
+        
+        await ContestantModel.findByIdAndUpdate(payment.contestant_Id, { $inc: { votes: payment.vote } });
+        
+        return res.status(200).json({
+          message: "Payment successful (S2S verification skipped). Thank you!",
+          isSuccess: true,
+          status: "success",
+          prn: payment.prn,
+          contestant_Id: payment.contestant_Id,
+          contestant_Name: payment.contestant_Name,
+          amount: payment.amount,
+          votes: payment.vote,
+          mode: "live",
+          environment: "FonePay Live",
+          timestamp: new Date().toISOString(),
+          note: "S2S verification failed but redirect indicates success"
+        });
+      }
+      
       payment.apiVerificationStatus = fonepay.mode === "dev" ? "skipped" : "failed";
       await payment.save();
       return res.status(fonepay.mode === "dev" ? 200 : 502).json({
@@ -300,7 +376,7 @@ export const returnPayment = async (req: Request, res: Response) => {
       payment.apiVerificationStatus = "skipped";
       await payment.save();
 
-      await ContestantModel.findByIdAndUpdate(payment.contestant, { $inc: { votes: payment.vote } });
+      await ContestantModel.findByIdAndUpdate(payment.contestant_Id, { $inc: { votes: payment.vote } });
 
       return res.status(200).json({
         message: "Payment success (redirect only). Thank you.",
@@ -335,7 +411,7 @@ export const returnPayment = async (req: Request, res: Response) => {
         );
 
         if (updated) {
-          await ContestantModel.findByIdAndUpdate(payment.contestant, { $inc: { votes: payment.vote } }, { session });
+          await ContestantModel.findByIdAndUpdate(payment.contestant_Id, { $inc: { votes: payment.vote } }, { session });
           await session.commitTransaction();
           incMetric('s2s_success');
         } else {

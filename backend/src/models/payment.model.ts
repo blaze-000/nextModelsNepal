@@ -5,11 +5,13 @@ export type PaymentStatus = 'created' | 'sent' | 'success' | 'failed' | 'pending
 const PaymentSchema = new Schema(
     {
         prn: { type: String, unique: true, required: true, index: true },
-        amount: { type: Number, required: true },
-        currency: { type: String, default: 'NPR' },
         pid: { type: String, required: true },
+        contestant_Id: {type: Schema.Types.ObjectId, ref:"Contestant", required: true},
+        contestant_Name: {type: String, required: true},
         vote: {type: Number, required: true},
-        contestant: {type: Schema.Types.ObjectId, ref:"Contestant", required: true},
+        currency: { type: String, default: 'NPR' },
+        amount: { type: Number, required: true },
+        purpose: { type: String, required: true },
 
         // request payload
         ru: String,

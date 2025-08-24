@@ -77,11 +77,12 @@ export function verifyReturnDv(returnQuery: any) {
     const dvString = returnDvOrder
         .map((k) => String(returnQuery[k]).trim())
         .join(',');
-    const expected = hmacSha512Hex(fonepay.redirectSharedSecret, dvString).toUpperCase();
+    const expected = hmacSha512Hex(dvString).toUpperCase();
     const provided = String(returnQuery.DV || "").toUpperCase();
 
     return { ok: safeEqualHex(expected, provided), skipped: false };
 }
+
 
 export async function verifyTransactionServerToServer(body: TxnVerificationBody) {
     if (fonepay.mode === "dev") {
