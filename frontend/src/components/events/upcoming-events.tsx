@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import type React from "react";
 import { motion } from "framer-motion";
 import SectionHeader from "../ui/section-header";
@@ -34,8 +34,12 @@ export const UpcomingEvents = ({ searchText }: { searchText: string }) => {
     const filtered = events.filter((event) => {
       if (!searchText) return true;
 
-      const nameMatch = event.eventId.name?.toLowerCase().includes(searchText.toLowerCase());
-      const overviewMatch = event.eventId.overview?.toLowerCase().includes(searchText.toLowerCase());
+      const nameMatch = event.eventId.name
+        ?.toLowerCase()
+        .includes(searchText.toLowerCase());
+      const overviewMatch = event.eventId.overview
+        ?.toLowerCase()
+        .includes(searchText.toLowerCase());
       const yearMatch = event.year?.toString().includes(searchText);
 
       return nameMatch || overviewMatch || yearMatch;
@@ -88,7 +92,7 @@ export const UpcomingEvents = ({ searchText }: { searchText: string }) => {
           transition={{ duration: 0.5 }}
         >
           {/* Desktop Layout */}
-          <div className="hidden md:flex justify-between items-center px-2">
+          <div className="hidden md:flex justify-between items-center py-5">
             <SectionHeader title="Upcoming Events" />
 
             <Dropdown
@@ -150,8 +154,6 @@ export const UpcomingEvents = ({ searchText }: { searchText: string }) => {
             ))}
           </div>
         )}
-
-
 
         {/* See All Button */}
         {!searchText && (

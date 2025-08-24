@@ -1,0 +1,233 @@
+"use client";
+import { Button } from "../ui/button";
+import { useCart } from "@/context/cartContext";
+import { toast } from "sonner";
+import { useState, useEffect, useCallback } from "react";
+import Axios from "@/lib/axios-instance";
+
+interface VotingCartPopupProps {
+  seasonId: string;
+  pricePerVote: number;
+  paylink?: string;
+}
+
+interface Contestant {
+  _id: string;
+  name: string;
+  status: string;
+}
+
+export default function VotingCartPopup({
+  seasonId,
+  pricePerVote,
+}: VotingCartPopupProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [contestants, setContestants] = useState<Contestant[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { getCartItems, getTotalPrice, getTotalVotes, updateVotes, removeFromCart, filterEliminatedContestants } = useCart();
+
+  // Fetch contestants data and filter eliminated ones
+  useEffect(() => {
+    const fetchContestants = async () => {
+      try {
+        setIsLoading(true);
+        const response = await Axios.get(`/api/contestants/season/${seasonId}`);
+        if (response.data.success) {
+          const allContestants = response.data.data;
+          setContestants(allContestants);
+
+          // Filter out eliminated contestants from cart
+          const eliminatedContestantIds = allContestants
+            .filter((contestant: Contestant) => contestant.status.toLowerCase() === "eliminated")
+            .map((contestant: Contestant) => contestant._id);
+
+          if (eliminatedContestantIds.length > 0) {
+            filterEliminatedContestants(seasonId, eliminatedContestantIds);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching contestants:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchContestants();
+  }, [seasonId]); // Removed filterEliminatedContestants dependency
+
+
+
+  const items = getCartItems(seasonId);
+  const totalPrice = getTotalPrice(seasonId, pricePerVote);
+  const totalVotes = getTotalVotes(seasonId);
+
+  // Helper function to get contestant name by ID
+  const getContestantName = useCallback((contestantId: string) => {
+    const contestant = contestants.find(c => c._id === contestantId);
+    return contestant?.name || `Contestant ${contestantId}`;
+  }, [contestants]);
+
+  // Don't render if loading or no items
+  if (isLoading || items.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="w-full max-w-[1018px] mx-auto">
+      {isExpanded ? (
+        // Expanded State
+        <div className="px-6 py-9 bg-muted-background rounded-xl border border-neutral-600">
+          <div className="flex flex-col gap-6">
+            {/* Header with collapse button */}
+            <div className="flex justify-between items-center">
+              <h3 className="text-white text-lg font-normal font-urbanist">
+                Your Cart ({items.length} items)
+              </h3>
+              <button
+                onClick={() => setIsExpanded(false)}
+                className="cursor-pointer text-white hover:text-primary transition-colors"
+                title="Collapse cart"
+              >
+                <i className="ri-arrow-down-line text-xl bg-primary/10 p-2 rounded-full" />
+              </button>
+            </div>
+
+            {/* Table and Pay Now Button Row */}
+            <div className="flex flex-col md:flex-row justify-between items-center gap-8 text-base">
+              {/* Table */}
+              <div className="flex-1">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-neutral-600">
+                      <th className="text-left py-1 px-2">
+                        <span className="text-white font-normal font-urbanist leading-loose tracking-tight">
+                          Action
+                        </span>
+                      </th>
+                      <th className="text-left py-1 px-2">
+                        <span className="text-white font-normal font-urbanist leading-loose tracking-tight">
+                          Model Name
+                        </span>
+                      </th>
+                      <th className="text-center py-1 px-2">
+                        <span className="text-white font-normal font-urbanist leading-loose tracking-tight">
+                          Total Votes
+                        </span>
+                      </th>
+                      <th className="text-right py-1 px-2">
+                        <span className="text-white font-normal font-urbanist leading-loose tracking-tight">
+                          Price
+                        </span>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {items.map((item) => (
+                      <tr key={item.contestant_id} className="border-b border-neutral-700">
+                        <td className="py-2 px-2">
+                          <button
+                            onClick={() => {
+                              removeFromCart(seasonId, item.contestant_id);
+                              toast.success(`${getContestantName(item.contestant_id)} removed from cart`);
+                            }}
+                            className="cursor-pointer text-red-500 hover:text-red-400 p-1 rounded-full hover:bg-red-500/10 transition-colors"
+                            title="Remove from cart"
+                          >
+                            <i className="ri-close-line" />
+                          </button>
+                        </td>
+                        <td className="py-2 px-2">
+                          <span className="text-white font-normal font-newsreader tracking-tight">
+                            {getContestantName(item.contestant_id)}
+                          </span>
+                        </td>
+                        <td className="py-2 px-2">
+                          <div className="flex justify-center items-center gap-3">
+                            <span className="text-white font-normal font-newsreader tracking-tight">
+                              {item.votes}
+                            </span>
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => updateVotes(seasonId, item.contestant_id, item.votes + 1)}
+                                className="cursor-pointer p-1 rounded-full transition-colors"
+                              >
+                                <i className="ri-add-line text-primary text-sm bg-primary/15 p-1 rounded-full hover:bg-primary/30 transition-colors" />
+                              </button>
+                              <button
+                                onClick={() => {
+                                  if (item.votes <= 1) {
+                                    removeFromCart(seasonId, item.contestant_id);
+                                    toast.success(`${getContestantName(item.contestant_id)} removed from cart`);
+                                  } else {
+                                    updateVotes(seasonId, item.contestant_id, item.votes - 1);
+                                  }
+                                }}
+                                className="cursor-pointer p-1 rounded-full transition-colors"
+                              >
+                                <i className="ri-subtract-line text-primary text-sm bg-primary/15 p-1 rounded-full hover:bg-primary/30 transition-colors" />
+                              </button>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-2 px-2 text-right">
+                          <span className="text-primary font-normal font-newsreader tracking-tight">
+                            Rs. {pricePerVote * item.votes}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                {/* Total Price Row */}
+                <div className="flex justify-center items-center gap-4 pt-4 border-neutral-600 text-lg">
+                  <span className="text-white font-normal font-urbanist leading-loose tracking-tight">
+                    Total Price
+                  </span>
+                  <span className="text-primary font-normal font-newsreader tracking-tight">
+                    Rs. {totalPrice}
+                  </span>
+                </div>
+              </div>
+
+              {/* Pay Now Button */}
+              <div className="flex-shrink-0">
+                <Button variant="default">
+                  Pay Now
+                  <i className="ri-arrow-right-up-line" />
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        // Collapsed State - Thin rectangular box
+        <div className="px-6 py-3 bg-muted-background rounded-t-[20px] border border-neutral-600">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-4">
+              <span className="text-white font-normal font-urbanist">
+                Cart ({items.length} items)
+              </span>
+              <span className="text-primary font-normal font-newsreader">
+                Rs. {totalPrice}
+              </span>
+            </div>
+            <div className="flex items-center gap-3">
+              <Button variant="default" size="sm">
+                Pay Now
+                <i className="ri-arrow-right-up-line" />
+              </Button>
+              <button
+                onClick={() => setIsExpanded(true)}
+                className="cursor-pointer text-white hover:text-primary transition-colors"
+                title="Expand cart"
+              >
+                <i className="ri-arrow-up-s-line text-xl" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

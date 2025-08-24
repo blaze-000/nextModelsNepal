@@ -757,3 +757,66 @@ export const getEarliestUpcomingEvent = async (req: Request, res: Response) => {
       .json({ success: false, message: "Failed to fetch earliest upcoming event" });
   }
 };
+
+/**
+ * Get all events that are opened for voting
+ */
+export const getVotingEvents = async (req: Request, res: Response) => {
+  try {
+    // First filter seasons that have status: ongoing
+    // Then find seasons that have voting: on
+    const votingSeasons = await SeasonModel.find({
+      status: "ongoing",
+      votingOpened: true
+    }).populate("eventId", "name titleImage");
+
+    // Transform data to include parent event's name, titleImage, and season's slug
+    const votingEvents = votingSeasons.map(season => {
+      const eventData = season.eventId as any; // Type assertion for populated field
+      return {
+        eventName: eventData.name,
+        image: season.image,
+        slug: season.slug
+      };
+    });
+
+    res.json({ success: true, data: votingEvents });
+  } catch (error) {
+    console.error("Get voting events error:", error);
+    res.status(500).json({ success: false, message: "Failed to fetch voting events" });
+  }
+};
+
+/**
+ * Get details of a voting season
+ */
+export const getVotingSeasonDetails = async (req: Request, res: Response) => {
+  try {
+    const { slug } = req.params;
+    const season = await SeasonModel.findOne({ slug, status: "ongoing" })
+      .populate("eventId", "name")
+      .populate("contestants");
+
+    if (!season) {
+      return res.status(404).json({ success: false, message: "Voting season not found" });
+    }
+
+    // Filter out eliminated contestants
+    const activeContestants = (season as any).contestants?.filter((contestant: any) =>
+      contestant.status.toLowerCase() !== "eliminated"
+    ) || [];
+
+    // Transform data to include parent event's name, voting_end_time, season's image
+    const seasonData = season.toObject();
+    const votingSeasonDetails = {
+      eventName: (season.eventId as any)?.name,
+      ...seasonData,
+      contestants: activeContestants // Override the original contestants with filtered ones
+    };
+
+    res.json({ success: true, data: votingSeasonDetails });
+  } catch (error) {
+    console.error("Get voting season details error:", error);
+    res.status(500).json({ success: false, message: "Failed to fetch voting season details" });
+  }
+};

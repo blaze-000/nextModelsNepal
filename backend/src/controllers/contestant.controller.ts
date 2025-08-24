@@ -164,8 +164,18 @@ export const getContestantById = async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, message: "Invalid contestant ID format" });
     }
 
-    const contestant = await ContestantModel.findById(id).populate("seasonId", "year slug");
+    const contestant = await ContestantModel.findById(id).populate("seasonId", "year slug votingOpened pricePerVote");
     if (!contestant) {
+      return res.status(404).json({ success: false, message: "Contestant not found" });
+    }
+    // Check if parent season's voting is on
+    const season = contestant.seasonId as any;
+    if (!season || !season.votingOpened) {
+      return res.status(404).json({ success: false, message: "Contestant not found" });
+    }
+
+    // Check if contestant is eliminated
+    if (contestant.status === "eliminated") {
       return res.status(404).json({ success: false, message: "Contestant not found" });
     }
 

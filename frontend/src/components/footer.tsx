@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import type { FC, ReactNode } from "react";
+import type { ReactNode } from "react";
 import { motion } from "framer-motion";
 import NewsLetterBox from "./molecules/newsleterbox";
 import Link from "next/link";

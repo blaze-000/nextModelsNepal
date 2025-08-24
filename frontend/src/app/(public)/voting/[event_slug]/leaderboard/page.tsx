@@ -98,7 +98,7 @@ export default function Leaderboard() {
               <span className="underline underline-offset-4">
                 {isExpanded ? "Show Less" : "Load More"}
               </span>
-              <i className="ri-arrow-down-line group-hover:scale-120 transition-transform duration-400 text-xl font-extralight" />
+              <i className={`${isExpanded ? "ri-arrow-up-line" : "ri-arrow-down-line"} group-hover:scale-120 transition-transform duration-400 text-xl font-extralight`} />
             </button>
           </div>
         </div>
