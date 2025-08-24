@@ -45,11 +45,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// Trust proxy if behind load balancer / reverse proxy (only in production)
-if (NODE_ENV === 'production') {
-  app.set('trust proxy', true);
-}
-
 // Security headers
 app.use(helmet());
 

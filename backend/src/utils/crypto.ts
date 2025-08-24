@@ -1,16 +1,20 @@
-import crypto from 'crypto';
+import crypto from "crypto";
+const secretKey = process.env.FONEPAY_DEV_SECRET_KEY as string;
 
-// HMAC SHA512 returning lowercase hex
-export function hmacSha512Hex(key: string, data: string) {
-    return crypto.createHmac('sha512', Buffer.from(key, 'utf8'))
-        .update(Buffer.from(data, 'utf8'))
-        .digest('hex');
+export function hmacSha512Hex(data: string, key: string = secretKey): string {
+  // Create HMAC with SHA512 using the key
+  const hmac = crypto.createHmac("sha512", key);
+
+  // Update with the data to be hashed
+  hmac.update(data);
+
+  // Return the hexadecimal digest
+  return hmac.digest("hex");
 }
 
-// constant-time compare
 export function safeEqualHex(a: string, b: string) {
-    const A = Buffer.from(a, 'hex');
-    const B = Buffer.from(b, 'hex');
-    if (A.length !== B.length) return false;
-    return crypto.timingSafeEqual(A, B);
+  const A = Buffer.from(a, "hex");
+  const B = Buffer.from(b, "hex");
+  if (A.length !== B.length) return false;
+  return crypto.timingSafeEqual(A, B);
 }

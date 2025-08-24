@@ -5,55 +5,44 @@ const MODE = (process.env.FONEPAY_MODE as Mode) || 'dev';
 
 const byMode = <T,>(dev: T, live: T) => (MODE === 'dev' ? dev : live);
 
-export const app = {
-  port: Number(process.env.PORT || 4000),
-  baseUrl: process.env.APP_BASE_URL!, // used to form RU
+export const mongo = {
+  uri: process.env.DATABASE_URI!, // ✅ changed from MONGO_URI
 };
 
-export const mongo = {
-  uri: process.env.MONGO_URI!,
+export const app = {
+  baseUrl: process.env.APP_BASE_URL || "http://localhost:8000",
 };
 
 export const fonepay = {
-  mode: MODE,
-  pid: process.env.FONEPAY_PID!,
-  // Client redirect endpoints
-  redirectBaseUrl: byMode(
-    'https://dev-clientapi.fonepay.com/api/merchantRequest',
-    'https://clientapi.fonepay.com/api/merchantRequest'
-  ),
+  mode: process.env.FONEPAY_MODE || "dev",
+  pid: process.env.FONEPAY_MODE === 'live' 
+    ? process.env.FONEPAY_LIVE_PID! 
+    : process.env.FONEPAY_DEV_PID || 'NBQM',
+  redirectSharedSecret: process.env.FONEPAY_MODE === 'live'
+    ? process.env.FONEPAY_LIVE_SECRET_KEY!
+    : process.env.FONEPAY_DEV_SECRET_KEY || 'a7e3512f5032480a83137793cb2021dc',
+  requestDvOrder: ["PID", "MD", "PRN", "AMT", "CRN", "DT", "R1", "R2", "RU"],
+  dvDelimiter: ",",
+  redirectBaseUrl: process.env.FONEPAY_REDIRECT_BASE_URL
+    || (process.env.FONEPAY_MODE === 'live' 
+        ? "https://clientapi.fonepay.com/api/merchantRequest"
+        : "https://dev-clientapi.fonepay.com/api/merchantRequest"),
 
-  // Merchant API base for txnVerification
-  merchantApiBaseUrl: byMode(
-    'https://dev-merchantapi.fonepay.com/convergent-merchantweb/api',
-    'https://merchantapi.fonepay.com/api'
-  ),
+  apiUser: process.env.FONEPAY_API_USER,
+  apiPass: process.env.FONEPAY_API_PASS,
+  apiSecret: process.env.FONEPAY_API_SECRET,
+  merchantApiBaseUrl: process.env.FONEPAY_API_BASE_URL
+    || (process.env.FONEPAY_MODE === 'live'
+        ? "https://merchantapi.fonepay.com"
+        : "https://dev-clientapi.fonepay.com"),
+  merchantTxnVerificationResource: "/merchant/api/txn_verification",
+};
 
-  // The “resource” path string to include in the HMAC message for auth header
-  // Fonepay docs show this canonical path:
-  merchantTxnVerificationResource: '/merchant/merchantDetailsForThirdParty/txnVerification',
-
-  // Secrets
-  redirectSharedSecret: byMode(
-    process.env.FONEPAY_SHARED_SECRET_DEV!,
-    process.env.FONEPAY_SHARED_SECRET_LIVE!
-  ),
-  apiUser: byMode(
-    process.env.FONEPAY_API_USERNAME_DEV!,
-    process.env.FONEPAY_API_USERNAME_LIVE!
-  ),
-  apiPass: byMode(
-    process.env.FONEPAY_API_PASSWORD_DEV!,
-    process.env.FONEPAY_API_PASSWORD_LIVE!
-  ),
-  apiSecret: byMode(
-    process.env.FONEPAY_API_SECRET_DEV!,
-    process.env.FONEPAY_API_SECRET_LIVE!
-  ),
-
-  // DV settings — update from official doc once confirmed
-  // Values must be raw (NOT URL-encoded) when hashing.
-  requestDvOrder: ['PID', 'MD', 'PRN', 'AMT', 'CRN', 'DT', 'RI', 'R1', 'R2', 'RU'] as const,
-  responseDvOrder: ['PRN', 'PID', 'PS', 'RC', 'P_AMT', 'R_AMT', 'UID'] as const, // keep until confirmed
-  dvDelimiter: ',', // comma per PHP sample
-} as const;
+if (fonepay.mode === 'live') {
+  if (!process.env.FONEPAY_LIVE_PID) {
+    throw new Error('FONEPAY_LIVE_PID environment variable is required for live mode');
+  }
+  if (!process.env.FONEPAY_LIVE_SECRET_KEY) {
+    throw new Error('FONEPAY_LIVE_SECRET_KEY environment variable is required for live mode');
+  }
+}

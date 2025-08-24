@@ -1,14 +1,13 @@
 export type FonepayRequestParams = {
-  RU: string;
   PID: string;
+  MD: 'P';
   PRN: string;
   AMT: string;
   CRN: 'NPR';
   DT: string;     // MM/DD/YYYY
-  RI: string;     // <=160
   R1: string;     // <=50
   R2: string;     // <=50
-  MD: 'P';
+  RU: string;
   DV: string;
 };
 
