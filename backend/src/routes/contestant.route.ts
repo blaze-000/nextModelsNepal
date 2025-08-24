@@ -15,6 +15,9 @@ router.post("/",
 // Get contestants by season ID
 router.get("/season/:seasonId", contestantController.getContestantsBySeason);
 
+// Get contestants by season slug
+router.get("/season-slug/:slug", contestantController.getContestantsBySeasonSlug);
+
 // Get contestant by ID
 router.get("/:id", contestantController.getContestantById);
 
