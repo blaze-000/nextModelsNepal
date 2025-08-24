@@ -1,6 +1,6 @@
 import { Router } from "express";
 import * as contestantController from "../controllers/contestant.controller";
-import upload from "../middleware/upload"; // Import multer middleware
+import upload from "../middleware/upload";
 import { verifyAdminToken } from "../middleware/auth.middleware";
 
 const router = Router();

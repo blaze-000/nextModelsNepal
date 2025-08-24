@@ -10,26 +10,38 @@ import Link from "next/link";
 import Image from "next/image";
 import Axios from "@/lib/axios-instance";
 import { normalizeImagePath } from "@/lib/utils";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function ModelDetailsPage() {
   const params = useParams();
   const slug = params?.slug as string;
   const [model, setModel] = useState<Model | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
+      setLoading(true);
       const res = await Axios.get(`/api/models/${slug}`);
       const data = res.data.data;
       console.log(data);
       setModel(data);
+      setLoading(false);
     })();
   }, [slug]);
+
+  if (loading) {
+    return (
+      <div className="h-[90vh]">
+        <Spinner color="#ffaa00" size={50} />;
+      </div>
+    );
+  }
 
   return (
     <main>
       {/* Hero Section Desktop */}
       <section className="hidden xl:block w-full bg-black">
-        <div className="grid grid-cols-[1fr_1fr]">
+        <div className="grid grid-cols-[1fr_0.8fr]">
           {/* Texts Desktop */}
           <div className="relative pl-30">
             <div className="flex-col justify-center px-6 p-30">
@@ -68,9 +80,9 @@ export default function ModelDetailsPage() {
             </div>
           </div>
           {/* Right Column - Full width background image */}
-          <div className="relative col-span-1 h-[80vh]">
+          <div className="relative col-span-1 ">
             <Image
-              src={normalizeImagePath(model?.coverImage || "")}
+              src={normalizeImagePath(model?.coverImage)}
               alt={model?.name || ""}
               fill
               quality={100}
@@ -86,7 +98,7 @@ export default function ModelDetailsPage() {
       <section className="flex xl:hidden h-[50vh] md:h-[70vh] bg-black bg-cover relative bg-no-repeat bg-center">
         {/* Background Image */}
         <Image
-          src={normalizeImagePath(model?.coverImage) || ""}
+          src={normalizeImagePath(model?.coverImage)}
           alt={model?.name || ""}
           fill
           quality={100}
