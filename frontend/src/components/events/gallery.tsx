@@ -122,7 +122,7 @@ export const Gallery = () => {
           transition={{ duration: 0.5 }}
         >
           {/* Desktop Layout */}
-          <div className="hidden md:flex justify-between items-center -mb-4">
+          <div className="hidden md:flex justify-between items-center ">
             <SectionHeader title="Gallery" />
             <div className="pb-8 flex items-center space-x-4">
               <Dropdown
@@ -165,10 +165,10 @@ export const Gallery = () => {
                 className="w-4 h-4 rounded-full"
               />
               <h3 className="text-white text-xl font-normal font-newsreader">
-                Gallery
+                Highlights
               </h3>
             </div>
-            <div className="flex flex-wrap justify-center space-x-4 pt-5">
+            <div className="flex flex-wrap justify-center gap-5">
               <Dropdown
                 label="Event"
                 options={eventTypes}

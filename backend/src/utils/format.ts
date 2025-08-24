@@ -1,10 +1,11 @@
-import dayjs from 'dayjs';
+import dayjs from "dayjs";
 
-// MM/DD/YYYY
-export function formatFonepayDate(d: Date = new Date()) {
-  return dayjs(d).format("MM/DD/YYYY");
+// Format M/D/Y for Fonepay - zero-padded format required
+export function formatFonepayDate(d: Date = new Date()): string {
+  const formatted = dayjs(d).format("MM/DD/YYYY");
+  return formatted;
 }
 
-export function formatAmount(v: number) {
-  return v.toFixed(2);
+export function formatAmount(n: number): string {
+  return n.toFixed(2);
 }

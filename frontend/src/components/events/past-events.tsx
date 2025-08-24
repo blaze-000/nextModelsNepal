@@ -9,9 +9,7 @@ import Dropdown from "../ui/Dropdown";
 import Link from "next/link";
 import Axios from "@/lib/axios-instance";
 
-
 type PastEvents = {
-  _id: string;
   name: string;
   overview: string;
   season: {
@@ -32,12 +30,18 @@ export const PastEvents = ({ searchText }: { searchText: string }) => {
     const filtered = events.filter((event) => {
       if (!searchText) return true;
 
-      const nameMatch = event.name?.toLowerCase().includes(searchText.toLowerCase());
-      const overviewMatch = event.overview?.toLowerCase().includes(searchText.toLowerCase());
+      const nameMatch = event.name
+        ?.toLowerCase()
+        .includes(searchText.toLowerCase());
+      const overviewMatch = event.overview
+        ?.toLowerCase()
+        .includes(searchText.toLowerCase());
       const yearMatch = event.season?.year?.toString().includes(searchText);
 
       const matches = nameMatch || overviewMatch || yearMatch;
-      console.log(`Event ${event.name}: nameMatch=${nameMatch}, overviewMatch=${overviewMatch}, yearMatch=${yearMatch}, matches=${matches}`);
+      console.log(
+        `Event ${event.name}: nameMatch=${nameMatch}, overviewMatch=${overviewMatch}, yearMatch=${yearMatch}, matches=${matches}`
+      );
 
       return matches;
     });
@@ -46,13 +50,15 @@ export const PastEvents = ({ searchText }: { searchText: string }) => {
       switch (sortType) {
         case "Oldest":
           return (
-            new Date(a.season.endDate).getTime() - new Date(b.season.endDate).getTime()
+            new Date(a.season.endDate).getTime() -
+            new Date(b.season.endDate).getTime()
           );
 
         case "Most Recent":
         default:
           return (
-            new Date(b.season.endDate).getTime() - new Date(a.season.endDate).getTime()
+            new Date(b.season.endDate).getTime() -
+            new Date(a.season.endDate).getTime()
           );
       }
     });
@@ -179,12 +185,12 @@ export const PastEvents = ({ searchText }: { searchText: string }) => {
           </div>
         </motion.div>
 
-        {/* News Grid */}
+        {/*  past events Grid */}
         {sortedEvents.length > 0 && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-6">
             {sortedEvents.map((item) => (
               <motion.div
-                key={item._id}
+                key={item.name}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, ease: "easeOut" }}
@@ -202,8 +208,6 @@ export const PastEvents = ({ searchText }: { searchText: string }) => {
             ))}
           </div>
         )}
-
-
 
         {/* See All Button */}
         {!searchText && (

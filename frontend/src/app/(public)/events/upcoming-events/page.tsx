@@ -79,17 +79,9 @@ export default function UpcomingEvent() {
         searchPlaceholder="Search upcoming Events"
       />
       <div className="w-full bg-background py-4 md:py-20">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex flex-wrap  justify-center gap-5 px-2 mb-6">
-            <Dropdown
-              label="Sort By"
-              options={sortOptions}
-              selected={sortBy}
-              onSelect={setSortBy}
-            />
-          </div>
+        <div className="max-w-7xl mx-auto  px-6">
           {searchText !== "" && (
-            <div className="flex ">
+            <div className="flex items-center mb-6">
               <Image
                 src="/svg-icons/small_star.svg"
                 alt=""
@@ -98,7 +90,7 @@ export default function UpcomingEvent() {
                 className="inline-block mr-2 h-5 w-5 bg-cover"
               />
 
-              <p className=" text-2xl pb-5  font-newsreader">
+              <p className="text-xl sm:text-2xl font-newsreader">
                 Searching for:{" "}
                 <span className="text-gold-500">
                   &ldquo;{searchText}&rdquo;
@@ -107,27 +99,47 @@ export default function UpcomingEvent() {
             </div>
           )}
 
+          <div className="flex flex-wrap  justify-center gap-5 px-2 mb-6">
+            <Dropdown
+              label="Sort By"
+              options={sortOptions}
+              selected={sortBy}
+              onSelect={setSortBy}
+            />
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-6">
-            {sortedEvents?.map((item) => (
-              <motion.div
-                key={item._id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-                viewport={{ once: true, amount: 0.1 }}
-              >
-                <EventBox
-                  slug={item.latestEndedSeasonSlug}
-                  image={normalizeImagePath(item.image)}
-                  title={item.eventId.name}
-                  desc={item.eventId.overview}
-                  buttonText={`About ${item.eventId.name}`}
-                  status="upcoming"
-                  seasonId={item._id}
-                  className="h-full"
-                />
-              </motion.div>
-            ))}
+            {sortedEvents && sortedEvents.length > 0 ? (
+              sortedEvents.map((item) => (
+                <motion.div
+                  key={item._id}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.2 }}
+                  viewport={{ once: true, amount: 0.1 }}
+                >
+                  <EventBox
+                    slug={item.latestEndedSeasonSlug}
+                    image={normalizeImagePath(item.image)}
+                    title={item.eventId.name}
+                    desc={item.eventId.overview}
+                    buttonText={`About ${item.eventId.name}`}
+                    status="upcoming"
+                    seasonId={item._id}
+                    className="h-full"
+                  />
+                </motion.div>
+              ))
+            ) : (
+              <div className="col-span-full text-center py-7">
+                <p className="text-2xl font-semibold">
+                  No results found for &ldquo;{searchText}&rdquo;
+                </p>
+                <p className="mt-1 text-gray-400">
+                  Try searching for different keywords.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>

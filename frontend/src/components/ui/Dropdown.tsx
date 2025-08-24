@@ -8,6 +8,7 @@ interface DropdownProps {
   selected: string;
   onSelect: (value: string) => void;
   maxHeight?: string;
+  widthFit?: boolean;
 }
 
 const Dropdown: React.FC<DropdownProps> = ({
@@ -16,6 +17,7 @@ const Dropdown: React.FC<DropdownProps> = ({
   selected,
   onSelect,
   maxHeight = "200px",
+  widthFit = false
 }) => {
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -44,13 +46,13 @@ const Dropdown: React.FC<DropdownProps> = ({
   }, [open]);
 
   return (
-    <div className="relative inline-block text-left" ref={dropdownRef}>
+    <div className="relative inline-block  text-left" ref={dropdownRef}>
       {/* Button */}
       <div className="pb-5">
         <Button
           variant="outline"
           onClick={() => setOpen(!open)}
-          className="py-2 min-w-2xs"
+          className={`py-2 ${widthFit ? 'w-fit' : 'min-w-2xs'}`}
         >
           <span className="text-sm text-[16px]">
             {label}: <span className="text-gold-500">{selected}</span>
@@ -61,11 +63,16 @@ const Dropdown: React.FC<DropdownProps> = ({
 
       {/* Dropdown List */}
       {open && (
-        <div className="absolute right-0 -mt-1 bg-[#1E1E1E] z-10   shadow-lg hover:text-gold-500 overflow-hidden">
+        <div className="absolute right-0  bg-[#1E1E1E] z-10   shadow-lg hover:text-gold-500 overflow-hidden">
           <div
             ref={contentRef}
             className="overflow-y-auto"
-            style={{ maxHeight }}
+            style={{
+              maxHeight,
+              overscrollBehavior: "contain",
+              WebkitOverflowScrolling: "touch",
+            }}
+            data-lenis-prevent
           >
             {[...options]
               .sort((a, b) => {

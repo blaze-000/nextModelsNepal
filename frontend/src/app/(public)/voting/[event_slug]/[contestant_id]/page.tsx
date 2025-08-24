@@ -214,8 +214,12 @@ const ModelVoting: React.FC = () => {
                   {paymentMethods.map(item => (
                     <div
                       key={item.name}
-                      onClick={() => setSelectedMethod(item.name)}
-                      className={`cursor-pointer w-[45%] border py-2 px-4 rounded-md ${selectedMethod === item.name ? 'border-primary ring-1 ring-primary' : 'border-stone-600'}`}
+                      onClick={() => setSelectedMethod(item.id)}
+                      className={`cursor-pointer w-[45%] border py-2 px-4 rounded-md transition-all ${
+                        selectedMethod === item.id 
+                          ? 'border-primary ring-1 ring-primary bg-primary/5' 
+                          : 'border-stone-600 hover:border-stone-400'
+                      }`}
                     >
                       <Image
                         src={item.icon}
