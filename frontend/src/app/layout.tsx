@@ -4,6 +4,7 @@ import TopLoader from "nextjs-toploader";
 import { Toaster } from "sonner";
 import { Urbanist, Newsreader } from "next/font/google";
 import { AuthProvider } from "@/context/authContext";
+import { CartProvider } from "@/context/cartContext";
 import LenisProvider from "@/components/lenisprovider";
 
 const urbanist = Urbanist({
@@ -40,7 +41,9 @@ export default function RootLayout({
         <TopLoader showSpinner={false} color="#a06d06" height={1.9} />
         <Toaster position="top-right" offset="80px" richColors />
         <AuthProvider>
-          <LenisProvider>{children}</LenisProvider>
+          <CartProvider>
+            <LenisProvider>{children}</LenisProvider>
+          </CartProvider>
         </AuthProvider>
       </body>
     </html>
