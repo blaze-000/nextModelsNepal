@@ -90,7 +90,7 @@ export default function ApplicationDetails() {
     if (id) {
       fetchApplication();
     }
-  }, [id]);
+  }, [id, fetchApplication]);
   console.log(application?.images);
 
   // Format date for display

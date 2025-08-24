@@ -8,6 +8,43 @@ import { ContestantModel } from '../models/events.model';
 import mongoose from 'mongoose';
 import { incMetric } from '../utils/metrics';
 
+// Helper function to parse R1 parameter for bulk payments
+function parseBulkPaymentR1(r1String: string): { contestant_Id: string; vote: number }[] {
+  try {
+    if (!r1String || r1String.trim() === '') {
+      return [];
+    }
+    
+    const parsedR1 = JSON.parse(decodeURIComponent(r1String));
+    
+    // Handle different R1 formats:
+    // 1. New compressed format: { i: [{ id, v }], c, t }
+    // 2. Previous compressed format: { items: [{ contestant_Id, vote }], count, total } or { items: [{ id, v }], count, total }
+    // 3. Original format: [{ contestant_Id, vote }]
+    
+    let items: any[] = [];
+    if (parsedR1.i) {
+      // New compressed format: { i: [{ id, v }], c, t }
+      items = parsedR1.i;
+    } else if (parsedR1.items) {
+      // Previous compressed format
+      items = parsedR1.items;
+    } else {
+      // Original format
+      items = parsedR1;
+    }
+    
+    // Process items and map to consistent format
+    return items.map((item: any) => ({
+      contestant_Id: item.contestant_Id || item.id,
+      vote: item.vote || item.v
+    }));
+  } catch (parseError) {
+    console.error('Error parsing R1 for bulk payment:', parseError);
+    return [];
+  }
+}
+
 // 1) Create Payment Session
 export const payment = async (req: Request, res: Response) => {
   try {
@@ -71,12 +108,115 @@ export const payment = async (req: Request, res: Response) => {
 
 export const getPaymentStatusByPrn = async (req: Request, res: Response) => {
   try {
+    // Prevent caching of payment status responses
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+    
     const { prn } = req.params;
     const searchPrn = prn.startsWith('prn_') ? prn : `prn_${prn}`;
     const payment = await Payment.findOne({ prn: searchPrn });
     if (!payment) return res.status(404).json({ success: false, message: "Payment not found" });
 
-    res.status(200).json({ success: true, status: payment.status });
+    // Get contestant with season information
+    let eventName = '';
+    let contestantsInfo: { id: string; name: string; votes: number }[] = [];
+    
+    // Check if this is a bulk payment (R1 contains multiple contestants)
+    if (payment.r1 && payment.r1.trim() !== '') {
+      try {
+        const bulkPaymentItems = parseBulkPaymentR1(payment.r1);
+        // Get information for all contestants in the bulk payment
+        for (const item of bulkPaymentItems) {
+          // Use full contestant ID directly
+          const contestant = await ContestantModel.findById(item.contestant_Id).populate({
+            path: 'seasonId',
+            populate: {
+              path: 'eventId',
+              select: 'name'
+            }
+          });
+          
+          if (contestant && contestant.seasonId) {
+            const season: any = contestant.seasonId;
+            if (season.eventId && season.eventId.name && !eventName) {
+              eventName = season.eventId.name;
+            }
+          }
+          
+          contestantsInfo.push({
+            id: item.contestant_Id,
+            name: contestant ? contestant.name : `Contestant ${item.contestant_Id}`,
+            votes: item.vote
+          });
+        }
+      } catch (parseError) {
+        console.error('Error parsing R1 for bulk payment:', parseError);
+        // Fallback to single contestant
+        const contestant = await ContestantModel.findById(payment.contestant_Id).populate({
+          path: 'seasonId',
+          populate: {
+            path: 'eventId',
+            select: 'name'
+          }
+        });
+        
+        if (contestant && contestant.seasonId) {
+          const season: any = contestant.seasonId;
+          if (season.eventId && season.eventId.name) {
+            eventName = season.eventId.name;
+          }
+        }
+        
+        contestantsInfo.push({
+          id: payment.contestant_Id.toString(),
+          name: payment.contestant_Name || '',
+          votes: payment.vote
+        });
+      }
+    } else {
+      // Single contestant payment
+      const contestant = await ContestantModel.findById(payment.contestant_Id).populate({
+        path: 'seasonId',
+        populate: {
+          path: 'eventId',
+          select: 'name'
+        }
+      });
+      
+      if (contestant && contestant.seasonId) {
+        const season: any = contestant.seasonId;
+        if (season.eventId && season.eventId.name) {
+          eventName = season.eventId.name;
+        }
+      }
+      
+      contestantsInfo.push({
+        id: payment.contestant_Id.toString(),
+        name: payment.contestant_Name || '',
+        votes: payment.vote
+      });
+    }
+
+    // Return detailed payment information for the frontend
+    const paymentData = {
+      message: `Payment ${payment.status}`,
+      isSuccess: payment.status === 'success',
+      status: payment.status,
+      prn: payment.prn,
+      contestants: contestantsInfo,
+      amount: payment.amount,
+      event: eventName || payment.purpose || '',
+      bankCode: payment.bc || '',
+      accountNumber: payment.uid || '',
+      ini: payment.ini || ''
+    };
+
+    res.status(200).json({ 
+      success: true, 
+      status: payment.status,
+      payment: paymentData
+    });
   } catch (error: any) {
     res.status(500).json({ success: false, message: "Failed to get payment" });
   }
@@ -84,33 +224,273 @@ export const getPaymentStatusByPrn = async (req: Request, res: Response) => {
 
 export const getPaymentStatusById = async (req: Request, res: Response) => {
   try {
+    // Prevent caching of payment status responses
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+    
     const { id } = req.params;
     const payment = await Payment.findById(id);
     if (!payment) return res.status(404).json({ success: false, message: "Payment not found" });
 
-    res.status(200).json({ success: true, payment });
+    // Get contestant with season information
+    let eventName = '';
+    let contestantsInfo: { id: string; name: string; votes: number }[] = [];
+    
+    // Check if this is a bulk payment (R1 contains multiple contestants)
+    if (payment.r1 && payment.r1.trim() !== '') {
+      try {
+        const bulkPaymentItems = parseBulkPaymentR1(payment.r1);
+        // Get information for all contestants in the bulk payment
+        for (const item of bulkPaymentItems) {
+          // Use full contestant ID directly
+          const contestant = await ContestantModel.findById(item.contestant_Id).populate({
+            path: 'seasonId',
+            populate: {
+              path: 'eventId',
+              select: 'name'
+            }
+          });
+          
+          if (contestant && contestant.seasonId) {
+            const season: any = contestant.seasonId;
+            if (season.eventId && season.eventId.name && !eventName) {
+              eventName = season.eventId.name;
+            }
+          }
+          
+          contestantsInfo.push({
+            id: item.contestant_Id,
+            name: contestant ? contestant.name : `Contestant ${item.contestant_Id}`,
+            votes: item.vote
+          });
+        }
+      } catch (parseError) {
+        console.error('Error parsing R1 for bulk payment:', parseError);
+        // Fallback to single contestant
+        const contestant = await ContestantModel.findById(payment.contestant_Id).populate({
+          path: 'seasonId',
+          populate: {
+            path: 'eventId',
+            select: 'name'
+          }
+        });
+        
+        if (contestant && contestant.seasonId) {
+          const season: any = contestant.seasonId;
+          if (season.eventId && season.eventId.name) {
+            eventName = season.eventId.name;
+          }
+        }
+        
+        contestantsInfo.push({
+          id: payment.contestant_Id.toString(),
+          name: payment.contestant_Name || '',
+          votes: payment.vote
+        });
+      }
+    } else {
+      // Single contestant payment
+      const contestant = await ContestantModel.findById(payment.contestant_Id).populate({
+        path: 'seasonId',
+        populate: {
+          path: 'eventId',
+          select: 'name'
+        }
+      });
+      
+      if (contestant && contestant.seasonId) {
+        const season: any = contestant.seasonId;
+        if (season.eventId && season.eventId.name) {
+          eventName = season.eventId.name;
+        }
+      }
+      
+      contestantsInfo.push({
+        id: payment.contestant_Id.toString(),
+        name: payment.contestant_Name || '',
+        votes: payment.vote
+      });
+    }
+
+    // Return detailed payment information for the frontend
+    const paymentData = {
+      message: `Payment ${payment.status}`,
+      isSuccess: payment.status === 'success',
+      status: payment.status,
+      prn: payment.prn,
+      contestants: contestantsInfo,
+      amount: payment.amount,
+      event: eventName || payment.purpose || '',
+      bankCode: payment.bc || '',
+      accountNumber: payment.uid || '',
+      ini: payment.ini || ''
+    };
+
+    res.status(200).json({ success: true, payment: paymentData });
   } catch (error: any) {
     res.status(500).json({ success: false, message: "Failed to get payment" });
   }
 };
 
 export const getAllPayment = async (req: Request, res: Response) => {
-  const payments = await Payment.find();
-  res.status(200).json({ message: "successfully get payment:", payments });
-}
+  try {
+    // Get all payments sorted by createdAt in descending order (newest first)
+    const payments = await Payment.find().sort({ createdAt: -1 });
+    
+    // Enhance payments with contestant information for bulk payments
+    const enhancedPayments = await Promise.all(payments.map(async (payment) => {
+      // Check if this is a bulk payment (R1 contains multiple contestants)
+      if (payment.r1 && payment.r1.trim() !== '') {
+        try {
+          const bulkPaymentItems = parseBulkPaymentR1(payment.r1);
+          // Get information for all contestants in the bulk payment
+          const contestantsInfo = [];
+          for (const item of bulkPaymentItems) {
+            const contestant = await ContestantModel.findById(item.contestant_Id);
+            contestantsInfo.push({
+              id: item.contestant_Id,
+              name: contestant ? contestant.name : `Contestant ${item.contestant_Id}`,
+              votes: item.vote
+            });
+          }
+          
+          return {
+            ...payment.toObject(),
+            contestants: contestantsInfo
+          };
+        } catch (parseError) {
+          console.error('Error parsing R1 for bulk payment:', parseError);
+          // Fallback to single contestant
+          return {
+            ...payment.toObject(),
+            contestants: [{
+              id: payment.contestant_Id.toString(),
+              name: payment.contestant_Name,
+              votes: payment.vote
+            }]
+          };
+        }
+      } else {
+        // Single contestant payment
+        return {
+          ...payment.toObject(),
+          contestants: [{
+            id: payment.contestant_Id.toString(),
+            name: payment.contestant_Name,
+            votes: payment.vote
+          }]
+        };
+      }
+    }));
+    
+    res.status(200).json({ 
+      success: true,
+      message: "Successfully retrieved payments",
+      payments: enhancedPayments
+    });
+  } catch (error: any) {
+    console.error('Error fetching payments:', error);
+    res.status(500).json({ 
+      success: false,
+      message: "Failed to get payments",
+      error: error.message 
+    });
+  }
+};
 
+export const getPaymentStats = async (req: Request, res: Response) => {
+  try {
+    // Get total count of payments
+    const totalPayments = await Payment.countDocuments();
+    
+    // Get count by status
+    const statusCounts = await Payment.aggregate([
+      {
+        $group: {
+          _id: "$status",
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+    
+    // Get recent payments (last 30 days)
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    
+    const recentPayments = await Payment.find({
+      createdAt: { $gte: thirtyDaysAgo }
+    }).sort({ createdAt: -1 });
+    
+    // Calculate total revenue
+    const totalRevenueResult = await Payment.aggregate([
+      {
+        $match: {
+          status: "success"
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          totalRevenue: { $sum: "$amount" },
+          totalVotes: { $sum: "$vote" }
+        }
+      }
+    ]);
+    
+    const totalRevenue = totalRevenueResult.length > 0 ? totalRevenueResult[0].totalRevenue : 0;
+    const totalVotes = totalRevenueResult.length > 0 ? totalRevenueResult[0].totalVotes : 0;
+    
+    // Format status counts for easier frontend consumption
+    const formattedStatusCounts: Record<string, number> = {};
+    statusCounts.forEach(item => {
+      formattedStatusCounts[item._id] = item.count;
+    });
+    
+    res.status(200).json({
+      success: true,
+      data: {
+        totalPayments,
+        totalRevenue,
+        totalVotes,
+        statusCounts: formattedStatusCounts,
+        recentPayments: recentPayments.slice(0, 10) // Limit to 10 most recent
+      }
+    });
+  } catch (error: any) {
+    console.error('Error fetching payment stats:', error);
+    res.status(500).json({ 
+      success: false,
+      message: "Failed to get payment statistics",
+      error: error.message 
+    });
+  }
+};
 
 export const returnPayment = async (req: Request, res: Response) => {
   try {
-
     const query = { ...(req.query as any), ...(req.body as any) };
     const { PRN } = query;
 
+    // If this is just a status check for an already successful payment, skip rate limiting
+    if (PRN) {
+      let prnToSearch = String(PRN);
+      if (!prnToSearch.startsWith("prn_")) {
+        prnToSearch = `prn_${prnToSearch}`;
+      }
+
+      const payment = await Payment.findOne({ prn: prnToSearch });
+      if (payment && payment.status === 'success' && payment.apiVerificationStatus === 'success') {
+        // Redirect to frontend payment status page for already successful payments
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+        return res.redirect(302, `${frontendUrl}/payment/status?prn=${payment.prn}`);
+      }
+    }
+
     if (!query.PRN || !query.PID || !query.DV) {
-      return res.status(400).json({
-        message: "Missing required fields",
-        isSuccess: false
-      });
+      // Redirect to frontend payment status page with error information
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+      return res.redirect(302, `${frontendUrl}/payment/status?error=missing_fields`);
     }
 
     let prnToSearch = String(PRN);
@@ -131,53 +511,37 @@ export const returnPayment = async (req: Request, res: Response) => {
 
 
       if (recentPayments.length === 0) {
-        return res.status(404).json({
-          message: "Unknown PRN - No recent payments found",
-          isSuccess: false,
-          prn: prnToSearch,
-          suggestion: "Please create a new payment"
-        });
+        // Redirect to frontend payment status page with error information
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+        return res.redirect(302, `${frontendUrl}/payment/status?error=unknown_prn`);
       }
 
       // Use the most recent payment as fallback
       const fallbackPayment = recentPayments[0];
 
-      return res.status(404).json({
-        message: "Unknown PRN",
-        isSuccess: false,
-        prn: prnToSearch,
-        fallback: {
-          availablePrn: fallbackPayment.prn,
-          suggestion: "PRN mismatch detected. Please use the correct PRN from your payment creation response."
-        }
-      });
+      // Redirect to frontend payment status page with error information
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+      return res.redirect(302, `${frontendUrl}/payment/status?error=prn_mismatch&prn=${prnToSearch}`);
     }
 
     if (payment.status === 'success' && payment.apiVerificationStatus === 'success') {
-      return res.status(200).json({
-        message: `Payment ${payment.status}. Thank you.`,
-        isSuccess: true,
-        status: payment.status
-      });
+      // Redirect to frontend payment status page for already successful payments
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+      return res.redirect(302, `${frontendUrl}/payment/status?prn=${payment.prn}`);
     }
 
     const { contestant_Id } = payment;
     const isContestant = await ContestantModel.findById(contestant_Id);
     if (!isContestant) {
-      return res.status(404).json({
-        message: "Invalid Contestant Id.",
-        isSuccess: false,
-        contestant: contestant_Id
-      });
+      // Redirect to frontend payment status page with error information
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+      return res.redirect(302, `${frontendUrl}/payment/status?error=invalid_contestant&contestant=${contestant_Id}`);
     }
 
     if (String(query.PID) !== payment.pid) {
-      return res.status(400).json({
-        message: "PID mismatch",
-        isSuccess: false,
-        expected: payment.pid,
-        received: query.PID
-      });
+      // Redirect to frontend payment status page with error information
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+      return res.redirect(302, `${frontendUrl}/payment/status?error=pid_mismatch&expected=${payment.pid}&received=${query.PID}`);
     }
 
     // Check payment status from FonePay response
@@ -196,28 +560,9 @@ export const returnPayment = async (req: Request, res: Response) => {
       payment.responseDv = String(query.DV || "");
       await payment.save();
 
-      return res.status(200).json({
-        message: "Payment failed at FonePay gateway. Please try again.",
-        isSuccess: false,
-        status: "failed",
-        responseCode: responseCode,
-        reason: "FonePay rejected the payment",
-        troubleshooting: {
-          issue: "Payment failed before processing",
-          possibleCauses: [
-            "Data Validation Failed - incorrect DV hash",
-            "Merchant account configuration issue",
-            "Return URL not whitelisted",
-            "Invalid merchant credentials"
-          ],
-          nextSteps: [
-            "Verify merchant account is properly activated",
-            "Check if return URL is whitelisted with FonePay",
-            "Verify DV hash generation is correct",
-            "Contact FonePay support for merchant configuration"
-          ]
-        }
-      });
+      // Redirect to frontend payment status page with failure information
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+      return res.redirect(302, `${frontendUrl}/payment/status?prn=${payment.prn}`);
     }
 
     const dvResult = verifyReturnDv(query);
@@ -228,12 +573,10 @@ export const returnPayment = async (req: Request, res: Response) => {
         payment.responseDv = String(query.DV || "");
         await payment.save();
         incMetric('dv_mismatch');
-        return res.status(400).json({
-          message: "DV mismatch",
-          isSuccess: false,
-          provided: query.DV,
-          expected: "(calculated)"
-        });
+        
+        // Redirect to frontend payment status page with error information
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+        return res.redirect(302, `${frontendUrl}/payment/status?error=dv_mismatch&prn=${payment.prn}`);
       }
     }
 
@@ -255,14 +598,10 @@ export const returnPayment = async (req: Request, res: Response) => {
       if (Math.abs(paidAmount - expectedAmount) > 0.01) { // Allow 1 paisa tolerance
         payment.status = "error";
         await payment.save();
-        return res.status(400).json({
-          message: "Amount manipulation detected",
-          isSuccess: false,
-          paidAmount: paidAmount,
-          expectedAmount: expectedAmount,
-          votes: payment.vote,
-          error: "Payment amount does not match expected amount for votes"
-        });
+        
+        // Redirect to frontend payment status page with error information
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+        return res.redirect(302, `${frontendUrl}/payment/status?error=amount_mismatch&prn=${payment.prn}`);
       }
       
       if (fonepay.mode === "dev") {
@@ -270,21 +609,55 @@ export const returnPayment = async (req: Request, res: Response) => {
         payment.apiVerificationStatus = "skipped";
         await payment.save();
 
-        await ContestantModel.findByIdAndUpdate(payment.contestant_Id, { $inc: { votes: payment.vote } });
+        // Check if this is a bulk payment (R1 contains multiple contestants)
+        let bulkPaymentItems: { contestant_Id: string; vote: number }[] = [];
+        try {
+          if (payment.r1 && payment.r1.trim() !== '') {
+            bulkPaymentItems = parseBulkPaymentR1(payment.r1);
+          } else {
+            // Fallback to single contestant update
+            bulkPaymentItems = [{ contestant_Id: payment.contestant_Id.toString(), vote: payment.vote }];
+          }
+        } catch (parseError) {
+          console.error('Error parsing R1 for bulk payment:', parseError);
+          // Fallback to single contestant update
+          bulkPaymentItems = [{ contestant_Id: payment.contestant_Id.toString(), vote: payment.vote }];
+        }
 
-        return res.status(200).json({
-          message: "Payment successful. Thank you!",
-          isSuccess: true,
-          status: "success",
-          prn: payment.prn,
-          contestant_Id: payment.contestant_Id,
-          contestant_Name: payment.contestant_Name,
-          amount: payment.amount,
-          votes: payment.vote,
-          mode: "development",
-          environment: "NBQM Sandbox",
-          timestamp: new Date().toISOString()
-        });
+        // Update votes for all contestants in the bulk payment
+        let updateErrors: string[] = [];
+        for (const item of bulkPaymentItems) {
+          try {
+            const contestantUpdate = await ContestantModel.findByIdAndUpdate(
+              item.contestant_Id, 
+              { $inc: { votes: item.vote } }, 
+              { new: true }
+            );
+            
+            if (!contestantUpdate) {
+              const errorMsg = `Contestant ${item.contestant_Id} not found`;
+              console.error(errorMsg);
+              updateErrors.push(errorMsg);
+            } else {
+              console.log(`Successfully updated votes for contestant ${item.contestant_Id}. New vote count: ${contestantUpdate.votes}`);
+            }
+          } catch (updateError) {
+            const errorMsg = `Error updating votes for contestant ${item.contestant_Id}: ${updateError}`;
+            console.error(errorMsg);
+            updateErrors.push(errorMsg);
+          }
+        }
+        
+        if (updateErrors.length > 0) {
+          // Log error but don't fail the payment
+          console.error(`Some vote updates failed: ${updateErrors.join('; ')}`);
+        } else {
+          console.log(`Successfully updated votes for ${bulkPaymentItems.length} contestant(s)`);
+        }
+
+        // Redirect to frontend payment status page instead of returning JSON
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+        return res.redirect(302, `${frontendUrl}/payment/status?prn=${payment.prn}`);
       }
       // Continue to S2S verification for live mode or proceed without S2S
     } else {
@@ -300,12 +673,9 @@ export const returnPayment = async (req: Request, res: Response) => {
       payment.responseDv = String(query.DV || "");
       await payment.save();
 
-      return res.status(200).json({
-        message: "Payment failed. Please try again.",
-        isSuccess: false,
-        status: "failed",
-        responseCode: responseCode
-      });
+      // Redirect to frontend payment status page with failure information
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+      return res.redirect(302, `${frontendUrl}/payment/status?prn=${payment.prn}`);
     }
 
     const body = {
@@ -313,6 +683,78 @@ export const returnPayment = async (req: Request, res: Response) => {
       merchantCode: payment.pid,
       amount: payment.p_amt || payment.amount.toFixed(2),
     };
+
+    // Bypass S2S verification when credentials are not available
+    if (!fonepay.apiUser || !fonepay.apiPass || !fonepay.apiSecret) {
+      console.log("S2S credentials not configured, bypassing S2S verification and using FonePay redirect data");
+      
+      // CRITICAL: Validate amount matches expected amount for votes
+      const paidAmount = parseFloat(query["P_AMT"] || "0");
+      const expectedAmount = payment.vote * 1; // votes × 1 NPR per vote
+      
+      if (Math.abs(paidAmount - expectedAmount) > 0.01) { // Allow 1 paisa tolerance
+        payment.status = "error";
+        await payment.save();
+        
+        // Redirect to frontend payment status page with error information
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+        return res.redirect(302, `${frontendUrl}/payment/status?error=amount_manipulation&prn=${payment.prn}`);
+      }
+      
+      payment.status = "success";
+      payment.apiVerificationStatus = "bypassed";
+      await payment.save();
+      
+      // Check if this is a bulk payment (R1 contains multiple contestants)
+      let bulkPaymentItems: { contestant_Id: string; vote: number }[] = [];
+      try {
+        if (payment.r1 && payment.r1.trim() !== '') {
+          bulkPaymentItems = parseBulkPaymentR1(payment.r1);
+        } else {
+          // Fallback to single contestant update
+          bulkPaymentItems = [{ contestant_Id: payment.contestant_Id.toString(), vote: payment.vote }];
+        }
+      } catch (parseError) {
+        console.error('Error parsing R1 for bulk payment:', parseError);
+        // Fallback to single contestant update
+        bulkPaymentItems = [{ contestant_Id: payment.contestant_Id.toString(), vote: payment.vote }];
+      }
+
+      // Update votes for all contestants in the bulk payment
+      let updateErrors: string[] = [];
+      for (const item of bulkPaymentItems) {
+        try {
+          const contestantUpdate = await ContestantModel.findByIdAndUpdate(
+            item.contestant_Id, 
+            { $inc: { votes: item.vote } }, 
+            { new: true }
+          );
+          
+          if (!contestantUpdate) {
+            const errorMsg = `Contestant ${item.contestant_Id} not found`;
+            console.error(errorMsg);
+            updateErrors.push(errorMsg);
+          } else {
+            console.log(`Successfully updated votes for contestant ${item.contestant_Id}. New vote count: ${contestantUpdate.votes}`);
+          }
+        } catch (updateError) {
+          const errorMsg = `Error updating votes for contestant ${item.contestant_Id}: ${updateError}`;
+          console.error(errorMsg);
+          updateErrors.push(errorMsg);
+        }
+      }
+      
+      if (updateErrors.length > 0) {
+        // Log error but don't fail the payment
+        console.error(`Some vote updates failed: ${updateErrors.join('; ')}`);
+      } else {
+        console.log(`Successfully updated votes for ${bulkPaymentItems.length} contestant(s)`);
+      }
+      
+      // Redirect to frontend payment status page instead of returning JSON
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+      return res.redirect(302, `${frontendUrl}/payment/status?prn=${payment.prn}`);
+    }
 
     let apiRes;
     try {
@@ -327,62 +769,132 @@ export const returnPayment = async (req: Request, res: Response) => {
         if (Math.abs(paidAmount - expectedAmount) > 0.01) { // Allow 1 paisa tolerance
           payment.status = "error";
           await payment.save();
-          return res.status(400).json({
-            message: "Amount manipulation detected",
-            isSuccess: false,
-            paidAmount: paidAmount,
-            expectedAmount: expectedAmount,
-            votes: payment.vote,
-            error: "Payment amount does not match expected amount for votes"
-          });
+          
+          // Redirect to frontend payment status page with error information
+          const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+          return res.redirect(302, `${frontendUrl}/payment/status?error=amount_manipulation&prn=${payment.prn}`);
         }
         
         payment.status = "success";
         payment.apiVerificationStatus = "skipped";
         await payment.save();
         
-        await ContestantModel.findByIdAndUpdate(payment.contestant_Id, { $inc: { votes: payment.vote } });
+        // Check if this is a bulk payment (R1 contains multiple contestants)
+        let bulkPaymentItems: { contestant_Id: string; vote: number }[] = [];
+        try {
+          if (payment.r1 && payment.r1.trim() !== '') {
+            bulkPaymentItems = parseBulkPaymentR1(payment.r1);
+          } else {
+            // Fallback to single contestant update
+            bulkPaymentItems = [{ contestant_Id: payment.contestant_Id.toString(), vote: payment.vote }];
+          }
+        } catch (parseError) {
+          console.error('Error parsing R1 for bulk payment:', parseError);
+          // Fallback to single contestant update
+          bulkPaymentItems = [{ contestant_Id: payment.contestant_Id.toString(), vote: payment.vote }];
+        }
+
+        // Update votes for all contestants in the bulk payment
+        let updateErrors: string[] = [];
+        for (const item of bulkPaymentItems) {
+          try {
+            const contestantUpdate = await ContestantModel.findByIdAndUpdate(
+              item.contestant_Id, 
+              { $inc: { votes: item.vote } }, 
+              { new: true }
+            );
+            
+            if (!contestantUpdate) {
+              const errorMsg = `Contestant ${item.contestant_Id} not found`;
+              console.error(errorMsg);
+              updateErrors.push(errorMsg);
+            } else {
+              console.log(`Successfully updated votes for contestant ${item.contestant_Id}. New vote count: ${contestantUpdate.votes}`);
+            }
+          } catch (updateError) {
+            const errorMsg = `Error updating votes for contestant ${item.contestant_Id}: ${updateError}`;
+            console.error(errorMsg);
+            updateErrors.push(errorMsg);
+          }
+        }
         
-        return res.status(200).json({
-          message: "Payment successful (S2S verification skipped). Thank you!",
-          isSuccess: true,
-          status: "success",
-          prn: payment.prn,
-          contestant_Id: payment.contestant_Id,
-          contestant_Name: payment.contestant_Name,
-          amount: payment.amount,
-          votes: payment.vote,
-          mode: "live",
-          environment: "FonePay Live",
-          timestamp: new Date().toISOString(),
-          note: "S2S verification failed but redirect indicates success"
-        });
+        if (updateErrors.length > 0) {
+          // Log error but don't fail the payment
+          console.error(`Some vote updates failed: ${updateErrors.join('; ')}`);
+        } else {
+          console.log(`Successfully updated votes for ${bulkPaymentItems.length} contestant(s)`);
+        }
+        
+        // Redirect to frontend payment status page instead of returning JSON
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+        return res.redirect(302, `${frontendUrl}/payment/status?prn=${payment.prn}`);
       }
       
       payment.apiVerificationStatus = fonepay.mode === "dev" ? "skipped" : "failed";
       await payment.save();
-      return res.status(fonepay.mode === "dev" ? 200 : 502).json({
-        message: `Payment ${fonepay.mode === "dev" ? "processed (dev, no S2S)" : "pending verification"}.`,
-        isSuccess: fonepay.mode === "dev",
-        status: payment.status
-      });
+      
+      // Redirect to frontend payment status page instead of returning JSON
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+      return res.redirect(302, `${frontendUrl}/payment/status?prn=${payment.prn}`);
     }
 
-    payment.apiResponse = apiRes.data;
+    payment.apiResponse = apiRes?.data;
     const payStatus = String(apiRes?.data?.paymentStatus || "").toLowerCase();
 
     if (payStatus === "success" || !fonepay.apiUser) {
       payment.status = "success";
-      payment.apiVerificationStatus = "skipped";
+      payment.apiVerificationStatus = fonepay.apiUser ? "skipped" : "bypassed";
       await payment.save();
 
-      await ContestantModel.findByIdAndUpdate(payment.contestant_Id, { $inc: { votes: payment.vote } });
+      // Check if this is a bulk payment (R1 contains multiple contestants)
+      let bulkPaymentItems: { contestant_Id: string; vote: number }[] = [];
+      try {
+        if (payment.r1 && payment.r1.trim() !== '') {
+          bulkPaymentItems = parseBulkPaymentR1(payment.r1);
+        } else {
+          // Fallback to single contestant update
+          bulkPaymentItems = [{ contestant_Id: payment.contestant_Id.toString(), vote: payment.vote }];
+        }
+      } catch (parseError) {
+        console.error('Error parsing R1 for bulk payment:', parseError);
+        // Fallback to single contestant update
+        bulkPaymentItems = [{ contestant_Id: payment.contestant_Id.toString(), vote: payment.vote }];
+      }
 
-      return res.status(200).json({
-        message: "Payment success (redirect only). Thank you.",
-        isSuccess: true,
-        status: "success"
-      });
+      // Update votes for all contestants in the bulk payment
+      let updateErrors: string[] = [];
+      for (const item of bulkPaymentItems) {
+        try {
+          const contestantUpdate = await ContestantModel.findByIdAndUpdate(
+            item.contestant_Id, 
+            { $inc: { votes: item.vote } }, 
+            { new: true }
+          );
+          
+          if (!contestantUpdate) {
+            const errorMsg = `Contestant ${item.contestant_Id} not found`;
+            console.error(errorMsg);
+            updateErrors.push(errorMsg);
+          } else {
+            console.log(`Successfully updated votes for contestant ${item.contestant_Id}. New vote count: ${contestantUpdate.votes}`);
+          }
+        } catch (updateError) {
+          const errorMsg = `Error updating votes for contestant ${item.contestant_Id}: ${updateError}`;
+          console.error(errorMsg);
+          updateErrors.push(errorMsg);
+        }
+      }
+      
+      if (updateErrors.length > 0) {
+        // Log error but don't fail the payment
+        console.error(`Some vote updates failed: ${updateErrors.join('; ')}`);
+      } else {
+        console.log(`Successfully updated votes for ${bulkPaymentItems.length} contestant(s)`);
+      }
+
+      // Redirect to frontend payment status page instead of returning JSON
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+      return res.redirect(302, `${frontendUrl}/payment/status?prn=${payment.prn}`);
     }
 
     const remoteAmount = String(apiRes?.data?.purchaseAmount || apiRes?.data?.purchaseAmount || "").trim();
@@ -392,12 +904,10 @@ export const returnPayment = async (req: Request, res: Response) => {
       payment.apiVerificationStatus = 'failed';
       await payment.save();
       incMetric('amount_mismatch');
-      return res.status(400).json({
-        message: 'Amount mismatch',
-        isSuccess: false,
-        expected: expectedAmount,
-        received: remoteAmount
-      });
+      
+      // Redirect to frontend payment status page with error information
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+      return res.redirect(302, `${frontendUrl}/payment/status?error=amount_mismatch_s2s&prn=${payment.prn}`);
     }
 
     if (payStatus === "success") {
@@ -411,12 +921,56 @@ export const returnPayment = async (req: Request, res: Response) => {
         );
 
         if (updated) {
-          await ContestantModel.findByIdAndUpdate(payment.contestant_Id, { $inc: { votes: payment.vote } }, { session });
+          // Check if this is a bulk payment (R1 contains multiple contestants)
+          let bulkPaymentItems: { contestant_Id: string; vote: number }[] = [];
+          try {
+            if (updated.r1 && updated.r1.trim() !== '') {
+              bulkPaymentItems = parseBulkPaymentR1(updated.r1);
+            } else {
+              // Fallback to single contestant update
+              bulkPaymentItems = [{ contestant_Id: updated.contestant_Id.toString(), vote: updated.vote }];
+            }
+          } catch (parseError) {
+            console.error('Error parsing R1 for bulk payment:', parseError);
+            // Fallback to single contestant update
+            bulkPaymentItems = [{ contestant_Id: updated.contestant_Id.toString(), vote: updated.vote }];
+          }
+
+          // Update votes for all contestants in the bulk payment
+          let updateErrors: string[] = [];
+          for (const item of bulkPaymentItems) {
+            try {
+              const contestantUpdate = await ContestantModel.findByIdAndUpdate(
+                item.contestant_Id, 
+                { $inc: { votes: item.vote } }, 
+                { new: true, session }
+              );
+              
+              if (!contestantUpdate) {
+                const errorMsg = `Contestant ${item.contestant_Id} not found`;
+                console.error(errorMsg);
+                updateErrors.push(errorMsg);
+              } else {
+                console.log(`Successfully updated votes for contestant ${item.contestant_Id}. New vote count: ${contestantUpdate.votes}`);
+              }
+            } catch (updateError) {
+              const errorMsg = `Error updating votes for contestant ${item.contestant_Id}: ${updateError}`;
+              console.error(errorMsg);
+              updateErrors.push(errorMsg);
+            }
+          }
+          
+          if (updateErrors.length > 0) {
+            throw new Error(`Failed to update votes for ${updateErrors.length} contestant(s): ${updateErrors.join('; ')}`);
+          }
+          
           await session.commitTransaction();
           incMetric('s2s_success');
+          console.log(`Successfully updated votes for ${bulkPaymentItems.length} contestant(s)`);
         } else {
           await session.abortTransaction();
           incMetric('replay_attempt');
+          console.log('Payment already processed, skipping vote update');
         }
       } catch (txErr) {
         await session.abortTransaction();
@@ -424,27 +978,35 @@ export const returnPayment = async (req: Request, res: Response) => {
         payment.apiVerificationStatus = 'failed';
         await payment.save();
         incMetric('tx_fail');
+        console.error('Transaction failed during vote update:', txErr);
       } finally {
         session.endSession();
       }
+      
+      // Redirect to frontend payment status page for successful S2S verification
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+      return res.redirect(302, `${frontendUrl}/payment/status?prn=${payment.prn}`);
     } else if (payStatus === "failed") {
       payment.status = "failed";
       payment.apiVerificationStatus = "failed";
       await payment.save();
       incMetric('s2s_failed_status');
+      
+      // Redirect to frontend payment status page for failed S2S verification
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+      return res.redirect(302, `${frontendUrl}/payment/status?prn=${payment.prn}`);
     } else {
       payment.status = "pending";
       payment.apiVerificationStatus = "pending";
       await payment.save();
       incMetric('s2s_pending_status');
+      
+      // Redirect to frontend payment status page for pending S2S verification
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+      return res.redirect(302, `${frontendUrl}/payment/status?prn=${payment.prn}`);
     }
 
-    return res.status(200).json({
-      message: `Payment ${payment.status}. Thank you.`,
-      isSuccess: payment.status === "success",
-      status: payment.status,
-      prn: payment.prn
-    });
+    // Production: Removed commented out JSON response code
   } catch (error: any) {
     return res.status(500).json({
       message: "Internal server error",
@@ -455,5 +1017,47 @@ export const returnPayment = async (req: Request, res: Response) => {
   }
 };
 
+export const deletePayment = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    
+    const payment = await Payment.findByIdAndDelete(id);
+    
+    if (!payment) {
+      return res.status(404).json({ 
+        success: false, 
+        message: "Payment not found" 
+      });
+    }
+    
+    res.status(200).json({ 
+      success: true, 
+      message: "Payment deleted successfully" 
+    });
+  } catch (error: any) {
+    console.error('Error deleting payment:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Failed to delete payment",
+      error: error.message 
+    });
+  }
+};
 
-
+export const deleteAllPayments = async (req: Request, res: Response) => {
+  try {
+    const result = await Payment.deleteMany({});
+    
+    res.status(200).json({ 
+      success: true, 
+      message: `Successfully deleted ${result.deletedCount} payments` 
+    });
+  } catch (error: any) {
+    console.error('Error deleting all payments:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Failed to delete all payments",
+      error: error.message 
+    });
+  }
+};

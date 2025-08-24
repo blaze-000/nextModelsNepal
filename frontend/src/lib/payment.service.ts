@@ -3,8 +3,19 @@ import Axios from './axios-instance';
 export interface PaymentRequest {
   amount: number;
   vote: number;
-  contestant: string;
+  contestant_Id: string;
   description?: string;
+  purpose?: string;
+  r1?: string;
+  r2?: string;
+}
+
+export interface BulkPaymentRequest {
+  amount: number;
+  vote: number;
+  contestant_Id: string;
+  description?: string;
+  purpose?: string;
   r1?: string;
   r2?: string;
 }
@@ -14,10 +25,28 @@ export interface PaymentResponse {
   redirectUrl: string;
 }
 
+export interface ContestantInfo {
+  id: string;
+  name: string;
+  votes: number;
+}
+
+export interface SimplifiedPaymentResponse {
+  message: string;
+  isSuccess: boolean;
+  status: string;
+  prn: string;
+  contestants?: ContestantInfo[];
+  amount: number;
+  event?: string;
+  bankCode?: string;
+  accountNumber?: string;
+}
+
 export interface PaymentStatusResponse {
   success: boolean;
   status?: string;
-  payment?: any;
+  payment?: SimplifiedPaymentResponse;
   message?: string;
 }
 
@@ -26,11 +55,26 @@ export interface PaymentStatusResponse {
  */
 export const createPayment = async (paymentData: PaymentRequest): Promise<PaymentResponse> => {
   try {
-    const response = await Axios.post('/api/payment', paymentData);
+    const response = await Axios.post('/api/fonepay/payment', paymentData);
     return response.data;
-  } catch (error: any) {
-    console.error('Payment creation failed:', error);
-    throw new Error(error.response?.data?.message || 'Failed to create payment');
+  } catch (error: unknown) {
+    // Production: Payment creation error handled
+    const errorMessage = error instanceof Error ? error.message : 'Failed to create payment';
+    throw new Error(errorMessage);
+  }
+};
+
+/**
+ * Create a bulk payment session with FonePay for multiple contestants
+ */
+export const createBulkPayment = async (paymentData: BulkPaymentRequest): Promise<PaymentResponse> => {
+  try {    
+    const response = await Axios.post('/api/fonepay/payment', paymentData);
+    return response.data;
+  } catch (error: unknown) {
+    // Production: Bulk payment creation error handled
+    const errorMessage = error instanceof Error ? error.message : 'Failed to create bulk payment';
+    throw new Error(errorMessage);
   }
 };
 
@@ -39,11 +83,12 @@ export const createPayment = async (paymentData: PaymentRequest): Promise<Paymen
  */
 export const getPaymentStatus = async (prn: string): Promise<PaymentStatusResponse> => {
   try {
-    const response = await Axios.get(`/api/payment/status/${prn}`);
+    const response = await Axios.get(`/api/fonepay/payment/status/${prn}`);
     return response.data;
-  } catch (error: any) {
-    console.error('Payment status check failed:', error);
-    throw new Error(error.response?.data?.message || 'Failed to get payment status');
+  } catch (error: unknown) {
+    // Production: Payment status check error handled
+    const errorMessage = error instanceof Error ? error.message : 'Failed to get payment status';
+    throw new Error(errorMessage);
   }
 };
 
@@ -73,13 +118,16 @@ export const createPaymentForm = (redirectUrl: string, autoSubmit: boolean = tru
   form.id = 'payment-form';
   form.style.display = 'none';
   
-  const paramOrder = ['PID', 'MD', 'AMT', 'CRN', 'DT', 'RI', 'R1', 'R2', 'DV', 'RU', 'PRN'];
+  // Parameter order should match FonePay specification for proper DV verification:
+  // PID,MD,PRN,AMT,CRN,DT,R1,R2,RU,DV
+  const paramOrder = ['PID', 'MD', 'PRN', 'AMT', 'CRN', 'DT', 'R1', 'R2', 'RU', 'DV'];
   
   paramOrder.forEach(paramName => {
     if (params[paramName]) {
       const input = document.createElement('input');
       input.type = 'hidden';
       input.name = paramName;
+      // Use the parameter value as-is since it's already properly encoded
       input.value = params[paramName];
       form.appendChild(input);
     }
@@ -103,7 +151,8 @@ export const validateContestant = async (contestantId: string): Promise<boolean>
   try {
     const response = await Axios.get(`/api/contestants/${contestantId}`);
     return response.status === 200;
-  } catch (error) {
+  } catch (error: unknown) {
+    console.log(error)
     return false;
   }
 };

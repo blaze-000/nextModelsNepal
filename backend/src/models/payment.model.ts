@@ -11,7 +11,7 @@ const PaymentSchema = new Schema(
         vote: {type: Number, required: true},
         currency: { type: String, default: 'NPR' },
         amount: { type: Number, required: true },
-        purpose: { type: String, required: true },
+        purpose: { type: String, required: false },
 
         // request payload
         ru: String,

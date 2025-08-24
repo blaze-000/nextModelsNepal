@@ -124,6 +124,17 @@ export const menuItems: MenuSection[] = [
     ],
   },
   {
+    title: "Financial Management",
+    items: [
+      {
+        id: "payments",
+        label: "Payments",
+        icon: "ri-money-dollar-circle-line",
+        href: "/admin/payments",
+      },
+    ],
+  },
+  {
     title: "Settings",
     items: [
       {

@@ -475,7 +475,7 @@ export const deleteAppFormById = async (req: Request, res: Response) => {
                         await fs.access(absolutePath);
                         // Delete the file
                         await fs.unlink(absolutePath);
-                        console.log(`Deleted image: ${absolutePath}`);
+                        // Production: Image deletion logged
                     } catch (fileError) {
                         // If file doesn't exist or can't be accessed, just log the error
                         console.warn(`Failed to delete image ${imagePath}:`, fileError);

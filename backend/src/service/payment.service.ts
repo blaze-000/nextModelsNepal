@@ -59,6 +59,8 @@ export function buildRedirectUrl(reqParams: FonepayRequestParams) {
     paramOrder.forEach(key => {
         const value = reqParams[key as keyof FonepayRequestParams];
         if (value !== undefined && value !== null) {
+            // No special encoding needed - the value should already be properly encoded
+            // when it comes from the frontend or is generated in the backend
             url.searchParams.set(key, String(value));
         }
     });

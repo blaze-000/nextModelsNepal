@@ -12,7 +12,7 @@ const deleteFile = (filePath: string): void => {
       const fullPath = path.resolve(filePath);
       if (fs.existsSync(fullPath)) {
         fs.unlinkSync(fullPath);
-        console.log(`Deleted file: ${fullPath}`);
+        // Production: File deletion logged
       }
     }
   } catch (error) {

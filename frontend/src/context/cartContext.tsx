@@ -64,7 +64,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (JSON.stringify(cleanedCart) !== JSON.stringify(parsedCart)) {
           localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cleanedCart));
         }
-      } catch (error) {
+      } catch (error: unknown) {
         console.error('Error parsing cart from localStorage:', error);
       }
     }
@@ -121,7 +121,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (newItems.length === 0) {
         // Remove season if no items left
-        const { [seasonId]: removed, ...rest } = prevCart;
+        const { [seasonId]: _omitted, ...rest } = prevCart;
         return rest;
       }
 
@@ -159,7 +159,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const clearCart = (seasonId?: string) => {
     if (seasonId) {
       setCart(prevCart => {
-        const { [seasonId]: removed, ...rest } = prevCart;
+        const { [seasonId]: _omitted, ...rest } = prevCart;
         return rest;
       });
     } else {
@@ -199,7 +199,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (newItems.length === 0) {
         // Remove season if no items left
-        const { [seasonId]: removed, ...rest } = prevCart;
+        const { [seasonId]: _omitted, ...rest } = prevCart;
         return rest;
       }
 
