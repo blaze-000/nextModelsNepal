@@ -23,7 +23,7 @@ export const Winners = ({ searchText }: { searchText: string }) => {
         const res = await Axios.get("/api/events/past-winners");
         const data = res.data;
         console.log("Winners data:", data);
-        // Always store all winners; we'll limit to 4 only for default view
+        
         setAllWinners(data.data || []);
       } catch (err) {
         console.log("Failed to fetch winners data", err);
@@ -135,6 +135,8 @@ export const Winners = ({ searchText }: { searchText: string }) => {
                   options={events}
                   selected={selectedEvent}
                   onSelect={setSelectedEvent}
+                  
+                
                 />
               </div>
               <div className="">
@@ -143,6 +145,8 @@ export const Winners = ({ searchText }: { searchText: string }) => {
                   options={years}
                   selected={selectedYear}
                   onSelect={setSelectedYear}
+
+
                 />
               </div>
             </div>
