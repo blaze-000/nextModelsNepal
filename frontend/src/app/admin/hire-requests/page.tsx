@@ -73,8 +73,24 @@ const HireRequestsPage = () => {
         </Link>
       ),
     },
-    { key: "email", label: "Email", sortable: true },
-    { key: "phone", label: "Phone", sortable: true },
+    {
+      key: "email",
+      render: (value: unknown) => (
+        <div className="font-medium text-sm sm:text-base">{String(value)}</div>
+      ),
+      label: "Email",
+      sortable: true,
+    },
+    {
+      key: "phone",
+      render: (value: unknown) => (
+        <div className="font-medium text-sm sm:text-base py-2">
+          {String(value)}
+        </div>
+      ),
+      label: "Phone",
+      sortable: false,
+    },
     {
       key: "createdAt",
       label: "Date",
@@ -87,7 +103,9 @@ const HireRequestsPage = () => {
     <div className="mx-auto px-4 py-8">
       <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold font-newsreader text-primary">Hire Requests</h1>
+          <h1 className="text-3xl font-bold font-newsreader text-primary">
+            Hire Requests
+          </h1>
           <p className="text-foreground/70 mt-2">Manage model hire requests</p>
         </div>
         <Button

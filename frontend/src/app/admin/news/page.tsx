@@ -208,40 +208,42 @@ export default function NewsPage() {
     [events]
   );
 
-  // Statistics card data
-  const statisticsCards = useMemo(
-    () => [
-      {
-        title: "Total Articles",
-        value: statistics.total,
-        icon: "ri-newspaper-line",
-        bgColor: "bg-blue-900/30",
-        textColor: "text-blue-400",
-      },
-      {
-        title: "This Year",
-        value: statistics.thisYear,
-        icon: "ri-calendar-line",
-        bgColor: "bg-green-900/30",
-        textColor: "text-green-400",
-      },
-      {
-        title: "Last Year",
-        value: statistics.lastYear,
-        icon: "ri-history-line",
-        bgColor: "bg-yellow-900/30",
-        textColor: "text-yellow-400",
-      },
-      {
-        title: "With Events",
-        value: statistics.withEvents,
-        icon: "ri-links-line",
-        bgColor: "bg-purple-900/30",
-        textColor: "text-purple-400",
-      },
-    ],
-    [statistics]
-  );
+  // Dashboard-style statistics card data
+  const statsData = [
+    {
+      title: "Total Articles",
+      value: statistics.total,
+      icon: "ri-newspaper-line",
+      change: statistics.total > 0 ? `+${statistics.total}%` : "0%",
+    },
+    {
+      title: "This Year",
+      value: statistics.thisYear,
+      icon: "ri-calendar-line",
+      change:
+        statistics.total > 0
+          ? `+${Math.round((statistics.thisYear / statistics.total) * 100)}%`
+          : "0%",
+    },
+    {
+      title: "Last Year",
+      value: statistics.lastYear,
+      icon: "ri-history-line",
+      change:
+        statistics.total > 0
+          ? `+${Math.round((statistics.lastYear / statistics.total) * 100)}%`
+          : "0%",
+    },
+    {
+      title: "With Events",
+      value: statistics.withEvents,
+      icon: "ri-links-line",
+      change:
+        statistics.total > 0
+          ? `+${Math.round((statistics.withEvents / statistics.total) * 100)}%`
+          : "0%",
+    },
+  ];
 
   return (
     <div className="space-y-4 sm:space-y-6 p-2 sm:p-6 lg:p-2">
@@ -254,32 +256,49 @@ export default function NewsPage() {
         </Button>
       </PageHeader>
 
-      {/* Statistics Cards */}
+      {/* Dashboard-style Statistics Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-        {statisticsCards.map((card, index) => (
-          <div
-            key={index}
-            className="bg-background2 rounded-lg border border-gray-700 p-4 sm:p-6 transition-colors duration-200"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex-1">
-                <p className="text-sm font-medium text-gray-400">
-                  {card.title}
-                </p>
-                <p className="text-xl sm:text-2xl font-bold text-gray-100 mt-1">
-                  {loading ? "..." : card.value}
-                </p>
-              </div>
+        {loading
+          ? Array.from({ length: 4 }).map((_, index) => (
               <div
-                className={`w-10 h-10 sm:w-12 sm:h-12 ${card.bgColor} rounded-lg flex items-center justify-center flex-shrink-0`}
+                key={index}
+                className="bg-muted-background border border-gold-900/20 rounded-lg p-4 sm:p-6 animate-pulse"
               >
-                <i
-                  className={`${card.icon} ${card.textColor} text-lg sm:text-xl`}
-                />
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="h-3 sm:h-4 bg-gold-900/30 rounded w-20 sm:w-24 mb-2"></div>
+                    <div className="h-5 sm:h-6 bg-gold-900/30 rounded w-12 sm:w-16 mb-2"></div>
+                    <div className="h-2 sm:h-3 bg-gold-900/30 rounded w-10 sm:w-12"></div>
+                  </div>
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gold-900/30 rounded-lg"></div>
+                </div>
               </div>
-            </div>
-          </div>
-        ))}
+            ))
+          : statsData.map((stat, index) => (
+              <div
+                key={index}
+                className="bg-muted-background border border-gold-900/20 rounded-lg p-4 sm:p-6 hover:bg-gold-900/10 transition-colors"
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-foreground/60 text-xs sm:text-sm font-medium">
+                      {stat.title}
+                    </p>
+                    <p className="text-xl sm:text-2xl font-bold text-foreground mt-1">
+                      {stat.value}
+                    </p>
+                    <p className="text-gold-500 text-xs sm:text-sm mt-1">
+                      {stat.change}
+                    </p>
+                  </div>
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gold-500/20 rounded-lg flex items-center justify-center">
+                    <i
+                      className={`${stat.icon} text-gold-500 text-lg sm:text-xl`}
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
       </div>
 
       {/* News Table */}

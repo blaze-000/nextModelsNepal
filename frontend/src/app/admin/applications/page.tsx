@@ -81,10 +81,26 @@ const AdminDashboard = () => {
       ),
       sortable: true,
     },
-    { key: "age", label: "Age", sortable: true },
-    { key: "phone", label: "Mobile", sortable: true },
-    { key: "email", label: "Email", sortable: true },
-    { key: "gender", label: "Gender", sortable: true },
+    { key: "age",
+      render: (value: unknown) => (
+        <div className="font-medium text-sm sm:text-base py-2">{String(value)}</div>
+      ),
+       label: "Age", sortable: true },
+    { key: "phone",
+      render: (value: unknown) => (
+        <div className="font-medium text-sm sm:text-base">{String(value)}</div>
+      ),
+      label: "Mobile", sortable: true },
+    { key: "email",
+      render: (value: unknown) => (
+        <div className="font-medium text-sm sm:text-base">{String(value)}</div>
+      ),
+      label: "Email", sortable: true },
+    { key: "gender",
+      render: (value: unknown) => (
+        <div className="font-medium text-sm sm:text-base">{String(value)}</div>
+      ),
+      label: "Gender", sortable: true },
     {
       key: "createdAt",
       label: "Date",
@@ -116,12 +132,6 @@ const AdminDashboard = () => {
         emptyMessage="No applications found"
         searchPlaceholder="Search applicants..."
       />
-
-      <div className="mt-6 flex justify-between items-center">
-        <p className="text-sm text-foreground/50">
-          Showing {applications.length} application{applications.length !== 1 ? "s" : ""}
-        </p>
-      </div>
     </div>
   );
 };
