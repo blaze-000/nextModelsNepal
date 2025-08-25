@@ -31,6 +31,7 @@ function parseBulkPaymentR1(r1String: string): { contestant_Id: string; vote: nu
     
     // Process items and map to consistent format
     return items.map((item: any) => ({
+      // Handle truncated ObjectIds (12 characters instead of 24)
       contestant_Id: item.contestant_Id || item.id,
       vote: item.vote || item.v
     }));

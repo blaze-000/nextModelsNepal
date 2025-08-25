@@ -173,7 +173,7 @@ export default function Sidebar({
     <>
       {/* Mobile Overlay */}
       <AnimatePresence>
-        {isMobileOpen && (
+        {isMobile && isMobileOpen && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

@@ -4,7 +4,9 @@ import { useCart } from "@/context/cartContext";
 import { toast } from "sonner";
 import { useState, useEffect, useCallback } from "react";
 import Axios from "@/lib/axios-instance";
-import { createBulkPayment, createPaymentForm } from "@/lib/payment.service";
+import { createBulkPayment } from "@/lib/payment.service";
+import { paymentMethods } from "@/lib/payment-methods";
+import Image from "next/image";
 
 interface VotingCartPopupProps {
   seasonId: string;
@@ -27,6 +29,8 @@ export default function VotingCartPopup({
   const [contestants, setContestants] = useState<Contestant[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
   const { getCartItems, getTotalPrice, updateVotes, removeFromCart, filterEliminatedContestants } = useCart();
 
   // Fetch contestants data and filter eliminated ones
@@ -56,11 +60,10 @@ export default function VotingCartPopup({
     };
 
     fetchContestants();
-  }, [seasonId, filterEliminatedContestants]);
+  }, [seasonId]);
 
   const items = getCartItems(seasonId);
   const totalPrice = getTotalPrice(seasonId, pricePerVote);
-
 
   // Auto-expand cart when items are added (only if not manually collapsed)
   useEffect(() => {
@@ -68,7 +71,6 @@ export default function VotingCartPopup({
       setIsExpanded(true);
     }
   }, [items.length, isExpanded, manuallyCollapsed]);
-
 
   // Helper function to get contestant name by ID
   const getContestantName = useCallback((contestantId: string) => {
@@ -78,8 +80,8 @@ export default function VotingCartPopup({
 
   // Handle payment processing
   const handlePayment = async () => {
-    if (items.length === 0) {
-      toast.error('Your cart is empty');
+    if (!selectedMethod) {
+      toast.error('Please select a payment method');
       return;
     }
 
@@ -92,26 +94,39 @@ export default function VotingCartPopup({
       // Use the first contestant as primary for the payment request
       const primaryContestant = items[0];
       
-      // Create items array for R1 parameter
-      const paymentItems = items.map(item => ({
-        id: item.contestant_id, // Use full ID instead of truncated version
-        v: item.votes // Use short field name
-      }));
-      
-      // Create a minimal representation to avoid length limitations
-      const r1Data = {
-        i: paymentItems, // Short field name for items
-        c: items.length, // Short field name for count
-        t: totalVotes // Short field name for total
-      };
+      // Use an even more compact delimiter-based format to avoid length limitations
+      // Format: "id1:votes1,id2:votes2,id3:votes3|count|totalVotes"
+      let r1String = '';
+      if (items.length <= 5) {
+        // For fewer items, use the array format
+        const compactItems = items.map(item => [
+          item.contestant_id.substring(0, 12), // Truncate to 12 characters
+          item.votes
+        ]);
+        
+        const r1Data = {
+          i: compactItems, // Ultra-compact array format
+          c: items.length, // Count
+          t: totalVotes // Total votes
+        };
+        
+        r1String = encodeURIComponent(JSON.stringify(r1Data));
+      } else {
+        // For many items, use delimiter-based format to save even more space
+        // Format: "id1:votes1,id2:votes2,id3:votes3|count|totalVotes"
+        const itemStrings = items.map(item => 
+          `${item.contestant_id.substring(0, 12)}:${item.votes}`
+        );
+        r1String = `${itemStrings.join(',')}|${items.length}|${totalVotes}`;
+      }
       
       const bulkPaymentData = {
         amount: totalAmount,
         vote: totalVotes,
         contestant_Id: primaryContestant.contestant_id,
-        description: `Bulk vote for ${items.length} contestant${items.length > 1 ? 's' : ''}`,
-        purpose: 'Bulk vote payment',
-        r1: JSON.stringify(r1Data), // Pass all items in r1 for backend processing
+        description: `Bulk vote: ${items.length} contestants`, // Shorter description
+        purpose: 'Bulk vote', // Shorter purpose
+        r1: r1String, // Pass all items in r1 for backend processing
       };
 
       // Create payment session
@@ -120,12 +135,28 @@ export default function VotingCartPopup({
       // Store PRN for status checking
       sessionStorage.setItem('last_prn', paymentResponse.prn);
       
-      // Create and submit payment form
-      createPaymentForm(paymentResponse.redirectUrl, true);
+      // Close modal
+      setShowPaymentModal(false);
       
-      toast.success('Redirecting to payment gateway...');
+      // Show loading toast with a specific ID so we can dismiss it later
+      const toastId = toast.loading('Redirecting to payment gateway...');
       
-      // The form will auto-submit and redirect to FonePay
+      // Small delay to ensure toast is visible before opening new tab
+      setTimeout(() => {
+        // Open payment in a new tab
+        const newWindow = window.open(paymentResponse.redirectUrl, '_blank');
+        
+        // If popup is blocked, show error
+        if (!newWindow) {
+          toast.error('Popup blocked! Please allow popups for this site.', { id: toastId });
+        } else {
+          // Dismiss the loading toast after a short delay
+          setTimeout(() => {
+            toast.dismiss(toastId);
+          }, 1000);
+        }
+      }, 500);
+      
     } catch (error: unknown) {
       console.error('Payment initiation failed:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to initiate payment';
@@ -201,139 +232,169 @@ export default function VotingCartPopup({
                               removeFromCart(seasonId, item.contestant_id);
                               toast.success(`${getContestantName(item.contestant_id)} removed from cart`);
                             }}
-                            className="cursor-pointer text-red-500 hover:text-red-400 p-1 rounded-full hover:bg-red-500/10 transition-colors"
+                            className="text-red-500 hover:text-red-400 transition-colors"
                             title="Remove from cart"
                           >
-                            <i className="ri-close-line" />
+                            <i className="ri-delete-bin-line" />
                           </button>
                         </td>
                         <td className="py-2 px-2">
-                          <span className="text-white font-normal font-newsreader tracking-tight">
+                          <span className="text-white font-normal font-urbanist leading-loose tracking-tight">
                             {getContestantName(item.contestant_id)}
                           </span>
                         </td>
-                        <td className="py-2 px-2">
-                          <div className="flex justify-center items-center gap-3">
-                            <span className="text-white font-normal font-newsreader tracking-tight">
+                        <td className="py-2 px-2 text-center">
+                          <div className="flex items-center justify-center gap-2">
+                            <button
+                              onClick={() => updateVotes(seasonId, item.contestant_id, Math.max(1, item.votes - 1))}
+                              className="w-6 h-6 flex items-center justify-center bg-primary rounded-full text-white"
+                              disabled={isProcessingPayment}
+                            >
+                              <i className="ri-subtract-line text-sm" />
+                            </button>
+                            <span className="text-white font-normal font-urbanist leading-loose tracking-tight min-w-[30px] text-center">
                               {item.votes}
                             </span>
-                            <div className="flex gap-2">
-                              <button
-                                onClick={() => updateVotes(seasonId, item.contestant_id, item.votes + 1)}
-                                className="cursor-pointer p-1 rounded-full transition-colors"
-                              >
-                                <i className="ri-add-line text-primary text-sm bg-primary/15 p-1 rounded-full hover:bg-primary/30 transition-colors" />
-                              </button>
-                              <button
-                                onClick={() => {
-                                  if (item.votes <= 1) {
-                                    removeFromCart(seasonId, item.contestant_id);
-                                    toast.success(`${getContestantName(item.contestant_id)} removed from cart`);
-                                  } else {
-                                    updateVotes(seasonId, item.contestant_id, item.votes - 1);
-                                  }
-                                }}
-                                className="cursor-pointer p-1 rounded-full transition-colors"
-                              >
-                                <i className="ri-subtract-line text-primary text-sm bg-primary/15 p-1 rounded-full hover:bg-primary/30 transition-colors" />
-                              </button>
-                            </div>
+                            <button
+                              onClick={() => updateVotes(seasonId, item.contestant_id, item.votes + 1)}
+                              className="w-6 h-6 flex items-center justify-center bg-primary rounded-full text-white"
+                              disabled={isProcessingPayment}
+                            >
+                              <i className="ri-add-line text-sm" />
+                            </button>
                           </div>
                         </td>
                         <td className="py-2 px-2 text-right">
-                          <span className="text-primary font-normal font-newsreader tracking-tight">
-                            Rs. {pricePerVote * item.votes}
+                          <span className="text-white font-normal font-urbanist leading-loose tracking-tight">
+                            NPR {item.votes * pricePerVote}
                           </span>
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
-
-                {/* Total Price Row */}
-                <div className="flex justify-center items-center gap-4 pt-4 border-neutral-600 text-lg">
-                  <span className="text-white font-normal font-urbanist leading-loose tracking-tight">
-                    Total Price
-                  </span>
-                  <span className="text-primary font-normal font-newsreader tracking-tight">
-                    Rs. {totalPrice}
-                  </span>
-                </div>
               </div>
 
               {/* Pay Now Button */}
-              <div className="flex-shrink-0">
-                <Button 
-                  variant="default" 
-                  onClick={handlePayment}
-                  disabled={isProcessingPayment || items.length === 0}
-                >
-                  {isProcessingPayment ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
-                      Processing...
-                    </>
-                  ) : (
-                    <>
-                      Pay Now
-                      <i className="ri-arrow-right-up-line" />
-                    </>
-                  )}
-                </Button>
+              <div className="md:w-64 flex flex-col gap-4">
+                <div className="bg-[#1A1A1A] rounded-xl p-4 border border-neutral-600">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-white font-normal font-urbanist leading-loose tracking-tight">
+                      Total
+                    </span>
+                    <span className="text-white font-semibold font-urbanist leading-loose tracking-tight">
+                      NPR {totalPrice}
+                    </span>
+                  </div>
+                  <Button
+                    onClick={() => setShowPaymentModal(true)}
+                    disabled={isProcessingPayment}
+                    className="w-full bg-primary hover:bg-primary/90 text-black font-semibold font-urbanist leading-loose tracking-tight"
+                  >
+                    {isProcessingPayment ? (
+                      <>
+                        <i className="ri-loader-4-line animate-spin mr-2" />
+                        Processing...
+                      </>
+                    ) : (
+                      "Pay Now"
+                    )}
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
         </div>
       ) : (
-        // Collapsed State - Thin rectangular box
-        <div
-          className="px-6 py-3 bg-muted-background rounded-t-[20px] border border-neutral-600 cursor-pointer hover:bg-muted-background/80 transition-colors"
+        // Collapsed State
+        <div 
+          className="px-6 py-4 bg-muted-background rounded-xl border border-neutral-600 cursor-pointer"
           onClick={() => {
             setIsExpanded(true);
             setManuallyCollapsed(false);
           }}
         >
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-4">
-              <span className="text-white font-normal font-urbanist">
-                Cart ({items.length} items)
-              </span>
-              <span className="text-primary font-normal font-newsreader">
-                Rs. {totalPrice}
+            <div className="flex items-center gap-3">
+              <i className="ri-shopping-cart-2-line text-xl text-white" />
+              <span className="text-white text-base font-normal font-urbanist leading-loose tracking-tight">
+                Your Cart ({items.length} items)
               </span>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
+              <span className="text-white text-base font-semibold font-urbanist leading-loose tracking-tight">
+                NPR {totalPrice}
+              </span>
+              <i className="ri-arrow-up-line text-xl text-white bg-primary/10 p-2 rounded-full" />
+            </div>
+          </div>
+        </div>
+      )}
 
+      {/* Payment Method Selection Modal */}
+      {showPaymentModal && (
+        <div
+          className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center"
+          onClick={() => setShowPaymentModal(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-background p-8 border-stone-600 border w-9/10 mdplus:w-1/2 h-1/2 flex flex-col justify-between relative"
+          >
+            <button
+              onClick={() => setShowPaymentModal(false)}
+              className='absolute -top-3 -right-3 bg-white rounded-full h-8 w-8 text-[#FF3636] flex justify-center items-center z-10 cursor-pointer'
+            >
+              <i className="ri-close-line text-lg" />
+            </button>
+
+            <div>
+              <h2 className="text-lg text-primary font-semibold mb-4">Select your payment method</h2>
+              <p className="mb-6">
+                Total price
+                <span className='ml-2 text-2xl text-primary font-newsreader'>NPR {totalPrice}</span>
+              </p>
+              <div className="flex gap-6 items-center flex-wrap">
+                {paymentMethods.map(item => (
+                  <div
+                    key={item.name}
+                    onClick={() => setSelectedMethod(item.name)}
+                    className={`cursor-pointer w-[45%] border py-2 px-4 rounded-md transition-all ${selectedMethod === item.name
+                      ? 'border-primary ring-1 ring-primary bg-primary/5'
+                      : 'border-stone-600 hover:border-stone-400'
+                      }`}
+                  >
+                    <Image
+                      src={item.icon}
+                      alt={item.name}
+                      width={100}
+                      height={100}
+                      className="h-22 w-full object-contain"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex mt-4">
               <Button 
                 variant="default" 
-                size="sm"
+                disabled={!selectedMethod || isProcessingPayment}
                 onClick={handlePayment}
-                disabled={isProcessingPayment || items.length === 0}
+                className="flex items-center gap-2"
               >
                 {isProcessingPayment ? (
                   <>
-                    <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current mr-1"></div>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
                     Processing...
                   </>
                 ) : (
                   <>
-                    Pay Now
-                    <i className="ri-arrow-right-up-line" />
+                    Continue
+                    <i className='ri-arrow-right-up-line' />
                   </>
                 )}
-
               </Button>
-              <div
-                className="cursor-pointer text-white hover:text-primary transition-colors"
-                title="Expand cart"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsExpanded(true);
-                  setManuallyCollapsed(false);
-                }}
-              >
-                <i className="ri-arrow-up-line text-xl bg-primary/10 p-2 rounded-full" />
-              </div>
             </div>
           </div>
         </div>
