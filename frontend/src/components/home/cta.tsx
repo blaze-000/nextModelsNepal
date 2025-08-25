@@ -100,7 +100,7 @@ const CTASection = () => {
                 </h3>
                 <Image
                   src="/runway/title-image.jpg"
-                  alt="Badge"
+                  alt=""
                   height={200}
                   width={200}
                   className="w-24 lg:w-36 h-12 lg:h-16 rounded-full border border-stone-300 object-cover"

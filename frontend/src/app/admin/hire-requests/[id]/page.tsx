@@ -4,7 +4,7 @@ import React from 'react';
 import { useParams } from 'next/navigation';
 
 export default function HireRequestPage() {
-  const { id } = useParams();
+  const { id } = useParams() as { id: string };
 
   return (
     <div className="p-6">

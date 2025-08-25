@@ -6,6 +6,7 @@ import type React from "react";
 import { useParams } from "next/navigation";
 import Axios from "@/lib/axios-instance";
 import { Spinner } from "@/components/ui/spinner";
+import { isAxiosError } from "axios";
 
 type Contestant = {
   _id: string;
@@ -41,9 +42,12 @@ export default function Leaderboard() {
         } else {
           setError("Failed to fetch contestants");
         }
-      } catch (error: any) {
-        console.error("Error fetching contestants:", error);
-        setError(error.response?.data?.message || "Failed to fetch contestants");
+      } catch (error: unknown) {
+        if (isAxiosError(error)) {
+          setError(error.response?.data?.message || "Failed to fetch contestants");
+        } else {
+          setError("Failed to fetch contestants");
+        }
       } finally {
         setLoading(false);
       }

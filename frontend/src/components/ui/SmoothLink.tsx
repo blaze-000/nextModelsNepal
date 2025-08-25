@@ -7,7 +7,7 @@ interface SmoothLinkProps {
   href: string;
   children: ReactNode;
   className?: string;
-  [key: string]: any; // Allow other props to be passed through
+  [key: string]: unknown;
 }
 
 export default function SmoothLink({ href, children, className, ...props }: SmoothLinkProps) {

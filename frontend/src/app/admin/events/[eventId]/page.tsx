@@ -621,7 +621,7 @@ export default function EventDetailPage() {
                     return imageSource ? (
                       <Image
                         src={normalizeImagePath(imageSource)}
-                        alt={season.name}
+                        alt=""
                         fill
                         className="object-cover group-hover:scale-105 transition-transform duration-300"
                         unoptimized

@@ -4,7 +4,7 @@ import React from 'react';
 import { useParams } from 'next/navigation';
 
 export default function ContestantsPage() {
-  const { eventId, seasonId } = useParams();
+  const { eventId, seasonId } = useParams() as { eventId: string; seasonId: string };
 
   return (
     <div className="p-6">
