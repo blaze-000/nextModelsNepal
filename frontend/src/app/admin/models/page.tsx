@@ -202,75 +202,33 @@ export default function ModelsPage() {
     []
   );
 
-  // Statistics card data
-  const statisticsCards = useMemo(
-    () => [
-      {
-        title: "Total Models",
-        value: statistics.total,
-        icon: (
-          <svg
-            className="w-5 h-5 sm:w-6 sm:h-6 text-amber-500"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"
-            />
-          </svg>
-        ),
-        bgColor: "bg-amber-900/30",
-        textColor: "text-amber-400",
-      },
-      {
-        title: "Male Models",
-        value: statistics.male,
-        icon: (
-          <svg
-            className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-            />
-          </svg>
-        ),
-        bgColor: "bg-blue-900/30",
-        textColor: "text-blue-400",
-      },
-      {
-        title: "Female Models",
-        value: statistics.female,
-        icon: (
-          <svg
-            className="w-5 h-5 sm:w-6 sm:h-6 text-pink-500"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-            />
-          </svg>
-        ),
-        bgColor: "bg-pink-900/30",
-        textColor: "text-pink-400",
-      },
-    ],
-    [statistics]
-  );
+  // Dashboard-style statistics card data
+  const statsData = [
+    {
+      title: "Total Models",
+      value: statistics.total,
+      icon: "ri-user-star-line",
+      change: statistics.total > 0 ? `+${statistics.total}%` : "0%",
+    },
+    {
+      title: "Male Models",
+      value: statistics.male,
+      icon: "ri-men-line",
+      change:
+        statistics.male > 0
+          ? `+${Math.round((statistics.male / statistics.total) * 100)}%`
+          : "0%",
+    },
+    {
+      title: "Female Models",
+      value: statistics.female,
+      icon: "ri-women-line",
+      change:
+        statistics.female > 0
+          ? `+${Math.round((statistics.female / statistics.total) * 100)}%`
+          : "0%",
+    },
+  ];
 
   return (
     <div className="min-h-screen transition-colors duration-200 space-y-4 sm:space-y-6 p-2 sm:p-6 lg:p-2">
@@ -302,30 +260,49 @@ export default function ModelsPage() {
         </Button>
       </PageHeader>
 
-      {/* Statistics Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-        {statisticsCards.map((card, index) => (
-          <div
-            key={index}
-            className="bg-background2 rounded-lg border border-gray-700 p-4 sm:p-6 transition-colors duration-200"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex-1">
-                <p className="text-sm font-mediumtext-gray-400">{card.title}</p>
-                <p
-                  className={`text-xl sm:text-2xl font-bold ${card.textColor} mt-1`}
-                >
-                  {loading ? "..." : card.value}
-                </p>
-              </div>
+      {/* Dashboard-style Statistics Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        {loading
+          ? Array.from({ length: 3 }).map((_, index) => (
               <div
-                className={`w-10 h-10 sm:w-12 sm:h-12 ${card.bgColor} rounded-lg flex items-center justify-center flex-shrink-0`}
+                key={index}
+                className="bg-muted-background border border-gold-900/20 rounded-lg p-4 sm:p-6 animate-pulse"
               >
-                {card.icon}
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="h-3 sm:h-4 bg-gold-900/30 rounded w-20 sm:w-24 mb-2"></div>
+                    <div className="h-5 sm:h-6 bg-gold-900/30 rounded w-12 sm:w-16 mb-2"></div>
+                    <div className="h-2 sm:h-3 bg-gold-900/30 rounded w-10 sm:w-12"></div>
+                  </div>
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gold-900/30 rounded-lg"></div>
+                </div>
               </div>
-            </div>
-          </div>
-        ))}
+            ))
+          : statsData.map((stat, index) => (
+              <div
+                key={index}
+                className="bg-muted-background border border-gold-900/20 rounded-lg p-4 sm:p-6 hover:bg-gold-900/10 transition-colors"
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-foreground/60 text-xs sm:text-sm font-medium">
+                      {stat.title}
+                    </p>
+                    <p className="text-xl sm:text-2xl font-bold text-foreground mt-1">
+                      {stat.value}
+                    </p>
+                    <p className="text-gold-500 text-xs sm:text-sm mt-1">
+                      {stat.change}
+                    </p>
+                  </div>
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gold-500/20 rounded-lg flex items-center justify-center">
+                    <i
+                      className={`${stat.icon} text-gold-500 text-lg sm:text-xl`}
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
       </div>
 
       {/* Models Table */}

@@ -82,23 +82,34 @@ const ContactPage = () => {
     },
     {
       key: "email",
+      render: (value: unknown) => (
+        <div className="font-medium text-sm sm:text-base">{String(value)}</div>
+      ),
       label: "Email",
       sortable: true,
     },
     {
       key: "phone",
+      render: (value: unknown) => (
+        <div className="font-medium text-sm sm:text-base py-2">{String(value)}</div>
+      ),
       label: "Phone",
-      sortable: true,
+      sortable: false,
     },
     {
       key: "subject",
+      render: (value: unknown) => (
+        <div className="font-medium text-sm sm:text-base py-2">{String(value)}</div>
+      ),
       label: "Subject",
-      sortable: true,
+      sortable: false,
     },
     {
       key: "createdAt",
+      render: (value: unknown) => (
+        <div className="font-medium text-sm sm:text-base py-2">{formatDate(String(value))}</div>
+      ),
       label: "Date",
-      render: (value: unknown) => formatDate(String(value)),
       sortable: true,
     },
   ];
@@ -112,8 +123,7 @@ const ContactPage = () => {
         </div>
         <Button
           onClick={fetchContacts}
-          variant="outline"
-          className="mt-4 md:mt-0 border-gold-500 text-gold-500 hover:bg-gold-500 hover:text-primary-foreground"
+          variant="default"
         >
           <i className="ri-refresh-line mr-2" />
           Refresh

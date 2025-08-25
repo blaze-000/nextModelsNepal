@@ -130,7 +130,7 @@ export default function DataTable<T extends { _id: string }>({
         <div className="overflow-x-auto">
           <table className="w-full">
             {/* Header */}
-            <thead className="bg-background2 border-b border-gray-600">
+            <thead className="bg-background border-b border-gray-600">
               <tr>
                 {columns.map((column, index) => (
                   <th
@@ -214,7 +214,7 @@ export default function DataTable<T extends { _id: string }>({
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
                       transition={{ delay: index * 0.01 }}
-                      className="hover:bg-background2/50 transition-colors"
+                      className="hover:bg-background/20 transition-colors"
                     >
                       {columns.map((column, colIndex) => (
                         <td
@@ -277,7 +277,7 @@ export default function DataTable<T extends { _id: string }>({
 
             {/* Pagination Footer Row */}
             {showPagination && totalItems > 0 && (
-              <tfoot className="bg-background2 border-t border-gray-600">
+              <tfoot className="bg-background border-t border-gray-600">
                 <tr>
                   <td
                     colSpan={
