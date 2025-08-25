@@ -39,7 +39,7 @@ const EventsSection = () => {
             <div className=" relative hidden md:block">
               <Image
                 src="/relive-the-glamour-title-image.png"
-                alt="Title-Image"
+                alt=""
                 width={160}
                 height={80}
                 className=" w-20 h-8 md:w-40 md:h-16 rounded-full object-cover border border-stone-300"

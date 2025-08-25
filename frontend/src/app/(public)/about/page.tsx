@@ -26,7 +26,7 @@ export default function About() {
               <span>About</span>
               <Image
                 src="/about/about-us-title-image.jpg"
-                alt="Handshake"
+                alt="About Us"
                 width={160}
                 height={64}
                 className="h-16 w-28 rounded-full object-cover hidden md:flex border-stone-300 border-[1px] shadow-[-10px_8px_20px_10px_rgba(179,131,0,0.19)]"

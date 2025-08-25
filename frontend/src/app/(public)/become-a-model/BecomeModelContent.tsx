@@ -30,7 +30,7 @@ export default function BecomeModelContent() {
             <div className="flex items-baseline gap-3 mt-2">
               <Image
                 src="/handshake.jpg"
-                alt="Handshake"
+                alt=""
                 width={160}
                 height={64}
                 className="h-16 w-40 rounded-full object-cover hidden md:flex border-stone-300 shadow-[-10px_8px_20px_10px_rgba(179,131,0,0.19)]"

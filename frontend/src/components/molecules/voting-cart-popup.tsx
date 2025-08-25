@@ -60,7 +60,7 @@ export default function VotingCartPopup({
     };
 
     fetchContestants();
-  }, [seasonId]);
+  }, [filterEliminatedContestants, seasonId]);
 
   const items = getCartItems(seasonId);
   const totalPrice = getTotalPrice(seasonId, pricePerVote);

@@ -36,7 +36,7 @@ export default function PaymentStatusContent() {
 
   useEffect(() => {
     // Check for error parameter first
-    const errorParam = searchParams.get('error');
+    const errorParam = searchParams?.get('error');
     if (errorParam) {
       setStatus(errorParam);
       setLoading(false);
@@ -44,7 +44,7 @@ export default function PaymentStatusContent() {
     }
 
     // read prn from querystring or sessionStorage
-    const qp = searchParams.get('prn');
+    const qp = searchParams?.get('prn');
     const stored = qp || sessionStorage.getItem('last_prn');
     if (!stored) {
       setLoading(false);
@@ -239,7 +239,7 @@ export default function PaymentStatusContent() {
 
   // Render error message based on error type
   const renderErrorMessage = () => {
-    const errorParam = searchParams.get('error');
+    const errorParam = searchParams?.get('error');
 
     switch (errorParam) {
       case 'missing_fields':
@@ -799,7 +799,7 @@ export default function PaymentStatusContent() {
                 <span>Having trouble with payment?</span>
               </div>
               <p className="text-blue-300 text-xs">
-                If you've already paid but this page isn't updating, please check your payment history or contact support with your transaction details.
+                If you&rsquo;ve already paid but this page isn&rsquo;t updating, please check your payment history or contact support with your transaction details.
               </p>
             </div>
 

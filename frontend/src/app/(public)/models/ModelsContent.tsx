@@ -8,6 +8,8 @@ import type React from "react";
 import Axios from "@/lib/axios-instance";
 
 import { useSearchParams } from "next/navigation";
+import SmoothLink from "@/components/ui/SmoothLink";
+import { Button } from "@/components/ui/button";
 
 export default function ModelsContent() {
   const [femaleModels, setFemaleModels] = useState<Model[]>([]);
@@ -47,7 +49,7 @@ export default function ModelsContent() {
             <div className="flex items-baseline gap-3 mt-2">
               <Image
                 src="/hire-a-model-title-image.jpg"
-                alt="Handshake"
+                alt=""
                 width={160}
                 height={64}
                 className="h-16 w-40 rounded-full object-cover object-top hidden md:flex border-stone-300 shadow-[-10px_8px_20px_10px_rgba(179,131,0,0.19)]"
@@ -60,6 +62,15 @@ export default function ModelsContent() {
             Are you ready to step into the spotlight and showcase your talent?
             Contact us today to schedule your audition with Next Models Nepal.
           </p>
+
+          <div className="flex flex-col items-center mdplus:flex-row mdplus:justify-start gap-x-8 mt-8">
+              <SmoothLink href="#female">
+                <Button variant="default" className="px-8 py-4">
+                  Explore Models
+                  <i className="ri-arrow-right-down-line" />
+                </Button>
+              </SmoothLink>
+              </div>
         </div>
       </motion.section>
 
