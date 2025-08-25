@@ -134,8 +134,8 @@ const UpcomingEventSection = () => {
               width={500}
               height={600}
               className="h-full w-auto"
-              src={event?.posterImage ? normalizeImagePath(event?.posterImage) : "/default-fallback-image.png"}
-              alt="Mr. Nepal 2025"
+              src={normalizeImagePath(event?.posterImage)}
+              alt={event?.eventId?.name || ""}
             />
             <div className="h-[115%] absolute right-0 -top-[7.5%] w-[1px] bg-gradient-to-b from-transparent via-white to-transparent" />
             <div className="h-[115%] absolute left-0 -top-[7.5%] w-[1px] bg-gradient-to-b from-transparent via-white to-transparent" />

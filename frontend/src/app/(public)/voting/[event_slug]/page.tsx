@@ -12,6 +12,7 @@ import { normalizeImagePath } from "@/lib/utils";
 import { useCart } from "@/context/cartContext";
 import VotingCartPopup from "@/components/molecules/voting-cart-popup";
 import { toast } from "sonner";
+import SmoothLink from "@/components/ui/SmoothLink";
 
 type VotingEventDetails = {
   eventName: string;
@@ -53,7 +54,7 @@ export default function EventVoting() {
   }
 
   return (
-    <main>
+    <main className='bg-background2'>
       {/* Hero Section */}
       <section className="w-full bg-[#020202] py-12 mdplus:py-4">
         <div className="max-w-7xl mx-auto px-6 mdplus:max-h-[810px] mdplus:h-[80vh] grid mdplus:grid-cols-2 items-center justify-items-center mdplus:justify-items-end">
@@ -77,12 +78,12 @@ export default function EventVoting() {
             </p>
 
             <div className="flex flex-col items-center mdplus:flex-row mdplus:justify-start gap-x-8">
-              <Link href="#contestants">
+              <SmoothLink href="#contestants">
                 <Button variant="default" className="px-8 py-4">
                   Contestants
                   <i className="ri-arrow-right-down-line" />
                 </Button>
-              </Link>
+              </SmoothLink>
 
               <Link
                 href={`/voting/${event_slug}/leaderboard`}

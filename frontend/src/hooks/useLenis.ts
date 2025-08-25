@@ -8,7 +8,7 @@ type UseLenisOptions = {
 
 export function useLenis({ enabled = true }: UseLenisOptions = {}) {
     useEffect(() => {
-        if (!enabled) return; 
+        if (!enabled) return;
 
         const lenis = new Lenis({
             duration: 1.2,

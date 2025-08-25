@@ -28,7 +28,7 @@ export default function Voting() {
 
   if (loading) {
     return (
-      <div className="h-[60vh] flex items-center justify-center">
+      <div className="h-[60vh]">
         <Spinner color="#ffaa00" size={50} />
       </div>
     );

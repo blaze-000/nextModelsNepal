@@ -23,6 +23,7 @@ export default function VotingCartPopup({
   pricePerVote,
 }: VotingCartPopupProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [manuallyCollapsed, setManuallyCollapsed] = useState(false);
   const [contestants, setContestants] = useState<Contestant[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
@@ -57,10 +58,17 @@ export default function VotingCartPopup({
     fetchContestants();
   }, [seasonId, filterEliminatedContestants]);
 
-
-
   const items = getCartItems(seasonId);
   const totalPrice = getTotalPrice(seasonId, pricePerVote);
+
+
+  // Auto-expand cart when items are added (only if not manually collapsed)
+  useEffect(() => {
+    if (items.length > 0 && !isExpanded && !manuallyCollapsed) {
+      setIsExpanded(true);
+    }
+  }, [items.length, isExpanded, manuallyCollapsed]);
+
 
   // Helper function to get contestant name by ID
   const getContestantName = useCallback((contestantId: string) => {
@@ -144,7 +152,10 @@ export default function VotingCartPopup({
                 Your Cart ({items.length} items)
               </h3>
               <button
-                onClick={() => setIsExpanded(false)}
+                onClick={() => {
+                  setIsExpanded(false);
+                  setManuallyCollapsed(true);
+                }}
                 className="cursor-pointer text-white hover:text-primary transition-colors"
                 title="Collapse cart"
               >
@@ -275,7 +286,13 @@ export default function VotingCartPopup({
         </div>
       ) : (
         // Collapsed State - Thin rectangular box
-        <div className="px-6 py-3 bg-muted-background rounded-t-[20px] border border-neutral-600">
+        <div
+          className="px-6 py-3 bg-muted-background rounded-t-[20px] border border-neutral-600 cursor-pointer hover:bg-muted-background/80 transition-colors"
+          onClick={() => {
+            setIsExpanded(true);
+            setManuallyCollapsed(false);
+          }}
+        >
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-4">
               <span className="text-white font-normal font-urbanist">
@@ -286,6 +303,7 @@ export default function VotingCartPopup({
               </span>
             </div>
             <div className="flex items-center gap-3">
+
               <Button 
                 variant="default" 
                 size="sm"
@@ -303,14 +321,19 @@ export default function VotingCartPopup({
                     <i className="ri-arrow-right-up-line" />
                   </>
                 )}
+
               </Button>
-              <button
-                onClick={() => setIsExpanded(true)}
+              <div
                 className="cursor-pointer text-white hover:text-primary transition-colors"
                 title="Expand cart"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsExpanded(true);
+                  setManuallyCollapsed(false);
+                }}
               >
-                <i className="ri-arrow-up-s-line text-xl" />
-              </button>
+                <i className="ri-arrow-up-line text-xl bg-primary/10 p-2 rounded-full" />
+              </div>
             </div>
           </div>
         </div>
