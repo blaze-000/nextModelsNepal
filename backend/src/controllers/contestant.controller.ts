@@ -14,7 +14,7 @@ const deleteFile = (filePath: string): void => {
       const fullPath = path.resolve(filePath);
       if (fs.existsSync(fullPath)) {
         fs.unlinkSync(fullPath);
-        console.log(`Deleted file: ${fullPath}`);
+        // Production: File deletion logged
       }
     }
   } catch (error) {
@@ -106,6 +106,52 @@ export const getContestantsBySeason = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error("Get contestants by season error:", error);
+    res.status(500).json({ success: false, message: "Failed to fetch contestants" });
+  }
+};
+
+/**
+ * Get Contestants by Season Slug
+ */
+export const getContestantsBySeasonSlug = async (req: Request, res: Response) => {
+  try {
+    const { slug } = req.params;
+    const { page = 1, limit = 10, gender, sort = "name", order = "asc" } = req.query;
+
+    // First find the season by slug
+    const season = await SeasonModel.findOne({ slug });
+    if (!season) {
+      return res.status(404).json({ success: false, message: "Season not found" });
+    }
+
+    const skip = (Number(page) - 1) * Number(limit);
+    const sortOrder = order === "desc" ? -1 : 1;
+
+    // Build filter object using the found season's ID
+    const filter: any = { seasonId: season._id };
+    if (gender && ["Male", "Female"].includes(String(gender))) {
+      filter.gender = gender;
+    }
+
+    const contestants = await ContestantModel.find(filter)
+      .sort({ [String(sort)]: sortOrder })
+      .limit(Number(limit))
+      .skip(skip);
+
+    const total = await ContestantModel.countDocuments(filter);
+
+    res.json({
+      success: true,
+      data: contestants,
+      pagination: {
+        page: Number(page),
+        limit: Number(limit),
+        total,
+        pages: Math.ceil(total / Number(limit))
+      }
+    });
+  } catch (error) {
+    console.error("Get contestants by season slug error:", error);
     res.status(500).json({ success: false, message: "Failed to fetch contestants" });
   }
 };

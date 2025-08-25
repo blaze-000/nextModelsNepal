@@ -8,7 +8,7 @@ export const connectDB = async () => {
       serverSelectionTimeoutMS: 10_000,
       socketTimeoutMS: 45_000,
     } as any);
-    console.log('MongoDB connected');
+    // Production: MongoDB connection successful
   } catch (error) {
     console.error('MongoDB connection error:', error);
     process.exit(1);

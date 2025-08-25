@@ -145,7 +145,8 @@ export const Winners = ({ searchText }: { searchText: string }) => {
                   options={years}
                   selected={selectedYear}
                   onSelect={setSelectedYear}
-                 
+
+
                 />
               </div>
             </div>
@@ -182,7 +183,6 @@ export const Winners = ({ searchText }: { searchText: string }) => {
                 options={years}
                 selected={selectedYear}
                 onSelect={setSelectedYear}
-                maxHeight="180px"
               />
             </div>
           </div>
