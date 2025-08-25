@@ -16,12 +16,10 @@ const IconButton = ({
   icon,
   onClick,
   className = "",
-  
 }: {
   icon: string;
   onClick?: () => void;
   className?: string;
-  
 }) => (
   <Button
     variant="ghost"
@@ -30,7 +28,6 @@ const IconButton = ({
     className={`text-gold-500 hover:bg-gold-900/20 relative ${className}`}
   >
     <i className={`${icon} text-xl`} />
-    
   </Button>
 );
 
@@ -132,8 +129,6 @@ export default function Header({
         <SearchBar />
 
         <div className="flex items-center gap-3">
-    
-
           <div className="flex items-center gap-3 pl-3 border-l border-gold-900/20">
             <div className="hidden sm:block text-right">
               <p className="text-sm font-medium text-foreground">Admin</p>
