@@ -26,8 +26,8 @@ export function buildPaymentRequest(params: {
         AMT: formatAmount(params.amount),
         CRN: "NPR",
         DT: formatFonepayDate(),
-        R1: params.r1 || "Test",
-        R2: params.r2 || "Test",
+        R1: params.r1 || "Next Model Nepal - Voting...",
+        R2: params.r2 || "Next Model Nepal - Voting...",
         MD: "P",
     };
 

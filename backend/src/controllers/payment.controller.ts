@@ -17,11 +17,6 @@ function parseBulkPaymentR1(r1String: string): { contestant_Id: string; vote: nu
     
     const parsedR1 = JSON.parse(decodeURIComponent(r1String));
     
-    // Handle different R1 formats:
-    // 1. New compressed format: { i: [{ id, v }], c, t }
-    // 2. Previous compressed format: { items: [{ contestant_Id, vote }], count, total } or { items: [{ id, v }], count, total }
-    // 3. Original format: [{ contestant_Id, vote }]
-    
     let items: any[] = [];
     if (parsedR1.i) {
       // New compressed format: { i: [{ id, v }], c, t }
