@@ -1,26 +1,53 @@
 // This program is responsible for automatic updating of status of events:
 // upcoming -> ongoing -> ended
+// and managing voting status
 
 import cron from "node-cron";
 import { SeasonModel } from "../models/events.model"
 
 async function updateSeasonStatuses(): Promise<void> {
     const now = new Date();
-    console.log(`[${new Date().toISOString()}] Running season status updater. Current time: ${now.toISOString()}`);
-    
+
     // Update upcoming seasons that should start now
     const upcomingResult = await SeasonModel.updateMany(
         { status: "upcoming", startDate: { $lte: now } },
         { $set: { status: "ongoing" } }
     );
-    console.log(`[${new Date().toISOString()}] Updated ${upcomingResult.modifiedCount} upcoming seasons to ongoing`);
 
     // Update ongoing seasons that should end now
     const ongoingResult = await SeasonModel.updateMany(
         { status: "ongoing", endDate: { $lte: now } },
         { $set: { status: "ended" } }
     );
-    console.log(`[${new Date().toISOString()}] Updated ${ongoingResult.modifiedCount} ongoing seasons to ended`);
+
+    // First, let's find ALL seasons to understand what we're working with
+    const allSeasons = await SeasonModel.find({});
+    console.log(`[${new Date().toISOString()}] Total seasons in database: ${allSeasons.length}`);
+
+    // Now find seasons that match our criteria
+    const seasonsToCloseVoting = await SeasonModel.find({
+        votingOpened: true
+    });
+
+    console.log(`[${new Date().toISOString()}] Found ${seasonsToCloseVoting.length} seasons with votingOpened=true:`);
+    seasonsToCloseVoting.forEach(season => {
+        // Check if votingEndDate exists before trying to process it
+        if (season.votingEndDate) {
+            const votingEndDate = new Date(season.votingEndDate);
+            const votingEndDateMs = votingEndDate.getTime();
+            const nowMs = now.getTime();
+            const isVotingEndDatePassed = votingEndDateMs <= nowMs;
+        } else {
+            console.log(`  - Season ID: ${season._id} has no votingEndDate set`);
+        }
+    });
+
+    // Now update them
+    const votingResult = await SeasonModel.updateMany(
+        { votingOpened: true, votingEndDate: { $lte: now } },
+        { $set: { votingOpened: false } }
+    );
+    console.log(`[${new Date().toISOString()}] Updated ${votingResult.modifiedCount} seasons to close voting`);
     // Production: Season statuses updated
 }
 
