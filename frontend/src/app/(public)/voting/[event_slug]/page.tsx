@@ -18,6 +18,8 @@ type VotingEventDetails = {
   eventName: string;
   image: string;
   pricePerVote: number;
+  endDate: string;
+  votingEndDate: string;
   _id: string; // This is the season ID
   contestants: {
     _id: string,
@@ -74,7 +76,11 @@ export default function EventVoting() {
             </h1>
 
             <p className="text-primary text-sm">
-              Voting Ends: <span className="text-white">{"UPDATING_TIME"}</span>
+              Voting Ends: <span className="text-white">{eventDetails?.votingEndDate ? new Date(eventDetails.votingEndDate).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              }) : ''}</span>
             </p>
 
             <div className="flex flex-col items-center mdplus:flex-row mdplus:justify-start gap-x-8">

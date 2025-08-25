@@ -12,7 +12,8 @@ import { paymentMethods } from '@/lib/payment-methods';
 import { useCart } from '@/context/cartContext';
 import VotingCartPopup from '@/components/molecules/voting-cart-popup';
 import { toast } from 'sonner';
-import { createPayment, createPaymentForm } from '@/lib/payment.service';
+import { createPayment } from '@/lib/payment.service';
+import Link from 'next/link';
 
 type Contestant = {
   _id: string;
@@ -74,12 +75,25 @@ const ModelVoting: React.FC = () => {
       // Close modal
       setShowModal(false);
       
-      // Create and submit payment form
-      createPaymentForm(paymentResponse.redirectUrl, true);
+      // Show loading toast with a specific ID so we can dismiss it later
+      const toastId = toast.loading('Redirecting to payment gateway...');
       
-      toast.success('Redirecting to payment gateway...');
+      // Small delay to ensure toast is visible before opening new tab
+      setTimeout(() => {
+        // Open payment in a new tab
+        const newWindow = window.open(paymentResponse.redirectUrl, '_blank');
+        
+        // If popup is blocked, show error
+        if (!newWindow) {
+          toast.error('Popup blocked! Please allow popups for this site.', { id: toastId });
+        } else {
+          // Dismiss the loading toast after a short delay
+          setTimeout(() => {
+            toast.dismiss(toastId);
+          }, 1000);
+        }
+      }, 500);
       
-      // The form will auto-submit and redirect to FonePay
     } catch (error: unknown) {
       console.error('Payment initiation failed:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to initiate payment';

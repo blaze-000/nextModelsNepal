@@ -68,7 +68,7 @@ export const createPayment = async (paymentData: PaymentRequest): Promise<Paymen
  * Create a bulk payment session with FonePay for multiple contestants
  */
 export const createBulkPayment = async (paymentData: BulkPaymentRequest): Promise<PaymentResponse> => {
-  try {
+  try {    
     const response = await Axios.post('/api/fonepay/payment', paymentData);
     return response.data;
   } catch (error: unknown) {
@@ -111,17 +111,17 @@ export const redirectToPayment = (redirectUrl: string, autoSubmit: boolean = tru
 export const createPaymentForm = (redirectUrl: string, autoSubmit: boolean = true): HTMLFormElement => {
   const url = new URL(redirectUrl);
   const params = Object.fromEntries(url.searchParams);
-
+  
   const form = document.createElement('form');
   form.method = 'GET';
   form.action = url.origin + url.pathname;
   form.id = 'payment-form';
   form.style.display = 'none';
-
+  
   // Parameter order should match FonePay specification for proper DV verification:
   // PID,MD,PRN,AMT,CRN,DT,R1,R2,RU,DV
   const paramOrder = ['PID', 'MD', 'PRN', 'AMT', 'CRN', 'DT', 'R1', 'R2', 'RU', 'DV'];
-
+  
   paramOrder.forEach(paramName => {
     if (params[paramName]) {
       const input = document.createElement('input');
@@ -132,15 +132,15 @@ export const createPaymentForm = (redirectUrl: string, autoSubmit: boolean = tru
       form.appendChild(input);
     }
   });
-
+  
   document.body.appendChild(form);
-
+  
   if (autoSubmit) {
     setTimeout(() => {
       form.submit();
     }, 2500);
   }
-
+  
   return form;
 };
 

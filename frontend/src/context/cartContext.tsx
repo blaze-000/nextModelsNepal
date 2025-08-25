@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 
 interface CartItem {
   contestant_id: string;
@@ -75,7 +75,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
   }, [cart]);
 
-  const addToCart = (seasonId: string, contestant_id: string, votes: number) => {
+  const addToCart = useCallback((seasonId: string, contestant_id: string, votes: number) => {
     setCart(prevCart => {
       const now = Date.now();
       const expiry = now + (CART_EXPIRY_HOURS * 60 * 60 * 1000);
@@ -110,9 +110,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       };
     });
-  };
+  }, []);
 
-  const removeFromCart = (seasonId: string, contestant_id: string) => {
+  const removeFromCart = useCallback((seasonId: string, contestant_id: string) => {
     setCart(prevCart => {
       const existingSeason = prevCart[seasonId];
       if (!existingSeason) return prevCart;
@@ -133,9 +133,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       };
     });
-  };
+  }, []);
 
-  const updateVotes = (seasonId: string, contestant_id: string, votes: number) => {
+  const updateVotes = useCallback((seasonId: string, contestant_id: string, votes: number) => {
     setCart(prevCart => {
       const existingSeason = prevCart[seasonId];
       if (!existingSeason) return prevCart;
@@ -154,9 +154,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       };
     });
-  };
+  }, []);
 
-  const clearCart = (seasonId?: string) => {
+  const clearCart = useCallback((seasonId?: string) => {
     if (seasonId) {
       setCart(prevCart => {
         const { [seasonId]: _omitted, ...rest } = prevCart;
@@ -165,30 +165,30 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } else {
       setCart({});
     }
-  };
+  }, []);
 
-  const getCartItems = (seasonId: string): CartItem[] => {
+  const getCartItems = useCallback((seasonId: string): CartItem[] => {
     return cart[seasonId]?.items || [];
-  };
+  }, [cart]);
 
-  const getTotalPrice = (seasonId: string, pricePerVote: number = 0): number => {
+  const getTotalPrice = useCallback((seasonId: string, pricePerVote: number = 0): number => {
     const items = getCartItems(seasonId);
     return items.reduce((total, item) => {
       return total + (item.votes * pricePerVote);
     }, 0);
-  };
+  }, [getCartItems]);
 
-  const getTotalVotes = (seasonId: string): number => {
+  const getTotalVotes = useCallback((seasonId: string): number => {
     const items = getCartItems(seasonId);
     return items.reduce((total, item) => total + item.votes, 0);
-  };
+  }, [getCartItems]);
 
-  const isInCart = (seasonId: string, contestant_id: string): boolean => {
+  const isInCart = useCallback((seasonId: string, contestant_id: string): boolean => {
     const items = getCartItems(seasonId);
     return items.some(item => item.contestant_id === contestant_id);
-  };
+  }, [getCartItems]);
 
-  const filterEliminatedContestants = (seasonId: string, eliminatedContestantIds: string[]) => {
+  const filterEliminatedContestants = useCallback((seasonId: string, eliminatedContestantIds: string[]) => {
     setCart(prevCart => {
       const existingSeason = prevCart[seasonId];
       if (!existingSeason) return prevCart;
@@ -211,7 +211,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       };
     });
-  };
+  }, []);
 
   const value: CartContextType = {
     cart,
