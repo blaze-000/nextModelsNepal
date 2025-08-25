@@ -10,6 +10,7 @@ import Axios from "@/lib/axios-instance";
 import { normalizeImagePath } from "@/lib/utils";
 import Dropdown from "@/components/ui/Dropdown";
 import Image from "next/image";
+import { Spinner } from "@/components/ui/spinner";
 
 type PastEvents = {
   name: string;
@@ -25,6 +26,7 @@ export default function PastEvents() {
   const [pastEvents, setPastEvents] = useState<PastEvents[] | null>(null);
   const [searchText, setSearchText] = useState("");
   const sortOptions = ["Most Recent", "Oldest"];
+  const [loading, setLoading] = useState(true);
 
   const sortEvents = (events: PastEvents[], sortType: string) => {
     if (!events) return [];
@@ -56,6 +58,7 @@ export default function PastEvents() {
         const data = res.data;
         console.log("Past Events:", data.data);
         setPastEvents(data.data);
+        setLoading(false);
       } catch (err) {
         console.log("Failed to fetch past events", err);
       }
@@ -70,8 +73,11 @@ export default function PastEvents() {
         setSearchText={setSearchText}
         searchPlaceholder="Search past events"
       />
-
-      <div className="max-w-7xl mx-auto px-10 py-10">
+      {loading ? (
+        <div className="h-[50vh]">
+          <Spinner color="#ffaa00" size={50} />
+        </div>
+      ) : (<div className="max-w-7xl mx-auto px-10 py-10">
         {searchText !== "" && (
           <div className="flex items-center mb-6">
             <Image
@@ -139,7 +145,8 @@ export default function PastEvents() {
         <div className="hidden md:block">
           <Winners searchText={searchText} />
         </div>
-      </div>
+      </div>)}
+
     </>
   );
 }

@@ -98,7 +98,7 @@ export default function FeedbackPage() {
     fetchFeedback();
   };
 
-  // Statistics
+  // Dashboard-style statistics
   const totalFeedback = feedbackItems.length;
   const thisMonthFeedback = feedbackItems.filter((item) => {
     if (!item.createdAt) return false;
@@ -108,6 +108,42 @@ export default function FeedbackPage() {
       d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
     );
   }).length;
+  const lastMonthFeedback = feedbackItems.filter((item) => {
+    if (!item.createdAt) return false;
+    const d = new Date(item.createdAt);
+    const now = new Date();
+    const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    return (
+      d.getMonth() === lastMonth.getMonth() &&
+      d.getFullYear() === lastMonth.getFullYear()
+    );
+  }).length;
+  const statsData = [
+    {
+      title: "Total Feedback",
+      value: totalFeedback,
+      icon: "ri-chat-quote-line",
+      change: totalFeedback > 0 ? `+${totalFeedback}%` : "0%",
+    },
+    {
+      title: "This Month",
+      value: thisMonthFeedback,
+      icon: "ri-calendar-line",
+      change:
+        totalFeedback > 0
+          ? `+${Math.round((thisMonthFeedback / totalFeedback) * 100)}%`
+          : "0%",
+    },
+    {
+      title: "Last Month",
+      value: lastMonthFeedback,
+      icon: "ri-history-line",
+      change:
+        totalFeedback > 0
+          ? `+${Math.round((lastMonthFeedback / totalFeedback) * 100)}%`
+          : "0%",
+    },
+  ];
 
   // Table columns
   const columns = [
@@ -173,39 +209,49 @@ export default function FeedbackPage() {
         </Button>
       </PageHeader>
 
-      {/* Statistics */}
+ 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 pb-6">
-        {/* Total Feedback */}
-        <div className="bg-background2 rounded-lg border border-gray-700 p-4 sm:p-6">
-          <div className="flex items-center justify-between">
-            <div className="flex-1">
-              <p className="text-sm font-medium text-gray-400">
-                Total Feedback
-              </p>
-              <p className="text-xl sm:text-2xl font-bold text-gray-100 mt-1">
-                {loading ? "..." : totalFeedback}
-              </p>
-            </div>
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-900/30 rounded-lg flex items-center justify-center">
-              <i className="ri-chat-quote-line text-blue-400 text-lg sm:text-xl" />
-            </div>
-          </div>
-        </div>
-
-        {/* This Month */}
-        <div className="bg-background2 rounded-lg border border-gray-700 p-4 sm:p-6">
-          <div className="flex items-center justify-between">
-            <div className="flex-1">
-              <p className="text-sm font-medium text-gray-400">This Month</p>
-              <p className="text-xl sm:text-2xl font-bold text-gray-100 mt-1">
-                {loading ? "..." : thisMonthFeedback}
-              </p>
-            </div>
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-indigo-900/30 rounded-lg flex items-center justify-center">
-              <i className="ri-calendar-line text-indigo-400 text-lg sm:text-xl" />
-            </div>
-          </div>
-        </div>
+        {loading
+          ? Array.from({ length: 3 }).map((_, index) => (
+              <div
+                key={index}
+                className="bg-muted-background border border-gold-900/20 rounded-lg p-4 sm:p-6 animate-pulse"
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="h-3 sm:h-4 bg-gold-900/30 rounded w-20 sm:w-24 mb-2"></div>
+                    <div className="h-5 sm:h-6 bg-gold-900/30 rounded w-12 sm:w-16 mb-2"></div>
+                    <div className="h-2 sm:h-3 bg-gold-900/30 rounded w-10 sm:w-12"></div>
+                  </div>
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gold-900/30 rounded-lg"></div>
+                </div>
+              </div>
+            ))
+          : statsData.map((stat, index) => (
+              <div
+                key={index}
+                className="bg-muted-background border border-gold-900/20 rounded-lg p-4 sm:p-6 hover:bg-gold-900/10 transition-colors"
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-foreground/60 text-xs sm:text-sm font-medium">
+                      {stat.title}
+                    </p>
+                    <p className="text-xl sm:text-2xl font-bold text-foreground mt-1">
+                      {stat.value}
+                    </p>
+                    <p className="text-gold-500 text-xs sm:text-sm mt-1">
+                      {stat.change}
+                    </p>
+                  </div>
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gold-500/20 rounded-lg flex items-center justify-center">
+                    <i
+                      className={`${stat.icon} text-gold-500 text-lg sm:text-xl`}
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
       </div>
 
       {/* Feedback Table */}

@@ -66,7 +66,7 @@ const Dropdown: React.FC<DropdownProps> = ({
         <div className="absolute right-0  bg-[#1E1E1E] z-10   shadow-lg hover:text-gold-500 overflow-hidden">
           <div
             ref={contentRef}
-            className="overflow-y-auto"
+            className="overflow-y-auto m-3"
             style={{
               maxHeight,
               overscrollBehavior: "contain",
@@ -81,8 +81,9 @@ const Dropdown: React.FC<DropdownProps> = ({
                 return a.localeCompare(b);
               })
               .map((option, idx, sortedOptions) => (
-                <React.Fragment key={option}>
+              
                   <p
+                  key={idx}
                     onClick={() => {
                       onSelect(option);
                       setOpen(false);
@@ -97,7 +98,7 @@ const Dropdown: React.FC<DropdownProps> = ({
                       <span className="absolute bottom-0 left-4 right-4 h-px bg-[#4b4a4a]" />
                     )}
                   </p>
-                </React.Fragment>
+              
               ))}
           </div>
 

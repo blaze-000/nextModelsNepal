@@ -9,6 +9,7 @@ import Axios from "@/lib/axios-instance";
 import { normalizeImagePath } from "@/lib/utils";
 import Dropdown from "@/components/ui/Dropdown";
 import Image from "next/image";
+import { Spinner } from "@/components/ui/spinner";
 
 type UpcomingEvent = {
   _id: string;
@@ -27,6 +28,7 @@ export default function UpcomingEvent() {
     null
   );
   const sortOptions = ["Most Recent", "Oldest"];
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const sortEvents = (events: UpcomingEvent[], sortType: string) => {
     if (!events) return [];
@@ -62,6 +64,7 @@ export default function UpcomingEvent() {
       try {
         const res = await Axios.get("/api/season/upcoming");
         const data = res.data;
+        setIsLoading(false)
         console.log(data);
         setUpcomingEvents(data.data);
       } catch (err) {
@@ -78,71 +81,77 @@ export default function UpcomingEvent() {
         setSearchText={setSearchText}
         searchPlaceholder="Search upcoming Events"
       />
-      <div className="w-full bg-background py-4 md:py-20">
-        <div className="max-w-7xl mx-auto  px-6">
-          {searchText !== "" && (
-            <div className="flex items-center mb-6">
-              <Image
-                src="/svg-icons/small_star.svg"
-                alt=""
-                height={20}
-                width={20}
-                className="inline-block mr-2 h-5 w-5 bg-cover"
-              />
+      {isLoading ? (
+        <div className=" h-[40vh]">
+          <Spinner size={48} color="#ffaa00" />
+        </div>
+      ) : (
+        <div className="w-full bg-background py-4 md:py-20">
+          <div className="max-w-7xl mx-auto  px-6">
+            {searchText !== "" && (
+              <div className="flex items-center mb-6">
+                <Image
+                  src="/svg-icons/small_star.svg"
+                  alt=""
+                  height={20}
+                  width={20}
+                  className="inline-block mr-2 h-5 w-5 bg-cover"
+                />
 
-              <p className="text-xl sm:text-2xl font-newsreader">
-                Searching for:{" "}
-                <span className="text-gold-500">
-                  &ldquo;{searchText}&rdquo;
-                </span>
-              </p>
-            </div>
-          )}
-
-          <div className="flex flex-wrap  justify-center gap-5 px-2 mb-6">
-            <Dropdown
-              label="Sort By"
-              options={sortOptions}
-              selected={sortBy}
-              onSelect={setSortBy}
-            />
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-6">
-            {sortedEvents && sortedEvents.length > 0 ? (
-              sortedEvents.map((item) => (
-                <motion.div
-                  key={item._id}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.2 }}
-                  viewport={{ once: true, amount: 0.1 }}
-                >
-                  <EventBox
-                    slug={item.latestEndedSeasonSlug}
-                    image={normalizeImagePath(item.image)}
-                    title={item.eventId.name}
-                    desc={item.eventId.overview}
-                    buttonText={`About ${item.eventId.name}`}
-                    status="upcoming"
-                    seasonId={item._id}
-                    className="h-full"
-                  />
-                </motion.div>
-              ))
-            ) : (
-              <div className="col-span-full text-center py-7">
-                <p className="text-2xl font-semibold">
-                  No results found for &ldquo;{searchText}&rdquo;
-                </p>
-                <p className="mt-1 text-gray-400">
-                  Try searching for different keywords.
+                <p className="text-xl sm:text-2xl font-newsreader">
+                  Searching for:{" "}
+                  <span className="text-gold-500">
+                    &ldquo;{searchText}&rdquo;
+                  </span>
                 </p>
               </div>
             )}
+
+            <div className="flex flex-wrap  justify-center gap-5 px-2 mb-6">
+              <Dropdown
+                label="Sort By"
+                options={sortOptions}
+                selected={sortBy}
+                onSelect={setSortBy}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-6">
+              {sortedEvents && sortedEvents.length > 0 ? (
+                sortedEvents.map((item) => (
+                  <motion.div
+                    key={item._id}
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.2 }}
+                    viewport={{ once: true, amount: 0.1 }}
+                  >
+                    <EventBox
+                      slug={item.latestEndedSeasonSlug}
+                      image={normalizeImagePath(item.image)}
+                      title={item.eventId.name}
+                      desc={item.eventId.overview}
+                      buttonText={`About ${item.eventId.name}`}
+                      status="upcoming"
+                      seasonId={item._id}
+                      className="h-full"
+                    />
+                  </motion.div>
+                ))
+              ) : (
+                <div className="col-span-full text-center py-7">
+                  <p className="text-2xl font-semibold">
+                    No results found for &ldquo;{searchText}&rdquo;
+                  </p>
+                  <p className="mt-1 text-gray-400">
+                    Try searching for different keywords.
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </>
   );
 }

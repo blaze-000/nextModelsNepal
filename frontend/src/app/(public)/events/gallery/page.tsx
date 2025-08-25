@@ -8,6 +8,7 @@ import Dropdown from "@/components/ui/Dropdown";
 import { motion } from "framer-motion";
 import Axios from "@/lib/axios-instance";
 import { normalizeImagePath } from "@/lib/utils";
+import { Spinner } from "@/components/ui/spinner";
 
 
 type EndedEvent = {
@@ -39,6 +40,7 @@ export default function Gallery() {
   } | null>(null);
   const [eventTypes, setEventTypes] = useState<string[]>([]);
   const [eventMap, setEventMap] = useState<{ [label: string]: string }>({});
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   // Fetch initial gallery + available events/years
   useEffect(() => {
@@ -48,6 +50,7 @@ export default function Gallery() {
           "/api/events/gallery/latest"
         );
         const data = res.data.data;
+        setIsLoading(false);
 
         setLatestGallery(data.latestGallery.gallery);
         setFilteredImages(data.latestGallery.gallery);
@@ -115,54 +118,62 @@ export default function Gallery() {
     <>
       <Breadcrumb title="Events Highlights Gallery" showSearch={false} />
 
-      <div className="max-w-7xl mx-auto px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true, amount: 0.6 }}
-        >
-          <div className="flex flex-col md:flex-row justify-center items-center pb-5 pt-5 md:space-x-4 space-y-4 md:space-y-0">
-            <Dropdown
-              label="Event"
-              options={eventTypes}
-              selected={
-                selectedEvent
-                  ? Object.keys(eventMap).find(
+      {isLoading ? (
+        <div className=" h-[40vh]">
+          <Spinner size={48} color="#ffaa00" />
+
+        </div>
+      ) : (
+
+        <div className="max-w-7xl mx-auto px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true, amount: 0.6 }}
+          >
+            <div className="flex flex-col md:flex-row justify-center items-center pb-5 pt-5 md:space-x-4 space-y-4 md:space-y-0">
+              <Dropdown
+                label="Event"
+                options={eventTypes}
+                selected={
+                  selectedEvent
+                    ? Object.keys(eventMap).find(
                       (k) => eventMap[k] === selectedEvent
                     ) || ""
-                  : latestEventData
-                  ? `${latestEventData.eventName} `
-                  : ""
-              }
-              onSelect={(label) => setSelectedEvent(eventMap[label] || "")}
+                    : latestEventData
+                      ? `${latestEventData.eventName} `
+                      : ""
+                }
+                onSelect={(label) => setSelectedEvent(eventMap[label] || "")}
+              />
+
+              <Dropdown
+                label="Year"
+                options={years}
+                selected={
+                  selectedYear ||
+                  (latestEventData ? String(latestEventData.year) : "")
+                }
+                onSelect={setSelectedYear}
+                maxHeight="180px"
+              />
+            </div>
+
+
+          </motion.div>
+
+          {filteredImages.length > 0 ? (
+            <MasonryGallery
+              images={filteredImages.map((img) => normalizeImagePath(img))}
             />
-
-            <Dropdown
-              label="Year"
-              options={years}
-              selected={
-                selectedYear ||
-                (latestEventData ? String(latestEventData.year) : "")
-              }
-              onSelect={setSelectedYear}
-              maxHeight="180px"
-            />
-          </div>
-
-          
-        </motion.div>
-
-        {filteredImages.length > 0 ? (
-          <MasonryGallery
-            images={filteredImages.map((img) => normalizeImagePath(img))}
-          />
-        ) : (
-          <div className="text-center py-12 text-gray-400">
-            No images found for the selected filters.
-          </div>
-        )}
-      </div>
+          ) : (
+            <div className="text-center py-12 text-gray-400">
+              No images found for the selected filters.
+            </div>
+          )}
+        </div>
+      )}
     </>
   );
 }
