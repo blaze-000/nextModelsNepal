@@ -131,11 +131,11 @@ export const createSeason = async (req: Request, res: Response) => {
       // Process timeline icon files
       let processedTimeline = validatedData.timeline;
       if (validatedData.timeline && Array.isArray(validatedData.timeline)) {
-        console.log("Processing timeline for create:", validatedData.timeline);
-        console.log("Files received:", files);
+        // Production: Processing timeline for create
+        // Production: Files received
 
         processedTimeline = validatedData.timeline.map((item, index) => {
-          console.log(`Processing timeline item ${index}:`, item);
+          // Production: Processing timeline item
           const timelineIconFile = files.find(f => f.fieldname === `timelineIcon_${index}`);
           console.log(`Timeline icon file for index ${index}:`, timelineIconFile);
 
@@ -145,7 +145,7 @@ export const createSeason = async (req: Request, res: Response) => {
               icon: `/uploads/${path.basename(timelineIconFile.path)}`
             };
           }
-          console.log(`Final timeline item ${index}:`, item);
+          // Production: Final timeline item
           return item;
         });
       }
@@ -544,17 +544,17 @@ export const updateSeason = async (req: Request, res: Response) => {
 
     // Process timeline icon files
     if (validatedData.timeline && Array.isArray(validatedData.timeline)) {
-      console.log("Processing timeline for update:", validatedData.timeline);
-      console.log("Files received:", req.files);
+      // Production: Processing timeline for update
+      // Production: Files received for update
 
       const processedTimeline = validatedData.timeline.map((item, index) => {
-        console.log(`Processing timeline item ${index}:`, item);
+        // Production: Processing timeline item for update
 
         if (req.files) {
           const files = req.files as any;
           if (Array.isArray(files)) {
             const timelineIconFile = files.find(f => f.fieldname === `timelineIcon_${index}`);
-            console.log(`Timeline icon file for index ${index}:`, timelineIconFile);
+            // Production: Timeline icon file for update
             if (timelineIconFile) {
               // Delete old timeline icon if it exists
               if (existingSeason.timeline && existingSeason.timeline[index] && existingSeason.timeline[index].icon) {
@@ -576,7 +576,7 @@ export const updateSeason = async (req: Request, res: Response) => {
             };
           }
         }
-        console.log(`Final timeline item ${index}:`, item);
+        // Production: Final timeline item
         return item;
       });
       updateData.timeline = processedTimeline;

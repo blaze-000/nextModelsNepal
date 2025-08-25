@@ -26,8 +26,8 @@ export function buildPaymentRequest(params: {
         AMT: formatAmount(params.amount),
         CRN: "NPR",
         DT: formatFonepayDate(),
-        R1: params.r1 || "Test",
-        R2: params.r2 || "Test",
+        R1: params.r1 || "Next Model Nepal - Voting...",
+        R2: params.r2 || "Next Model Nepal - Voting...",
         MD: "P",
     };
 
@@ -59,6 +59,8 @@ export function buildRedirectUrl(reqParams: FonepayRequestParams) {
     paramOrder.forEach(key => {
         const value = reqParams[key as keyof FonepayRequestParams];
         if (value !== undefined && value !== null) {
+            // No special encoding needed - the value should already be properly encoded
+            // when it comes from the frontend or is generated in the backend
             url.searchParams.set(key, String(value));
         }
     });
@@ -77,11 +79,12 @@ export function verifyReturnDv(returnQuery: any) {
     const dvString = returnDvOrder
         .map((k) => String(returnQuery[k]).trim())
         .join(',');
-    const expected = hmacSha512Hex(fonepay.redirectSharedSecret, dvString).toUpperCase();
+    const expected = hmacSha512Hex(dvString).toUpperCase();
     const provided = String(returnQuery.DV || "").toUpperCase();
 
     return { ok: safeEqualHex(expected, provided), skipped: false };
 }
+
 
 export async function verifyTransactionServerToServer(body: TxnVerificationBody) {
     if (fonepay.mode === "dev") {

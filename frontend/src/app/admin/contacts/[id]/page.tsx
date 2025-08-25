@@ -65,7 +65,7 @@ export default function ContactDetails() {
     if (id) {
       fetchContact();
     }
-  }, [id]);
+  }, [id, fetchContact]);
 
   // Format date for display
   const formatDate = (dateString: string) => {

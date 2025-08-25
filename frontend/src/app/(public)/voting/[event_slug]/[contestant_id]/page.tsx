@@ -6,16 +6,16 @@ import { useParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
 import Axios from '@/lib/axios-instance';
 import { normalizeImagePath } from '@/lib/utils';
 import { paymentMethods } from '@/lib/payment-methods';
 import { useCart } from '@/context/cartContext';
 import VotingCartPopup from '@/components/molecules/voting-cart-popup';
 import { toast } from 'sonner';
+import { createPayment, createPaymentForm } from '@/lib/payment.service';
 
 type Contestant = {
-  _id: number;
+  _id: string;
   name: string;
   intro: string;
   gender: string;
@@ -36,6 +36,8 @@ const ModelVoting: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
   const [contestant, setContestant] = useState<Contestant | null>(null);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const { addToCart, removeFromCart, isInCart, getTotalVotes } = useCart();
 
   const handleVoteChange = (increment: boolean) => {
@@ -46,16 +48,74 @@ const ModelVoting: React.FC = () => {
     }
   };
 
+  const handlePayment = async () => {
+    if (!contestant || !selectedMethod) {
+      toast.error('Please select a payment method');
+      return;
+    }
+
+    setIsProcessingPayment(true);
+    try {
+      // Prepare payment data
+      const paymentData = {
+        amount: votes * (contestant.seasonId.pricePerVote || 1),
+        vote: votes,
+        contestant_Id: contestant_id,
+        description: `Vote for ${contestant.name} - ${votes} votes`,
+        purpose: `Vote payment for contestant ${contestant.name}`
+      };
+
+      // Create payment session
+      const paymentResponse = await createPayment(paymentData);
+      
+      // Store PRN for status checking
+      sessionStorage.setItem('last_prn', paymentResponse.prn);
+      
+      // Close modal
+      setShowModal(false);
+      
+      // Create and submit payment form
+      createPaymentForm(paymentResponse.redirectUrl, true);
+      
+      toast.success('Redirecting to payment gateway...');
+      
+      // The form will auto-submit and redirect to FonePay
+    } catch (error: unknown) {
+      console.error('Payment initiation failed:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to initiate payment';
+      toast.error(errorMessage);
+    } finally {
+      setIsProcessingPayment(false);
+    }
+  };
+
   useEffect(() => {
-    (async () => {
-      const response = await Axios.get(`/api/contestants/${contestant_id}`);
-      const data = response.data;
-      setContestant(data.data);
-    })();
+    if (!contestant_id) return;
+    
+    const fetchContestant = async () => {
+      setIsLoading(true);
+      try {
+        const response = await Axios.get(`/api/contestants/${contestant_id}`);
+        const data = response.data;
+        setContestant(data.data);
+      } catch (error) {
+        console.error('Error fetching contestant data:', error);
+        toast.error('Failed to load contestant information');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchContestant();
   }, [contestant_id]);
 
   return (
     <main className='bg-background2'>
+      {isLoading && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        </div>
+      )}
       <section className='w-full bg-background2 py-20'>
         <div className='max-w-7xl mx-auto px-6'>
           {/* Back Button */}
@@ -255,14 +315,26 @@ const ModelVoting: React.FC = () => {
                 </div>
               </div>
 
-              {/* <Link href={selectedMethod ? paymentLinks[selectedMethod] : "#"} className="flex mt-4 pointer-events-auto"
-                title={!selectedMethod ? "Select payment" : ""}
-              >
-                <Button variant="default" disabled={!selectedMethod}>
-                  Continue
-                  <i className='ri-arrow-right-up-line' />
+              <div className="flex mt-4">
+                <Button 
+                  variant="default" 
+                  disabled={!selectedMethod || isProcessingPayment}
+                  onClick={handlePayment}
+                  className="flex items-center gap-2"
+                >
+                  {isProcessingPayment ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      Continue
+                      <i className='ri-arrow-right-up-line' />
+                    </>
+                  )}
                 </Button>
-              </Link> */}
+              </div>
             </motion.div>
           </div>
         )}

@@ -110,7 +110,7 @@ export const sendNewsletter = async (req: Request, res: Response) => {
 
         // Get all newsletter subscribers
         const subscribers = await NewsletterEmail.find({});
-        console.log("Found subscribers:", subscribers.length);
+        // Production: Subscribers count retrieved
 
         if (!subscribers || subscribers.length === 0) {
             return res.status(400).json({

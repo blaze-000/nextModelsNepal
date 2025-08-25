@@ -4,6 +4,7 @@ import { useCart } from "@/context/cartContext";
 import { toast } from "sonner";
 import { useState, useEffect, useCallback } from "react";
 import Axios from "@/lib/axios-instance";
+import { createBulkPayment, createPaymentForm } from "@/lib/payment.service";
 
 interface VotingCartPopupProps {
   seasonId: string;
@@ -25,7 +26,8 @@ export default function VotingCartPopup({
   const [manuallyCollapsed, setManuallyCollapsed] = useState(false);
   const [contestants, setContestants] = useState<Contestant[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { getCartItems, getTotalPrice, getTotalVotes, updateVotes, removeFromCart, filterEliminatedContestants } = useCart();
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const { getCartItems, getTotalPrice, updateVotes, removeFromCart, filterEliminatedContestants } = useCart();
 
   // Fetch contestants data and filter eliminated ones
   useEffect(() => {
@@ -54,10 +56,11 @@ export default function VotingCartPopup({
     };
 
     fetchContestants();
-  }, [seasonId]); // Removed filterEliminatedContestants dependency
+  }, [seasonId, filterEliminatedContestants]);
 
   const items = getCartItems(seasonId);
   const totalPrice = getTotalPrice(seasonId, pricePerVote);
+
 
   // Auto-expand cart when items are added (only if not manually collapsed)
   useEffect(() => {
@@ -66,11 +69,71 @@ export default function VotingCartPopup({
     }
   }, [items.length, isExpanded, manuallyCollapsed]);
 
+
   // Helper function to get contestant name by ID
   const getContestantName = useCallback((contestantId: string) => {
     const contestant = contestants.find(c => c._id === contestantId);
     return contestant?.name || `Contestant ${contestantId}`;
   }, [contestants]);
+
+  // Handle payment processing
+  const handlePayment = async () => {
+    if (items.length === 0) {
+      toast.error('Your cart is empty');
+      return;
+    }
+
+    setIsProcessingPayment(true);
+    try {
+      // Prepare bulk payment data
+      const totalVotes = items.reduce((sum, item) => sum + item.votes, 0);
+      const totalAmount = totalVotes * pricePerVote;
+      
+      // Use the first contestant as primary for the payment request
+      const primaryContestant = items[0];
+      
+      // Create items array for R1 parameter
+      const paymentItems = items.map(item => ({
+        id: item.contestant_id, // Use full ID instead of truncated version
+        v: item.votes // Use short field name
+      }));
+      
+      // Create a minimal representation to avoid length limitations
+      const r1Data = {
+        i: paymentItems, // Short field name for items
+        c: items.length, // Short field name for count
+        t: totalVotes // Short field name for total
+      };
+      
+      const bulkPaymentData = {
+        amount: totalAmount,
+        vote: totalVotes,
+        contestant_Id: primaryContestant.contestant_id,
+        description: `Bulk vote for ${items.length} contestant${items.length > 1 ? 's' : ''}`,
+        purpose: 'Bulk vote payment',
+        r1: JSON.stringify(r1Data), // Pass all items in r1 for backend processing
+      };
+
+      // Create payment session
+      const paymentResponse = await createBulkPayment(bulkPaymentData);
+      
+      // Store PRN for status checking
+      sessionStorage.setItem('last_prn', paymentResponse.prn);
+      
+      // Create and submit payment form
+      createPaymentForm(paymentResponse.redirectUrl, true);
+      
+      toast.success('Redirecting to payment gateway...');
+      
+      // The form will auto-submit and redirect to FonePay
+    } catch (error: unknown) {
+      console.error('Payment initiation failed:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to initiate payment';
+      toast.error(errorMessage);
+    } finally {
+      setIsProcessingPayment(false);
+    }
+  };
 
   // Don't render if loading or no items
   if (isLoading || items.length === 0) {
@@ -200,9 +263,22 @@ export default function VotingCartPopup({
 
               {/* Pay Now Button */}
               <div className="flex-shrink-0">
-                <Button variant="default">
-                  Pay Now
-                  <i className="ri-arrow-right-up-line" />
+                <Button 
+                  variant="default" 
+                  onClick={handlePayment}
+                  disabled={isProcessingPayment || items.length === 0}
+                >
+                  {isProcessingPayment ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      Pay Now
+                      <i className="ri-arrow-right-up-line" />
+                    </>
+                  )}
                 </Button>
               </div>
             </div>
@@ -227,16 +303,25 @@ export default function VotingCartPopup({
               </span>
             </div>
             <div className="flex items-center gap-3">
-              <Button
-                variant="default"
+
+              <Button 
+                variant="default" 
                 size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  // Pay Now logic here
-                }}
+                onClick={handlePayment}
+                disabled={isProcessingPayment || items.length === 0}
               >
-                Pay Now
-                <i className="ri-arrow-right-up-line" />
+                {isProcessingPayment ? (
+                  <>
+                    <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current mr-1"></div>
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    Pay Now
+                    <i className="ri-arrow-right-up-line" />
+                  </>
+                )}
+
               </Button>
               <div
                 className="cursor-pointer text-white hover:text-primary transition-colors"

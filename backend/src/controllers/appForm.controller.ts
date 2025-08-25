@@ -11,12 +11,6 @@ import path from 'path';
 // createApplication Form
 export const createAppForm = async (req: Request, res: Response) => {
     try {
-        // Debug: Log request details
-        console.log("Request body keys:", Object.keys(req.body));
-        console.log("Request body:", req.body);
-        console.log("Languages field:", req.body.languages);
-        console.log("Request files:", req.files);
-
         // Ensure Multer files exist
         if (!req.files || !(req.files as Express.Multer.File[]).length) {
             return res.status(400).json({
@@ -28,7 +22,6 @@ export const createAppForm = async (req: Request, res: Response) => {
         // Convert uploaded files to relative paths
         const files = req.files as Express.Multer.File[];
         const imagePaths = files.map(file => file.path);
-        console.log("Image paths extracted:", imagePaths);
 
         // Get event from request body (optional)
         const { event } = req.body;
@@ -50,7 +43,6 @@ export const createAppForm = async (req: Request, res: Response) => {
                     }
                     return [];
                 } catch (error) {
-                    console.error('Error parsing languages:', error);
                     return req.body.languages ? [req.body.languages] : [];
                 }
             })(),
@@ -59,29 +51,14 @@ export const createAppForm = async (req: Request, res: Response) => {
         // Parse and validate incoming data (without images)
         const validatedData = appModelSchema.parse(dataToValidate);
 
-        // Debug: Log validated data before saving
-        console.log("Validated data before saving:", JSON.stringify(validatedData, null, 2));
-
         // Add images to the validated data
         const dataToSave = {
             ...validatedData,
             images: imagePaths,
         };
 
-        // Debug: Log data to save
-        console.log("Data to save (with images):", JSON.stringify(dataToSave, null, 2));
-
         // Save to DB
         const savedApplication = await AppModel.create(dataToSave);
-
-        // Debug: Log saved application
-        console.log("Saved application:", JSON.stringify(savedApplication, null, 2));
-
-        // Verify images were saved
-        if (!savedApplication.images || savedApplication.images.length === 0) {
-            console.error("Images were not saved to the database!");
-            // We'll still continue but log the error
-        }
 
         try {
             // Create HTML email template (without photos section)
@@ -498,7 +475,7 @@ export const deleteAppFormById = async (req: Request, res: Response) => {
                         await fs.access(absolutePath);
                         // Delete the file
                         await fs.unlink(absolutePath);
-                        console.log(`Deleted image: ${absolutePath}`);
+                        // Production: Image deletion logged
                     } catch (fileError) {
                         // If file doesn't exist or can't be accessed, just log the error
                         console.warn(`Failed to delete image ${imagePath}:`, fileError);

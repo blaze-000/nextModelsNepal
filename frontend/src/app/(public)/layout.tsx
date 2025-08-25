@@ -8,21 +8,25 @@ export default async function Layout({ children }: { children: ReactNode }) {
 
   try {
     const res = await Axios.get("/api/nav/info");
-    data = res.data.data;
+    data = res.data.data || { showVoting: false, selfEvents: [], partnerEvents: [] };
   } catch (error) {
     console.error("Nav info fetch failed", error);
   }
+
+  // Ensure arrays are always arrays, even if API returns null
+  const selfEvents = Array.isArray(data.selfEvents) ? data.selfEvents : [];
+  const partnerEvents = Array.isArray(data.partnerEvents) ? data.partnerEvents : [];
 
   return (
     <>
       <Navbar
         showVoting={data.showVoting}
-        selfEvents={data.selfEvents}
-        partnerEvents={data.partnerEvents}
+        selfEvents={selfEvents}
+        partnerEvents={partnerEvents}
       />
       {children}
       <Footer 
-      events={[...data.selfEvents, ...data.partnerEvents]}
+      events={[...selfEvents, ...partnerEvents]}
       />
     </>
   );
