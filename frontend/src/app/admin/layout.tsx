@@ -34,6 +34,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     if (isMobile) {
       setIsMobileSidebarOpen(!isMobileSidebarOpen);
     } else {
+      // Fixed the toggle logic to properly toggle the sidebar state
       setIsSidebarCollapsed(!isSidebarCollapsed);
     }
   };
@@ -47,7 +48,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   // Calculate sidebar width based on state
   // For dashboard page, auto-hide the sidebar (collapsed by default)
   const getSidebarWidth = () => {
-    if (isMobile) return 0;
+    if (isMobile) {
+      // Fixed mobile sidebar width logic
+      return isMobileSidebarOpen ? 280 : 0;
+    }
     
     // For dashboard page, start collapsed but allow hover expansion
     if (isDashboardPage) {

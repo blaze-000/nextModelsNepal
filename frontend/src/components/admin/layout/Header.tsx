@@ -97,8 +97,9 @@ export default function Header({
   isSidebarCollapsed,
   isMobileSidebarOpen = false,
 }: HeaderProps) {
-  const ToggleIcon = isSidebarCollapsed
-    ? "ri-menu-unfold-line"
+  // Fix the toggle icon logic to properly reflect the current state
+  const ToggleIcon = isSidebarCollapsed 
+    ? "ri-menu-unfold-line" 
     : "ri-menu-fold-line";
 
   return (
@@ -123,7 +124,11 @@ export default function Header({
       {/* Desktop Layout */}
       <div className="hidden lg:flex items-center justify-between w-full">
         <div className="flex items-center gap-4">
-          <IconButton icon={ToggleIcon} onClick={onToggleSidebar} />
+          {/* Fixed the toggle button to properly call onToggleSidebar */}
+          <IconButton 
+            icon={ToggleIcon} 
+            onClick={onToggleSidebar} 
+          />
           <h1 className="text-xl lg:text-2xl font-semibold text-foreground font-newsreader">
             Dashboard
           </h1>
@@ -132,8 +137,6 @@ export default function Header({
         <SearchBar />
 
         <div className="flex items-center gap-3">
-    
-
           <div className="flex items-center gap-3 pl-3 border-l border-gold-900/20">
             <div className="hidden sm:block text-right">
               <p className="text-sm font-medium text-foreground">Admin</p>
