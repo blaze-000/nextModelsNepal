@@ -17,7 +17,7 @@ export const login = async (req: Request, res: Response) => {
 
         const admin = await AdminModel.findOne({ email });
         if (!admin) return res.status(401).json({ message: "Invalid credentials" });
-        console.log('Admin found:', !!admin);
+        // Production: Admin existence check
 
         // Check if admin has a password stored
         if (!admin.password) {
@@ -103,7 +103,7 @@ export const changePassword = async (req: Request, res: Response) => {
 
         return res.json({ message: "Password changed successfully" });
     } catch (err) {
-        console.error(err); // Optional: log error for debugging
+        // Production: Error handling for admin login
         return res.status(500).json({ message: "Server error" });
     }
 };

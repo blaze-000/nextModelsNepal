@@ -79,7 +79,7 @@ export const getAllNavInfo = async (req: Request, res: Response) => {
         // Get all events with their seasons populated
         const events = await EventModel.find().populate('seasons');
 
-        console.log(events);
+        // Production: Events data retrieved
 
         // Process events into self and partner categories
         const selfEvents = [];

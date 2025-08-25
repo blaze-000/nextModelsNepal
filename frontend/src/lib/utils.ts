@@ -37,15 +37,15 @@ export function normalizeImagePath(path?: string): string {
   // Replace all backslashes with forward slashes
   let fixed = path.replace(/\\/g, "/");
 
-    // Encode URI parts (handles spaces, special chars)
-    // fixed = encodeURI(fixed);
-
   // Ensure it starts with a slash
   if (!fixed.startsWith("/")) {
     fixed = "/" + fixed;
   }
 
-  // Prepend API URL (remove trailing slash if present)
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-  return `${baseUrl}${fixed}`;
+  // Prepend API URL and fix double slashes
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '') || 'http://localhost:8000';
+  const fullPath = `${baseUrl}${fixed}`;
+  
+  // Fix any double slashes except for protocol
+  return fullPath.replace(/([^:])\/{2,}/g, '$1/');
 }

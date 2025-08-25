@@ -9,13 +9,11 @@ import cookieParser from 'cookie-parser';
 
 import './config/eventStatusUpdater';
 
-// Environment configuration
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || '').split(',').map(s => s.trim()).filter(Boolean);
 
 import navRoute from "./routes/nav.route";
 import heroRoute from "./routes/hero.route";
-
 import modelsRoutes from "./routes/model.route";
 import feedbackRoutes from "./routes/feedback.route";
 import partnersRoutes from "./routes/partners.route";
@@ -35,20 +33,15 @@ import criteriaRoutes from "./routes/criteria.route";
 import newsletterRoutes from "./routes/newsletter.route";
 import paymentRoutes from "./routes/payment.route";
 import socialRoute from "./routes/social.route";
+import dashboardRoutes from "./routes/dashboard.route";
 import { metricsHandler } from './utils/metrics';
 
 const app = express();
 
+app.set('trust proxy', true);
 app.use(cookieParser());
-app.use((req, res, next) => {
-  console.log(req.method, req.url);
-  next();
-});
-
-// Security headers
 app.use(helmet());
 
-// CORS: allow only configured origins (or all in development if none provided)
 const allowlist = new Set(ALLOWED_ORIGINS);
 type SimpleCorsOptions = {
   origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => void;
@@ -56,7 +49,7 @@ type SimpleCorsOptions = {
 };
 const corsOptions: SimpleCorsOptions = {
   origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-    if (!origin) return callback(null, true); // allow non-browser clients
+    if (!origin) return callback(null, true);
     if (allowlist.size === 0 && NODE_ENV !== 'production') return callback(null, true);
     if (allowlist.has(origin)) return callback(null, true);
     return callback(new Error('Not allowed by CORS'));
@@ -64,14 +57,8 @@ const corsOptions: SimpleCorsOptions = {
   credentials: true,
 };
 app.use(cors(corsOptions));
-
-// Compression
 app.use(compression());
-
-// Logging
 app.use(morgan(NODE_ENV === 'production' ? 'combined' : 'dev'));
-
-// Middleware to handle both JSON and form data
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
@@ -101,14 +88,12 @@ app.use("/api/auth", authRoutes);
 app.use("/api/newsletter", newsletterRoutes);
 app.use("/api/fonepay", paymentRoutes);
 app.use("/api/social", socialRoute);
+app.use("/api/dashboard", dashboardRoutes);
 
-// Metrics endpoint (returns Prometheus metrics when enabled)
 app.get('/metrics', metricsHandler);
 
-// Global error handler for Multer errors
 app.use((error: any, req: Request, res: Response, next: NextFunction) => {
   if (error instanceof multer.MulterError) {
-    console.error('Multer error:', error);
     return res.status(400).json({
       success: false,
       message: 'File upload error',
@@ -117,35 +102,26 @@ app.use((error: any, req: Request, res: Response, next: NextFunction) => {
       field: error.field
     });
   }
-
-  // Handle other file-related errors
   if (error.message && error.message.includes('Only image files are allowed')) {
-    console.error('File type error:', error.message);
     return res.status(400).json({
       success: false,
       message: 'Invalid file type',
       error: error.message
     });
   }
-
   next(error);
 });
 
-// 404 handler
 app.use((req: Request, res: Response) => {
   return res.status(404).json({ success: false, message: 'Not Found' });
 });
 
-// Global error handler
 app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-  if (NODE_ENV !== 'production') {
-    console.error(err);
-  }
+  // Production: Error handling centralized
   const status = typeof err?.status === 'number' ? err.status : 500;
   return res.status(status).json({ success: false, message: 'Internal Server Error' });
 });
 
-// Health check endpoint
 app.get('/', (_req: Request, res: Response) => {
   res.status(200).json({
     success: true,

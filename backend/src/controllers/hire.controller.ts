@@ -40,10 +40,10 @@ export const createHire = async (req: Request, res: Response) => {
             phone,
             message
         };
-        console.log("[HireModel] Creating hire record:", hireData);
+        // Production: Hire record creation logged
 
         const hireModel = await HireModel.create(hireData);
-        console.log("[HireModel] Hire record created:", hireModel);
+        // Production: Hire record created
 
         // Send email to admin
         const transporter = nodemailer.createTransport({
@@ -72,7 +72,7 @@ export const createHire = async (req: Request, res: Response) => {
         };
 
         await transporter.sendMail(mailOptions);
-        console.log("[HireModel] Email sent to admin.");
+        // Production: Email sent to admin
 
         return res.status(201).json({
             success: true,

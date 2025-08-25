@@ -1,5 +1,6 @@
 import crypto from "crypto";
-const secretKey = process.env.FONEPAY_DEV_SECRET_KEY as string;
+// const secretKey = process.env.FONEPAY_DEV_SECRET_KEY as string;
+const secretKey = process.env.FONEPAY_LIVE_SECRET_KEY as string;
 
 export function hmacSha512Hex(data: string, key: string = secretKey): string {
   // Create HMAC with SHA512 using the key
