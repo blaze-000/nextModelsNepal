@@ -97,10 +97,20 @@ const ModelVoting: React.FC = () => {
                     <input
                       ref={inputRef}
                       type="number"
-                      value={votes}
-                      onChange={(e) => setVotes(Number(e.target.value))}
-                      className='text-right outline-none input-number-no-arrows ml-2'
+                      value={votes.toString()} // force string without leading 0s
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val === "") {
+                          setVotes(0); 
+                        } else if (parseInt(val, 10) < 0) {
+                          setVotes(0);
+                        } else {
+                          setVotes(parseInt(val, 10)); // removes leading zeros
+                        }
+                      }}
+                      className="text-right outline-none input-number-no-arrows ml-2"
                     />
+
                     {" "}votes
                   </div>
                 </div>
@@ -214,9 +224,9 @@ const ModelVoting: React.FC = () => {
                   {paymentMethods.map(item => (
                     <div
                       key={item.name}
-                      onClick={() => setSelectedMethod(item.id)}
+                      onClick={() => setSelectedMethod(item.name)}
                       className={`cursor-pointer w-[45%] border py-2 px-4 rounded-md transition-all ${
-                        selectedMethod === item.id 
+                        selectedMethod === item.name 
                           ? 'border-primary ring-1 ring-primary bg-primary/5' 
                           : 'border-stone-600 hover:border-stone-400'
                       }`}
