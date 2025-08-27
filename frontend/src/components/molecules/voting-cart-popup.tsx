@@ -18,6 +18,7 @@ interface Contestant {
   _id: string;
   name: string;
   status: string;
+  uniqueId: string;
 }
 
 export default function VotingCartPopup({
@@ -31,6 +32,7 @@ export default function VotingCartPopup({
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
+  const [seasonName, setSeasonName] = useState<string>(''); // Add season name state
   const { getCartItems, getTotalPrice, updateVotes, removeFromCart, filterEliminatedContestants } = useCart();
 
   // Fetch contestants data and filter eliminated ones
@@ -42,6 +44,18 @@ export default function VotingCartPopup({
         if (response.data.success) {
           const allContestants = response.data.data;
           setContestants(allContestants);
+
+          // Try to get season name from the first contestant's season data
+          if (allContestants.length > 0 && allContestants[0].seasonId) {
+            try {
+              const seasonResponse = await Axios.get(`/api/season/${seasonId}`);
+              if (seasonResponse.data.success) {
+                setSeasonName(seasonResponse.data.data?.name || '');
+              }
+            } catch (error) {
+              console.error("Error fetching season name:", error);
+            }
+          }
 
           // Filter out eliminated contestants from cart
           const eliminatedContestantIds = allContestants
@@ -88,45 +102,26 @@ export default function VotingCartPopup({
     setIsProcessingPayment(true);
     try {
       // Prepare bulk payment data
-      const totalVotes = items.reduce((sum, item) => sum + item.votes, 0);
-      const totalAmount = totalVotes * pricePerVote;
-      
-      // Use the first contestant as primary for the payment request
       const primaryContestant = items[0];
-      
-      // Use an even more compact delimiter-based format to avoid length limitations
-      // Format: "id1:votes1,id2:votes2,id3:votes3|count|totalVotes"
+
+      // Use a simple delimiter-based format to avoid length limitations and special characters
+      // Format: "id1:votes1,id2:votes2,count,totalVotes" (using only commas and colons)
       let r1String = '';
-      if (items.length <= 5) {
-        // For fewer items, use the array format
-        const compactItems = items.map(item => [
-          item.contestant_id.substring(0, 12), // Truncate to 12 characters
-          item.votes
-        ]);
-        
-        const r1Data = {
-          i: compactItems, // Ultra-compact array format
-          c: items.length, // Count
-          t: totalVotes // Total votes
-        };
-        
-        r1String = encodeURIComponent(JSON.stringify(r1Data));
-      } else {
-        // For many items, use delimiter-based format to save even more space
-        // Format: "id1:votes1,id2:votes2,id3:votes3|count|totalVotes"
-        const itemStrings = items.map(item => 
-          `${item.contestant_id.substring(0, 12)}:${item.votes}`
-        );
-        r1String = `${itemStrings.join(',')}|${items.length}|${totalVotes}`;
-      }
+      // Always use the delimiter-based format to avoid JSON and brackets
+      const itemStrings = items.map(item => {
+        // Get the contestant to access uniqueId
+        const contestant = contestants.find(c => c._id === item.contestant_id);
+        return `${contestant?.uniqueId || item.contestant_id.substring(0, 12)}:${item.votes}`;
+      });
+      const totalVotes = items.reduce((sum, item) => sum + item.votes, 0);
+      // Use comma instead of pipe to avoid Tomcat issues
+      r1String = `${itemStrings.join(',')},${items.length},${totalVotes}`; 
       
       const bulkPaymentData = {
-        amount: totalAmount,
+        amount: totalVotes * pricePerVote,
         vote: totalVotes,
         contestant_Id: primaryContestant.contestant_id,
-        description: `Bulk vote: ${items.length} contestants`, // Shorter description
-        purpose: 'Bulk vote', // Shorter purpose
-        r1: r1String, // Pass all items in r1 for backend processing
+        // r1: r1String, // Pass all items in r1 for backend processing
       };
 
       // Create payment session

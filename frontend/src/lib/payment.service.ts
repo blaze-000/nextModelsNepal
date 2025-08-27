@@ -93,55 +93,72 @@ export const getPaymentStatus = async (prn: string): Promise<PaymentStatusRespon
 };
 
 /**
- * Process FonePay payment redirect
+ * Process FonePay payment redirect with error handling
  */
 export const redirectToPayment = (redirectUrl: string, autoSubmit: boolean = true) => {
-  if (autoSubmit) {
-    setTimeout(() => {
+  try {
+    if (autoSubmit) {
+      setTimeout(() => {
+        window.location.href = redirectUrl;
+      }, 1000);
+    } else {
       window.location.href = redirectUrl;
-    }, 1000);
-  } else {
-    window.location.href = redirectUrl;
+    }
+  } catch (error) {
+    console.error('Error redirecting to payment gateway:', error);
+    // Show user-friendly error message
+    alert('Failed to redirect to payment gateway. Please try again or contact support.');
   }
 };
 
 /**
- * Create payment form for FonePay gateway
+ * Create payment form for FonePay gateway with error handling
  */
 export const createPaymentForm = (redirectUrl: string, autoSubmit: boolean = true): HTMLFormElement => {
-  const url = new URL(redirectUrl);
-  const params = Object.fromEntries(url.searchParams);
-  
-  const form = document.createElement('form');
-  form.method = 'GET';
-  form.action = url.origin + url.pathname;
-  form.id = 'payment-form';
-  form.style.display = 'none';
-  
-  // Parameter order should match FonePay specification for proper DV verification:
-  // PID,MD,PRN,AMT,CRN,DT,R1,R2,RU,DV
-  const paramOrder = ['PID', 'MD', 'PRN', 'AMT', 'CRN', 'DT', 'R1', 'R2', 'RU', 'DV'];
-  
-  paramOrder.forEach(paramName => {
-    if (params[paramName]) {
-      const input = document.createElement('input');
-      input.type = 'hidden';
-      input.name = paramName;
-      // Use the parameter value as-is since it's already properly encoded
-      input.value = params[paramName];
-      form.appendChild(input);
+  try {
+    const url = new URL(redirectUrl);
+    const params = Object.fromEntries(url.searchParams);
+    
+    const form = document.createElement('form');
+    form.method = 'GET';
+    form.action = url.origin + url.pathname;
+    form.id = 'payment-form';
+    form.style.display = 'none';
+    
+    // Parameter order should match FonePay specification for proper DV verification:
+    // PID,MD,PRN,AMT,CRN,DT,R1,R2,RU,DV
+    const paramOrder = ['PID', 'MD', 'PRN', 'AMT', 'CRN', 'DT', 'R1', 'R2', 'RU', 'DV'];
+    
+    paramOrder.forEach(paramName => {
+      if (params[paramName]) {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = paramName;
+        // Use the parameter value as-is since it's already properly encoded
+        input.value = params[paramName];
+        form.appendChild(input);
+      }
+    });
+    
+    document.body.appendChild(form);
+    
+    if (autoSubmit) {
+      setTimeout(() => {
+        try {
+          form.submit();
+        } catch (submitError) {
+          console.error('Error submitting payment form:', submitError);
+          alert('Failed to submit payment form. Please try again or contact support.');
+        }
+      }, 2500);
     }
-  });
-  
-  document.body.appendChild(form);
-  
-  if (autoSubmit) {
-    setTimeout(() => {
-      form.submit();
-    }, 2500);
+    
+    return form;
+  } catch (error) {
+    console.error('Error creating payment form:', error);
+    alert('Failed to create payment form. Please try again or contact support.');
+    throw error;
   }
-  
-  return form;
 };
 
 /**

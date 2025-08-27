@@ -62,27 +62,27 @@ const ModelVoting: React.FC = () => {
         amount: votes * (contestant.seasonId.pricePerVote || 1),
         vote: votes,
         contestant_Id: contestant_id,
-        description: `Vote for ${contestant.name} - ${votes} votes`,
+        description: `Next Model Nepal`,
         purpose: `Vote payment for contestant ${contestant.name}`
       };
 
       // Create payment session
       const paymentResponse = await createPayment(paymentData);
-      
+
       // Store PRN for status checking
       sessionStorage.setItem('last_prn', paymentResponse.prn);
-      
+
       // Close modal
       setShowModal(false);
-      
+
       // Show loading toast with a specific ID so we can dismiss it later
       const toastId = toast.loading('Redirecting to payment gateway...');
-      
+
       // Small delay to ensure toast is visible before opening new tab
       setTimeout(() => {
         // Open payment in a new tab
         const newWindow = window.open(paymentResponse.redirectUrl, '_blank');
-        
+
         // If popup is blocked, show error
         if (!newWindow) {
           toast.error('Popup blocked! Please allow popups for this site.', { id: toastId });
@@ -93,7 +93,7 @@ const ModelVoting: React.FC = () => {
           }, 1000);
         }
       }, 500);
-      
+
     } catch (error: unknown) {
       console.error('Payment initiation failed:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to initiate payment';
@@ -105,7 +105,7 @@ const ModelVoting: React.FC = () => {
 
   useEffect(() => {
     if (!contestant_id) return;
-    
+
     const fetchContestant = async () => {
       setIsLoading(true);
       try {
@@ -119,7 +119,7 @@ const ModelVoting: React.FC = () => {
         setIsLoading(false);
       }
     };
-    
+
     fetchContestant();
   }, [contestant_id]);
 
@@ -330,8 +330,8 @@ const ModelVoting: React.FC = () => {
               </div>
 
               <div className="flex mt-4">
-                <Button 
-                  variant="default" 
+                <Button
+                  variant="default"
                   disabled={!selectedMethod || isProcessingPayment}
                   onClick={handlePayment}
                   className="flex items-center gap-2"
