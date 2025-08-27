@@ -4,6 +4,7 @@ import { formatAmount, formatFonepayDate } from "../utils/format";
 import { http } from "../utils/http";
 import { FonepayRequestParams, TxnVerificationBody } from "../types/payment";
 
+
 export function buildPaymentRequest(params: {
     prn: string;
     amount: number;
@@ -26,8 +27,8 @@ export function buildPaymentRequest(params: {
         AMT: formatAmount(params.amount),
         CRN: "NPR",
         DT: formatFonepayDate(),
-        R1: params.r1 || "Next Model Nepal - Voting...",
-        R2: params.r2 || "Next Model Nepal - Voting...",
+        R1: params.r1 || "Next Model Nepal",
+        R2: params.r2 || "Next Model Nepal",
         MD: "P",
     };
 
@@ -59,8 +60,7 @@ export function buildRedirectUrl(reqParams: FonepayRequestParams) {
     paramOrder.forEach(key => {
         const value = reqParams[key as keyof FonepayRequestParams];
         if (value !== undefined && value !== null) {
-            // No special encoding needed - the value should already be properly encoded
-            // when it comes from the frontend or is generated in the backend
+            // Properly encode the value for URL parameters
             url.searchParams.set(key, String(value));
         }
     });
