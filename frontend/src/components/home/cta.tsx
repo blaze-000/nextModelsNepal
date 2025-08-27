@@ -13,75 +13,42 @@ const CTASection = () => {
         style={{ backgroundImage: "url('/runway/background-image.png')" }}
       >
         {/* Lamp and Beam + Glow Group with smooth dim/bright cycle */}
+        <div className="absolute top-0 flex flex-col items-center">
+          <Image src="/runway/lamp-off.svg" alt="" width={45} height={0} />
+          <div className="flex flex-col items-center">
+            <Image src="/runway/lamp-on.svg" alt="" width={45} height={0} />
+            <Image src="/runway/light-beam.svg" alt="" width={120} height={0} className="translate-x-px" />
+          </div>
+        </div>
+
+        {/* Circular background glow */}
         <motion.div
-          className="absolute inset-0 flex flex-col items-center"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          animate={{ opacity: 1 }}   // target bright
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
           transition={{
             duration: 2,             // one way cycle
             ease: "easeInOut",
             repeat: Infinity,        // loop forever
             repeatType: "reverse",   // smoothly go back down
           }}
-          viewport={{ once: true }}
         >
-          {/* Lamp itself */}
-          <motion.div
-            initial={{ opacity: 0, y: -50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0, duration: 1, ease: "easeOut" }}
-            viewport={{ once: true }}
-            className="flex flex-col items-center"
-          >
-            <Image src="/runway/lamp-off.svg" alt="" width={45} height={0} />
-
-            <Image src="/runway/lamp-on.svg" alt="" width={45} height={0} />
-
-            {/* Light beam */}
-            <motion.div
-              initial={{ opacity: 0, scaleY: 0 }}
-              whileInView={{ opacity: 1, scaleY: 1 }}
-              transition={{ delay: 0.3, duration: 0.5, ease: "easeOut" }}
-              viewport={{ once: true }}
-              className="origin-top translate-x-[1px]"
-            >
-              <Image src="/runway/light-beam.svg" alt="" width={120} height={0} />
-            </motion.div>
-          </motion.div>
-
-          {/* Circular Glow */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.4, duration: 0.5 }}
-            viewport={{ once: true }}
-            className="absolute top-0"
-          >
-            <Image src="/runway/circular-glow.svg" alt="" width={800} height={0} />
-          </motion.div>
-
-          {/* Floor Glow */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.4 }}
-            viewport={{ once: true }}
-            className="absolute bottom-1/10"
-          >
-            <Image src="/runway/glow-on-floor.svg" alt="" width={400} height={0} />
-          </motion.div>
+          <Image src="/runway/circular-glow.svg" alt="" width={800} height={0} className="absolute left-1/2 -translate-x-1/2 top-0" />
         </motion.div>
 
-        {/* Background Glow only visible in phone view */}
+        {/* Glow on Floor with smooth dim/bright cycle */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ delay: 0.5, duration: 0.4 }}
-          className="absolute bottom-1/10"
+          transition={{
+            duration: 2,             // one way cycle
+            ease: "easeInOut",
+            repeat: Infinity,        // loop forever
+            repeatType: "reverse",   // smoothly go back down
+          }}
         >
-          <Image src="/runway/glow-on-floor.svg" alt="" width={400} height={0} />
+          <Image src="/runway/glow-on-floor.svg" alt="" width={400} height={0} className="absolute left-1/2 -translate-x-1/2 bottom-1/10" />
         </motion.div>
 
         {/* Content */}

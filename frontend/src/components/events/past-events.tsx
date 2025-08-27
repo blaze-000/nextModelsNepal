@@ -8,10 +8,12 @@ import EventBox from "../molecules/event-box";
 import Dropdown from "../ui/Dropdown";
 import Link from "next/link";
 import Axios from "@/lib/axios-instance";
+import { normalizeImagePath } from "@/lib/utils";
 
 type PastEvents = {
   name: string;
   overview: string;
+  coverImage: string;
   season: {
     year: number;
     slug: string;
@@ -198,7 +200,7 @@ export const PastEvents = ({ searchText }: { searchText: string }) => {
               >
                 <EventBox
                   status="ended"
-                  image="/default-fallback-image.png"
+                  image={normalizeImagePath(item.coverImage)}
                   title={item.name}
                   desc={item.overview}
                   slug={item.season.slug}
