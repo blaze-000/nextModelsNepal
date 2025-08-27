@@ -383,6 +383,7 @@ export const getAllPastEvents = async (req: Request, res: Response) => {
 
       return {
         name: event.name,
+        coverImage: event.coverImage,
         overview: event.overview,
         season: {
           year: latestEndedSeason.year,
