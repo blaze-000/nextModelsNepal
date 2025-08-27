@@ -28,7 +28,6 @@ export default function PaymentStatusContent() {
   const [prn, setPrn] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [paymentResult, setPaymentResult] = useState<PaymentResult | null>(null);
-  const [isDownloading, setIsDownloading] = useState(false);
   const searchParams = useSearchParams();
   const router = useRouter();
   const { clearCart } = useCart();
@@ -96,144 +95,6 @@ export default function PaymentStatusContent() {
     } else {
       // Fallback to events page
       router.push('/events');
-    }
-  };
-
-  // Function to download payment statement as PDF
-  const downloadReceipt = async () => {
-    if (!receiptRef.current) return;
-
-    setIsDownloading(true);
-
-    try {
-      // Create a simplified version of the receipt for PDF generation
-      const printContent = `
-        <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; color: #333;">
-          <div style="text-align: center; margin-bottom: 30px;">
-            <h1 style="color: #0f2d1f; font-size: 24px; margin-bottom: 10px;">Payment Successful!</h1>
-            <p style="color: #0f2d1f; font-size: 16px;">Thank you! Your votes have been credited successfully.</p>
-          </div>
-          
-          <div style="background: #ffffff; border: 1px solid #22c55e; border-radius: 10px; padding: 20px; margin-bottom: 20px;">
-            <h2 style="font-size: 18px; font-weight: bold; color: #333; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
-              Payment Details
-            </h2>
-            
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-              <div>
-                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f0f0;">
-                  <span style="color: #666; font-weight: 500;">Payment Status:</span>
-                  <span style="font-weight: 600; color: #16a34a; background: #f0fdf4; padding: 4px 10px; border-radius: 20px; font-size: 12px;">
-                    Successful
-                  </span>
-                </div>
-                
-                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f0f0;">
-                  <span style="color: #666; font-weight: 500;">Transaction ID:</span>
-                  <span style="font-family: monospace; font-size: 14px;">${paymentResult?.prn || ''}</span>
-                </div>
-                
-                ${paymentResult?.contestants && paymentResult.contestants.length > 0 ? `
-                  <div style="padding: 8px 0; border-bottom: 1px solid #f0f0f0;">
-                    <span style="color: #666; font-weight: 500; display: block; margin-bottom: 8px;">Contestants:</span>
-                    <div style="background: #f9f9f9; padding: 10px; border-radius: 5px;">
-                      ${paymentResult.contestants.map(contestant => `
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid #eee;">
-                          <div>
-                            <div style="font-weight: 500;">${contestant.name}</div>
-                            <div style="font-size: 12px; color: #888;">ID: ${contestant.id}</div>
-                          </div>
-                          <div style="font-weight: 600; color: #2563eb;">${contestant.votes} votes</div>
-                        </div>
-                      `).join('')}
-                    </div>
-                  </div>
-                ` : ''}
-                
-                ${paymentResult?.event ? `
-                  <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f0f0;">
-                    <span style="color: #666; font-weight: 500;">Event Name:</span>
-                    <span style="font-weight: 500;">${paymentResult.event}</span>
-                  </div>
-                ` : ''}
-              </div>
-              
-              <div>
-                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f0f0;">
-                  <span style="color: #666; font-weight: 500;">Total Votes:</span>
-                  <span style="font-weight: 600; color: #2563eb; font-size: 16px;">
-                    ${paymentResult?.contestants
-          ? paymentResult.contestants.reduce((total, contestant) => total + contestant.votes, 0)
-          : 0} votes
-                  </span>
-                </div>
-                
-                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f0f0;">
-                  <span style="color: #666; font-weight: 500;">Amount Paid:</span>
-                  <span style="font-weight: 600; font-size: 16px;">Rs. ${paymentResult?.amount ? paymentResult.amount.toFixed(2) : '0.00'}</span>
-                </div>
-                
-                ${paymentResult?.bankCode ? `
-                  <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f0f0;">
-                    <span style="color: #666; font-weight: 500;">Bank Code:</span>
-                    <span>${paymentResult.bankCode}</span>
-                  </div>
-                ` : ''}
-                
-                ${paymentResult?.accountNumber ? `
-                  <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f0f0;">
-                    <span style="color: #666; font-weight: 500;">Account Number:</span>
-                    <span>${paymentResult.accountNumber}</span>
-                  </div>
-                ` : ''}
-                
-                <div style="display: flex; justify-content: space-between; padding: 8px 0;">
-                  <span style="color: #666; font-weight: 500;">Payment Method:</span>
-                  <span>FonePay</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div style="text-align: center; font-size: 12px; color: #666; margin-top: 20px;">
-            <p>Generated on ${new Date().toLocaleString()}</p>
-            <p>Next Models Nepal - www.nextmodelsnepal.com</p>
-          </div>
-        </div>
-      `;
-
-      // Create a temporary element for PDF generation
-      const tempElement = document.createElement('div');
-      tempElement.innerHTML = printContent;
-      tempElement.style.position = 'absolute';
-      tempElement.style.left = '-9999px';
-      document.body.appendChild(tempElement);
-
-      // Dynamically import html2pdf only when needed
-      const html2pdf = (await import('html2pdf.js')).default;
-
-      const opt = {
-        margin: 10,
-        filename: `payment-receipt-${paymentResult?.prn || 'next-models-nepal'}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: {
-          scale: 2,
-          useCORS: true,
-          logging: false
-        },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-      };
-
-      await html2pdf(tempElement, opt);
-
-      // Clean up
-      document.body.removeChild(tempElement);
-    } catch (error) {
-      console.error('Error generating PDF:', error);
-      alert('Error generating PDF. Please try again.');
-    } finally {
-      setIsDownloading(false);
     }
   };
 
@@ -755,23 +616,6 @@ export default function PaymentStatusContent() {
           )}
 
           <div className="flex flex-col sm:flex-row justify-center gap-3">
-            <button
-              onClick={downloadReceipt}
-              disabled={isDownloading}
-              className="bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-800 text-white px-5 py-2.5 rounded-lg font-semibold transition-colors shadow-md flex items-center justify-center gap-2 text-sm"
-            >
-              {isDownloading ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <i className="ri-file-download-line"></i>
-                  Download Receipt
-                </>
-              )}
-            </button>
             <button
               onClick={goToVotingPage}
               className="bg-primary text-black px-5 py-2.5 rounded-lg font-semibold hover:bg-opacity-90 transition-colors shadow-md text-sm"
