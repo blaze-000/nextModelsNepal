@@ -34,7 +34,7 @@ export const appModelSchema = z.object({
     permanentAddress: z.string().min(1, { message: "Permanent address is required" }),
     temporaryAddress: z.string().min(1, { message: "Temporary address is required" }),
 
-    hobbies: z.string().min(1, { message: "Hobbies are required" }),
+    hobbies: z.string().optional(),
     talents: z.string().optional(),
     heardFrom: z.string().optional(),
     additionalMessage: z.string().optional(),

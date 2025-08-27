@@ -35,7 +35,7 @@ const appModelSchema = new mongoose.Schema({
     permanentAddress: { type: String, required: true },
     temporaryAddress: { type: String, required: true },
 
-    hobbies: { type: String, required: true },
+    hobbies: { type: String },
     talents: { type: String },
     heardFrom: { type: String },
     additionalMessage: { type: String },
