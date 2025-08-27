@@ -15,26 +15,79 @@ function parseBulkPaymentR1(r1String: string): { contestant_Id: string; vote: nu
       return [];
     }
     
-    const parsedR1 = JSON.parse(decodeURIComponent(r1String));
-    
-    let items: any[] = [];
-    if (parsedR1.i) {
-      // New compressed format: { i: [{ id, v }], c, t }
-      items = parsedR1.i;
-    } else if (parsedR1.items) {
-      // Previous compressed format
-      items = parsedR1.items;
-    } else {
-      // Original format
-      items = parsedR1;
+    // Decode the R1 string if it's encoded
+    let decodedR1String = r1String;
+    try {
+      decodedR1String = decodeURIComponent(r1String);
+    } catch (decodeError) {
+      // If decoding fails, use the original string
+      console.log('Failed to decode R1 string, using original:', r1String);
     }
     
-    // Process items and map to consistent format
-    return items.map((item: any) => ({
-      // Handle truncated ObjectIds (12 characters instead of 24)
-      contestant_Id: item.contestant_Id || item.id,
-      vote: item.vote || item.v
-    }));
+    // Check the format by looking at the delimiters
+    if (decodedR1String.includes('|')) {
+      // Old pipe-based format: "id1:votes1,id2:votes2|count|totalVotes"
+      const parts = decodedR1String.split('|');
+      if (parts.length >= 3) {
+        const itemStrings = parts[0].split(',');
+        const items = itemStrings.map(itemStr => {
+          const [id, votesStr] = itemStr.split(':');
+          return { id, v: parseInt(votesStr, 10) };
+        });
+        return items.map(item => ({
+          contestant_Id: item.id,
+          vote: item.v
+        }));
+      } else {
+        return [];
+      }
+    } else if (decodedR1String.includes('{')) {
+      // JSON format (existing format)
+      const parsedR1 = JSON.parse(decodedR1String);
+      
+      let items: any[] = [];
+      if (parsedR1.i) {
+        // New compressed format: { i: [{ id, v }], c, t }
+        items = parsedR1.i;
+      } else if (parsedR1.items) {
+        // Previous compressed format
+        items = parsedR1.items;
+      } else {
+        // Original format
+        items = parsedR1;
+      }
+      
+      // Process items and map to consistent format
+      return items.map((item: any) => ({
+        // Handle uniqueId (which doesn't need truncation) or truncated ObjectIds
+        contestant_Id: item.contestant_Id || item.id,
+        vote: item.vote || item.v
+      }));
+    } else if (decodedR1String.includes(':') && decodedR1String.includes(',')) {
+      // New comma-based format: "id1:votes1,id2:votes2,count,totalVotes"
+      const parts = decodedR1String.split(',');
+      if (parts.length >= 3) {
+        // The last two parts are count and totalVotes
+        const itemCount = parseInt(parts[parts.length - 2], 10);
+        const totalVotes = parseInt(parts[parts.length - 1], 10);
+        
+        // The first parts are the contestant data
+        const itemStrings = parts.slice(0, parts.length - 2);
+        const items = itemStrings.map(itemStr => {
+          const [id, votesStr] = itemStr.split(':');
+          return { id, v: parseInt(votesStr, 10) };
+        });
+        return items.map(item => ({
+          contestant_Id: item.id,
+          vote: item.v
+        }));
+      } else {
+        return [];
+      }
+    } else {
+      // Unknown format
+      return [];
+    }
   } catch (parseError) {
     console.error('Error parsing R1 for bulk payment:', parseError);
     return [];
@@ -52,14 +105,23 @@ export const payment = async (req: Request, res: Response) => {
     const { contestant_Id, vote, amount, prn, purpose, r1, r2 } = parsed.data;
     const actualPrn = prn ?? `prn_${Date.now()}`;
 
-    const isExists = await ContestantModel.findById(contestant_Id);
+    // Check if contestant_Id is a uniqueId or ObjectId
+    let isExists;
+    if (contestant_Id.startsWith('NMN-')) {
+      // It's a uniqueId, find by uniqueId field
+      isExists = await ContestantModel.findOne({ uniqueId: contestant_Id });
+    } else {
+      // It's likely an ObjectId, find by _id
+      isExists = await ContestantModel.findById(contestant_Id);
+    }
+    
     if (!isExists) {
       return res.status(404).send("Invalid contestant id.");
     }
 
     const payment = await Payment.create({
       prn: actualPrn,
-      contestant_Id,
+      contestant_Id: isExists._id, // Always store the actual ObjectId in the database
       contestant_Name: isExists.name,
       vote,
       currency: 'NPR',
@@ -73,12 +135,26 @@ export const payment = async (req: Request, res: Response) => {
 
     const ruAbsolute = `${app.baseUrl}/api/fonepay/payment/return`;
 
+    // Create appropriate R1 and R2 values
+    let finalR1 = r1 || '';
+    let finalR2 = r2 || '';
+    
+    if (!r1) {
+      // For individual payments, create a simple R1
+      finalR1 = `Next Model Nepal`;
+    }
+    
+    if (!r2) {
+      // For individual payments, create a simple R2
+      finalR2 = `Next Model Nepal`;
+    }
+
     const requestParams = buildPaymentRequest({
       prn: actualPrn,
       amount,
       ruAbsolute,
-      r1: payment.r1!,
-      r2: payment.r2!,
+      r1: finalR1,
+      r2: finalR2,
     });
 
     payment.requestDv = requestParams.DV;
@@ -124,14 +200,27 @@ export const getPaymentStatusByPrn = async (req: Request, res: Response) => {
         const bulkPaymentItems = parseBulkPaymentR1(payment.r1);
         // Get information for all contestants in the bulk payment
         for (const item of bulkPaymentItems) {
-          // Use full contestant ID directly
-          const contestant = await ContestantModel.findById(item.contestant_Id).populate({
-            path: 'seasonId',
-            populate: {
-              path: 'eventId',
-              select: 'name'
-            }
-          });
+          // Check if contestant_Id is a uniqueId or ObjectId
+          let contestant;
+          if (item.contestant_Id.startsWith('NMN-')) {
+            // It's a uniqueId, find by uniqueId field
+            contestant = await ContestantModel.findOne({ uniqueId: item.contestant_Id }).populate({
+              path: 'seasonId',
+              populate: {
+                path: 'eventId',
+                select: 'name'
+              }
+            });
+          } else {
+            // It's likely an ObjectId, find by _id
+            contestant = await ContestantModel.findById(item.contestant_Id).populate({
+              path: 'seasonId',
+              populate: {
+                path: 'eventId',
+                select: 'name'
+              }
+            });
+          }
           
           if (contestant && contestant.seasonId) {
             const season: any = contestant.seasonId;
@@ -239,14 +328,27 @@ export const getPaymentStatusById = async (req: Request, res: Response) => {
         const bulkPaymentItems = parseBulkPaymentR1(payment.r1);
         // Get information for all contestants in the bulk payment
         for (const item of bulkPaymentItems) {
-          // Use full contestant ID directly
-          const contestant = await ContestantModel.findById(item.contestant_Id).populate({
-            path: 'seasonId',
-            populate: {
-              path: 'eventId',
-              select: 'name'
-            }
-          });
+          // Check if contestant_Id is a uniqueId or ObjectId
+          let contestant;
+          if (item.contestant_Id.startsWith('NMN-')) {
+            // It's a uniqueId, find by uniqueId field
+            contestant = await ContestantModel.findOne({ uniqueId: item.contestant_Id }).populate({
+              path: 'seasonId',
+              populate: {
+                path: 'eventId',
+                select: 'name'
+              }
+            });
+          } else {
+            // It's likely an ObjectId, find by _id
+            contestant = await ContestantModel.findById(item.contestant_Id).populate({
+              path: 'seasonId',
+              populate: {
+                path: 'eventId',
+                select: 'name'
+              }
+            });
+          }
           
           if (contestant && contestant.seasonId) {
             const season: any = contestant.seasonId;
@@ -343,7 +445,16 @@ export const getAllPayment = async (req: Request, res: Response) => {
           // Get information for all contestants in the bulk payment
           const contestantsInfo = [];
           for (const item of bulkPaymentItems) {
-            const contestant = await ContestantModel.findById(item.contestant_Id);
+            // Check if contestant_Id is a uniqueId or ObjectId
+            let contestant;
+            if (item.contestant_Id.startsWith('NMN-')) {
+              // It's a uniqueId, find by uniqueId field
+              contestant = await ContestantModel.findOne({ uniqueId: item.contestant_Id });
+            } else {
+              // It's likely an ObjectId, find by _id
+              contestant = await ContestantModel.findById(item.contestant_Id);
+            }
+            
             contestantsInfo.push({
               id: item.contestant_Id,
               name: contestant ? contestant.name : `Contestant ${item.contestant_Id}`,
@@ -624,11 +735,23 @@ export const returnPayment = async (req: Request, res: Response) => {
         let updateErrors: string[] = [];
         for (const item of bulkPaymentItems) {
           try {
-            const contestantUpdate = await ContestantModel.findByIdAndUpdate(
-              item.contestant_Id, 
-              { $inc: { votes: item.vote } }, 
-              { new: true }
-            );
+            // Check if contestant_Id is a uniqueId (not ObjectId)
+            let contestantUpdate;
+            if (item.contestant_Id.startsWith('NMN-')) {
+              // It's a uniqueId, find by uniqueId field
+              contestantUpdate = await ContestantModel.findOneAndUpdate(
+                { uniqueId: item.contestant_Id }, 
+                { $inc: { votes: item.vote } }, 
+                { new: true }
+              );
+            } else {
+              // It's likely an ObjectId, find by _id
+              contestantUpdate = await ContestantModel.findByIdAndUpdate(
+                item.contestant_Id, 
+                { $inc: { votes: item.vote } }, 
+                { new: true }
+              );
+            }
             
             if (!contestantUpdate) {
               const errorMsg = `Contestant ${item.contestant_Id} not found`;
@@ -720,11 +843,23 @@ export const returnPayment = async (req: Request, res: Response) => {
       let updateErrors: string[] = [];
       for (const item of bulkPaymentItems) {
         try {
-          const contestantUpdate = await ContestantModel.findByIdAndUpdate(
-            item.contestant_Id, 
-            { $inc: { votes: item.vote } }, 
-            { new: true }
-          );
+          // Check if contestant_Id is a uniqueId (not ObjectId)
+          let contestantUpdate;
+          if (item.contestant_Id.startsWith('NMN-')) {
+            // It's a uniqueId, find by uniqueId field
+            contestantUpdate = await ContestantModel.findOneAndUpdate(
+              { uniqueId: item.contestant_Id }, 
+              { $inc: { votes: item.vote } }, 
+              { new: true }
+            );
+          } else {
+            // It's likely an ObjectId, find by _id
+            contestantUpdate = await ContestantModel.findByIdAndUpdate(
+              item.contestant_Id, 
+              { $inc: { votes: item.vote } }, 
+              { new: true }
+            );
+          }
           
           if (!contestantUpdate) {
             const errorMsg = `Contestant ${item.contestant_Id} not found`;
@@ -794,11 +929,23 @@ export const returnPayment = async (req: Request, res: Response) => {
         let updateErrors: string[] = [];
         for (const item of bulkPaymentItems) {
           try {
-            const contestantUpdate = await ContestantModel.findByIdAndUpdate(
-              item.contestant_Id, 
-              { $inc: { votes: item.vote } }, 
-              { new: true }
-            );
+            // Check if contestant_Id is a uniqueId (not ObjectId)
+            let contestantUpdate;
+            if (item.contestant_Id.startsWith('NMN-')) {
+              // It's a uniqueId, find by uniqueId field
+              contestantUpdate = await ContestantModel.findOneAndUpdate(
+                { uniqueId: item.contestant_Id }, 
+                { $inc: { votes: item.vote } }, 
+                { new: true }
+              );
+            } else {
+              // It's likely an ObjectId, find by _id
+              contestantUpdate = await ContestantModel.findByIdAndUpdate(
+                item.contestant_Id, 
+                { $inc: { votes: item.vote } }, 
+                { new: true }
+              );
+            }
             
             if (!contestantUpdate) {
               const errorMsg = `Contestant ${item.contestant_Id} not found`;
@@ -861,11 +1008,23 @@ export const returnPayment = async (req: Request, res: Response) => {
       let updateErrors: string[] = [];
       for (const item of bulkPaymentItems) {
         try {
-          const contestantUpdate = await ContestantModel.findByIdAndUpdate(
-            item.contestant_Id, 
-            { $inc: { votes: item.vote } }, 
-            { new: true }
-          );
+          // Check if contestant_Id is a uniqueId (not ObjectId)
+          let contestantUpdate;
+          if (item.contestant_Id.startsWith('NMN-')) {
+            // It's a uniqueId, find by uniqueId field
+            contestantUpdate = await ContestantModel.findOneAndUpdate(
+              { uniqueId: item.contestant_Id }, 
+              { $inc: { votes: item.vote } }, 
+              { new: true }
+            );
+          } else {
+            // It's likely an ObjectId, find by _id
+            contestantUpdate = await ContestantModel.findByIdAndUpdate(
+              item.contestant_Id, 
+              { $inc: { votes: item.vote } }, 
+              { new: true }
+            );
+          }
           
           if (!contestantUpdate) {
             const errorMsg = `Contestant ${item.contestant_Id} not found`;
@@ -936,11 +1095,23 @@ export const returnPayment = async (req: Request, res: Response) => {
           let updateErrors: string[] = [];
           for (const item of bulkPaymentItems) {
             try {
-              const contestantUpdate = await ContestantModel.findByIdAndUpdate(
-                item.contestant_Id, 
-                { $inc: { votes: item.vote } }, 
-                { new: true, session }
-              );
+              // Check if contestant_Id is a uniqueId (not ObjectId)
+              let contestantUpdate;
+              if (item.contestant_Id.startsWith('NMN-')) {
+                // It's a uniqueId, find by uniqueId field
+                contestantUpdate = await ContestantModel.findOneAndUpdate(
+                  { uniqueId: item.contestant_Id }, 
+                  { $inc: { votes: item.vote } }, 
+                  { new: true, session }
+                );
+              } else {
+                // It's likely an ObjectId, find by _id
+                contestantUpdate = await ContestantModel.findByIdAndUpdate(
+                  item.contestant_Id, 
+                  { $inc: { votes: item.vote } }, 
+                  { new: true, session }
+                );
+              }
               
               if (!contestantUpdate) {
                 const errorMsg = `Contestant ${item.contestant_Id} not found`;
