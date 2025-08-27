@@ -13,43 +13,63 @@ const CTASection = () => {
         style={{ backgroundImage: "url('/runway/background-image.png')" }}
       >
         {/* Lamp and Beam + Glow Group with smooth dim/bright cycle */}
-        <div className="absolute top-0 flex flex-col items-center">
+        <motion.div
+          initial={{ opacity: 0, y: -500 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0, duration: 1, ease: "easeOut" }}
+          viewport={{ once: true }}
+          className="absolute inset-0 flex flex-col items-center"
+        >
+          {/* Lamp Metal Portion */}
           <Image src="/runway/lamp-off.svg" alt="" width={45} height={0} />
-          <div className="flex flex-col items-center">
-            <Image src="/runway/lamp-on.svg" alt="" width={45} height={0} />
-            <Image src="/runway/light-beam.svg" alt="" width={120} height={0} className="translate-x-px" />
-          </div>
-        </div>
+          <motion.div
+            className="flex flex-col items-center"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: [0.3, 1] }}
+            animate={{ opacity: 1 }}   // target bright
+            transition={{
+              duration: 2,             // one way cycle
+              ease: "easeInOut",
+              repeat: Infinity,        // loop forever
+              repeatType: "reverse",   // smoothly go back down
+            }}
+            viewport={{ once: true }}
+          >
+            {/* Lamp On */}
+            <div className="flex flex-col items-center">
 
-        {/* Circular background glow */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{
-            duration: 2,             // one way cycle
-            ease: "easeInOut",
-            repeat: Infinity,        // loop forever
-            repeatType: "reverse",   // smoothly go back down
-          }}
-        >
-          <Image src="/runway/circular-glow.svg" alt="" width={800} height={0} className="absolute left-1/2 -translate-x-1/2 top-0" />
+              <Image src="/runway/lamp-on.svg" alt="" width={45} height={0} className="-mt-1" />
+
+              {/* Light beam */}
+              <div className="origin-top translate-x-px">
+                <Image src="/runway/light-beam.svg" alt="" width={120} height={0} className="-mt-px" />
+              </div>
+            </div>
+
+            {/* Circular Glow at top */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.4, duration: 0.5 }}
+              viewport={{ once: true }}
+              className="absolute top-0"
+            >
+              <Image src="/runway/circular-glow.svg" alt="" width={800} height={0} />
+            </motion.div>
+
+            {/* Floor Glow */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.4 }}
+              viewport={{ once: true }}
+              className="absolute bottom-1/10"
+            >
+              <Image src="/runway/glow-on-floor.svg" alt="" width={400} height={0} />
+            </motion.div>
+          </motion.div>
         </motion.div>
 
-        {/* Glow on Floor with smooth dim/bright cycle */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{
-            duration: 2,             // one way cycle
-            ease: "easeInOut",
-            repeat: Infinity,        // loop forever
-            repeatType: "reverse",   // smoothly go back down
-          }}
-        >
-          <Image src="/runway/glow-on-floor.svg" alt="" width={400} height={0} className="absolute left-1/2 -translate-x-1/2 bottom-1/10" />
-        </motion.div>
 
         {/* Content */}
         <motion.div
