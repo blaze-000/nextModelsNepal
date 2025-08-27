@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 import Axios from "@/lib/axios-instance";
 import Dropdown from "@/components/ui/Dropdown";
 import Image from "next/image";
+import { normalizeImagePath } from "@/lib/utils";
 
 export default function NewsPress() {
   const [sortBy, setSortBy] = useState("All");
@@ -142,7 +143,7 @@ export default function NewsPress() {
                   viewport={{ once: true, amount: 0.1 }}
                 >
                   <ImageBox
-                    image={item.image}
+                    image={normalizeImagePath(item.image)}
                     title={item.title}
                     desc={item.description}
                     link={item.link}
