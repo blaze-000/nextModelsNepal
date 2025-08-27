@@ -2,7 +2,6 @@ import type React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "../ui/button";
-import { normalizeImagePath } from "@/lib/utils";
 
 type eventboxprops = {
   image: string;
@@ -31,7 +30,7 @@ const EventBox = ({
         <Image
           width={0}
           height={0}
-          src={normalizeImagePath(image)}
+          src={image}
           alt={title}
           sizes="100vw"
           className="w-full h-48 md:h-72 lg:h-72 object-cover object-top scale-110 hover:scale-105 transition-transform duration-700"

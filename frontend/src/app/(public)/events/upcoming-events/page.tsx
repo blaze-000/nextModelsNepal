@@ -13,7 +13,7 @@ import { Spinner } from "@/components/ui/spinner";
 
 type UpcomingEvent = {
   _id: string;
-  eventId: { _id: string; name: string; overview: string };
+  eventId: { _id: string; name: string; overview: string, coverImage: string};
   image: string;
   slug: string;
   year: string;
@@ -128,7 +128,7 @@ export default function UpcomingEvent() {
                   >
                     <EventBox
                       slug={item.latestEndedSeasonSlug}
-                      image={normalizeImagePath(item.image)}
+                      image={normalizeImagePath(item.eventId.coverImage)}
                       title={item.eventId.name}
                       desc={item.eventId.overview}
                       buttonText={`About ${item.eventId.name}`}

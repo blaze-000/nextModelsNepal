@@ -14,11 +14,9 @@ import { Spinner } from "@/components/ui/spinner";
 
 type PastEvents = {
   name: string;
+  coverImage: string;
   overview?: string;
   season: { year: number; endDate: string; slug: string };
-  image: string;
-
-  latestEndedSeasonSlug: string;
 };
 
 export default function PastEvents() {
@@ -121,7 +119,7 @@ export default function PastEvents() {
               >
                 <EventBox
                   slug={item.season.slug}
-                  image={normalizeImagePath(item.image)}
+                  image={normalizeImagePath(item.coverImage)}
                   title={item.name}
                   desc={item.overview || ""}
                   buttonText={`About ${item.name}`}
