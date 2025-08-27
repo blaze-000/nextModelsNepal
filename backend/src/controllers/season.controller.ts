@@ -680,7 +680,7 @@ export const getAllUpcomingEvents = async (req: Request, res: Response) => {
     const filter = { status: "upcoming" };
 
     const seasons = await SeasonModel.find(filter)
-      .populate("eventId", "name overview") // Populate event with name and overview (no slug)
+      .populate("eventId", "name overview coverImage") // Populate event with name, overview, and coverImage
       .populate("criteria")
       .populate("auditions")
       .sort({ [String(sort)]: sortOrder })
@@ -732,7 +732,7 @@ export const getEarliestUpcomingEvent = async (req: Request, res: Response) => {
   try {
     // Filter for upcoming seasons and get the earliest one
     const earliestUpcomingSeason = await SeasonModel.findOne({ status: "upcoming" })
-      .populate("eventId", "name overview") // Populate event with name and overview
+      .populate("eventId", "name overview") // Populate event with name, overview, and coverImage
       .populate("criteria")
       .populate("auditions")
       .sort({ startDate: 1 }) // Sort by startDate ascending to get the earliest upcoming
