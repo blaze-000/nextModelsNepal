@@ -445,14 +445,8 @@ export const getAllPastWinners = async (req: Request, res: Response) => {
       };
     });
 
-    // Sort by year descending, then by rank ascending
+    // Sort: Winners (champions) first, then runner-ups
     const sortedWinners = formattedWinners.sort((a, b) => {
-      // First sort by year descending (newest first)
-      if (a.year !== b.year) {
-        return b.year - a.year;
-      }
-
-      // Then sort by rank ascending
       const rankOrder = {
         "Winner": 1,
         "1st Runner Up": 2,
@@ -465,7 +459,13 @@ export const getAllPastWinners = async (req: Request, res: Response) => {
       const aRankOrder = rankOrder[a.rank as keyof typeof rankOrder] || 999;
       const bRankOrder = rankOrder[b.rank as keyof typeof rankOrder] || 999;
 
-      return aRankOrder - bRankOrder;
+      // ✅ Primary sort: rank priority
+      if (aRankOrder !== bRankOrder) {
+        return aRankOrder - bRankOrder;
+      }
+
+      // ✅ Secondary sort: year descending
+      return b.year - a.year;
     });
 
     res.json({
