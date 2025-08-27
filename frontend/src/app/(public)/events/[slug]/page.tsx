@@ -17,6 +17,7 @@ import Dropdown from "@/components/ui/Dropdown";
 import NotFound from "@/app/not-found";
 import { Spinner } from "@/components/ui/spinner";
 import { isAxiosError } from "axios";
+import UpcomingEventSection from "@/components/home/upcoming-event";
 
 export default function EventDetails() {
   const params = useParams();
@@ -169,6 +170,8 @@ export default function EventDetails() {
           />
         </div>
       </motion.section>
+
+      <UpcomingEventSection />
 
       {/* Overview Section */}
       <section className="w-full pb-16 mdplus:pt-16 bg-background">
