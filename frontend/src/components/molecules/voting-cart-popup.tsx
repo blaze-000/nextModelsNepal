@@ -33,7 +33,7 @@ export default function VotingCartPopup({
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
   const [seasonName, setSeasonName] = useState<string>(''); // Add season name state
-  const { getCartItems, getTotalPrice, updateVotes, removeFromCart, filterEliminatedContestants } = useCart();
+  const { getCartItems, getTotalPrice, updateVotes, removeFromCart, filterEliminatedContestants, clearCart } = useCart();
 
   // Fetch contestants data and filter eliminated ones
   useEffect(() => {
@@ -161,6 +161,12 @@ export default function VotingCartPopup({
     }
   };
 
+  // Clear entire cart
+  const handleClearCart = () => {
+    clearCart(seasonId);
+    toast.success('Cart cleared successfully');
+  };
+
   // Don't render if loading or no items
   if (isLoading || items.length === 0) {
     return null;
@@ -177,16 +183,26 @@ export default function VotingCartPopup({
               <h3 className="text-white text-lg font-normal font-urbanist">
                 Your Cart ({items.length} items)
               </h3>
-              <button
-                onClick={() => {
-                  setIsExpanded(false);
-                  setManuallyCollapsed(true);
-                }}
-                className="cursor-pointer text-white hover:text-primary transition-colors"
-                title="Collapse cart"
-              >
-                <i className="ri-arrow-down-line text-xl bg-primary/10 p-2 rounded-full" />
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleClearCart}
+                  className="cursor-pointer text-red-500 hover:text-red-400 transition-colors flex items-center gap-1"
+                  title="Clear cart"
+                >
+                  <i className="ri-delete-bin-line" />
+                  <span className="text-sm">Delete</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setIsExpanded(false);
+                    setManuallyCollapsed(true);
+                  }}
+                  className="cursor-pointer text-white hover:text-primary transition-colors"
+                  title="Collapse cart"
+                >
+                  <i className="ri-arrow-down-line text-xl bg-primary/10 p-2 rounded-full" />
+                </button>
+              </div>
             </div>
 
             {/* Table and Pay Now Button Row */}
@@ -317,6 +333,16 @@ export default function VotingCartPopup({
               </span>
             </div>
             <div className="flex items-center gap-4">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleClearCart();
+                }}
+                className="text-red-500 hover:text-red-400 transition-colors"
+                title="Clear cart"
+              >
+                <i className="ri-delete-bin-line" />
+              </button>
               <span className="text-white text-base font-semibold font-urbanist leading-loose tracking-tight">
                 NPR {totalPrice}
               </span>
