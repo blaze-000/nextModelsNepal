@@ -133,6 +133,7 @@ pnpm dev              # Start development server with hot reload
 pnpm build            # Compile TypeScript to JavaScript
 pnpm start            # Run production build
 pnpm build:prod       # Clean and build for production
+pnpm seed             # Seed database with admin users
 ```
 
 ### Frontend Scripts
@@ -165,4 +166,19 @@ pnpm lint             # Run ESLint
 
 ## Database Setup
 
+### 1. Start MongoDB
+
 Ensure MongoDB is running locally or provide a remote MongoDB URI in the `DATABASE_URI` environment variable.
+
+### 2. Seed Admin Users
+
+After setting up your MongoDB connection, seed the database with initial admin users:
+
+```bash
+cd backend
+pnpm seed
+```
+
+This will create two admin accounts with secure randomly-generated passwords:
+- `admin@nextmodelsnepal.com`
+- `superadmin@nextmodelsnepal.com`
