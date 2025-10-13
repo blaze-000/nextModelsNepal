@@ -60,3 +60,4 @@ logs/
 # Cache directories
 .cache/
 .temp/
+.serena
