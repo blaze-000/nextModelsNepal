@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { NavModel } from "../models/nav.model";
-import { EventModel } from "../models/events.model";
-import { navSchema } from "../validations/nav.validation";
+import { NavModel } from '../models/nav.model.js';
+import { EventModel } from '../models/events.model.js';
+import { navSchema } from '../validations/nav.validation.js';
 
 // GET /nav - Get navigation settings
 export const getVotingState = async (req: Request, res: Response) => {

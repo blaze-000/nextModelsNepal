@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getDashboardStats } from "../controllers/dashboard.controller";
+import { getDashboardStats } from '../controllers/dashboard.controller.js';
 // Removed verifyAdminToken middleware since we want this to be accessible
 
 const router = Router();

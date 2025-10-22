@@ -1,18 +1,24 @@
 import { Router } from "express";
-import upload from "../middleware/upload";
 import {
-  createFeedback,
-  getAllFeedbacks,
-  getFeedbackById,
-  updateFeedbackById,
-  deleteFeedbackById,
-} from "../controllers/feedback.controller";
-import { verifyAdminToken } from "../middleware/auth.middleware";
+    createFeedback,
+    deleteFeedbackById,
+    getAllFeedbacks,
+    getFeedbackById,
+    updateFeedbackById,
+} from '../controllers/feedback.controller.js';
+import { verifyAdminToken } from '../middleware/auth.middleware.js';
+import upload, { processImages } from '../middleware/upload.js';
 
 const router = Router();
 
 // Create a new feedback with image upload
-router.post("/", verifyAdminToken, upload.single("image"), createFeedback);
+router.post(
+    "/",
+    verifyAdminToken,
+    upload.single("image"),
+    processImages,
+    createFeedback,
+);
 
 // Get all feedbacks
 router.get("/", getAllFeedbacks);
@@ -21,7 +27,13 @@ router.get("/", getAllFeedbacks);
 router.get("/:id", getFeedbackById);
 
 // Update a feedback by ID with optional image upload
-router.patch("/:id", verifyAdminToken, upload.single("image"), updateFeedbackById);
+router.patch(
+    "/:id",
+    verifyAdminToken,
+    upload.single("image"),
+    processImages,
+    updateFeedbackById,
+);
 
 // Delete a feedback by ID
 router.delete("/:id", verifyAdminToken, deleteFeedbackById);

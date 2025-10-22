@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import { config } from 'dotenv';
 import mongoose from 'mongoose';
-import { AdminModel } from '../models/admin.model';
+import { AdminModel } from '../models/admin.model.js';
 
 config();
 

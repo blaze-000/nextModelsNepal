@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { CriteriaModel, SeasonModel } from "../models/events.model";
-import { createCriteriaSchema, updateCriteriaSchema } from "../validations/criteria.validation";
+import { CriteriaModel, SeasonModel } from '../models/events.model.js';
+import { createCriteriaSchema, updateCriteriaSchema } from '../validations/criteria.validation.js';
 import mongoose from "mongoose";
 import fs from "fs";
 import path from "path";

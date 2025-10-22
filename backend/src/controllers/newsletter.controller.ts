@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { NewsletterEmail, Newsletter } from "../models/newsletter.emails.model";
+import { NewsletterEmail, Newsletter } from '../models/newsletter.emails.model.js';
 import nodemailer from "nodemailer";
 
 // Create newsletter subscription

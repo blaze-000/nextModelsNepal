@@ -5,9 +5,9 @@ import {
     getNewsById,
     getAllNews,
     updateNewsById
-} from "../controllers/news.controller";
-import upload from "../middleware/upload";
-import { verifyAdminToken } from "../middleware/auth.middleware";
+} from '../controllers/news.controller.js';
+import upload, { processImages } from '../middleware/upload.js';
+import { verifyAdminToken } from '../middleware/auth.middleware.js';
 
 const router = Router();
 

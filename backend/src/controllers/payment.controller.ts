@@ -1,12 +1,12 @@
 import { Request, Response } from 'express';
-import { Payment } from '../models/payment.model';
-import { app, fonepay } from '../config/payment.config';
-import { buildPaymentRequest, buildRedirectUrl, verifyReturnDv, verifyTransactionServerToServer } from '../service/payment.service';
-import { paymentSchema } from '../validations/payment.validation';
-import { FonepayRequestParams } from '../types/payment';
-import { ContestantModel } from '../models/events.model';
+import { Payment } from '../models/payment.model.js';
+import { app, fonepay } from '../config/payment.config.js';
+import { buildPaymentRequest, buildRedirectUrl, verifyReturnDv, verifyTransactionServerToServer } from '../service/payment.service.js';
+import { paymentSchema } from '../validations/payment.validation.js';
+import { FonepayRequestParams } from '../types/payment.js';
+import { ContestantModel } from '../models/events.model.js';
 import mongoose from 'mongoose';
-import { incMetric } from '../utils/metrics';
+import { incMetric } from '../utils/metrics.js';
 
 // Helper function to parse R1 parameter for bulk payments
 function parseBulkPaymentR1(r1String: string): { contestant_Id: string; vote: number }[] {

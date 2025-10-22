@@ -148,8 +148,8 @@ type AuthContextType = {
   user: AdminUser | null;
   setUser: React.Dispatch<React.SetStateAction<AdminUser | null>>;
   loading: boolean;
-  logout: () => void;
-  refreshAuth: () => void;
+  logout: () => Promise<void>;
+  refreshAuth: () => Promise<void>;
 }
 
 type NewsItem = {

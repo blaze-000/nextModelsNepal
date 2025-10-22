@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { getAllPayment, getPaymentStatusById, getPaymentStatusByPrn, payment, returnPayment, getPaymentStats, deletePayment, deleteAllPayments } from "../controllers/payment.controller";
-import { paymentLimiter, paymentRateLimitBypass } from "../middleware/rateLimiters";
+import { getAllPayment, getPaymentStatusById, getPaymentStatusByPrn, payment, returnPayment, getPaymentStats, deletePayment, deleteAllPayments } from '../controllers/payment.controller.js';
+import { paymentLimiter, paymentRateLimitBypass } from '../middleware/rateLimiters.js';
 
 const router = Router();
 

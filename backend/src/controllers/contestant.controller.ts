@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { ContestantModel, SeasonModel } from "../models/events.model";
-import { createContestantSchema, updateContestantSchema } from "../validations/contestant.validation";
+import { ContestantModel, SeasonModel } from '../models/events.model.js';
+import { createContestantSchema, updateContestantSchema } from '../validations/contestant.validation.js';
 import mongoose from "mongoose";
 import fs from "fs";
 import path from "path";

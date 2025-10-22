@@ -1,7 +1,7 @@
 "use client";
 import BecomeModelForm from "@/components/become-model-form";
-import Image from "next/image";
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 
 export default function BecomeModelContent() {
@@ -17,7 +17,7 @@ export default function BecomeModelContent() {
         transition={{ duration: 0.6 }}
         viewport={{ once: true }}
         className="h-[40vh] md:h-[80vh] bg-black bg-cover bg-center relative"
-        style={{ backgroundImage: "url('/events_1.jpg')" }}
+        style={{ backgroundImage: "url('/contact-us-cover.jpg')" }}
       >
         {/* Gradient mask */}
         <div className="hidden bg md:flex absolute inset-0 bg-gradient-to-r from-black via-black/80 to-black/20" />
@@ -29,7 +29,7 @@ export default function BecomeModelContent() {
             <span>Become a</span>
             <div className="flex items-baseline gap-3 mt-2">
               <Image
-                src="/handshake.jpg"
+                src="/about/image-1.jpg"
                 alt=""
                 width={160}
                 height={64}

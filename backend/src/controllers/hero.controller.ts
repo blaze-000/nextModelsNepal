@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { HeroModel } from "../models/hero.model";
+import { HeroModel } from '../models/hero.model.js';
 import fs from "fs";
 import path from "path";
 

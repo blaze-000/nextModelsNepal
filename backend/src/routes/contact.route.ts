@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { createContact, deleteContactById, getContact, getContactById } from "../controllers/contact.controller";
-import { contactLimiter } from "../middleware/rateLimiters";
-import { verifyAdminToken } from "../middleware/auth.middleware";
+import { createContact, deleteContactById, getContact, getContactById } from '../controllers/contact.controller.js';
+import { contactLimiter } from '../middleware/rateLimiters.js';
+import { verifyAdminToken } from '../middleware/auth.middleware.js';
 
 
 const router = Router();

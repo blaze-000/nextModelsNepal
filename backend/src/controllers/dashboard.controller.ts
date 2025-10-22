@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
-import { Model } from "../models/model.model";
-import { EventModel, SeasonModel } from "../models/events.model";
-import { AppModel } from "../models/appForm.model";
-import { Payment } from "../models/payment.model";
-import { ContestantModel } from "../models/events.model";
+import { Model } from '../models/model.model.js';
+import { EventModel, SeasonModel } from '../models/events.model.js';
+import { AppModel } from '../models/appForm.model.js';
+import { Payment } from '../models/payment.model.js';
+import { ContestantModel } from '../models/events.model.js';
 
 // Helper function to parse R1 parameter for bulk payments in dashboard
 function parseBulkPaymentR1ForDashboard(r1String: string): { contestant_Id: string; vote: number }[] {

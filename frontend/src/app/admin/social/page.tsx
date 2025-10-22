@@ -1,228 +1,239 @@
 "use client";
-import { useState, useEffect } from "react";
-import type React from "react";
-import { toast } from "sonner";
 import PageHeader from "@/components/admin/PageHeader";
-import Axios from "@/lib/axios-instance";
 import { Button } from "@/components/ui/button";
+import { FormInputField } from "@/components/form/FormInputField";
+import { orpc } from "@/lib/orpc-client";
+import { orpcQuery } from "@/lib/orpc-tanstack-query";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
+import {
+    useFieldArray,
+    useForm,
+    type Path,
+} from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
 
-interface SocialData {
-    _id?: string;
-    instagram: string;
-    x: string;
-    fb: string;
-    linkdln: string;
-    phone: string[];
-    mail: string;
-    location: string;
-}
+/**
+ * Form Validation Schema
+ *
+ * Matches backend ORPC validation with additional client-side rules
+ */
+const socialFormSchema = z
+    .object({
+        instagram: z.string(),
+        x: z.string(),
+        fb: z.string(),
+        linkdln: z.string(),
+        phone: z
+            .array(z.string())
+            .min(1, "At least one phone number is required"),
+        mail: z.email("Must be a valid email"),
+        location: z.string().min(1, "Location is required"),
+    })
+    .refine((data) => data.instagram || data.x || data.fb || data.linkdln, {
+        message: "At least one social media link is required",
+        path: ["instagram"],
+    });
 
-const initialState: SocialData = {
-    instagram: "https://www.instagram.com/",
-    x: "https://x.com/",
-    fb: "https://www.facebook.com/",
-    linkdln: "https://www.linkedin.com/",
-    phone: [],
-    mail: "",
-    location: "",
-};
+type SocialFormData = z.infer<typeof socialFormSchema>;
+
+// Uses shared <FormInputField /> for all inputs
 
 export default function SocialAdminPage() {
-    const [data, setData] = useState<SocialData>(initialState);
-    const [loading, setLoading] = useState(true);
-    const [submitting, setSubmitting] = useState(false);
-    const [errors, setErrors] = useState<Record<string, string>>({});
+    const queryClient = useQueryClient();
 
+    // Fetch social settings with TanStack Query
+    const { data: social, isLoading } = useQuery(
+        orpcQuery.social.get.queryOptions(),
+    );
+
+    // Initialize react-hook-form with Zod validation
+    const {
+        register,
+        handleSubmit,
+        control,
+        formState: { errors, isSubmitting },
+        reset,
+    } = useForm<SocialFormData>({
+        // @ts-expect-error - Zod 4.x type compatibility issue with @hookform/resolvers
+        resolver: zodResolver(socialFormSchema),
+        defaultValues: {
+            instagram: "https://www.instagram.com/",
+            x: "https://x.com/",
+            fb: "https://www.facebook.com/",
+            linkdln: "https://www.linkedin.com/",
+            phone: [],
+            mail: "",
+            location: "",
+        },
+    });
+
+    // Dynamic phone array management
+    const { fields, append, remove } = useFieldArray({
+        control,
+        // @ts-expect-error - react-hook-form array field type inference issue
+        name: "phone",
+    });
+
+    // Update form when social data is loaded
     useEffect(() => {
-        (async () => {
-            try {
-                setLoading(true);
-                const res = await Axios.get("/api/social");
-                if (res.data?.success && Array.isArray(res.data.social) && res.data.social.length > 0) {
-                    const s = res.data.social[0];
-                    // normalize phone: backend may store as string "a,b" or single string or array
-                    let phones: string[] = initialState.phone;
-                    if (Array.isArray(s.phone)) phones = s.phone;
-                    else if (typeof s.phone === 'string' && s.phone.trim()) phones = s.phone.split(',').map((p: string) => p.trim());
-
-                    setData({
-                        _id: s._id,
-                        instagram: s.instagram || initialState.instagram,
-                        x: s.x || initialState.x,
-                        fb: s.fb || initialState.fb,
-                        linkdln: s.linkdln || initialState.linkdln,
-                        phone: phones,
-                        mail: s.mail || initialState.mail,
-                        location: s.location || initialState.location,
-                    });
-                }
-            } catch (err) {
-                console.error("Failed to fetch social data", err);
-                toast.error("Failed to load social settings");
-            } finally {
-                setLoading(false);
-            }
-        })();
-    }, []);
-
-    const handleChange = (k: keyof SocialData, v: string) => {
-        setData((prev) => ({ ...prev, [k]: v }));
-        if (errors[k]) setErrors((e) => ({ ...e, [k]: '' }));
-    };
-
-    const validate = () => {
-        const e: Record<string, string> = {};
-        // require at least one social url
-        if (!data.instagram?.trim() && !data.x?.trim() && !data.fb?.trim() && !data.linkdln?.trim()) {
-            e.instagram = 'Provide at least one social link';
+        if (social) {
+            reset({
+                instagram: social.instagram || "https://www.instagram.com/",
+                x: social.x || "https://x.com/",
+                fb: social.fb || "https://www.facebook.com/",
+                linkdln: social.linkdln || "https://www.linkedin.com/",
+                phone:
+                    social.phone && social.phone.length > 0 ? social.phone : [],
+                mail: social.mail || "",
+                location: social.location || "",
+            });
         }
-        // phone: require at least one non-empty phone
-        const phonesClean = (data.phone || []).filter(Boolean).map(p => String(p).trim());
-        if (phonesClean.length === 0) e.phone = 'At least one phone number is required';
-        // basic email check
-        if (!data.mail || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(data.mail)) e.mail = 'Enter a valid email';
-        if (!data.location || !data.location.trim()) e.location = 'Location is required';
-        setErrors(e);
-        return Object.keys(e).length === 0;
-    };
+    }, [social, reset]);
 
-    const handleSubmit = async (e?: React.FormEvent) => {
-        if (e) e.preventDefault();
-        setSubmitting(true);
-        try {
-            if (!validate()) {
-                toast.error('All field are required.');
-                setSubmitting(false);
-                return;
-            }
-
-            // prepare payload: backend expects phone as a string; join multiple phones by comma
-            const payload = {
-                instagram: data.instagram,
-                x: data.x,
-                fb: data.fb,
-                linkdln: data.linkdln,
-                phone: (data.phone || []).filter(Boolean).map(p => String(p).trim()).join(','),
-                mail: data.mail,
-                location: data.location,
+    // Create or update mutation
+    const createOrUpdateMutation = useMutation({
+        mutationFn: async (input: SocialFormData) => {
+            // Clean up phone numbers before submission
+            const cleanedInput = {
+                ...input,
+                phone: input.phone.filter(Boolean).map((p) => p.trim()),
             };
+            return await orpc.social.createOrUpdate(cleanedInput);
+        },
+        onSuccess: () => {
+            toast.success("Social settings saved successfully");
+            queryClient.invalidateQueries({ queryKey: ["social", "get"] });
+        },
+        onError: (error: unknown) => {
+            const errorMessage =
+                error instanceof Error
+                    ? error.message
+                    : "Failed to save social settings";
+            toast.error(errorMessage);
+        },
+    });
 
-            if (data._id) {
-                const res = await Axios.patch(`/api/social/${data._id}`, payload);
-                if (res.data.success) {
-                    toast.success("Social settings updated");
-                } else {
-                    toast.error("Failed to update social settings");
-                }
-            } else {
-                const res = await Axios.post(`/api/social`, payload);
-                if (res.data.success) {
-                    toast.success("Social settings created");
-                    if (res.data.data?._id) setData((d) => ({ ...d, _id: res.data.data._id }));
-                } else {
-                    toast.error("Failed to save social settings");
-                }
-            }
-        } catch (err: unknown) {
-            console.error("Save error", err);
-            const msg = 'Failed to save social settings';
-            toast.error(msg);
-        } finally {
-            setSubmitting(false);
-        }
-    }
+    // Form submission handler
+    const onSubmit = (data: SocialFormData) => {
+        createOrUpdateMutation.mutate(data);
+    };
 
     return (
-        <div className="max-w-3xl mx-auto space-y-6 p-6">
+        <div className="mx-auto max-w-3xl space-y-6 p-6">
             <PageHeader
                 title="Social Settings"
                 description="Manage social links and contact info for the site footer."
             />
-            <form onSubmit={handleSubmit} className="space-y-4 bg-muted-background rounded border border-gray-700 p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <label className="flex flex-col">
-                        <span className="text-sm text-foreground/70">Instagram URL</span>
-                        <input value={data.instagram} onChange={(e) => handleChange("instagram", e.target.value)} className="mt-1 rounded px-3 py-2 bg-background2 border border-gray-600" />
-                        {errors.instagram && <p className="text-red-500 text-sm mt-1">{errors.instagram}</p>}
-                    </label>
-
-                    <label className="flex flex-col">
-                        <span className="text-sm text-foreground/70">X (Twitter) URL</span>
-                        <input value={data.x} onChange={(e) => handleChange("x", e.target.value)} className="mt-1 rounded px-3 py-2 bg-background2 border border-gray-600" />
-                        {errors.x && <p className="text-red-500 text-sm mt-1">{errors.x}</p>}
-                    </label>
-
-                    <label className="flex flex-col">
-                        <span className="text-sm text-foreground/70">Facebook URL</span>
-                        <input value={data.fb} onChange={(e) => handleChange("fb", e.target.value)} className="mt-1 rounded px-3 py-2 bg-background2 border border-gray-600" />
-                        {errors.fb && <p className="text-red-500 text-sm mt-1">{errors.fb}</p>}
-                    </label>
-
-                    <label className="flex flex-col">
-                        <span className="text-sm text-foreground/70">LinkedIn URL</span>
-                        <input value={data.linkdln} onChange={(e) => handleChange("linkdln", e.target.value)} className="mt-1 rounded px-3 py-2 bg-background2 border border-gray-600" />
-                        {errors.linkdln && <p className="text-red-500 text-sm mt-1">{errors.linkdln}</p>}
-                    </label>
-
-                    <label className="flex flex-col">
-                        <span className="text-sm text-foreground/70">Phone Numbers</span>
-                        {data.phone.map((p, i) => (
-                            <div key={i} className="flex gap-2 mt-1">
-                                <input
-                                    type="tel"
-                                    inputMode="numeric"
-                                    pattern="[0-9]{10}"
-                                    title="Phone number must be exactly 10 digits"
-                                    value={p}
-                                    onChange={(e) => {
-                                        const newPhones = [...data.phone];
-                                        newPhones[i] = e.target.value;
-                                        setData((prev) => ({ ...prev, phone: newPhones }));
-                                    }}
-                                    className="flex-1 rounded px-3 py-2 bg-background2 border border-gray-600"
-                                />
-                                <Button
-                                    type="button"
-                                    variant="destructive"
-                                    onClick={() => {
-                                        setData((prev) => ({
-                                            ...prev,
-                                            phone: prev.phone.filter((_, idx) => idx !== i),
-                                        }));
-                                    }}
-                                >
-                                    Remove
-                                </Button>
-                            </div>
-                        ))}
-                        <Button
-                            type="button"
-                            variant="secondary"
-                            className="mt-2"
-                            onClick={() => setData((prev) => ({ ...prev, phone: [...prev.phone, ""] }))}
-                        >
-                            + Add Phone
-                        </Button>
-                        {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
-                    </label>
-
-                    <label className="flex flex-col">
-                        <span className="text-sm text-foreground/70">Email</span>
-                        <input type="email" value={data.mail} onChange={(e) => handleChange("mail", e.target.value)} className="mt-1 rounded px-3 py-2 bg-background2 border border-gray-600" />
-                        {errors.mail && <p className="text-red-500 text-sm mt-1">{errors.mail}</p>}
-                    </label>
-
-                    <label className="md:col-span-2 flex flex-col">
-                        <span className="text-sm text-foreground/70">Location</span>
-                        <input value={data.location} onChange={(e) => handleChange("location", e.target.value)} className="mt-1 rounded px-3 py-2 bg-background2 border border-gray-600" />
-                        {errors.location && <p className="text-red-500 text-sm mt-1">{errors.location}</p>}
-                    </label>
+            <form
+                onSubmit={handleSubmit(onSubmit)}
+                className="bg-muted-background space-y-4 rounded border border-gray-700 p-6"
+            >
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <FormInputField
+                        label="Instagram URL"
+                        name="instagram"
+                        register={register}
+                        error={errors.instagram}
+                        placeholder="https://www.instagram.com/"
+                    />
+                    <FormInputField
+                        label="X (Twitter) URL"
+                        name="x"
+                        register={register}
+                        error={errors.x}
+                        placeholder="https://x.com/"
+                    />
+                    <FormInputField
+                        label="Facebook URL"
+                        name="fb"
+                        register={register}
+                        error={errors.fb}
+                        placeholder="https://www.facebook.com/"
+                    />
+                    <FormInputField
+                        label="LinkedIn URL"
+                        name="linkdln"
+                        register={register}
+                        error={errors.linkdln}
+                        placeholder="https://www.linkedin.com/"
+                    />
+                    <div className="flex flex-col md:col-span-2">
+                        <span className="text-foreground/70 text-sm">
+                            Phone Numbers
+                        </span>
+                        <div className="mt-1 space-y-2">
+                            {fields.map((field, index) => {
+                                const phoneFieldName = `phone.${index}` as Path<SocialFormData>;
+                                return (
+                                    <div key={field.id} className="flex gap-2">
+                                        <FormInputField
+                                            label={`Phone number ${index + 1}`}
+                                            name={phoneFieldName}
+                                            register={register}
+                                            type="tel"
+                                            inputMode="numeric"
+                                            placeholder="Enter phone number"
+                                            containerClassName="flex-1"
+                                            labelHidden
+                                        />
+                                        <Button
+                                            type="button"
+                                            variant="destructive"
+                                            onClick={() => remove(index)}
+                                        >
+                                            Remove
+                                        </Button>
+                                    </div>
+                                );
+                            })}
+                            {errors.phone && (
+                                <p className="text-sm text-red-500">
+                                    {errors.phone.message}
+                                </p>
+                            )}
+                            <Button
+                                type="button"
+                                variant="secondary"
+                                onClick={() => append("")}
+                                className="mt-2"
+                            >
+                                + Add Phone
+                            </Button>
+                        </div>
+                    </div>
+                    <FormInputField
+                        label="Email"
+                        name="mail"
+                        register={register}
+                        error={errors.mail}
+                        type="email"
+                        placeholder="hello@nextmodelsnepal.com"
+                    />
+                    <FormInputField
+                        label="Location"
+                        name="location"
+                        register={register}
+                        error={errors.location}
+                        containerClassName="md:col-span-2"
+                        placeholder="Kathmandu, Nepal"
+                    />
                 </div>
 
-
                 <div className="flex items-center justify-end">
-                    <Button type="submit" disabled={submitting || loading}>
-                        {submitting ? "Saving..." : "Save"}
+                    <Button
+                        type="submit"
+                        disabled={
+                            isSubmitting ||
+                            isLoading ||
+                            createOrUpdateMutation.isPending
+                        }
+                    >
+                        {isSubmitting || createOrUpdateMutation.isPending
+                            ? "Saving..."
+                            : "Save"}
                     </Button>
                 </div>
             </form>

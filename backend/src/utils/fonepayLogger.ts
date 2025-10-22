@@ -1,4 +1,4 @@
-import { FonepayLogModel } from '../models/fonepayLog.model';
+import { FonepayLogModel } from '../models/fonepayLog.model.js';
 
 interface LogFonepayResponseParams {
   prn: string;

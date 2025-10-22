@@ -3,8 +3,8 @@ import {
   getVotingState,
   createVotingState,
   getAllNavInfo
-} from "../controllers/nav.controller";
-import { verifyAdminToken } from "../middleware/auth.middleware";
+} from '../controllers/nav.controller.js';
+import { verifyAdminToken } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
 

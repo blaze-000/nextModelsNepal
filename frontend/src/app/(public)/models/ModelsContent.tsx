@@ -1,15 +1,14 @@
 "use client";
 import HireModelForm from "@/components/hire-model-form";
-import Image from "next/image";
-import { motion } from "framer-motion";
 import ModelGrid from "@/components/molecules/model-grid";
-import { useEffect, useState } from "react";
-import type React from "react";
 import Axios from "@/lib/axios-instance";
+import { motion } from "framer-motion";
+import Image from "next/image";
+import { useEffect, useState } from "react";
 
-import { useSearchParams } from "next/navigation";
 import SmoothLink from "@/components/ui/SmoothLink";
 import { Button } from "@/components/ui/button";
+import { useSearchParams } from "next/navigation";
 
 export default function ModelsContent() {
   const [femaleModels, setFemaleModels] = useState<Model[]>([]);
@@ -36,7 +35,7 @@ export default function ModelsContent() {
         transition={{ duration: 0.6 }}
         viewport={{ once: true, amount: 0.6 }}
         className="h-[40vh] md:h-[60vh] xl:h-[80vh] bg-black bg-cover bg-center relative"
-        style={{ backgroundImage: "url('/events_1.jpg')" }}
+        style={{ backgroundImage: "url('/contact-us-cover.jpg')" }}
       >
         {/* Gradient mask */}
         <div className="hidden md:flex absolute inset-0 bg-gradient-to-r from-black via-black/80 to-black/20" />

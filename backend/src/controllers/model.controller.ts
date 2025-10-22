@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
-import { Model } from "../models/model.model";
+import { Model } from '../models/model.model.js';
 import fs from "fs";
 import path from "path";
-import { createModelSchema } from "../validations/model.validation";
+import { createModelSchema } from '../validations/model.validation.js';
 
 // Helper function to delete image files
 const deleteImageFiles = (imagePaths: string[]) => {

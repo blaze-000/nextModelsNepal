@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { SponsorModel, SeasonModel } from "../models/events.model";
-import { createSponsorSchema, updateSponsorSchema } from "../validations/sponsor.validation";
+import { SponsorModel, SeasonModel } from '../models/events.model.js';
+import { createSponsorSchema, updateSponsorSchema } from '../validations/sponsor.validation.js';
 import mongoose from "mongoose";
 import fs from "fs";
 import path from "path";

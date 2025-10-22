@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { PartnersModel } from "../models/partners.model";
-import { createPartnersSchema, updatePartnersSchema } from "../validations/partners.validation";
+import { PartnersModel } from '../models/partners.model.js';
+import { createPartnersSchema, updatePartnersSchema } from '../validations/partners.validation.js';
 import fs from "fs";
 import path from "path";
 

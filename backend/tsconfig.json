@@ -1,11 +1,11 @@
 {
   "compilerOptions": {
-    "target": "ES2020", // Supports async/await, optional chaining, etc.
-    "module": "CommonJS", // Use CommonJS for Node backend
+    "target": "ES2022", // ES2022 required for .at() method and modern features
+    "module": "ESNext", // ESM output (ORPC is ESM-only)
     "lib": [
-      "ES2020"
-    ], // Include modern JS features
-    "moduleResolution": "node", // Resolve node-style modules
+      "ES2022"
+    ], // ES2022 lib required for .at() method
+    "moduleResolution": "Bundler", // Bundler resolution for ORPC (works with ESM)
     "esModuleInterop": true, // ✅ Allow default import of CommonJS modules (e.g., jwt)
     "allowSyntheticDefaultImports": true, // Allow default-style imports without breaking
     "resolveJsonModule": true, // Enable importing JSON config files

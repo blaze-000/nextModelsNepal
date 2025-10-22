@@ -1,8 +1,8 @@
 import nodemailer from "nodemailer";
 import { Request, Response } from "express";
 
-import { ContactModel } from "../models/contact.model";
-import { contactFormSchema } from "../validations/contact.validation";
+import { ContactModel } from '../models/contact.model.js';
+import { contactFormSchema } from '../validations/contact.validation.js';
 
 //  Create contact: Save to DB and notify via email
 export const createContact = async (req: Request, res: Response) => {

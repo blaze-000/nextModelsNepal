@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
-import { SeasonModel, EventModel } from "../models/events.model";
+import { SeasonModel, EventModel } from '../models/events.model.js';
 import {
   createSeasonSchema,
   updateSeasonSchema,
-} from "../validations/season.validation";
+} from '../validations/season.validation.js';
 import mongoose from "mongoose";
 import fs from "fs";
 import path from "path";

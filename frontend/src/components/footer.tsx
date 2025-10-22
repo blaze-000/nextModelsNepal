@@ -4,49 +4,14 @@ import type { ReactNode } from "react";
 import { motion } from "framer-motion";
 import NewsLetterBox from "./molecules/newsleterbox";
 import Link from "next/link";
-import Axios from "@/lib/axios-instance";
-import { useState, useEffect } from "react";
-
-interface SocialData {
-  _id: string;
-  instagram: string;
-  x: string;
-  fb: string;
-  linkdln: string;
-  phone: string[];
-  mail: string;
-  location: string;
-  __v: number;
-}
-
-interface SocialApiResponse {
-  success: boolean;
-  social: SocialData[];
-}
+import { useQuery } from "@tanstack/react-query";
+import { orpcQuery } from "@/lib/orpc-tanstack-query";
 
 const Footer = ({ events }: { events: NavEventType[] }): ReactNode => {
-  const [socialData, setSocialData] = useState<SocialData | null>(null);
-  // const [events, setEvents] = useState<NavEvent[]>([]);
-  const [loading, setLoading] = useState(true);
-  // const [error, setError] = useState<string | null>(null);
   const currentYear: number = new Date().getFullYear();
-
-  useEffect(() => {
-    const fetchSocialData = async () => {
-      try {
-        const response = await Axios.get<SocialApiResponse>("/api/social");
-        if (response.data.success && response.data.social.length > 0) {
-          setSocialData(response.data.social[0]);
-        }
-      } catch (err) {
-        console.error("Error fetching social data:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchSocialData();
-  }, []);
+  
+  // Fetch social data with TanStack Query
+  const { data: socialData, isLoading: loading } = useQuery(orpcQuery.social.get.queryOptions());
 
   const quickLinks = [
     { label: "Home", href: "/" },

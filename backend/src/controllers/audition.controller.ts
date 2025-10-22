@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { AuditionModel, SeasonModel } from "../models/events.model";
-import { createAuditionSchema, updateAuditionSchema } from "../validations/audition.validation";
+import { AuditionModel, SeasonModel } from '../models/events.model.js';
+import { createAuditionSchema, updateAuditionSchema } from '../validations/audition.validation.js';
 import mongoose from "mongoose";
 
 /**

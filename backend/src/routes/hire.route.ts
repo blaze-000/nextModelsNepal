@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { createHire, deleteHiredModelById, getAllHires, getHireById } from "../controllers/hire.controller";
-import { hireLimiter } from "../middleware/rateLimiters";
-import { verifyAdminToken } from "../middleware/auth.middleware";
+import { createHire, deleteHiredModelById, getAllHires, getHireById } from '../controllers/hire.controller.js';
+import { hireLimiter } from '../middleware/rateLimiters.js';
+import { verifyAdminToken } from '../middleware/auth.middleware.js';
 
 
 const router = Router();

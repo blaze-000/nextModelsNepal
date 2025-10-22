@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { JuryModel, SeasonModel } from "../models/events.model";
-import { createJurySchema, updateJurySchema } from "../validations/jury.validation";
+import { JuryModel, SeasonModel } from '../models/events.model.js';
+import { createJurySchema, updateJurySchema } from '../validations/jury.validation.js';
 import mongoose from "mongoose";
 import fs from "fs";
 import path from "path";

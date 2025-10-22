@@ -1,9 +1,9 @@
 
 import nodemailer from "nodemailer";
 import { Request, Response } from "express";
-import { HireModel } from "../models/hireModel.model";
-import { hireFormSchema, replySchema } from "../validations/hire.validation";
-import { Model } from "../models/model.model";
+import { HireModel } from '../models/hireModel.model.js';
+import { hireFormSchema, replySchema } from '../validations/hire.validation.js';
+import { Model } from '../models/model.model.js';
 
 export const createHire = async (req: Request, res: Response) => {
     try {

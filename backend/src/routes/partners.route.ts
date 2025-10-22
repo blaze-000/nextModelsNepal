@@ -5,9 +5,9 @@ import {
     getPartnerById,
     getPartners,
     updatePartnerById
-} from "../controllers/partners.controller";
-import upload from "../middleware/upload";
-import { verifyAdminToken } from "../middleware/auth.middleware";
+} from '../controllers/partners.controller.js';
+import upload, { processImages } from '../middleware/upload.js';
+import { verifyAdminToken } from '../middleware/auth.middleware.js';
 
 const router = Router();
 

@@ -1,65 +1,62 @@
 import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { AdminModel } from "../models/admin.model";
-import { signupSchema } from "../validations/auth.validations";
-import { changePasswordSchema } from "../validations/auth.validations";
+import { AdminModel } from '../models/admin.model.js';
+import { signupSchema } from '../validations/auth.validations.js';
+import { changePasswordSchema } from '../validations/auth.validations.js';
+import { AuthService, AuthServiceError } from '../services/auth.service.js';
 
 export const login = async (req: Request, res: Response) => {
 
     try {
         const { email, password } = req.body;
 
-        // Check if email and password are provided
-        if (!email || !password) {
-            return res.status(400).json({ message: "Email and password are required" });
-        }
-
-        const admin = await AdminModel.findOne({ email });
-        if (!admin) return res.status(401).json({ message: "Invalid credentials" });
-        // Production: Admin existence check
-
-        // Check if admin has a password stored
-        if (!admin.password) {
-            return res.status(500).json({ message: "Admin account error" });
-        }
-
-        const valid = await bcrypt.compare(password, admin.password);
-        if (!valid) return res.status(401).json({ message: "Invalid credentials" });
-
-        const payload = {
-            role: "admin",
-            email: admin.email
-        };
-
-        const token = jwt.sign(payload, process.env.JWT_SECRET as string, {
-            expiresIn: "7d"
-        });
-
-        // 1️⃣ Secure httpOnly token cookie for backend auth
-        res.cookie("token", token, {
-            httpOnly: true,
-            secure: process.env.PRODUCTION === "TRUE",
-            sameSite: process.env.PRODUCTION === "TRUE" ? 'none' : 'strict',
-            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-        });
-
-        // 2️⃣ cookie for frontend route protection
-        res.cookie(
-            "session",
-            encodeURIComponent(JSON.stringify(payload)),
-            {
-                httpOnly: false,
-                path: '/',
-                secure: process.env.PRODUCTION === "TRUE",
-                sameSite: process.env.PRODUCTION === "TRUE" ? 'none' : 'strict',
-                maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-            }
-        );
+        const result = await AuthService.authenticateAdmin(email, password);
+        AuthService.setAuthCookies(res, result);
 
         return res.json({ message: "Login successful" });
     } catch (err) {
+        if (err instanceof AuthServiceError) {
+            return res.status(err.statusCode).json({ message: err.message });
+        }
         console.error(err);
+        return res.status(500).json({ message: "Server error" });
+    }
+};
+
+export const verify = async (req: Request, res: Response) => {
+    try {
+        const token = req.cookies.token;
+
+        if (!token) {
+            return res.status(401).json({ message: "No token found" });
+        }
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as {
+            role: string;
+            email: string;
+        };
+
+        // Verify admin still exists in database
+        const admin = await AdminModel.findOne({ email: decoded.email });
+        if (!admin) {
+            return res.status(401).json({ message: "Admin not found" });
+        }
+
+        return res.json({
+            user: {
+                role: decoded.role,
+                email: decoded.email
+            }
+        });
+    } catch (err) {
+        if (err instanceof jwt.JsonWebTokenError) {
+            return res.status(401).json({ message: "Invalid token" });
+        }
+        if (err instanceof jwt.TokenExpiredError) {
+            return res.status(401).json({ message: "Token expired" });
+        }
+        console.error("Auth verification error:", err);
         return res.status(500).json({ message: "Server error" });
     }
 };

@@ -1,5 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express';
 import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 import multer from 'multer';
 import helmet from 'helmet';
 import cors from 'cors';
@@ -7,7 +9,11 @@ import compression from 'compression';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 
-import './config/eventStatusUpdater';
+import './config/eventStatusUpdater.js';
+
+// ESM equivalent of __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || '').split(',').map(s => s.trim()).filter(Boolean);
@@ -35,6 +41,7 @@ import paymentRoutes from "./routes/payment.route";
 import socialRoute from "./routes/social.route";
 import dashboardRoutes from "./routes/dashboard.route";
 import { metricsHandler } from './utils/metrics';
+import { orpcExpressHandler } from './api/handler';
 
 const app = express();
 
@@ -57,6 +64,10 @@ const corsOptions: SimpleCorsOptions = {
   credentials: true,
 };
 app.use(cors(corsOptions));
+
+app.use('/api/rpc', (req, res, next) => {
+  void orpcExpressHandler(req, res, next);
+});
 app.use(compression());
 app.use(morgan(NODE_ENV === 'production' ? 'combined' : 'dev'));
 app.use(express.json({ limit: '1mb' }));

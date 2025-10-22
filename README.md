@@ -161,7 +161,7 @@ pnpm lint             # Run ESLint
 - MongoDB with Mongoose
 - JWT Authentication
 - Nodemailer
-- Multer (File uploads)
+- Multer + Sharp (File uploads with automatic image compression & WebP conversion)
 - Helmet & CORS (Security)
 
 ## Database Setup

@@ -1,7 +1,7 @@
 import { Router } from "express";
-import * as criteriaController from "../controllers/criteria.controller";
-import upload from "../middleware/upload"; // Import multer middleware
-import { verifyAdminToken } from "../middleware/auth.middleware";
+import * as criteriaController from '../controllers/criteria.controller.js';
+import upload, { processImages } from '../middleware/upload.js'; // Import multer middleware
+import { verifyAdminToken } from '../middleware/auth.middleware.js';
 const router = Router();
 
 // Create criteria with icon upload

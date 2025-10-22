@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { EventModel } from "../models/events.model";
-import { createEventSchema, updateEventSchema } from "../validations/event.validation";
+import { EventModel } from '../models/events.model.js';
+import { createEventSchema, updateEventSchema } from '../validations/event.validation.js';
 import mongoose from "mongoose";
 import fs from "fs";
 import path from "path";

@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { NewsModel } from "../models/news.model";
-import { createNewsSchema, updateNewsSchema } from "../validations/news.validation";
+import { NewsModel } from '../models/news.model.js';
+import { createNewsSchema, updateNewsSchema } from '../validations/news.validation.js';
 import fs from "fs";
 import path from "path";
 

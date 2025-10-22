@@ -1,9 +1,9 @@
 import nodemailer from "nodemailer";
 
 import { Request, Response } from "express";
-import { AppModel } from "../models/appForm.model";
-import { appModelSchema } from "../validations/appForm.validation";
-import { EventModel, SeasonModel } from "../models/events.model";
+import { AppModel } from '../models/appForm.model.js';
+import { appModelSchema } from '../validations/appForm.validation.js';
+import { EventModel, SeasonModel } from '../models/events.model.js';
 import fs from 'fs/promises';
 import path from 'path';
 

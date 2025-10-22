@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { createAudition, getAllAuditions, getAuditionsBySeason, getAuditionById, updateAudition, deleteAudition } from "../controllers/audition.controller";
-import { verifyAdminToken } from "../middleware/auth.middleware";
+import { createAudition, getAllAuditions, getAuditionsBySeason, getAuditionById, updateAudition, deleteAudition } from '../controllers/audition.controller.js';
+import { verifyAdminToken } from '../middleware/auth.middleware.js';
 
 const router = Router();
 

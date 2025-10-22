@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { WinnerModel, SeasonModel } from "../models/events.model";
-import { createWinnerSchema, updateWinnerSchema } from "../validations/winner.validation";
+import { WinnerModel, SeasonModel } from '../models/events.model.js';
+import { createWinnerSchema, updateWinnerSchema } from '../validations/winner.validation.js';
 import mongoose from "mongoose";
 import fs from "fs";
 import path from "path";

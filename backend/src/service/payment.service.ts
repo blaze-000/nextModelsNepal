@@ -1,8 +1,8 @@
-import { fonepay } from "../config/payment.config";
-import { hmacSha512Hex, safeEqualHex } from "../utils/crypto";
-import { formatAmount, formatFonepayDate } from "../utils/format";
-import { http } from "../utils/http";
-import { FonepayRequestParams, TxnVerificationBody } from "../types/payment";
+import { fonepay } from '../config/payment.config.js';
+import { hmacSha512Hex, safeEqualHex } from '../utils/crypto.js';
+import { formatAmount, formatFonepayDate } from '../utils/format.js';
+import { http } from '../utils/http.js';
+import { FonepayRequestParams, TxnVerificationBody } from '../types/payment.js';
 
 
 export function buildPaymentRequest(params: {

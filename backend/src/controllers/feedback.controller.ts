@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { Feedback } from "../models/feedback.model";
+import { Feedback } from '../models/feedback.model.js';
 import fs from "fs";
 import path from "path";
 

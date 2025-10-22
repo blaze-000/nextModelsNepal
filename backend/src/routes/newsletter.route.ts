@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { createEmail, getEmailsList, deleteEmail, sendNewsletter, deleteNewsletter, getAllNewsletter, getSentNewsletters, deleteSentNewsletter } from "../controllers/newsletter.controller";
-import { verifyAdminToken } from "../middleware/auth.middleware";
-import upload from "../middleware/upload";
+import { createEmail, getEmailsList, deleteEmail, sendNewsletter, deleteNewsletter, getAllNewsletter, getSentNewsletters, deleteSentNewsletter } from '../controllers/newsletter.controller.js';
+import { verifyAdminToken } from '../middleware/auth.middleware.js';
+import upload, { processImages } from '../middleware/upload.js';
 
 const router = Router();
 

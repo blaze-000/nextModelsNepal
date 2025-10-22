@@ -1,6 +1,6 @@
-import { socialModel } from "../models/social.model";
+import { socialModel } from '../models/social.model.js';
 import { Request, Response } from "express";
-import { socialSchema, updateSocialSchema } from "../validations/social.validation";
+import { socialSchema, updateSocialSchema } from '../validations/social.validation.js';
 
 export const createSocial = async (req: Request, res: Response) => {
     try {

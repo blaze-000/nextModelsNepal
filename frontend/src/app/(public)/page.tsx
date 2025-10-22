@@ -8,13 +8,14 @@ import NewsSection from "@/components/home/newsAndCoverage";
 import ContactForm from "@/components/home/contact-form";
 import Testimonials from "@/components/home/testimonials";
 import OurPartners from "@/components/home/our-partners";
+import { getHeroLanding } from "./actions/hero";
 
-export default function Home() {
-
+export default async function Home() {
+  const heroLanding = await getHeroLanding();
 
   return (
     <main>
-      <HeroSection />
+      <HeroSection {...heroLanding} />
       <ValuesSection />
       <EventsSection />
       <UpcomingEventSection />
