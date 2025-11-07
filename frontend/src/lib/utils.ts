@@ -31,21 +31,17 @@ export function formatDate(date: string | Date): string {
 
 // Normalized image path with fallback
 export function normalizeImagePath(path?: string): string {
-  // ✅ If no path, return fallback
   if (!path) return "/default-fallback-image.png";
 
-  // Replace all backslashes with forward slashes
-  let fixed = path.replace(/\\/g, "/");
+  const sanitized = path.replace(/\\/g, "/");
 
-  // Ensure it starts with a slash
-  if (!fixed.startsWith("/")) {
-    fixed = "/" + fixed;
+  // Leave absolute URLs untouched (backend returns full URL sometimes)
+  if (sanitized.startsWith("http://") || sanitized.startsWith("https://")) {
+    return sanitized;
   }
 
-  // Prepend API URL and fix double slashes
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '') || 'http://localhost:8000';
-  const fullPath = `${baseUrl}${fixed}`;
-  
-  // Fix any double slashes except for protocol
-  return fullPath.replace(/([^:])\/{2,}/g, '$1/');
+  const normalizedPath = sanitized.startsWith("/") ? sanitized : `/${sanitized}`;
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "http://localhost:8000";
+
+  return `${baseUrl}${normalizedPath}`;
 }

@@ -10,6 +10,7 @@ import DataTable from "@/components/admin/DataTable";
 import ModelsPopup from "./model-popup";
 
 import Axios from "@/lib/axios-instance";
+import { normalizeImagePath } from "@/lib/utils";
 import { CompanyModel } from "@/types/admin";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -114,7 +115,9 @@ export default function ModelsPage() {
         render: (value: unknown) => (
           <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-800 rounded-lg overflow-hidden border  border-gray-700 flex-shrink-0">
             <Image
-              src={`http://localhost:8000${String(value)}`}
+              src={normalizeImagePath(
+                typeof value === "string" ? value : undefined
+              )}
               alt="Model photo"
               width={64}
               height={64}
