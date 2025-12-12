@@ -1,8 +1,4 @@
 # Dependencies
-package-lock.json
-package.json
-!*/package-lock.json
-!*/package.json
 node_modules/
 .pnp/
 .pnp.js

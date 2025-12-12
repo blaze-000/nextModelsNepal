@@ -1,0 +1,30 @@
+{
+    "name": "next-models-nepal-monorepo",
+    "version": "1.0.0",
+    "description": "Next Models Nepal - Monorepo with Frontend and Backend",
+    "private": true,
+    "scripts": {
+        "build": "pnpm run build:shared-types && pnpm run build:backend && pnpm run build:frontend",
+        "build:frontend": "pnpm --filter ./frontend run build",
+        "build:backend": "pnpm --filter ./backend run build",
+        "build:shared-types": "pnpm --filter @nextmodels/shared-types run build",
+        "start": "concurrently \"pnpm run start:backend\" \"pnpm run start:frontend\"",
+        "start:frontend": "pnpm --filter ./frontend run start",
+        "start:backend": "pnpm --filter ./backend run start",
+        "dev": "concurrently \"pnpm run dev:backend\" \"pnpm run dev:frontend\"",
+        "dev:frontend": "pnpm --filter ./frontend run dev",
+        "dev:backend": "pnpm --filter ./backend run dev",
+        "clean": "pnpm run clean:backend && pnpm run clean:frontend",
+        "clean:backend": "pnpm --filter ./backend run clean",
+        "clean:frontend": "rm -rf frontend/.next"
+    },
+    "devDependencies": {
+        "concurrently": "^8.2.2"
+    },
+    "dependencies": {
+        "@orpc/client": "^1.9.4",
+        "@orpc/openapi": "^1.9.4",
+        "@orpc/server": "^1.9.4",
+        "@orpc/tanstack-query": "^1.9.4"
+    }
+}
