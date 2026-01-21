@@ -4,7 +4,7 @@ interface EventCardProps {
   date: string,
   overview: string,
   coverImage: string,
-  state: "ongoing" | "ended",
+  state: "ongoing" | "ended" | "upcoming",
   timelinePosition?: "left" | "right" | false,
   manageBy?: "self" | "partner",
   getTicketLink?: string,
@@ -27,7 +27,7 @@ type EventType = {
   date: string,
   overview: string,
   coverImage: string,
-  state: "ongoing" | "ended",
+  state: "ongoing" | "ended" | "upcoming",
   manageBy: "self" | "partner",
   getTicketLink: string,
 
