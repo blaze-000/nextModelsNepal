@@ -14,14 +14,22 @@ const EventCard: FC<EventCardProps> = ({
   getTicketLink,
   manageBy = "self",
   timelinePosition = false,
+  useLocalImage = false,
+  aboutLink,
 }) => {
   const isTimelineLeft = timelinePosition === "left";
   const isContentLeft = isTimelineLeft;
 
+  // Use local image path directly, or normalize for backend images
+  const imageSrc = useLocalImage ? coverImage : normalizeImagePath(coverImage);
+  
+  // Use custom aboutLink if provided, otherwise generate from slug
+  const linkHref = aboutLink ?? (slug ? `/events/${slug}` : "#");
+
   const stateConfig = {
     bgColor: "bg-[#472F00]",
     textColor: "text-gold-500",
-    label: state === "ongoing" ? "Ongoing" : `Ended`,
+    label: state === "ongoing" ? "Ongoing" : state === "upcoming" ? "Upcoming" : `Ended`,
   };
 
   return (
@@ -45,7 +53,7 @@ const EventCard: FC<EventCardProps> = ({
         <div className="lg:hidden">
           <div className="relative h-48 [mask:linear-gradient(to_top,transparent_0%,black_20%)]">
             <Image
-              src={normalizeImagePath(coverImage)}
+              src={imageSrc}
               alt={title}
               fill
               className="w-full h-full object-cover object-center group-hover:scale-102 transition-transform duration-300"
@@ -83,7 +91,7 @@ const EventCard: FC<EventCardProps> = ({
                 </Link>
               )}
               {slug && (
-                <Link href={`/events/${slug}`}
+                <Link href={linkHref}
                   className="px-4 py-4 rounded-full text-gold-500 text-base font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer"
 
                 >
@@ -121,7 +129,7 @@ const EventCard: FC<EventCardProps> = ({
                 </Button>
               )}
               {slug && (
-                <Link href={`/events/${slug}`}
+                <Link href={linkHref}
                   className="px-4 py-4 rounded-full text-gold-500 text-base font-semibold group hover:text-white transition-colors flex items-center gap-1 cursor-pointer"
 
                 >
@@ -141,7 +149,7 @@ const EventCard: FC<EventCardProps> = ({
               }`}
           >
             <Image
-              src={normalizeImagePath(coverImage)}
+              src={imageSrc}
               alt={title}
               fill
               className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300"

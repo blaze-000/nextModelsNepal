@@ -7,7 +7,9 @@ interface EventCardProps {
   state: "ongoing" | "ended",
   timelinePosition?: "left" | "right" | false,
   manageBy?: "self" | "partner",
-  getTicketLink?: string
+  getTicketLink?: string,
+  useLocalImage?: boolean,
+  aboutLink?: string,
 }
 
 type ImageBoxProps = {
@@ -169,8 +171,10 @@ type TimelineEvent = {
   overview: string,
   coverImage: string,
   managedBy: "self" | "partner",
+  useLocalImage?: boolean,
+  aboutLink?: string,
   season: {
-    status: "ongoing" | "ended",
+    status: "ongoing" | "ended" | "upcoming",
     startDate: string,
     endDate: string,
     getTicketLink?: string,
